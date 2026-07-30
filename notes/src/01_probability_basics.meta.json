@@ -1,0 +1,7 @@
+{
+  "title": "G1 · Probability Fundamentals",
+  "subtitle": "Models, axioms, conditioning, Bayes' rule, independence, and counting — MIT 6.041 Lectures 1–4, Recitations 1–4",
+  "prev": null,
+  "next": ["02_discrete_rvs.html", "G2 · Discrete Random Variables"],
+  "sources": "MIT 6.041/6.431 F10 L01–L04 slide handouts, recitations 1–4 (+ official solutions), Bertsekas–Tsitsiklis chs. 1"
+}

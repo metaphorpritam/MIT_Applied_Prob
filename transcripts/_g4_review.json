@@ -1,0 +1,192 @@
+[
+ {
+  "section": 1,
+  "severity": "major",
+  "description": "\u00a71.5, Example 1.12 (rec12 P2), part (a), the parenthetical immediately after the [SOLUTION GAP] fill (fragment g4_s1.html line 454): \"the antiderivative is $1+\\frac{e^{-\\lambda z}}{2}e^{-2\\lambda y}$ evaluated between $y=0$ and $y=\\infty$, giving $(1+0)-(0+\\frac{e^{-\\lambda z}}{2})$\". This evaluation is arithmetically incoherent: the stated expression at $y=0$ equals $1+e^{-\\lambda z}/2$, not $0+e^{-\\lambda z}/2$, so the printed bracket would give $-e^{-\\lambda z}/2$, not $1-\\tfrac12 e^{-\\lambda z}$. The hedge \"once the constant of the first piece is included\" does not repair it. The genuine antiderivative of $\\lambda e^{-\\lambda y}-\\lambda e^{-\\lambda z}e^{-2\\lambda y}$ is $-e^{-\\lambda y}+\\tfrac{e^{-\\lambda z}}{2}e^{-2\\lambda y}$, whose evaluation $[\\,]_0^\\infty$ is $0-(-1+\\tfrac{e^{-\\lambda z}}{2})=1-\\tfrac12 e^{-\\lambda z}$. Correct fix: say plainly that the source's printed \"1\" is not a constant of integration but the already-evaluated value of $\\int_0^\\infty\\lambda e^{-\\lambda y}dy=1$, and give the true antiderivative with its two limits."
+ },
+ {
+  "section": 2,
+  "severity": "major",
+  "description": "\u00a72.1 duplicates \u00a71 wholesale with no cross-reference. Example 2.2 (rec13 P2) re-derives the two-break stick from scratch \u2014 $\\mathbb{E}[X\\mid Y]=Y/2$, $\\mathbb{E}[X]=\\ell/4$, $\\operatorname{var}(\\mathbb{E}[X\\mid Y])=\\ell^2/48$, $\\mathbb{E}[\\operatorname{var}(X\\mid Y)]=\\ell^2/36$, $\\operatorname{var}(X)=7\\ell^2/144$ \u2014 which \u00a71 already does in full in Example 1.2, Example 1.4 and Example 1.9 (same numbers, same steps, same B&T Example 4.17 citation). Practice 2.1 is likewise a verbatim repeat of Practice 1.6 (third break, $\\ell/8$ and $37\\ell^2/1728$), even down to the same 'independent check' via $X=\\ell U_1U_2U_3$. Neither \u00a72 item acknowledges the \u00a71 treatment, and the two are backed by different compute scripts producing different MC values (g4_s1.json stick_varX_mc=0.048538 / pr4_varX3_mc=0.021353 vs g4_s2.json stick2_mc_var=0.048662 / stick3_mc_var=0.021422), so a reader meeting them twice sees inconsistent-looking simulation figures. Example 2.2 should be reduced to the rec13-specific framing plus a pointer to \u00a71.4/\u00a71.9 (or \u00a71 should defer to \u00a72), and Practice 2.1 should be dropped or cross-referenced to Practice 1.6."
+ },
+ {
+  "section": 0,
+  "severity": "major",
+  "description": "The \u00a70 srcref line understates the sources actually used, in three of its four lecture entries. It declares 'L12 slides 1\u20135 \u00b7 L13 slides 1\u20136 \u00b7 L14 slides 1, 4, 7 \u00b7 L15 slides 1\u20132', but the body cites L12 slide 6 (\u00a70.1 closing sentence, 'the unfinished two-piece-density example of L12 slide 6') and L12 slides 7\u20138 (three times: the random-sum paragraph, the capital/lowercase Gotcha, the Fig. 0.1 caption and the \u00a72 roadmap bullet); L14 slides 3\u20136 (Table 0.1's own figcap says so explicitly, and the Counts bullet cites 'L14 slide 5'); and L15 slide 3 (the Interarrival-times bullet, 'the L15 slide 3 fishing rate'). Per the style contract the srcref is the section-level source declaration; it must read at least L12 slides 1\u20138, L14 slides 1, 3\u20137, L15 slides 1\u20133."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Two forward cross-references in \u00a72 point at the wrong section. (a) \u00a72.2, Example 2.5 closing paragraph: 'a fixed number ($n\\ge2$) of exponentials is not [exponential] (it is Erlang, which \u00a74 will build)' \u2014 the Erlang is derived in \u00a73.4 ('3.4 The $k$th arrival time: the Erlang distribution', g4_s3.html line 526), not \u00a74. (b) \u00a72.5, Practice 2.8 solution: 'the discrete ancestor of the Poisson-process duality of \u00a74, where $\\mathbf{P}(Y_k>t)=\\mathbf{P}(N_t\\le k-1)$' \u2014 that identity is stated and used in \u00a73 (g4_s3.html line 705, '$\\{Y_k>y\\}=\\{N_y\\le k-1\\}$'), not \u00a74. Both should read \u00a73."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "Table 0.1's caption lists its completion sources as 'L13 slides 4\u20136, L14 slides 3\u20136 and L15 slide 2', but the table's last row (Merging / splitting) is drawn from L13 slides 7\u20138 (Bernoulli split/merge, 'collisions are counted as one arrival'), L14 slide 8 and L15 slides 4 and 6 (Poisson merging at rate $\\lambda_1+\\lambda_2$, splitting at $p\\lambda$/$(1-p)\\lambda$) \u2014 none of which appear in the caption's source list. Add those slides to the figcap so every row is cited."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "The \u00a70.3 sentence 'Each section also works its associated recitation problems in full inside collapsible solution boxes; the recitation material for this block covers iterated expectations and total variance, the Bernoulli process with random sums and coupon collecting, and exponentials, Erlangs and Poisson merging/splitting' misdescribes the block in two ways. (i) It omits rec12 entirely \u2014 correlation-coefficient invariance, the Laplace density of a difference of exponentials, polar coordinates/Rayleigh, and the Schwarz inequality \u2014 which is the largest single recitation block in the note (\u00a71.5, Examples 1.11\u20131.14). (ii) 'Each section works its associated recitation problems' is not what happens: rec14 (mosquito/tick Bernoulli merging, Al's Pascal and random-sum problem, coupon collector) is pure Bernoulli-process/random-sum material owned by \u00a72, yet it is worked in \u00a73.5 (g4_s3.html Examples 3.7\u20133.9), and \u00a72 never points the reader there."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Fig. 2.3's caption (g4_s2.html line 487) says 'The first three interarrival times $T_1,T_2,T_3$ of \u00a72.4 are marked', but \u00a72.4 defines only $T_1$ (the first-success time); $T_2,T_3$ and the general interarrival sequence are introduced in \u00a72.5 ('Following L13 slide 6, let $T_1$ be\u2026 $T_2$ the number of additional trials\u2026'). The caption should read \u00a72.5, or \u00a72.4\u2013\u00a72.5."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Example 1.11's title reads 'rec12 P1 \u2014 the correlation coefficient is unchanged by an affine change of units', which its own body then refutes: the derivation ends at $\\rho(aX+b,Y)=\\operatorname{sign}(a)\\,\\rho(X,Y)$, and the [SOURCE TYPO?] paragraph explicitly adjudicates that invariance holds only for $a>0$ while $a<0$ flips the sign (the cheatsheet states it correctly). The heading should be qualified, e.g. '\u2026unchanged by an affine change of units with positive scale'."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "\u00a71.1, Property item 1 ('Pulling out what is known') closes with 'See B&T Problem 4.25.' That book problem number appears nowhere else in the note and is not among the B&T problems declared in the \u00a71 srcref (which lists only Problem 4.16, p. 248 and Problem 4.20, p. 250, both anchored by rec12). Nothing in the supplied transcripts corroborates it, so it is an unverifiable citation; either drop it or replace it with the \u00a74.3 section citation already used for the surrounding Property box."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "\u00a72.4, Example 2.9 ('fresh start at a random time'): $N$ is defined as the first $i$ with $X_{i-1}=X_i=1$, so $N\\ge2$ with probability 1, yet the rigorous route writes the total-probability decomposition as $\\sum_{n=1}^{\\infty}\\mathbf{P}(N=n)\\,\\mathbf{P}(X_{n+1}=X_{n+2}=0\\mid N=n)$ and then 'using $\\sum_{n\\ge1}\\mathbf{P}(N=n)=1$'. The $n=1$ term has $\\mathbf{P}(N=1)=0$ and the conditioning event is empty, so the sum should start at $n=2$; as written it conditions on a null event."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "\u00a75.2 correspondence table \u2014 six rows in the 'Source' column point at the wrong Poisson-side section. Verified against the actual headings (\u00a73.1 defining properties, \u00a73.2 counts, \u00a73.3 exponential/memorylessness, \u00a73.4 Erlang; \u00a74.1 Poisson fishing, \u00a74.2 merging, \u00a74.3 splitting, \u00a74.4 random incidence Poisson, \u00a74.5 renewal length-bias). Wrong: 'Time to the first arrival' cites \u00a74.2 (merging) \u2014 should be \u00a73.3; 'Time to the kth arrival' cites \u00a74.3 (splitting) \u2014 should be \u00a73.4; 'Memorylessness' cites \u00a74.2 \u2014 should be \u00a73.3; 'Merging two independent streams' cites \u00a74.1 (Poisson fishing) \u2014 should be \u00a74.2; 'Splitting by an independent coin' cites \u00a74.1 \u2014 should be \u00a74.3; 'Random incidence' cites \u00a74.5 only \u2014 should be \u00a74.4 (Poisson case) and \u00a74.5. The Bernoulli-column refs (\u00a72.3\u2013\u00a72.6) and the two rows citing \u00a73.1/\u00a73.2 are correct, so this is a localized renumbering regression, not a global convention."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "Example 3.8(b)(i) attributes the Pascal PMF to a nonexistent location: 'From G2 \u00a74, $N$ is Pascal of order $2$'. G2 \u00a74 is 'Joint PMFs and multiple random variables' and the string 'Pascal' does not occur anywhere in g2_s3.html or g2_s4.html; the Pascal PMF is developed in this note at \u00a72.5 ('The time of the $k$th success: the Pascal PMF', 18 occurrences in g4_s2.html). The reference should be \u00a72.5 (or L13 slide 6), not G2 \u00a74."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "Fig. 3.5 caption under-declares the extension. L14 slide 7's table has exactly five rows (Times of Arrival, Arrival Rate, PMF of # of Arrivals, Interarrival Time Distr., Time to k-th arrival \u2014 verified in L14.md slide 7). The generated figure (computes/g4_s3_figs.py, fig_corresp) has eleven rows, adding 'mean / variance', 'mean interarrival', 'mean of that time', 'memoryless?', 'merging', 'splitting'. The caption declares only 'extended with the merging and splitting rows', so four of the six added rows are presented as slide content. Caption should name all six additions (or say 'extended with mean/variance, mean-wait, memorylessness, merging and splitting rows'). The alt text is also incomplete: it lists nine categories for an eleven-row table, omitting the two 'mean' rows."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Percentage-shortfall claims use the naive value as the base while the sentence names the true value as the base. Example 4.3: 'the naive answer 3.75 understates the true wait by 11%' \u2014 (25/6 \u2212 3.75)/(25/6) = 10.00% exactly; 11.11% is the shortfall relative to 3.75. Practice 4.5(iv): 'understates the wait by more than 50%' \u2014 (41/18 \u2212 1.5)/(41/18) = 34.1%; the >50% figure is relative to 1.5. Either restate as '10%' / '34%' or say 'the true wait is 11% (resp. 52%) larger than the naive answer'. Neither number is backed by a computes key."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Spurious gap marker in Example 3.7 (rec14 P1). The note prints '[SOLUTION GAP filled]' immediately before 'Equivalently and more memorably, $r=1-(1-p)(1-q)$', but rec14.md records no [SOLUTION GAP] anywhere in Problem 1 \u2014 the official solution explicitly shows $r = p+q-pq = 0.1+0.07-0.1\\cdot0.07 = 0.163$. The added complement form is a genuine value-add but is not filling a source gap; the marker mis-reports the source. Every other [SOLUTION GAP filled] marker in \u00a73 (P2 b(i) success probability, P2 b(ii) X and N distributions and the 3/4+27 arithmetic, P2(c) the $2/2^m$ count, P3 the geometric mean, the re-indexing and the asymptotics) does match a flagged gap in rec14.md."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Ungrammatical output of the 'its Figure x.y' convention: line 147 reads \"This is L14 slide 4 and B&T's its Figure 6.5\" and line 667 reads \"the annotation printed on the slide itself, and B&T's its Figure 6.6\". The possessive 'B&T's' collides with the contract's mandatory 'its Figure'. Rewrite as 'and B&T its Figure 6.5' \u2192 better: 'and B&T \u00a76.1, its Figure 6.5' (the form already used correctly in the Fig. 3.2 and Fig. 3.5 captions)."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Widget 'Binomial \u2192 Poisson' (w-g4s3-binpois) admits parameter settings where p = \u03bbt/n exceeds 1: the n slider goes down to 2 while the \u03bbt slider goes up to 8, so p can reach 4. The draw() code then takes the `if (p >= 1)` branch and plots a degenerate spike at k = n labelled 'binomial (n slots, p = \u03bbt/n)', and the readout prints 'variance np(1\u2212p) = \u221224.00000' \u2014 a negative variance shown to the reader. Either clamp n \u2265 ceil(\u03bbt) (or \u03bbt \u2264 n) or suppress the binomial trace and the mean/variance readout when p \u2265 1."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Inconsistent B&T problem-numbering scheme within one fragment. The srcref and Examples 4.5/4.6 use the textbook's own style ('B&T Problem 6.14', 'B&T Problem 6.15' \u2014 matching rec15.md, which quotes 'Problem 6.14 ... page 330 in text'), but \u00a74.5's Interpretation box cites the Erlang-interarrival renewal result twice as 'B&T Problem 27' / 'B&T's end-of-chapter Problem 27'. Make it 'B&T Problem 6.27' (or whichever chapter-qualified number is correct) so the two citation styles agree."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "\u00a75.4 misstates the L16 state variable: 'the state $X_n$ is the number of customers waiting'. L16 slide 2 (L16.md) defines it as 'the number of customers at time n' \u2014 i.e. customers in the system, including the one being served; the transition diagram's states 0\u202610 are queue occupancies, and state 1 means one customer in service with none waiting. Change to 'the number of customers at the counter'."
+ },
+ {
+  "section": 5,
+  "severity": "critical",
+  "description": "\u00a75 contains ZERO practice questions and ZERO <details class=\"sol\"> solution boxes \u2014 it is the only fragment in the whole G4 note with none, and a regression against every prior group's synthesis section (g1_s5 has 6 solution boxes, g2_s5 has 10, g3_s5 has 12; g4_s5 is 29 KB vs 43/52/65 KB). The style contract requires 1\u20133 practice questions with hidden solutions at the end of each h3 topic; \u00a75.1, \u00a75.2, \u00a75.3 and \u00a75.4 all end with prose. Worse, \u00a70.3's roadmap explicitly promises the reader that \u00a75 delivers 'a consolidated tool-selection pass, the common failure modes of \u00a71\u2013\u00a74, mixed problems, and the step that G5 takes' \u2014 the 'mixed problems' never appear. Correct looks like: 4\u20138 mixed/synthesis problems in .ex boxes with <details class=\"sol\"> answers, deliberately crossing topics (e.g. a random sum whose count is a Poisson arrival count; a Bernoulli-vs-Poisson unit-trap question; a length-biasing problem stated without the words 'random incidence'; a law-of-total-variance problem where the naive answer is the within-term only), i.e. exactly the exam-style consolidation the roadmap advertises."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "Systematically wrong internal cross-references in \u00a75's two tables and in \u00a75.3. In the \u00a75.1 identity table the 'Source' column is off-by-one for every \u00a71 entry: 'E[X|Y]' cites \u00a71.2 (actually \u00a71.1), 'Law of iterated expectations' cites \u00a71.3 (actually \u00a71.2), 'var(X|Y=y)' and 'var(X|Y)' cite \u00a71.4 (actually \u00a71.3), 'Law of total variance' cites \u00a71.5 (actually \u00a71.3 \u2014 \u00a71.5 is 'Recitation 12, worked in full'); and the 'Random sum' row cites \u00a72.1 (actually \u00a72.2 \u2014 \u00a72.1 is the rec13 P1\u2013P2 warm-up). In the \u00a75.2 correspondence table the Poisson-side references are wrong: interarrival/exponential cites \u00a74.2 (actually \u00a73.3), Erlang cites \u00a74.3 (actually \u00a73.4), memorylessness cites \u00a74.2 (actually \u00a73.3), merging cites \u00a74.1 (actually \u00a74.2 \u2014 \u00a74.1 is Poisson fishing), splitting cites \u00a74.1 (actually \u00a74.3), random incidence cites \u00a74.5 (Poisson random incidence is \u00a74.4). \u00a75.3 Gotcha 1 likewise ends '(\u00a71.3)' when it means \u00a71.2. Symptom: \u00a73.3 and \u00a73.4 are never referenced from \u00a75 at all while \u00a74.1/\u00a74.3 are cited for things they do not contain. Correct looks like every reference resolving to the h3 that actually proves the row \u2014 this is the one page students revise from, so a wrong pointer costs more here than anywhere else."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Wrong prior-note citation in Example 3.8(b)(i) (rec14 P2): 'Let N be the trial on which the second success occurs. From G2 \u00a74, N is Pascal of order 2.' The Pascal/negative-binomial PMF appears nowhere in note G2 (grep for 'Pascal' across g2_s0\u2013g2_s5 returns 0 hits; G2 \u00a74 is 'Joint PMFs and multiple random variables'). The Pascal PMF is derived in this note, \u00a72.5 ('The Pascal PMF, derived'). Correct: cite '\u00a72.5' (optionally 'L13 slide 6'), not 'G2 \u00a74'."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Ambiguous/wrong self-reference in the \u00a72.3 Gotcha on 'probability zero is not impossible' (g4_s2.html line 517): '...why an infinite sample space needs the machinery of \u00a71's axioms (countable additivity)'. Inside note G4, \u00a71 is 'Conditional expectation as a random variable'; the axioms (including countable additivity) are in G1 \u00a71, which \u00a70 itself cites correctly as '(G1 \u00a71)'. Correct: 'the machinery of G1 \u00a71's axioms'."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Practice-label convention drifts within \u00a74 and against the rest of the note. \u00a71\u2013\u00a73 and Practice 4.1 use the bare contract form ('Practice 3.5.'), but Practices 4.2\u20134.6 are labelled 'Practice 4.2 (merging)', 'Practice 4.3 (splitting)', 'Practice 4.4 (random incidence, Poisson)', 'Practice 4.5 (renewal random incidence)', 'Practice 4.6 (synthesis)'. Beyond inconsistency, the parenthetical pre-announces the tool, which removes the tool-selection step the \u00a74.6 Recipe/Fig. 4.6 decision guide is meant to train. Correct: bare 'Practice 4.k.' labels, letting the Recipe box carry the classification job."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Two h3 topics end without any Interpretation/Intuition box, against the pattern held everywhere else in the note: \u00a72.5 (the Pascal PMF) runs Property \u2192 Fig. 2.5 \u2192 Gotcha (Pascal vs binomial) \u2192 Example 2.11 \u2192 Practices with no .note box saying what the Pascal distribution means; the same is true of \u00a74.1 (Poisson fishing) and of \u00a71.4/\u00a71.5. \u00a72.5 is the worst of these because the Pascal/binomial duality (Practice 2.8's P(Y_k>t)=P(S_t<=k-1)) is exactly the kind of result that needs a 'what this means' paragraph before \u00a73 reuses it as the Erlang/Poisson duality. Correct: one short <div class=\"note\"><b>Interpretation.</b> box per h3, as in \u00a72.3, \u00a72.4 and \u00a72.6."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Example 1.11's title overstates its own result: '(rec12 P1 \u2014 the correlation coefficient is unchanged by an affine change of units)', but the body correctly derives rho(aX+b,Y) = sign(a)*rho(X,Y) and explicitly adjudicates the source's sqrt(a^2)=a slip. A student skimming ex-box headers takes away the false version \u2014 the very error the section was written to fix. Correct: title it e.g. 'rec12 P1 \u2014 how an affine change of units acts on the correlation coefficient', or add ' (for a>0)' to the header."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "\u00a75 contains ZERO practice questions and zero worked problems: `grep -c 'class=\"ex\"' g4_s5.html` = 0 and `details class=\"sol\"` = 0, across all four h3 topics (5.1\u20135.4). This violates the style contract's 'End each h3 topic with 1\u20133 practice questions in .ex boxes with <details class=\"sol\"> answers', and it is a regression against the note's own siblings: g1_s5 has 6 practice items, g2_s5 has 10, g3_s5 has 10. It also breaks a promise made in \u00a70.3, whose \u00a75 roadmap bullet says the section delivers 'a consolidated tool-selection pass, the common failure modes of \u00a71\u2013\u00a74, **mixed problems**, and the step that G5 takes' \u2014 the mixed problems are absent. Correct looks like: 3\u20135 synthesis practice items in .ex boxes with hidden solutions, deliberately cross-cutting (e.g. one that requires random-sum + Poisson splitting together, one that requires spotting a length-biased selection rule, one Bernoulli-vs-Poisson unit trap), placed at the ends of \u00a75.1, \u00a75.2 and \u00a75.3."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "Twelve broken internal cross-references, concentrated in exactly the section advertised as 'the one page to revise from'. In the \u00a75.1 identity table the \u00a71 pointers are all shifted one subsection late: 'Law of iterated expectations \u2026 \u00a71.3' and 'Total expectation theorem \u2026 \u00a71.3' (line 36\u201337) should be \u00a71.2; 'var(X|Y=y) \u2026 \u00a71.4' and 'var(X|Y) \u2026 \u00a71.4' (lines 38\u201339) should be \u00a71.3; 'Law of total variance \u2026 \u00a71.5' (line 40) should be \u00a71.3 (\u00a71.5 is the rec12 section); 'Random sum E[Y|N]=N E[X] \u2026 \u00a72.1' (line 41) should be \u00a72.2 (\u00a72.1 is the rec13 P1\u2013P2 warm-up). Gotcha 1 (line 175) likewise cites '(\u00a71.3)' for the law of iterated expectations; should be \u00a71.2. In the \u00a75.2 correspondence table every Poisson-column pointer is wrong: 'Time to the first arrival \u2026 \u00a74.2' and 'Memorylessness \u2026 \u00a74.2' (lines 122, 124) should be \u00a73.3 (\u00a74.2 is Merging); 'Time to the kth arrival \u2026 \u00a74.3' (line 123) should be \u00a73.4 (\u00a74.3 is Splitting); 'Merging two independent streams \u2026 \u00a74.1' (line 125) should be \u00a74.2 and 'Splitting \u2026 \u00a74.1' (line 126) should be \u00a74.3 (\u00a74.1 is the Poisson-fishing warm-up); 'Random incidence \u2026 \u00a74.5' (line 127) should be \u00a74.4 for the Poisson/Erlang(2) result, with \u00a74.5 only for the renewal generalization. The \u00a72, \u00a73.1 and \u00a73.2 pointers in the same tables are correct, so a reader has no way to know which pointers to distrust. All \u00a7-references inside s1\u2013s4 were checked and are correct; the defect is isolated to g4_s5.html."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "\u00a75.2 correspondence table, 'Random incidence' row, Bernoulli cell (line 127) asserts 'the slot you land in is unremarkable, but the gap you land in is length-biased in the same way', cited to 'L15 s7, s8; \u00a74.5'. Both cited sources are purely continuous-time (Poisson/renewal); \u00a72 never treats random incidence for the Bernoulli process at all, so this is the one claim in the synthesis table that is stated nowhere else in the note and never derived. It is also imprecise: for a Bernoulli(p) process the length-biased gap PMF is p_L(l) = l\u00b7p^2(1-p)^{l-1} (a Pascal-of-order-2 shape), not simply 'the same' as the Erlang(2) statement in the adjacent cell. Correct looks like either deriving the discrete length-bias in \u00a72.6 (three lines, using p_L(l)=l\u00b7p_T(l)/E[T] with E[T]=1/p) and citing that, or replacing the cell with an explicit forward pointer that says the Bernoulli case is not covered."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "The 'its Figure x.y' convention for book figures is applied mechanically after a possessive, producing ungrammatical prose in two places in body text: line 147 'This is L14 slide 4 and B&T's its Figure 6.5.' and line 667 'the annotation printed on the slide itself, and B&T's its Figure 6.6.' The convention is used correctly everywhere else (e.g. s2 'B&T \u00a76.1, its Figure 6.2', s4 'B&T \u00a76.2, its Figure 6.7'). Correct looks like 'B&T's Figure 6.5' or, keeping the convention, '\u2026 and B&T \u00a76.1, its Figure 6.5.'"
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Panel labels are referenced but never defined for two figures in \u00a71. Body text at line 442 says the region is shown in 'Fig. 1.6a' and line 492 says the circular symmetry is 'Fig. 1.7a', but the figcaps (lines 483, 519) label the figures only 'Fig. 1.6 \u2014' and 'Fig. 1.7 \u2014' and use the words 'Left:'/'Right:' rather than (a)/(b); neither the caption nor the alt-text mentions an (a) panel. A reader following the pointer has to guess that 'a' means the left panel. (Contrast Fig. 5.1, whose caption does define '(a)' and '(b)'.) Correct looks like adding '(a)'/'(b)' to the Fig. 1.6 and Fig. 1.7 captions, or changing the in-text pointers to 'the left panel of Fig. 1.6'."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "\u00a71.4 ('The lecture's worked and unworked examples') is the only non-recitation topic subsection in \u00a71\u2013\u00a74 with neither a `note` (Interpretation/Intuition) box nor a `warn` (Gotcha) box \u2014 box inventory: note=0, warn=0, recipe=0. Every other topic subsection (1.1\u20131.3, 2.1\u20132.6, 3.1\u20133.5, 4.1\u20134.5) carries at least one. This matters because \u00a71.4 is where the L12-slide-6 [UNSOLVED EXAMPLE] is solved, and its Step 2 uses a technique that has a well-known pitfall \u2014 conditioning a continuous r.v. on a positive-probability event rescales the density by P(event) rather than truncating-and-renormalizing the wrong way, and the two conditional variances coming out equal (both 1/12) is a coincidence of equal interval widths that Example 1.8 immediately contradicts. A Gotcha box making that contrast explicit would fill the hole; currently the point is buried in the 'Reading the answer' prose of Example 1.7."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Broken possessive from mechanical application of the 'its Figure x.y' convention: the body text reads \"This is L14 slide 4 and B&T's its Figure 6.5.\" (visible on s3_p03.png, opening of \u00a73.2 Step-1 lead-in) and \"...the annotation printed on the slide itself, and B&T's its Figure 6.6.\" (visible on s3_p11.png, opening paragraph of \u00a73.5). Both are grammatically broken double-possessives ('B&T's its'). Correct rendering is \"B&T \u00a76.1, its Figure 6.5\" / \"B&T \u00a76.2, its Figure 6.6\" \u2014 i.e. drop the apostrophe-s, as the Fig. 3.2 and Fig. 3.5 captions on the same pages already do correctly. Source lines: notes/src/fragments/g4_s3.html:147 and :667."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Orphaned admonition tail on s3_p02.png: the Example 3.1 box (\"how good is 1 \u2212 \u03bb\u03b4?\") ends after its one-sentence intro and then leaves roughly 110px (about one sixth of the page height) of empty pale-green box fill running to the bottom of the page, with the \u03b4 / P(0,\u03b4) / error table it introduces pushed onto the top of s3_p03.png. The box reads as a broken/empty panel. It should either break before the box or keep the intro sentence with its table."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Figure/caption mismatch in the random-incidence pin widget on s4_p11.png (\"Drop a pin on the time axis: which interval do you land in?\"): the explanatory text under the plot says \"Purple crosses are arrivals of a Poisson(\u03bb) process\", but the widget draws the arrivals as filled purple circular dots, not crosses. The static Fig. 4.4 on s4_p09.png (same content) does use crosses, so the wording was carried over unchanged. Either change the widget markers to 'x' or reword to 'purple dots'."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "Dangling connector in Fig. 0.1 (roadmap diagram) on s0_p04.png: the green dashed 'random sums Y = X1+\u00b7\u00b7\u00b7+XN \u00b7 \u00a72' bridge box has two dashed segments \u2014 the upper-right one to the BERNOULLI process box terminates in a proper arrowhead, but the lower-left segment running to the 'Law of total variance \u00b7 \u00a71' box has no arrowhead at either end and simply stops short of the blue box border. It reads as an unfinished line rather than a directed link; add the matching arrowhead (or make both segments plainly undirected)."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Label collision in Fig. 1.7 panel (b) on s1_p14.png: the green annotation \"mode at r = 1\" is placed immediately left of the green dotted mode line at r = 1, and its trailing '1' abuts/overlaps that dotted line, so the character sits on top of the rule. Shift the annotation left by a few points or place it to the right of the line with padding."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Confusing axis reuse in the Bernoulli-process simulator widget on s2_p10.png: the one-realization sample-path dot band is plotted inside the same axes as the interarrival histogram, at height \u22480.44 on a y-axis labelled 'probability', so the dots appear to assert a probability value. The caption refers to a 'dashed rule' separating the band from the histogram, but no such rule is visibly rendered. Either draw the described separator or move the sample path to its own sub-axes without a probability scale. Additionally the histogram bars end around t \u2248 10 while the x-axis runs to ~21 for a single far-right orange stem, leaving roughly half the panel empty."
+ }
+]

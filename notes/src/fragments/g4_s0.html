@@ -1,0 +1,127 @@
+<h2 id="g4-s0">§0 &nbsp; Orientation: conditioning as arithmetic, processes as families</h2>
+<p class="srcref">Sources: L12 slides 1–8 · L13 slides 1–8 · L14 slides 1, 3–8 · L15 slides 1–4, 6 · Bertsekas–Tsitsiklis (cited throughout as <b>B&amp;T</b>) §4.3, §4.5, Chapter 6 preamble, §6.1–6.2 · numbers from <code>computes/g4_s0.py</code>. A bare "§N.k" always means <em>this note's</em> own subsection; every reference to the textbook carries the "B&amp;T" prefix.</p>
+
+<p>Notes G1–G3 built the machinery: a probability model and its axioms (G1 §1), conditioning and Bayes' rule (G1 §2), independence (G1 §3), random variables described by a PMF (G2) or a density (G3), together with expectation, variance, joint and conditional distributions, and derived distributions. Everything so far has concerned <em>one</em> experiment observed through <em>finitely many</em> random variables, and conditioning has been used mostly as a way of <em>slicing</em> a model — restricting attention to a smaller universe.</p>
+
+<p>This note (G4, lectures L12–L15, B&amp;T §4.3, §4.5 and Chapter 6) makes two moves, and they are worth naming before any formula appears, because everything in §1–§5 is one of the two.</p>
+
+<ul>
+<li><b>Theme A — conditioning becomes a computational <em>tool</em>, not just a modeling device.</b> The object $\mathbb{E}[X\mid Y]$ is promoted from a table of numbers to a single <em>random variable</em>. That one reinterpretation converts two hard quantities, $\mathbb{E}[X]$ and $\operatorname{var}(X)$, into easy ones, via the law of iterated expectations and the law of total variance (L12 slides 2–3).</li>
+<li><b>Theme B — random processes.</b> A model is allowed to contain an <em>infinite</em> family of random variables indexed by time. We study exactly two such families in this note, both of "arrival" type: the <b>Bernoulli process</b> in discrete time (L13, B&amp;T §6.1) and the <b>Poisson process</b> in continuous time (L14–L15, B&amp;T §6.2). They are the same process seen at two time resolutions, and §0.2 sets up the dictionary between them.</li>
+</ul>
+
+<p>The two themes are not independent: the single most useful application of Theme A, the <b>random sum</b> $Y=X_1+\cdots+X_N$ with a random number $N$ of terms (L12 slides 7–8), is exactly what you need when $N$ counts the arrivals of a process. That is why the two themes share a note.</p>
+
+<h3>0.1 Theme A — the conceptual jump: $\mathbb{E}[X\mid Y]$ is a random variable</h3>
+
+<p>Nothing in the definition is new. For a fixed value $y$ of a random variable $Y$ with $\mathbf{P}(Y=y)&gt;0$, G2 §3 already defined the conditional expectation of $X$ given the event $\{Y=y\}$,
+$$\mathbb{E}[X\mid Y=y]=\sum_x x\,p_{X\mid Y}(x\mid y),$$
+with the integral $\int x f_{X\mid Y}(x\mid y)\,dx$ in the continuous case (L12 slide 2; here $x$ ranges over the values of $X$, and $p_{X\mid Y}(\cdot\mid y)$ is the conditional PMF of G2 §4). For each fixed $y$ this is a <em>number</em>.</p>
+
+<p>The jump is to stop fixing $y$. Define the ordinary function
+$$g(y)=\mathbb{E}[X\mid Y=y],$$
+which assigns a number to each possible value $y$ of $Y$ — a deterministic function, computable once and for all from the model. Now feed the <em>random</em> input $Y$ into it. The composition
+$$\mathbb{E}[X\mid Y]\;:=\;g(Y)$$
+is a function of a random variable, hence (G2 §1) a random variable in its own right: when the experiment produces the outcome that makes $Y=y$, this new random variable takes the value $g(y)=\mathbb{E}[X\mid Y=y]$. It therefore has its own PMF, its own expectation $\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]$, and its own variance $\operatorname{var}\big(\mathbb{E}[X\mid Y]\big)$ — and those two objects are precisely the content of §1. The same construction applied to the conditional variance gives a second random variable $\operatorname{var}(X\mid Y)$, "with value $\operatorname{var}(X\mid Y=y)$ when $Y=y$" (L12 slide 3).</p>
+
+<div class="warn"><b>Gotcha — capital versus lowercase.</b> $\mathbb{E}[X\mid Y=y]$ and $\mathbb{E}[X\mid Y]$ differ by one character and are different <em>kinds</em> of object: the first is a number (one per $y$), the second is a random variable (a function of $Y$). Consequently $\mathbb{E}\big[\mathbb{E}[X\mid Y=y]\big]$ is meaningless — you cannot average a constant over nothing — while $\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]$ is the law of iterated expectations. L12 slides 7–8 lean on exactly this distinction (see the transcript's own footnote: "this capital/lowercase distinction is load-bearing"). Two further points: $\mathbb{E}[X\mid Y]$ is a function of $Y$ <em>only</em> — $X$ has been averaged away, so writing something like "$\mathbb{E}[X\mid Y]=X/2$" is a type error; and $\mathbb{E}[X\mid Y]$ is <em>not</em> in general a constant, even though its expectation is the constant $\mathbb{E}[X]$.</div>
+
+<h4>A first look at what it buys you</h4>
+
+<p>L12 slides 4–5 make the payoff concrete with a class split into two sections. Section $y=1$ has $n_1=10$ students whose quiz scores average $90$; section $y=2$ has $n_2=20$ students averaging $60$. The model the slides leave implicit (a <b>[DERIVATION GAP]</b> flagged in the transcript) is this: pick <em>one</em> student uniformly at random out of the $n_1+n_2=30$, let $X$ be that student's score and $Y$ that student's section. Then $Y$ has PMF
+$$\mathbf{P}(Y=1)=\frac{10}{30}=\frac13,\qquad \mathbf{P}(Y=2)=\frac{20}{30}=\frac23 .$$
+Conditioning on $\{Y=1\}$ means the chosen student is one of the $10$ in section 1, each now equally likely with probability $1/10$, so $\mathbb{E}[X\mid Y=1]=90$; likewise $\mathbb{E}[X\mid Y=2]=60$. As a random variable,
+$$\mathbb{E}[X\mid Y]=\begin{cases}90,&\text{with probability } 1/3,\\ 60,&\text{with probability } 2/3,\end{cases}$$
+a genuine two-valued random variable with a PMF of its own. Averaging <em>it</em> gives
+$$\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]=\tfrac13(90)+\tfrac23(60)=30+40=70,$$
+and the direct computation over all $30$ students gives $\mathbb{E}[X]=\frac{90\cdot 10+60\cdot 20}{30}=\frac{900+1200}{30}=\frac{2100}{30}=70$ — the same number. That agreement is the law of iterated expectations, and it is the whole trick: the class average was recovered without ever touching an individual score, from two section averages and two weights.</p>
+
+<p>The variance version is more striking still. With the within-section score variances $\operatorname{var}(X\mid Y=1)=10$ and $\operatorname{var}(X\mid Y=2)=20$ given on L12 slide 5,
+$$\mathbb{E}\big[\operatorname{var}(X\mid Y)\big]=\tfrac13(10)+\tfrac23(20)=\tfrac{10}{3}+\tfrac{40}{3}=\frac{50}{3}\approx 16.6667,$$
+$$\operatorname{var}\big(\mathbb{E}[X\mid Y]\big)=\tfrac13(90-70)^2+\tfrac23(60-70)^2=\tfrac13(400)+\tfrac23(100)=\tfrac{400}{3}+\tfrac{200}{3}=\frac{600}{3}=200,$$
+and the law of total variance adds them:
+$$\operatorname{var}(X)=\frac{50}{3}+200=\frac{650}{3}\approx 216.6667 .$$
+So $7.69\%$ of the spread in quiz scores is variability <em>within</em> sections and $92.31\%$ is variability <em>between</em> them (all values from <code>computes/g4_s0.py</code>). §1 derives both laws in full, including the two suppressed steps in the L12 slide 3 proof; §1 also solves the unfinished two-piece-density example of L12 slide 6.</p>
+
+<div class="note"><b>Interpretation.</b> Read the law of total variance as an <em>analysis of variance</em>: total spread = average spread within groups + spread between group means (L12 slide 5 writes exactly this in words). It is the reason $\mathbb{E}[X\mid Y]$ deserves to be a random variable — you want to ask how much it <em>varies</em>, and only random variables have variances. It is also why $Y$ is worth observing at all: $\operatorname{var}(\mathbb{E}[X\mid Y])$ measures how much knowing $Y$ moves your forecast of $X$, and $\mathbb{E}[\operatorname{var}(X\mid Y)]$ measures the uncertainty that observing $Y$ cannot remove. B&amp;T §4.3 (Example 4.19, "forecast revisions") makes the same point: the expected revision to a forecast, $\mathbb{E}\big[\mathbb{E}[X\mid Y]-\mathbb{E}[X]\big]$, is exactly $0$ — you cannot predict today which way tomorrow's news will push you.</div>
+
+<h3>0.2 Theme B — a random process is an infinite family of random variables</h3>
+
+<p>B&amp;T open Chapter 6 by insisting that this is <em>not</em> a conceptual departure: "a stochastic process is simply a (finite or infinite) sequence of random variables"; all of them "refer to a single and common experiment, and are therefore defined on a common sample space." The experiment is still one experiment; there are just infinitely many numbers to read off its outcome. What changes is the <em>emphasis</em> (B&amp;T Chapter 6 preamble): one asks about dependencies across time, about long-run averages over the whole sequence, and about the likelihood of rare boundary events — questions that only make sense once the family is infinite.</p>
+
+<p>L13 slide 3 puts this as two views of the same object, and the tension between them is instructive.</p>
+
+<ul>
+<li><b>First view — a sequence of random variables $X_1,X_2,\ldots$</b> For the Bernoulli process each $X_t$ is an independent Bernoulli trial with $\mathbf{P}(X_t=1)=p$, so (filling the slide's blanks, a <b>[DERIVATION GAP]</b>) $\mathbb{E}[X_t]=p$ and $\operatorname{var}(X_t)=p(1-p)$, straight from G2 §2–§3. This view is enough for any question about finitely many time slots.</li>
+<li><b>Second view — what is the right sample space?</b> L13 slide 3 asks it and answers with a warning shot: $\mathbf{P}(X_t=1\text{ for all }t)$. On the first view you would compute $\mathbf{P}(X_1=\cdots=X_n=1)=p^n$ by independence, and then note that this holds for every $n$; since $0&lt;p&lt;1$, letting $n\to\infty$ gives $\lim_{n\to\infty}p^n=0$. The natural sample space is therefore the set of all infinite binary sequences — an uncountable set, on which individual outcomes have probability $0$ exactly as in G3 §0 (the wheel of fortune). Infinitely many trials is a genuinely bigger model than any finite one.</li>
+</ul>
+
+<p>L13 slide 3 also names the three processes of the course, and the split is the map of the rest of the syllabus:</p>
+
+<ul>
+<li><b>Bernoulli process</b> — memoryless, discrete time (this note, §2);</li>
+<li><b>Poisson process</b> — memoryless, continuous time (this note, §3–§4);</li>
+<li><b>Markov chains</b> — with memory/dependence across time (note G5; previewed in §5).</li>
+</ul>
+
+<p>The first two are the <em>arrival-type</em> processes of B&amp;T §6.1–6.2, characterized by independent interarrival times: geometric in discrete time, exponential in continuous time. The third relaxes independence in the mildest possible way ("the next value depends on past values only through the current value", B&amp;T Chapter 6 preamble), and is the whole of B&amp;T Chapter 7.</p>
+
+<h4>The comparison table</h4>
+
+<p>Almost every fact about the Poisson process has a Bernoulli twin, and knowing which is which saves memorizing two lists. Table 0.1 is L14 slide 7's comparison, completed with the moment and mean rows the slide leaves for the lectures, and with the section of this note where each entry is derived. Every named distribution in the table was already built in G2 (binomial, geometric, Pascal, Poisson) or G3 (exponential, Erlang) — the processes contribute the <em>context</em>, not the formulas.</p>
+
+<table>
+<tr><th class="l">Feature</th><th class="l">BERNOULLI process (§2)</th><th class="l">POISSON process (§3–§4)</th></tr>
+<tr><td class="l">Times of arrival</td><td class="l">discrete: slots $t=1,2,\ldots$</td><td class="l">continuous: any $t\ge 0$</td></tr>
+<tr><td class="l">Arrival rate</td><td class="l">$p$ per trial</td><td class="l">$\lambda$ per unit time</td></tr>
+<tr><td class="l">Defining assumption</td><td class="l">independent trials, $\mathbf{P}(X_t=1)=p$</td><td class="l">time homogeneity + independence across disjoint intervals + $P(1,\delta)\approx\lambda\delta$</td></tr>
+<tr><td class="l">PMF of number of arrivals</td><td class="l">binomial: $\binom{n}{k}p^k(1-p)^{n-k}$ in $n$ slots</td><td class="l">Poisson: $P(k,\tau)=\dfrac{(\lambda\tau)^k e^{-\lambda\tau}}{k!}$ in duration $\tau$</td></tr>
+<tr><td class="l">Mean / variance of that count</td><td class="l">$np$ &nbsp;/&nbsp; $np(1-p)$</td><td class="l">$\lambda\tau$ &nbsp;/&nbsp; $\lambda\tau$ (equal!)</td></tr>
+<tr><td class="l">Interarrival-time distribution</td><td class="l">geometric: $(1-p)^{t-1}p$, mean $1/p$ slots</td><td class="l">exponential: $\lambda e^{-\lambda t}$, mean $1/\lambda$</td></tr>
+<tr><td class="l">Time to the $k$th arrival</td><td class="l">Pascal: $\binom{t-1}{k-1}p^k(1-p)^{t-k}$, mean $k/p$</td><td class="l">Erlang: $\dfrac{\lambda^k y^{k-1}e^{-\lambda y}}{(k-1)!}$, mean $k/\lambda$</td></tr>
+<tr><td class="l">Memorylessness</td><td class="l">yes — the future after any time is a fresh Bernoulli process</td><td class="l">yes — the time to the next arrival is independent of the past</td></tr>
+<tr><td class="l">Merging / splitting</td><td class="l">yes (merged: collisions count as one arrival)</td><td class="l">yes (merged rate $\lambda_1+\lambda_2$)</td></tr>
+</table>
+<div class="figcap">Table 0.1 — The Bernoulli/Poisson correspondence, reproducing L14 slide 7 and completing it from L13 slides 4–6, L14 slides 3–6 and L15 slide 2; the merging/splitting row is from L13 slides 7–8 (Bernoulli splitting and merging, collisions counted as one arrival), L14 slide 8 and L15 slides 4 and 6 (Poisson merging at rate $\lambda_1+\lambda_2$, splitting into rates $p\lambda$ and $(1-p)\lambda$). B&amp;T §6.1–6.2.</div>
+
+<p>The table is not a coincidence: the right-hand column is the $\delta\to 0$ limit of the left. L14 slide 7 draws the discretization explicitly — chop $[0,t]$ into $n=t/\delta$ slots of width $\delta$ and declare a slot "successful" with probability $p=\lambda\delta$, so that the expected number of arrivals is
+$$np=\frac{t}{\delta}\cdot\lambda\delta=\lambda t,$$
+independent of $\delta$, as the slide's third annotation states. Two numerical checks, both from <code>computes/g4_s0.py</code>, show the dictionary working (§3 does the limit properly).</p>
+
+<ul>
+<li><b>Counts.</b> Take $\lambda=5$ messages per hour and $t=1/2$ hour, so $\lambda t=2.5$ (L14 slide 5). The Poisson answers are $P(0,\tau)=e^{-2.5}=0.082085$ and $P(1,\tau)=2.5e^{-2.5}=0.205212$. The binomial approximations with $p=2.5/n$ give, for $k=0$: $0.031250$ at $n=5$, $0.071790$ at $n=25$, $0.081059$ at $n=250$, $0.081982$ at $n=2500$ — errors $0.050835$, $0.010295$, $0.001026$, $0.000103$, shrinking by a factor of about $10$ each time $n$ grows tenfold. For $k=1$: $0.156250$, $0.199416$, $0.204693$, $0.205161$, converging to $0.205212$. The variance converges too: the binomial variance $np(1-p)$ is $1.25$ at $n=5$ but $2.475$ at $n=250$, approaching the Poisson value $\lambda t=2.5$, since the factor $(1-p)=1-\lambda t/n\to 1$.</li>
+<li><b>Interarrival times.</b> Take $\lambda=0.6$ catches per hour (the L15 slide 3 fishing rate) and one-minute slots, $\delta=1/60$ hour, so $p=\lambda\delta=0.01$. The geometric mean is $1/p=100$ slots, which in hours is $\delta/p=(1/60)/0.01=1.666667$ — exactly $1/\lambda=1/0.6=1.666667$. The variance matches only in the limit: $\delta^2(1-p)/p^2=2.75$ hour$^2$ against the exponential $1/\lambda^2=2.777778$, a gap of $1\%$ that closes as $\delta\to0$ (the discrepancy is the factor $1-p$).</li>
+</ul>
+
+<div class="warn"><b>Gotcha — three things the table hides.</b>
+<ul>
+<li><b>Two rate symbols, two units.</b> $p$ is a dimensionless probability per slot and must satisfy $p\le 1$; $\lambda$ is a rate with units 1/time and may be any positive number. "$\lambda=5$" is not "a probability of 5"; only the product $\lambda\delta$ over a small interval is a probability, and only for $\delta$ small enough that $\lambda\delta\le1$.</li>
+<li><b>Poisson's mean equals its variance</b> ($\mathbb{E}[N_\tau]=\operatorname{var}(N_\tau)=\lambda\tau$, L15 slide 2) — a peculiarity with no analogue on the Bernoulli side, where $np(1-p)&lt;np$ strictly. It is the surviving trace of the vanishing factor $1-p$.</li>
+<li><b>The geometric counts slots, the exponential measures time.</b> The geometric interarrival time takes values $1,2,3,\ldots$ (never $0$: at least one trial must occur), while the exponential takes values in $[0,\infty)$ with $\mathbf{P}(T=0)=0$. Comparing the two means requires multiplying by the slot width $\delta$, as in the check above; comparing $1/p$ with $1/\lambda$ directly is a units error.</li>
+</ul></div>
+
+<h3>0.3 Roadmap</h3>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g4_s0_conceptmap}}" alt="Concept map of note G4. A title box at the top branches into two columns. The left blue column, Theme A, chains three boxes: E[X|Y] is a random variable; law of iterated expectations; law of total variance. The right orange column, Theme B, chains: Bernoulli process in discrete time; Poisson process in continuous time; merging, splitting and random incidence. A green dashed arrow labelled random sums crosses from the bottom of Theme A to the top of Theme B. Both columns feed a purple box reading shared engine: memorylessness, which in turn feeds a final box for section 5, synthesis and the bridge to Markov chains." style="max-width:920px">
+<div class="figcap">Fig. 0.1 — The map of note G4: two themes, one bridge, one shared engine. Theme A is L12 slides 2–3; Theme B is L13 slide 3 and L14 slide 7; the random-sum bridge is L12 slides 7–8; the terminus is the third process named on L13 slide 3.</div>
+
+<p>The five substantive sections, with the lectures they follow:</p>
+
+<ul>
+<li><b>§1 — Conditional expectation as a random variable; iterated expectations; total variance</b> (L12 slides 2–6, B&amp;T §4.3). The construction of §0.1 done properly: $\mathbb{E}[X\mid Y]$ and $\operatorname{var}(X\mid Y)$ as random variables, the law of iterated expectations $\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]=\mathbb{E}[X]$ with proof, the law of total variance with every step of the L12 slide 3 argument restored, the stick-breaking example ($\mathbb{E}[X]=\ell/4$), the quiz-score example in full, and the unfinished two-piece-density example of L12 slide 6 solved. <em>Hook:</em> the fastest way to compute an expectation is often to condition on something you do not care about.</li>
+<li><b>§2 — Random sums and the Bernoulli process</b> (L12 slides 7–8, L13 slides 2–8, B&amp;T §4.5, §6.1). $Y=X_1+\cdots+X_N$ with $N$ random and independent of the i.i.d. $X_i$: $\mathbb{E}[Y]=\mathbb{E}[N]\mathbb{E}[X]$ and $\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)+(\mathbb{E}[X])^2\operatorname{var}(N)$, both by the two laws of §1. Then the Bernoulli process: binomial counts, geometric interarrivals and their memorylessness, the Pascal PMF for the $k$th arrival, and merging and splitting (L13 slides 7–8). <em>Hook:</em> the variance formula has two terms because two different things are random — how much each term contributes, and how many terms there are.</li>
+<li><b>§3 — The Poisson process I</b> (L14, B&amp;T §6.2). The three defining properties (time homogeneity, independence over disjoint intervals, small-interval probabilities), the derivation of the Poisson PMF as the $\delta\to0$ limit of the binomial, $\mathbb{E}[N_t]=\operatorname{var}(N_t)=\lambda t$, and the exponential and Erlang interarrival laws. <em>Hook:</em> one small-interval assumption, $P(1,\delta)\approx\lambda\delta$, generates the entire table above.</li>
+<li><b>§4 — The Poisson process II: merging, splitting, and random incidence</b> (L15, B&amp;T §6.2). Merging independent Poisson processes into rate $\lambda_1+\lambda_2$; which stream the next arrival belongs to; splitting by independent coin flips; the Erlang distribution in use; and random incidence — the paradox that an interval you land in at a random moment is longer, on average, than a typical interval. <em>Hook:</em> the bus that is always late is not late; you are sampling with a bias (compare the G2 §2 bus-size example).</li>
+<li><b>§5 — Synthesis and the bridge to Markov chains</b> (all four lectures, B&amp;T Chapter 6 summary, Chapter 7 preview). A consolidated tool-selection pass, the common failure modes of §1–§4, mixed problems, and the step that G5 takes: dropping independence across time in favor of dependence through the current state only. <em>Hook:</em> Bernoulli and Poisson are the two processes with no memory at all; everything after them is about remembering exactly one thing.</li>
+</ul>
+
+<p>Every recitation problem of rec12–rec15 is worked in full inside a collapsible solution box, but each one is placed in the section that owns its <em>topic</em>, which is not always the section with the matching number. The map is: <b>rec12</b> — invariance of the correlation coefficient, the Laplace density of a difference of two exponentials, polar coordinates of a normal pair (Rayleigh radius, uniform angle) and the Schwarz inequality — is the largest recitation block of the note and is worked in <b>§1.5</b> (Examples 1.11–1.14), since it consolidates the G3 material that §1 builds on; <b>rec13</b> — generalized iterated expectations, breaking a stick twice, and widgets in boxes as a random sum — in <b>§2.1</b> and <b>§2.2</b> (Examples 2.1, 2.2, 2.4); <b>rec14</b> — mosquito and tick bites as merged Bernoulli processes, Al's Pascal-and-random-sum problem, and the coupon collector — is pure Bernoulli-process and random-sum material owned by §2, but it is worked in <b>§3.5</b> (Examples 3.7–3.9), where the Bernoulli/Poisson dictionary is assembled and the same problems can be read twice, once per process; and <b>rec15</b> — type-A/type-B light bulbs, the service station, and $\mathbf{P}(X&lt;Y&lt;Z)$ for three exponentials — in <b>§4.6</b> (Examples 4.5–4.7).</p>
+
+<p>Behind you: G1 (models, conditioning, Bayes, independence), G2 (PMFs, expectation, variance, joint PMFs, the geometric and Poisson PMFs) and G3 (densities, the exponential and its memorylessness, joint and conditional densities, convolution) — all used constantly and not restated. Ahead: G5 builds Markov chains on the third bullet of L13 slide 3, and G6 returns to $\operatorname{var}(X\mid Y)$ when it treats estimation.</p>
+
+<div class="summary">
+<b>§0 in one screen.</b>
+<b>Theme A.</b> $\mathbb{E}[X\mid Y=y]$ is a number; $g(y)=\mathbb{E}[X\mid Y=y]$ is a function; $\mathbb{E}[X\mid Y]=g(Y)$ is a <em>random variable</em> (L12 slide 2). So is $\operatorname{var}(X\mid Y)$. Averaging them gives the two workhorses of §1: $\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]=\mathbb{E}[X]$ and $\operatorname{var}(X)=\mathbb{E}[\operatorname{var}(X\mid Y)]+\operatorname{var}(\mathbb{E}[X\mid Y])$ — within-group spread plus between-group spread. Quiz-score check: $\tfrac13(90)+\tfrac23(60)=70=\mathbb{E}[X]$, and $\operatorname{var}(X)=\tfrac{50}{3}+200=\tfrac{650}{3}\approx216.6667$, of which $92.31\%$ is between-section.
+<b>Theme B.</b> A random process is an infinite family of random variables on one sample space (B&amp;T Chapter 6). Bernoulli = discrete time, rate $p$; Poisson = continuous time, rate $\lambda$; Markov chains = memory (G5). Bernoulli $\to$ Poisson under $\delta\to0$ with $p=\lambda\delta$, $n=t/\delta$, $np=\lambda t$ (L14 slide 7): binomial $\to$ Poisson ($0.081982$ vs $0.082085$ at $n=2500$, $\lambda t=2.5$), geometric $\to$ exponential ($\delta/p=1.666667=1/\lambda$), Pascal $\to$ Erlang.
+Route: <b>§1</b> the two laws → <b>§2</b> random sums + Bernoulli process → <b>§3</b> Poisson process I → <b>§4</b> Poisson II: merging, splitting, random incidence → <b>§5</b> synthesis and the bridge to Markov chains.
+</div>

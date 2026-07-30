@@ -1,0 +1,463 @@
+<h2 id="g1-s5">§5 &nbsp; Synthesis, cheatsheet, and the bridge to random variables</h2>
+<p class="srcref">Sources: L01 slides 4–11 · L02 slides 3–8 · L03 slides 3–8 · L04 slides 2–8 · rec01 P1–P4 and G1† · rec02 P1–P4 · rec03 P1–P4 · rec04 P1–P5 · Bertsekas–Tsitsiklis §1.1–1.6. All numbers on this page are recomputed in <code>computes/g1_s5.py</code>.</p>
+
+<p>Four lectures have produced exactly one object — a probabilistic model — and a small set of
+moves you are allowed to make on it. Everything in G1 is a consequence of three axioms plus one
+definition (conditional probability); the counting formulas are not probability at all, they are
+arithmetic that becomes probability the moment you invoke the uniform law. This section collects
+the whole toolkit on one page, states the traps that generate most wrong answers, gives a mixed
+problem set in which nothing announces which tool to use, and explains why the next group of notes
+replaces raw outcomes by numbers.</p>
+
+<h3>5.1 How the pieces fit together</h3>
+
+<p>Read the map below as a dependency graph: an arrow means "the target is derived from, or is a
+special case of, the source." Two chains descend from the axioms. The left chain is the
+<em>conditioning</em> chain — conditional probability is a definition, the multiplication rule is that
+definition rearranged, the total probability theorem is the multiplication rule summed over a
+partition, and Bayes' rule is the definition again with the total probability theorem substituted
+into its denominator. The right chain is the <em>counting</em> chain — the uniform law converts
+probability into counting, counting supplies $\binom{n}{k}$, and $\binom{n}{k}$ combined with
+independence gives the binomial probabilities.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s5_conceptmap}}" alt="Concept map: probabilistic model and axioms branch into a conditioning chain (conditional probability, multiplication rule, total probability theorem, Bayes' rule) and a counting chain (uniform law, counting formulas, binomial probabilities), with independence feeding the binomial box, and both chains feeding into G2 random variables." style="max-width:900px">
+<div class="figcap">Fig. 5.1 — Dependency map of the G1 toolkit (L01 slides 4–10; L02 slides 3, 6, 7, 8; L03 slide 3; L04 slides 2–6). Solid arrows: derivation or specialization. Dashed arrow: the binomial formula is reinterpreted in G2 as the PMF of a random variable.</div>
+
+<div class="note"><b>Interpretation.</b> The map has only two independent ideas in it. The first is
+<em>additivity</em>: probability is a measure, so the probability of a union of disjoint things is the
+sum of the pieces. Total probability, the $|A|/|\Omega|$ uniform law, and the "sum over the
+$k$-head sequences" step in the binomial derivation are all the same additivity move applied to
+different decompositions. The second idea is <em>renormalization</em>: conditioning on $B$ throws away
+everything outside $B$ and rescales what is left by $1/\mathbf{P}(B)$ so that the axioms still hold
+inside the new universe. The multiplication rule, the total probability theorem and Bayes' rule are
+bookkeeping around that one rescaling (L02 slide 3, B&amp;T §1.3).</div>
+
+<div class="note"><b>Intuition — why trees keep appearing.</b> Every sequential model in L02–L04 was
+drawn as a tree (L02 slides 5–6; L03 slides 2, 5). A tree is precisely the multiplication rule made
+visible: a leaf's probability is the product of the branch labels on the path to it, because
+$\mathbf{P}(A\cap B\cap C)=\mathbf{P}(A)\mathbf{P}(B\mid A)\mathbf{P}(C\mid A\cap B)$. Adding up
+leaves is the total probability theorem; running the tree backwards (which branch did I come from,
+given where I landed?) is Bayes' rule. If you can draw the tree, you have already done nine tenths
+of the problem.</div>
+
+<h3>5.2 The master cheatsheet</h3>
+
+<p>Every result of G1 in one table. "When to use" is the trigger phrase in a problem statement that
+should make you reach for that row.</p>
+
+<table>
+<thead>
+<tr><th class="l">Tool</th><th class="l">Formula</th><th class="l">When to use</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr><td class="l" colspan="4"><b>Model and axioms</b></td></tr>
+<tr><td class="l">Sample space</td><td class="l">$\Omega$ = set of outcomes, mutually exclusive and collectively exhaustive</td><td class="l">Always first. Choose the granularity so the events you care about are subsets.</td><td class="l">L01 s4; B&amp;T §1.2</td></tr>
+<tr><td class="l">Nonnegativity</td><td class="l">$\mathbf{P}(A)\ge 0$</td><td class="l">Sanity check on any answer.</td><td class="l">L01 s7</td></tr>
+<tr><td class="l">Normalization</td><td class="l">$\mathbf{P}(\Omega)=1$</td><td class="l">Solving for an unknown weight (loaded die: $9c=1$).</td><td class="l">L01 s7; rec01 P3</td></tr>
+<tr><td class="l">(Countable) additivity</td><td class="l">$A_i$ disjoint $\Rightarrow \mathbf{P}(\bigcup_i A_i)=\sum_i \mathbf{P}(A_i)$</td><td class="l">Break an event into disjoint pieces; infinite sample spaces.</td><td class="l">L01 s7, s11</td></tr>
+<tr><td class="l">Complement rule</td><td class="l">$\mathbf{P}(A^c)=1-\mathbf{P}(A)$</td><td class="l">"At least one …" problems — complement is usually smaller.</td><td class="l">B&amp;T §1.2; rec01 P2</td></tr>
+<tr><td class="l">Inclusion–exclusion (2 events)</td><td class="l">$\mathbf{P}(A\cup B)=\mathbf{P}(A)+\mathbf{P}(B)-\mathbf{P}(A\cap B)$</td><td class="l">Overlapping events; percentages "in both categories."</td><td class="l">rec01 P2; B&amp;T §1.2</td></tr>
+<tr><td class="l">Symmetric difference</td><td class="l">$\mathbf{P}\big((A\cap B^c)\cup(A^c\cap B)\big)=\mathbf{P}(A)+\mathbf{P}(B)-2\mathbf{P}(A\cap B)$</td><td class="l">"Exactly one of the two occurred."</td><td class="l">rec01 P1</td></tr>
+<tr><td class="l">Continuity of $\mathbf{P}$</td><td class="l">$A_n\uparrow A \Rightarrow \mathbf{P}(A_n)\to\mathbf{P}(A)$; $A_n\downarrow A \Rightarrow \mathbf{P}(A_n)\to\mathbf{P}(A)$</td><td class="l">Limits of nested events; $\mathbf{P}([0,\infty))=\lim_n\mathbf{P}([0,n])$.</td><td class="l">rec01 G1†; B&amp;T §1.2, Prob. 1.13</td></tr>
+
+<tr><td class="l" colspan="4"><b>Uniform laws</b></td></tr>
+<tr><td class="l">Discrete uniform law</td><td class="l">$\mathbf{P}(A)=\dfrac{|A|}{|\Omega|}$</td><td class="l">"Fair," "at random," "well shuffled," equally likely outcomes — then count.</td><td class="l">L01 s9; L04 s2</td></tr>
+<tr><td class="l">Continuous uniform law</td><td class="l">$\mathbf{P}(A)=\dfrac{\operatorname{area}(A)}{\operatorname{area}(\Omega)}$</td><td class="l">Two "random numbers" in $[0,1]$; meeting-time problems.</td><td class="l">L01 s10; rec01 P4</td></tr>
+<tr><td class="l">Point events are null</td><td class="l">$\mathbf{P}\big((X,Y)=(x_0,y_0)\big)=0$ in a continuous model</td><td class="l">Whenever you are tempted to "count" in a continuous space.</td><td class="l">L01 s10</td></tr>
+
+<tr><td class="l" colspan="4"><b>Conditioning</b></td></tr>
+<tr><td class="l">Conditional probability</td><td class="l">$\mathbf{P}(A\mid B)=\dfrac{\mathbf{P}(A\cap B)}{\mathbf{P}(B)}$, requires $\mathbf{P}(B)&gt;0$</td><td class="l">"Given that …", "knowing that …". $B$ becomes the new universe.</td><td class="l">L02 s3; B&amp;T §1.3</td></tr>
+<tr><td class="l">Conditional uniform law</td><td class="l">All outcomes of $B$ equally likely $\Rightarrow \mathbf{P}(A\mid B)=\dfrac{|A\cap B|}{|B|}$</td><td class="l">Conditioning inside a uniform (or equal-probability) model: just recount inside $B$.</td><td class="l">L04 s7</td></tr>
+<tr><td class="l">Multiplication (chain) rule</td><td class="l">$\mathbf{P}(A_1\cap\cdots\cap A_n)=\mathbf{P}(A_1)\prod_{i=2}^{n}\mathbf{P}(A_i\mid A_1\cap\cdots\cap A_{i-1})$</td><td class="l">Sequential experiments; probability of one path down a tree.</td><td class="l">L02 s6; B&amp;T §1.3</td></tr>
+<tr><td class="l">Total probability theorem</td><td class="l">$\mathbf{P}(B)=\sum_i \mathbf{P}(A_i)\mathbf{P}(B\mid A_i)$, $\{A_i\}$ a partition of $\Omega$</td><td class="l">"Divide and conquer": you know $\mathbf{P}(B\mid A_i)$ for each scenario $A_i$.</td><td class="l">L02 s7; B&amp;T §1.4</td></tr>
+<tr><td class="l">Bayes' rule</td><td class="l">$\mathbf{P}(A_i\mid B)=\dfrac{\mathbf{P}(A_i)\mathbf{P}(B\mid A_i)}{\sum_j \mathbf{P}(A_j)\mathbf{P}(B\mid A_j)}$</td><td class="l">Inference: you observe an effect $B$, you want the cause $A_i$. Reverses the conditioning.</td><td class="l">L02 s8; L03 s1; B&amp;T §1.4</td></tr>
+
+<tr><td class="l" colspan="4"><b>Independence</b></td></tr>
+<tr><td class="l">Independence of two events</td><td class="l">$\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$ (equivalently $\mathbf{P}(A\mid B)=\mathbf{P}(A)$ when $\mathbf{P}(B)&gt;0$)</td><td class="l">Physically separate mechanisms; "independent tosses" stated in the problem.</td><td class="l">L03 s3; B&amp;T §1.5</td></tr>
+<tr><td class="l">Independence of a collection</td><td class="l">$\mathbf{P}(A_i\cap A_j\cap\cdots\cap A_q)=\mathbf{P}(A_i)\mathbf{P}(A_j)\cdots\mathbf{P}(A_q)$ for <em>every</em> subset of distinct indices</td><td class="l">Three or more events — pairwise checks are not enough.</td><td class="l">L03 s6, s7</td></tr>
+<tr><td class="l">Conditional independence</td><td class="l">$\mathbf{P}(A\cap B\mid C)=\mathbf{P}(A\mid C)\mathbf{P}(B\mid C)$</td><td class="l">Independence <em>within</em> a scenario (e.g. once the coin's identity is known).</td><td class="l">L03 s4, s5; rec03 P1, P4</td></tr>
+
+<tr><td class="l" colspan="4"><b>Counting</b></td></tr>
+<tr><td class="l">Basic counting principle</td><td class="l">$n_1n_2\cdots n_r$ for $r$ stages with $n_i$ choices at stage $i$</td><td class="l">Any selection you can describe as a sequence of decisions.</td><td class="l">L04 s3; B&amp;T §1.6</td></tr>
+<tr><td class="l">Permutations</td><td class="l">$n!=n(n-1)\cdots 2\cdot 1$</td><td class="l">Order all $n$ distinct items.</td><td class="l">L04 s3</td></tr>
+<tr><td class="l">$k$-permutations</td><td class="l">$\dfrac{n!}{(n-k)!}=n(n-1)\cdots(n-k+1)$</td><td class="l">Ordered selection of $k$ distinct items from $n$ (order matters, no repeats).</td><td class="l">L04 s5; rec04 P1</td></tr>
+<tr><td class="l">Combinations</td><td class="l">$\dbinom{n}{k}=\dfrac{n!}{k!\,(n-k)!}$</td><td class="l">Unordered selection of $k$ from $n$; equivalently a $k$-subset.</td><td class="l">L04 s5; B&amp;T §1.6</td></tr>
+<tr><td class="l">Subsets / binomial sum</td><td class="l">$\displaystyle\sum_{k=0}^{n}\binom{n}{k}=2^n$</td><td class="l">Counting all subsets ($n$ in/out decisions); normalization check.</td><td class="l">L04 s3, s5</td></tr>
+<tr><td class="l">Partitions (multinomial coefficient)</td><td class="l">$\dbinom{n}{n_1,\ldots,n_r}=\dfrac{n!}{n_1!\,n_2!\cdots n_r!}$, $\sum_i n_i=n$</td><td class="l">Split $n$ distinct items into labelled groups of prescribed sizes (dealing hands).</td><td class="l">L04 s8; rec04 P4</td></tr>
+<tr><td class="l">Binomial probability</td><td class="l">$\mathbf{P}(k\text{ heads in }n)=\dbinom{n}{k}p^k(1-p)^{n-k}$</td><td class="l">$n$ independent trials, two outcomes each, same $p$ every trial.</td><td class="l">L04 s6; B&amp;T §1.6</td></tr>
+<tr><td class="l">Multinomial probability</td><td class="l">$\dbinom{n}{n_1,\ldots,n_r}p_1^{n_1}\cdots p_r^{n_r}$</td><td class="l">$n$ independent draws with $r$ possible colors, probabilities $p_i$.</td><td class="l">rec04 P5</td></tr>
+<tr><td class="l">Hypergeometric probability</td><td class="l">$\dfrac{\dbinom{m}{i}\dbinom{n-m}{k-i}}{\dbinom{n}{k}}$</td><td class="l">Draw $k$ of $n$ balls <em>without</em> replacement, $m$ of them red; want $i$ red.</td><td class="l">rec04 P3; B&amp;T §1.6, Prob. 1.61</td></tr>
+</tbody>
+</table>
+
+<div class="recipe"><b>Recipe — which tool do I reach for?</b>
+<ol>
+<li><b>Write down $\Omega$ and the probability law first.</b> If the problem says "fair", "at random",
+"well shuffled", or "equally likely", the law is uniform and the whole problem is a counting problem
+— go to step 5. Otherwise the law is given by branch probabilities: draw the tree.</li>
+<li><b>Does the question contain "given that"?</b> Yes $\to$ conditional probability. If the
+conditioning event is a subset of a uniform space, just recount inside it,
+$\mathbf{P}(A\mid B)=|A\cap B|/|B|$ (L04 s7). Otherwise use the definition.</li>
+<li><b>Do you want the probability of a whole path / of several things happening together?</b>
+Multiplication rule — multiply along the branches.</li>
+<li><b>Do you know the answer only "under each scenario"?</b> Partition $\Omega$ into the scenarios
+$A_i$ and use total probability. If the question instead asks <em>which scenario</em> given an
+observation, that is Bayes' rule — same numbers, one extra division.</li>
+<li><b>Counting: does order matter, and are repeats allowed?</b>
+order matters + repeats $\to n^k$ (basic counting principle);
+order matters + no repeats $\to n!/(n-k)!$;
+order does not matter $\to \binom{n}{k}$;
+several labelled groups at once $\to n!/(n_1!\cdots n_r!)$.
+Then apply the uniform law: $\mathbf{P}(A)=|A|/|\Omega|$, making sure numerator and denominator
+count the <em>same kind</em> of object (both ordered, or both unordered).</li>
+<li><b>Independence is a claim, not a default.</b> Use $\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$
+only if the problem states independence, or if you have verified the product identity numerically.</li>
+</ol></div>
+
+<p>The following numbers are the canonical worked answers of G1; keep them as calibration points
+(all recomputed in <code>computes/g1_s5.py</code>).</p>
+
+<table>
+<thead>
+<tr><th class="l">Quantity</th><th class="num">Value</th><th class="l">Why it is worth remembering</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr><td class="l">$\mathbf{P}(\min(X,Y)=2)$, two tetrahedral rolls</td><td class="num">$5/16$</td><td class="l">The uniform law is literally cell counting: 5 of 16 cells.</td><td class="l">L01 s8; L02 s4</td></tr>
+<tr><td class="l">Loaded die (evens twice as likely): $\mathbf{P}(\{1,2,3\})$</td><td class="num">$4/9\approx0.444444$</td><td class="l">Not $3/6$ — normalization, not symmetry, fixes the law.</td><td class="l">rec01 P3</td></tr>
+<tr><td class="l">Romeo &amp; Juliet, $w=15$ min: $\mathbf{P}(\text{meet})=1-(1-w)^2$</td><td class="num">$7/16=0.4375$</td><td class="l">Continuous uniform law: area of a band, computed by complement.</td><td class="l">rec01 P4</td></tr>
+<tr><td class="l">Chess tournament: $\mathbf{P}(\text{win})$</td><td class="num">0.375</td><td class="l">$0.5(0.3)+0.25(0.4)+0.25(0.5)$ — total probability over opponent types.</td><td class="l">L02 s7</td></tr>
+<tr><td class="l">Chess tournament: $\mathbf{P}(\text{type }1\mid\text{win})$</td><td class="num">0.4</td><td class="l">$0.15/0.375$ — winning is evidence <em>against</em> the strongest opponent, so $0.5$ drops to $0.4$.</td><td class="l">L02 s8</td></tr>
+<tr><td class="l">Radar: $\mathbf{P}(A\cap B)=0.05\cdot 0.99$</td><td class="num">0.0495</td><td class="l">Multiplication rule along one tree path.</td><td class="l">L02 s5</td></tr>
+<tr><td class="l">Radar: $\mathbf{P}(B)=0.0495+0.095$</td><td class="num">0.1445</td><td class="l">Total probability over the partition $\{A,A^c\}$.</td><td class="l">L02 s5, s7</td></tr>
+<tr><td class="l">Radar: $\mathbf{P}(A\mid B)$</td><td class="num">0.342561</td><td class="l">A 5% prior becomes only a 34.26% posterior — false alarms dominate.</td><td class="l">L02 s5, s8</td></tr>
+<tr><td class="l">Monty Hall: $\mathbf{P}(\text{win})$ stick vs switch</td><td class="num">$1/3$ vs $2/3$</td><td class="l">Switching wins exactly when the first guess was wrong. Always switch.</td><td class="l">rec02 P4; B&amp;T §1.3</td></tr>
+<tr><td class="l">$\mathbf{P}(A\cap B\cap C)$ vs $\mathbf{P}(A)\mathbf{P}(B)\mathbf{P}(C)$, coin triple</td><td class="num">$1/4$ vs $1/8$</td><td class="l">Pairwise independence does not imply independence.</td><td class="l">L03 s7</td></tr>
+<tr><td class="l">Two unfair coins: $\mathbf{P}(\text{toss }11=H)$ vs $\mathbf{P}(\text{toss }11=H\mid 10\text{ heads})$</td><td class="num">0.5 vs 0.9</td><td class="l">Unconditionally dependent, conditionally (on the coin) independent.</td><td class="l">L03 s5</td></tr>
+<tr><td class="l">License plates, 3 letters + 4 digits</td><td class="num">175&nbsp;760&nbsp;000</td><td class="l">$26^3\cdot 10^4$ — the basic counting principle with repetition.</td><td class="l">L04 s3</td></tr>
+<tr><td class="l">… with no repetition</td><td class="num">78&nbsp;624&nbsp;000</td><td class="l">$26\cdot25\cdot24\cdot10\cdot9\cdot8\cdot7$ — choices shrink by one per stage.</td><td class="l">L04 s3</td></tr>
+<tr><td class="l">Six rolls of a die all different: $6!/6^6$</td><td class="num">0.015432</td><td class="l">$720/46\,656$ — favorable orderings over all sequences.</td><td class="l">L04 s4</td></tr>
+<tr><td class="l">$\mathbf{P}(\text{first 2 heads}\mid 3\text{ heads in }10)=\binom{8}{1}/\binom{10}{3}$</td><td class="num">$8/120=1/15\approx0.066667$</td><td class="l">Conditioning on $B$ gives a uniform law on $B$, so recount inside $B$.</td><td class="l">L04 s7</td></tr>
+<tr><td class="l">52-card deal, each player gets an ace</td><td class="num">0.105498</td><td class="l">$4!\cdot\frac{48!}{(12!)^4}\big/\frac{52!}{(13!)^4}$ — a partition count over a partition count.</td><td class="l">L04 s8</td></tr>
+<tr><td class="l">Birthday problem, $n=23$: $\mathbf{P}(\text{all distinct})$</td><td class="num">0.492703</td><td class="l">So $\mathbf{P}(\text{some match})=0.507297&gt;1/2$ with only 23 people.</td><td class="l">rec04 P1</td></tr>
+<tr><td class="l">8 non-attacking rooks: $(8!)^2\big/\frac{64!}{56!}$</td><td class="num">$9.109465\times10^{-6}$</td><td class="l">Ordered count in both numerator and denominator, so ordering cancels.</td><td class="l">rec04 P2</td></tr>
+<tr><td class="l">Hypergeometric, $n=20,m=8,k=5,i=2$</td><td class="num">0.397317</td><td class="l">$\binom{8}{2}\binom{12}{3}/\binom{20}{5}$ — sampling without replacement.</td><td class="l">rec04 P3</td></tr>
+</tbody>
+</table>
+
+<div class="note"><b>Interpretation — the cheatsheet has a shape.</b> Notice that the first block
+(axioms, complement, inclusion–exclusion, symmetric difference, continuity) never mentions
+conditioning: those are identities of the measure itself and hold in every model. The conditioning
+block is where <em>information</em> enters. The counting block contains no probability at all until you
+attach the uniform law to it. When you are stuck, ask which of those three layers the question lives
+in: you almost never need a formula from a layer the problem has not entered.</div>
+
+<h3>5.3 Top gotchas of G1</h3>
+
+<p>These are the errors that account for most lost points on this material. Each one is a place where
+two different notions look similar in English but are different in the formalism.</p>
+
+<div class="warn"><b>Gotcha 1 — disjoint is not independent.</b> Disjointness is a statement about
+<em>sets</em>: $A\cap B=\varnothing$. Independence is a statement about <em>probabilities</em>:
+$\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$. One fair toss with $A=\{H\}$, $B=\{T\}$ has
+$\mathbf{P}(A)=\mathbf{P}(B)=1/2$ and $\mathbf{P}(A\cap B)=0$, while
+$\mathbf{P}(A)\mathbf{P}(B)=1/4\ne 0$ — disjoint and maximally <em>dependent</em>, because knowing $A$
+occurred tells you $B$ certainly did not. In fact two disjoint events of positive probability are
+never independent (L03 s3; rec03 P4).</div>
+
+<div class="warn"><b>Gotcha 2 — $\mathbf{P}(A\mid B)$ is not $\mathbf{P}(B\mid A)$.</b> In the radar
+model $\mathbf{P}(B\mid A)=0.99$ but $\mathbf{P}(A\mid B)=0.342561$ — a factor of nearly three apart,
+because the two ratios have different denominators ($\mathbf{P}(A)=0.05$ vs $\mathbf{P}(B)=0.1445$).
+"The detector is 99% reliable" is a statement about $\mathbf{P}(B\mid A)$; "there is probably a plane
+up there" is a claim about $\mathbf{P}(A\mid B)$. Converting between them is exactly what Bayes' rule
+does: $\mathbf{P}(A\mid B)=\mathbf{P}(B\mid A)\cdot\mathbf{P}(A)/\mathbf{P}(B)$. When $A$ is rare the
+conversion factor $\mathbf{P}(A)/\mathbf{P}(B)$ is <em>small</em> — here $0.05/0.1445=0.346021$, which is
+exactly why a $0.99$ likelihood collapses to a $0.342561$ posterior. So the two conditionals can differ
+enormously, and in the rare-cause direction $\mathbf{P}(A\mid B)$ is the smaller one (L02 s5, s8).</div>
+
+<div class="warn"><b>Gotcha 3 — conditioning can create or destroy independence.</b> Independence of
+$A$ and $B$ says nothing about independence given $C$, and vice versa. With the two unfair coins
+(L03 s5), the tosses are conditionally independent given the coin's identity but <em>not</em>
+independent unconditionally: $\mathbf{P}(\text{toss }11=H)=0.5\cdot0.9+0.5\cdot0.1=0.5$, whereas after
+seeing ten heads the posterior on coin $A$ is $0.9999999997$ and
+$\mathbf{P}(\text{toss }11=H\mid 10\text{ heads})=0.9$. Early tosses are informative precisely because
+they reveal which coin you are holding. The reverse failure also happens (rec03 P1, B&amp;T §1.5,
+Example 1.20): two unconditionally independent fair tosses become <em>dependent</em> once you condition
+on $D=\{$the two tosses gave different results$\}$: there
+$\mathbf{P}(H_1\mid D)=\mathbf{P}(H_2\mid D)=1/2$ but $\mathbf{P}(H_1\cap H_2\mid D)=0\ne 1/4$,
+because inside $D$ the second toss is forced to be the opposite of the first.</div>
+
+<div class="warn"><b>Gotcha 4 — pairwise independence is not independence.</b> For two fair tosses
+with $A=\{$first is $H\}$, $B=\{$second is $H\}$, $C=\{$same result$\}$, all three pairs satisfy the
+product rule ($\mathbf{P}(A\cap C)=1/4=\mathbf{P}(A)\mathbf{P}(C)$, and likewise for the others), yet
+$\mathbf{P}(A\cap B\cap C)=1/4\ne 1/8=\mathbf{P}(A)\mathbf{P}(B)\mathbf{P}(C)$, and
+$\mathbf{P}(C\mid A\cap B)=1\ne 1/2=\mathbf{P}(C)$. The definition for a collection demands the
+product identity for <em>every</em> subset of indices, not just the pairs (L03 s6, s7).</div>
+
+<div class="warn"><b>Gotcha 5 — counting order inconsistently.</b> The uniform law
+$\mathbf{P}(A)=|A|/|\Omega|$ is only valid if the numerator and the denominator count objects of the
+same type. Count both ordered or both unordered — never one of each. In the rook problem (rec04 P2)
+both counts treat the rooks as distinguishable, so the ordering factor cancels; in the
+six-different-rolls problem (L04 s4) both $6!$ and $6^6$ are counts of ordered sequences. Mixing them wrecks the
+answer: if you keep the ordered numerator $6!=720$ but replace the denominator by the number of
+<em>unordered</em> results of six rolls — the $\binom{6+6-1}{6}=\binom{11}{5}=462$ multisets of six faces —
+you get $720/462=1.558442$, which is not even in $[0,1]$. The mismatch is not a small slip; it changes
+the object being counted.</div>
+
+<div class="warn"><b>Gotcha 6 — overcounting by forgetting that groups are unlabelled (or labelled).</b>
+$n!/(n_1!\cdots n_r!)$ counts partitions into groups that are <em>distinguishable</em> (player 1's hand,
+player 2's hand, …). If the groups themselves are interchangeable you must divide by a further $r!$.
+Conversely, $\binom{n}{k}$ already divides by the $k!$ orderings inside the chosen subset — writing
+$\binom{n}{k}\cdot k!$ when you also want the order is correct, writing $\binom{n}{k}$ when order
+matters is not (L04 s5, s8; rec04 P4).</div>
+
+<div class="warn"><b>Gotcha 7 — assuming "$1/16$" (uniformity) when nothing said so.</b> The
+$1/16$-per-cell law on the tetrahedral grid was <em>given</em> on the slide (L01 s8), not deduced. A
+loaded die (rec01 P3) has $\mathbf{P}(\{1\})=1/9$ but $\mathbf{P}(\{2\})=2/9$; there,
+$\mathbf{P}(\{1,2,3\})=4/9$, not $3/6$. Symmetry of the sample-space picture is not symmetry of the
+probability law. Equally, a uniform law on outcomes does not give a uniform law on derived
+quantities: the 16 cells are equally likely, but $\min(X,Y)$ is not — it takes the value 2 with
+probability $5/16$ and the value 4 with probability $1/16$.</div>
+
+<div class="warn"><b>Gotcha 8 — conditioning on an ambiguous event.</b> The king's-sibling question
+(L03 s8) has two defensible answers because the problem statement does not pin down the conditioning
+event: conditioning on "the family has at least one boy" gives $\mathbf{P}(\text{sibling female})=2/3$
+(three equally likely families $BB, BG, GB$, of which two have a girl), while conditioning on "a
+particular child, who happens to be male, was crowned" gives $1/2$. Before you divide by
+$\mathbf{P}(B)$, write down exactly which subset of $\Omega$ the event $B$ is. Monty Hall
+(rec02 P4) is the same trap wearing a different hat.</div>
+
+<div class="warn"><b>Gotcha 9 — dividing by zero, quietly.</b> $\mathbf{P}(A\mid B)$ is
+<em>undefined</em> when $\mathbf{P}(B)=0$ (L02 s3), and in continuous models single points have
+probability zero (L01 s10), so "given that $X=0.5$" is not yet meaningful with the tools of G1.
+Also note that independence, being a product identity, is perfectly well defined even when
+$\mathbf{P}(A)=0$ — which is why the product form, not $\mathbf{P}(A\mid B)=\mathbf{P}(A)$, is taken
+as the official definition (L03 s3).</div>
+
+<div class="note"><b>Interpretation — a two-line self-check.</b> Before writing a final number, ask:
+(i) is it in $[0,1]$, and does the complementary event's probability add to 1 with it? (ii) does the
+denominator of every conditional probability equal the probability of the event I actually
+conditioned on? Gotchas 2, 5, 7 and 8 all fail one of these two checks, and both are cheaper than
+redoing the derivation.</div>
+
+<h3>5.4 The bridge: from outcomes to random variables</h3>
+
+<p>Every G1 answer was obtained by describing a <em>set</em> of outcomes and measuring it. That works,
+but it does not scale, and it does not compose. Three symptoms:</p>
+
+<ol>
+<li><b>The interesting objects are already numbers.</b> On the tetrahedral grid we never really
+cared about the pair $(x,y)$; we asked about $X+Y$, $\min(X,Y)$, $\max(X,Y)$ — numerical functions of
+the outcome. The binomial formula $\binom{n}{k}p^k(1-p)^{n-k}$ is not a statement about one event; it
+is a whole <em>table</em> of probabilities, one for each value $k=0,1,\ldots,n$, i.e. a function of a
+number.</li>
+<li><b>Set descriptions blow up.</b> Writing $\{\omega: \min(X,Y)=2\}=\{(2,2),(2,3),(2,4),(3,2),(4,2)\}$
+is fine for 16 outcomes and hopeless for $52!/(13!)^4$ card deals. We want to specify the answer as a
+function of a value, not as a list of outcomes.</li>
+<li><b>We cannot yet say "on average".</b> Nothing in G1 lets you ask how many heads you expect in
+$n$ tosses, or how spread out that count is. Averages and spreads are properties of numbers, so we
+first need numbers attached to outcomes.</li>
+</ol>
+
+<div class="defn"><b>Definition (preview, G2).</b> A <em>random variable</em> $X$ is a function from the
+sample space to the real numbers, $X:\Omega\to\mathbb{R}$: it assigns a number $X(\omega)$ to each
+outcome $\omega$. For a discrete random variable, its <em>probability mass function</em> (PMF) is
+$$p_X(x)=\mathbf{P}(\{\omega\in\Omega : X(\omega)=x\})=\mathbf{P}(X=x),$$
+the probability of the event that $X$ takes the value $x$. Because the events $\{X=x\}$ for
+different $x$ are disjoint and collectively exhaustive, the axioms immediately give
+$p_X(x)\ge 0$ and $\sum_x p_X(x)=1$.</div>
+
+<div class="note"><b>Interpretation — nothing new is being assumed.</b> The PMF is not a new axiom; it
+is a repackaging. $\{X=x\}$ is an ordinary event, so $p_X(x)$ is an ordinary probability, and the
+normalization $\sum_x p_X(x)=1$ is just additivity applied to the partition of $\Omega$ by the value
+of $X$. What changes is bookkeeping: instead of carrying $\Omega$ around, you carry a list of
+(value, probability) pairs. Every G1 tool survives the translation — the multiplication rule becomes
+joint PMFs, total probability becomes $p_X(x)=\sum_i \mathbf{P}(A_i)\,p_{X\mid A_i}(x)$, Bayes' rule
+becomes the PMF version of inference, and independence of events becomes independence of random
+variables.</div>
+
+<p>Two G1 results are already PMFs in disguise, which is why they are the natural first examples in
+G2. The binomial formula, read as a function of $k$, is the PMF of the number of heads in $n$
+independent tosses:
+$$p_K(k)=\binom{n}{k}p^k(1-p)^{n-k},\qquad k=0,1,\ldots,n,$$
+and the normalization $\sum_{k=0}^{n}p_K(k)=1$ is precisely the binomial theorem — verified
+numerically in <code>computes/g1_s5.py</code> for $n=10$, $p=0.3$, where the sum evaluates to
+$1.0$. Likewise the countably infinite example of L01 slide 11, $\mathbf{P}(n)=2^{-n}$ for
+$n=1,2,\ldots$, is the PMF of a geometric random variable, and the calculation
+$\mathbf{P}(\{2,4,6,\ldots\})=1/3$ done there is exactly the kind of sum G2 automates.</p>
+
+<div class="warn"><b>Gotcha — a random variable is not random, and it is not a variable.</b> $X$ is a
+deterministic function of the outcome; the randomness lives entirely in which $\omega$ occurs. This
+matters for notation: $X$ (capital) is the function, $x$ (lower case) is a particular numerical value
+it might take, and $p_X(x)$ is a number attached to that value. Writing $\mathbf{P}(X)$ or
+$p_X(X)$ is meaningless. Also, $p_X(x)$ is a probability only in the discrete case — in the
+continuous case (G3) the analogous object is a <em>density</em> and may exceed 1.</div>
+
+<h3>5.5 Mixed practice: choose the tool yourself</h3>
+
+<p>Every practice problem in §§1–4 sat directly under the subsection whose tool it exercised, so the
+tool was announced by the table of contents. These five are deliberately unsorted: each one chains two
+or three rows of the §5.2 cheatsheet, and nothing in the statement tells you which. Work them before
+reading the solutions, and note which rows you used — each solution names them. All numbers are
+recomputed in <code>computes/g1_s5.py</code>.</p>
+
+<div class="ex"><b>Practice 5.1 (counting, then inference).</b> Box 1 holds 6 red and 4 white balls; box 2
+holds 3 red and 7 white. You pick one box at random (each with probability $1/2$), then draw 3 balls
+from it without replacement. Exactly 2 of the 3 are red. What is the probability you were drawing from
+box 1?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Rows used:</b> <em>Hypergeometric probability</em> $\to$ <em>Total probability theorem</em> $\to$
+<em>Bayes' rule</em>. The problem is an inference question ("which box, given what I saw"), so the last
+step is Bayes; but the likelihoods $\mathbf{P}(\text{2 red}\mid\text{box }i)$ are not given, they must be
+counted first.</p>
+<p><b>Step 1 — the likelihoods.</b> Given box $i$, the 3 drawn balls are an equally likely 3-subset of the
+10 balls in that box, so the conditional uniform law applies and this is sampling without replacement:
+the hypergeometric row with $n=10$, $k=3$, $i=2$. With $m=6$ red in box 1,
+$$\mathbf{P}(R_2\mid B_1)=\frac{\binom{6}{2}\binom{4}{1}}{\binom{10}{3}}=\frac{15\cdot 4}{120}=\frac{60}{120}=\frac{1}{2},$$
+and with $m=3$ red in box 2,
+$$\mathbf{P}(R_2\mid B_2)=\frac{\binom{3}{2}\binom{7}{1}}{\binom{10}{3}}=\frac{3\cdot 7}{120}=\frac{21}{120}=\frac{7}{40}=0.175 .$$
+(Here $R_2$ = "exactly 2 of the 3 drawn are red"; $B_i$ = "box $i$ was picked".)</p>
+<p><b>Step 2 — total probability.</b> $\{B_1,B_2\}$ is a partition of $\Omega$, so
+$$\mathbf{P}(R_2)=\tfrac12\cdot\tfrac12+\tfrac12\cdot\tfrac{7}{40}=\tfrac14+\tfrac{7}{80}=\tfrac{20}{80}+\tfrac{7}{80}=\tfrac{27}{80}=0.3375 .$$</p>
+<p><b>Step 3 — Bayes.</b>
+$$\mathbf{P}(B_1\mid R_2)=\frac{\mathbf{P}(B_1)\mathbf{P}(R_2\mid B_1)}{\mathbf{P}(R_2)}=\frac{1/4}{27/80}=\frac{20}{27}\approx 0.740741 .$$</p>
+<p><b>Reading it.</b> The prior was $0.5$; seeing 2 reds out of 3 pushes it to $\approx 0.74$, because the
+red-rich box makes that observation $1/2 \div 7/40 = 20/7\approx 2.857$ times more likely. The posterior
+odds are exactly the prior odds ($1{:}1$) times that likelihood ratio: $20{:}7$, i.e. $20/27$. ✓</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.2 (find the partition nobody named).</b> Roll a fair six-sided die once and
+call the result $N$. Then toss a fair coin $N$ times. (a) Find the probability of getting exactly 2
+heads. (b) Given that exactly 2 heads occurred, find the probability that the die showed $N=2$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Rows used:</b> <em>Total probability theorem</em> (with a partition you have to invent) $\to$
+<em>Binomial probability</em> $\to$ <em>Bayes' rule</em>. Nothing in the statement says "partition"; the cue
+is that the coin experiment is only describable <em>once you know $N$</em>. So partition by the value of
+$N$: $A_n=\{N=n\}$, $n=1,\ldots,6$, which are disjoint and exhaust $\Omega$, each with
+$\mathbf{P}(A_n)=1/6$.</p>
+<p><b>Step 1 — the conditional probabilities.</b> Given $N=n$, the tosses are $n$ independent fair trials,
+so the binomial row with $p=1/2$ gives
+$$\mathbf{P}(H_2\mid N=n)=\binom{n}{2}\left(\tfrac12\right)^{2}\left(\tfrac12\right)^{n-2}=\frac{\binom{n}{2}}{2^{n}},$$
+where $H_2$ = "exactly 2 heads". This is $0$ for $n=1$ (you cannot get 2 heads in 1 toss), and
+$$\tfrac{1}{4},\quad \tfrac{3}{8},\quad \tfrac{6}{16}=\tfrac38,\quad \tfrac{10}{32}=\tfrac{5}{16},\quad \tfrac{15}{64}$$
+for $n=2,3,4,5,6$ respectively.</p>
+<p><b>Step 2 — total probability.</b> Weight each by $1/6$ and add:
+$$\mathbf{P}(H_2)=\frac16\left(\frac14+\frac38+\frac38+\frac{5}{16}+\frac{15}{64}\right)
+=\frac16\cdot\frac{16+24+24+20+15}{64}=\frac16\cdot\frac{99}{64}=\frac{99}{384}=\frac{33}{128}=0.2578125 .$$</p>
+<p><b>Step 3 — Bayes for part (b).</b>
+$$\mathbf{P}(N=2\mid H_2)=\frac{\mathbf{P}(N=2)\mathbf{P}(H_2\mid N=2)}{\mathbf{P}(H_2)}
+=\frac{(1/6)(1/4)}{33/128}=\frac{1/24}{33/128}=\frac{128}{24\cdot 33}=\frac{16}{99}\approx 0.161616 .$$</p>
+<p><b>Reading it.</b> The prior on $N=2$ was $1/6\approx0.1667$; observing exactly 2 heads barely moves it,
+to $\approx 0.1616$. That is because $\binom{n}{2}/2^n$ is nearly flat over $n=2,\ldots,4$ — "2 heads" is
+about equally plausible under several values of $N$, so it is weak evidence. Evidence only moves a
+posterior when the likelihoods actually differ across the partition.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.3 (is this independent?).</b> A fair coin is tossed 10 times, the tosses
+being independent. Let $H_1$ = "toss 1 is heads" and $H_2$ = "toss 2 is heads", and let
+$B$ = "exactly 3 of the 10 tosses are heads". Unconditionally $H_1$ and $H_2$ are independent by
+assumption. Are they independent <em>given</em> $B$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Rows used:</b> <em>Conditional uniform law</em> (L04 s7) $\to$ <em>Combinations</em> $\to$
+<em>Independence of two events</em>, checked as a product identity. The word "independent" in the statement
+is about the unconditional model and tells you nothing about the conditional one — Gotcha 3.</p>
+<p><b>Step 1 — the conditional model.</b> All $2^{10}$ toss sequences are equally likely, so conditioning on
+$B$ leaves a uniform law on the $|B|=\binom{10}{3}=120$ sequences with exactly 3 heads, and every
+conditional probability is a count inside $B$ divided by 120.</p>
+<p><b>Step 2 — the marginals.</b> Sequences in $B$ with toss 1 heads: fix an H in position 1 and place the
+remaining 2 heads among the other 9 positions, $\binom{9}{2}=36$ ways. So
+$$\mathbf{P}(H_1\mid B)=\frac{36}{120}=\frac{3}{10}=0.3,$$
+and by the same count $\mathbf{P}(H_2\mid B)=3/10$. (Sanity check: the three heads are equally likely to
+sit in any 3 of the 10 slots, so each slot is heads with probability $3/10$. ✓)</p>
+<p><b>Step 3 — the joint.</b> Sequences in $B$ with both tosses 1 and 2 heads: fix two H's, place the last
+head among the other 8 positions, $\binom{8}{1}=8$ ways. So
+$$\mathbf{P}(H_1\cap H_2\mid B)=\frac{8}{120}=\frac{1}{15}\approx 0.066667 .$$</p>
+<p><b>Step 4 — the verdict.</b>
+$$\mathbf{P}(H_1\mid B)\,\mathbf{P}(H_2\mid B)=\frac{3}{10}\cdot\frac{3}{10}=\frac{9}{100}=0.09
+\;\ne\; \frac{1}{15}\approx 0.066667=\mathbf{P}(H_1\cap H_2\mid B),$$
+so they are <b>not</b> conditionally independent given $B$. Conditioning destroyed the independence.</p>
+<p><b>Reading it.</b> Fixing the total number of heads makes the tosses compete for a fixed budget: knowing
+toss 1 is heads leaves only 2 heads for the remaining 9 slots, so
+$\mathbf{P}(H_2\mid H_1\cap B)=2/9\approx 0.222 &lt; 0.3$. Any constraint on a sum makes the summands
+negatively dependent — a pattern you will meet again in G2.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.4 (complement, then recount).</b> A committee of 5 people is chosen at random
+from a group of 6 women and 4 men, all $\binom{10}{5}$ committees being equally likely. (a) Find the
+probability that the committee contains at least one man. (b) Given that it contains at least one man,
+find the probability that it contains exactly 2 men.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Rows used:</b> <em>Discrete uniform law</em> + <em>Combinations</em> $\to$ <em>Complement rule</em> $\to$
+<em>Conditional uniform law</em>. Part (b) is a "given that" question inside a uniform model, so it is a
+recount, not a division of two computed probabilities.</p>
+<p><b>Step 0 — the model.</b> $\Omega$ = the set of 5-subsets of the 10 people,
+$|\Omega|=\binom{10}{5}=252$, uniform.</p>
+<p><b>Step 1 — part (a) by complement.</b> "At least one man" is a union of five overlapping cases, so use
+the complement: no man at all means all 5 are women, $\binom{6}{5}=6$ committees. Hence
+$$\mathbf{P}(\text{no man})=\frac{6}{252}=\frac{1}{42},\qquad
+\mathbf{P}(\text{at least one man})=1-\frac{1}{42}=\frac{41}{42}\approx 0.976190 .$$</p>
+<p><b>Step 2 — part (b) by recounting inside $B$.</b> Let $B$ = "at least one man", so
+$|B|=252-6=246$. Since the law on $\Omega$ is uniform, the law on $B$ is uniform too and
+$\mathbf{P}(A\mid B)=|A\cap B|/|B|$. Committees with exactly 2 men: choose the 2 men,
+$\binom{4}{2}=6$ ways, and the 3 women, $\binom{6}{3}=20$ ways, giving $20\cdot 6=120$ — and every one of
+them lies in $B$. Therefore
+$$\mathbf{P}(\text{exactly 2 men}\mid B)=\frac{120}{246}=\frac{20}{41}\approx 0.487805 .$$</p>
+<p><b>Reading it.</b> Unconditionally $\mathbf{P}(\text{exactly 2 men})=120/252=10/21\approx 0.476$;
+conditioning on $B$ nudges it up only slightly, because $B$ is nearly all of $\Omega$
+($\mathbf{P}(B)\approx 0.976$) — conditioning on an almost-certain event barely changes anything, which
+is a useful sanity check on any conditional answer.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.5 (which counting formula?).</b> A fair die is rolled 12 times, the rolls
+being independent. (a) Find the probability that each of the six faces appears exactly twice. (b) Find
+the probability that the face 6 appears exactly twice.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Rows used:</b> (a) <em>Multinomial probability</em> (or, equivalently, <em>Partitions</em> plus the
+discrete uniform law on ordered sequences); (b) <em>Binomial probability</em>. The trap is reaching for the
+same formula twice: (a) tracks all six faces at once, (b) collapses the die to a two-outcome trial
+("6" vs "not 6"), which is exactly what makes it binomial.</p>
+<p><b>Step 1 — part (a) as counting.</b> $\Omega$ = ordered sequences of 12 rolls, $|\Omega|=6^{12}=2\,176\,782\,336$,
+uniform because the die is fair and the rolls independent. The favorable sequences are the arrangements
+of the multiset $\{1,1,2,2,3,3,4,4,5,5,6,6\}$, counted by the multinomial coefficient
+$$\binom{12}{2,2,2,2,2,2}=\frac{12!}{(2!)^6}=\frac{479\,001\,600}{64}=7\,484\,400 .$$
+Hence
+$$\mathbf{P}(\text{each face twice})=\frac{7\,484\,400}{2\,176\,782\,336}\approx 0.003438 .$$
+Both numerator and denominator count <em>ordered</em> sequences — Gotcha 5 satisfied.</p>
+<p><b>Step 2 — part (a) as a multinomial probability.</b> Same answer from the cheatsheet row directly, with
+$n=12$, $r=6$, every $n_i=2$ and every $p_i=1/6$:
+$$\binom{12}{2,\ldots,2}\left(\tfrac16\right)^{12}=\frac{12!}{(2!)^6}\cdot\frac{1}{6^{12}}\approx 0.003438 . \checkmark$$</p>
+<p><b>Step 3 — part (b).</b> Call a roll a "success" if it shows 6. The 12 rolls are independent, each a
+success with the same $p=1/6$, so the count of successes is binomial:
+$$\mathbf{P}(\text{exactly two 6s})=\binom{12}{2}\left(\frac16\right)^{2}\left(\frac56\right)^{10}
+=66\cdot\frac{1}{36}\cdot\left(\frac56\right)^{10}\approx 0.296094 .$$</p>
+<p><b>Reading it.</b> The two answers differ by a factor of about 86, yet (a) is a special case of the same
+model: "each face exactly twice" is the intersection of six constraints like the one in (b), and
+constraints on a fixed total of 12 rolls are strongly negatively dependent (compare Practice 5.3), so the
+joint probability is far below the product of the marginals.</p>
+</div></details></div>
+
+<div class="summary"><b>§5 in one box.</b>
+<ul>
+<li><b>One model, two chains.</b> Axioms $\to$ conditional probability $\to$ multiplication rule
+$\to$ total probability $\to$ Bayes; axioms $\to$ uniform law $\to$ counting $\to$ binomial
+(Fig. 5.1).</li>
+<li><b>Two ideas only.</b> Additivity over disjoint pieces, and renormalization inside a
+conditioning event. Every formula in the cheatsheet is one of these two applied to a particular
+decomposition.</li>
+<li><b>Trigger words.</b> "at random / fair / shuffled" $\to$ uniform law and counting;
+"given that" $\to$ conditional probability; "under each scenario" $\to$ total probability;
+"which cause, given the observation" $\to$ Bayes; "independent trials" $\to$ products, and only
+then.</li>
+<li><b>Nine traps.</b> disjoint $\ne$ independent; $\mathbf{P}(A\mid B)\ne\mathbf{P}(B\mid A)$
+(0.99 vs 0.342561 in the radar model); conditioning changes independence (0.5 vs 0.9 for the two
+coins); pairwise $\ne$ mutual ($1/4$ vs $1/8$); count order consistently; labelled vs unlabelled
+groups; do not assume uniformity; pin down the conditioning event; never condition on a null
+event.</li>
+<li><b>Mixed practice (§5.5).</b> Five problems where the statement does not name the tool:
+$20/27$ (hypergeometric $\to$ total probability $\to$ Bayes); $33/128$ and $16/99$ (invent the
+partition, then binomial, then Bayes); $9/100\ne 1/15$ (independence destroyed by conditioning on the
+number of heads); $41/42$ and $20/41$ (complement, then recount inside $B$); $0.003438$ vs $0.296094$
+(multinomial vs binomial).</li>
+<li><b>Next.</b> Replace outcomes by numbers: $X:\Omega\to\mathbb{R}$ with PMF
+$p_X(x)=\mathbf{P}(X=x)$. The binomial formula becomes the binomial PMF; expectation and variance
+follow in G2.</li>
+</ul></div>

@@ -1,0 +1,797 @@
+<h2 id="g3-s1">§1 &nbsp; PDFs, CDFs, and the classic continuous distributions</h2>
+<p class="srcref">Sources: L08 slides 2–8 (raster p01–p02) · rec08 P1–P3 · rec09 P2 (exponential memorylessness — solved here, where the exponential lives, rather than in §2) · Bertsekas–Tsitsiklis (<b>B&amp;T</b>, as in §0) §3.1–3.3 (pp. 140–156), B&amp;T Example 3.13 (p. 165), B&amp;T Problem 3.9 "Mixed random variables" (Chapter 3, Problem 9; pp. 186–187) · every number recomputed in <code>computes/g3_s1.py</code>, figures in <code>computes/g3_s1_figs.py</code></p>
+
+<p>G2 built the whole theory of a random variable out of one object: the PMF $p_X(x) = \mathbf{P}(X = x)$. That object dies the moment $X$ can take a continuum of values. Spin a pointer and let $X$ be the angle it stops at; every particular angle has probability zero, so $p_X \equiv 0$ and the PMF carries no information at all. Yet the experiment plainly has structure — the pointer is as likely to land in $[0°,90°]$ as in $[90°,180°]$. The fix is to stop assigning probability to <em>points</em> and start assigning it to <em>intervals</em>, through a density.</p>
+
+<p>This section installs that machinery. §1.1 defines the probability density function and reads it correctly (it is a rate, not a probability). §1.2 redoes expectation and variance with integrals in place of sums, working every integral. §1.3 and §1.5 derive the two workhorse families — uniform and exponential — from scratch, filling in L08's blanks and rec08's compressed steps. §1.4 introduces the cumulative distribution function, the one object that describes discrete, continuous <em>and</em> mixed random variables in a single language; Al's taxi (rec08 P2) is the showcase. §1.6 uses CDFs to get the law of a maximum and a minimum of exponentials. §1.7 does the normal: where the $1/\sqrt{2\pi\sigma^2}$ comes from, why standardization works, and how to use the $\Phi$ table. Joint and conditional densities are §2; Bayes-style inference is §3; derived distributions and convolution are §4.</p>
+
+<div class="note"><b>Interpretation — the dictionary you are learning (L08 slide 8).</b> The last slide of L08 is a two-column constellation: $p_X(x)$ on the discrete side, $f_X(x)$ on the continuous side, with $F_X(x)$ and $\mathbb{E}[X], \operatorname{var}(X)$ printed <em>between</em> the columns because they belong to both. Every formula in this section is a G2 formula with $\sum \to \int$ and $p_X \to f_X$. That substitution is not a coincidence or a mnemonic: it is what the underlying measure-theoretic definition reduces to in each case. If you find yourself memorizing a continuous formula, look for the discrete one you already know and translate instead. (§0 has the full correspondence table.)</div>
+
+<h3>1.1 Probability density functions</h3>
+
+<div class="defn"><b>Definition (continuous random variable and its pdf; L08 slide 2, B&amp;T §3.1 p. 141).</b> A random variable $X$ is <b>continuous</b> if there is a nonnegative function $f_X$, called its <b>probability density function</b> (pdf), such that
+$$\mathbf{P}(X \in B) \;=\; \int_B f_X(x)\,dx$$
+for every "nice" subset $B$ of the real line. Here $f_X : \mathbb{R} \to [0,\infty)$ is the density, $x$ ranges over possible values of $X$, and $B$ is the set of values whose probability you want. Taking $B = [a,b]$ gives the form you will use ninety percent of the time,
+$$\mathbf{P}(a \le X \le b) \;=\; \int_a^b f_X(x)\,dx,$$
+and taking $B = (-\infty,\infty)$ gives the <b>normalization property</b>
+$$\int_{-\infty}^{\infty} f_X(x)\,dx \;=\; 1,$$
+since $X$ certainly takes <em>some</em> value. ("Nice" means measurable; every set you will meet in this course — intervals, finite unions of intervals, half-lines — qualifies. B&amp;T §3.1 p. 141 footnote.)</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s1_pdf_area}}" alt="Left panel: a smooth bimodal density curve on the x-axis; the region under the curve between the marks a and b is shaded and hatched, annotated as P(a &lt;= X &lt;= b) = the integral of f_X from a to b. Right panel: the same curve with a narrow vertical slab between x and x + delta shaded, and a dashed rectangle of height f_X(x) and width delta drawn over the slab, annotated P(x &lt;= X &lt;= x + delta) approximately equals f_X(x) times delta." style="max-width:900px">
+<div class="figcap">Fig. 1.1 — L08 slide 2, redrawn. Left: probability is <em>area</em>, not height. Right: over a short interval the curve is nearly flat, so the sliver of area is nearly the rectangle $f_X(x)\cdot\delta$ — the reading that gives $f_X$ its meaning.</div>
+
+<p>Three consequences follow immediately, and all three trip people up.</p>
+
+<div class="thm"><b>Property (single points have probability zero).</b> For any number $c$,
+$$\mathbf{P}(X = c) \;=\; \int_c^c f_X(x)\,dx \;=\; 0 .$$
+Consequently $\mathbf{P}(a \le X \le b) = \mathbf{P}(a &lt; X &lt; b) = \mathbf{P}(a \le X &lt; b) = \mathbf{P}(a &lt; X \le b)$: including or excluding the endpoints changes nothing, because the endpoints carry no mass.</div>
+
+<div class="warn"><b>Gotcha — "probability zero" is not "impossible".</b> The pointer <em>does</em> stop at some angle, and whatever angle that is had probability zero beforehand. In a continuous model, "probability zero" means "negligible in the limit", not "cannot happen". This is exactly why $p_X(x) = \mathbf{P}(X=x)$ is useless here and a density is needed instead. The discrete instinct "add up the probabilities of the individual values" fails: uncountably many zeros do not add to one.</div>
+
+<div class="note"><b>Interpretation — the delta-interval reading: $f_X$ is a probability <em>rate</em> (L08 slide 2, bullet 3).</b> Fix a value $x$ and a small width $\delta &gt; 0$. Then
+$$\mathbf{P}(x \le X \le x+\delta) \;=\; \int_x^{x+\delta} f_X(s)\,ds \;\approx\; f_X(x)\cdot\delta,$$
+because over a tiny interval the continuous integrand $f_X$ barely changes, so the area under it is essentially the rectangle of height $f_X(x)$ and width $\delta$ (Fig. 1.1, right). Rearranged,
+$$f_X(x) \;\approx\; \frac{\mathbf{P}(x \le X \le x + \delta)}{\delta} \;=\; \text{probability per unit length near } x .$$
+So $f_X(x)$ is not a probability; it is a probability <em>density</em> — probability divided by the units of $x$. If $X$ is measured in seconds, $f_X$ is measured in $\text{second}^{-1}$. This single sentence explains every "surprising" feature of densities, including the next Gotcha, and it is the reading you should reach for whenever a formula looks strange.
+<p><b>How good is the approximation?</b> For $X$ exponential with $\lambda = 1$ at $x = 0.5$ (<code>delta_slab_*</code>): with $\delta = 0.5$ the exact probability is $0.238651$ against the rectangle's $0.303265$, a $27.1\%$ relative error; with $\delta = 0.1$, $0.057719$ against $0.060653$, a $5.08\%$ error; with $\delta = 0.01$, $0.0060351$ against $0.0060653$, a $0.50\%$ error; with $\delta = 0.001$, a $0.05\%$ error. The error is proportional to $\delta$ — halve the window, halve the relative error. That is what "$\approx$" means here.</p></div>
+
+<div class="warn"><b>Gotcha — a density may exceed 1, by any amount you like.</b> Nothing in the definition bounds $f_X$. The uniform density on $[0,w]$ has height $1/w$ (§1.3), so on $[0,1]$ it is $1$, on $[0,0.5]$ it is $2$, on $[0,0.1]$ it is $10$, and on $[0,0.02]$ it is $50$ (<code>unif_height_w*</code>). There is no contradiction: what must be at most $1$ is the <em>area</em>, and the height-$50$ rectangle is only $0.02$ wide. Writing "$f_X(x) \le 1$" or reading $f_X(0.3) = 2.5$ as "a probability of $2.5$" are the two commonest beginner errors in this chapter. Height is a rate; area is a probability.</div>
+
+<div class="warn"><b>Gotcha — $f_X$ need not be continuous, and its values on a set of length zero are arbitrary.</b> The uniform density jumps at $a$ and $b$; whether you declare $f_X(a) = 1/(b-a)$ or $f_X(a) = 0$ changes no integral and hence no probability. Do not lose sleep over endpoint conventions. What <em>is</em> required is $f_X \ge 0$ everywhere and $\int f_X = 1$; those two conditions are exactly what makes a candidate function a legitimate pdf, and checking them is the first thing to do with any density handed to you.</div>
+
+<div class="ex"><b>Example 1.1 (rec08 P1(a)) — normalizing a quadratic density.</b>
+<p><b>Statement.</b> Let $Z$ be a continuous random variable with
+$$f_Z(z) = \begin{cases} \gamma(1 + z^2), & -2 &lt; z &lt; 1,\\ 0, & \text{otherwise.}\end{cases}$$
+For what value of $\gamma$ is this possible? <span class="srcref">(The question sheet prints the subscript in lower case, $f_z(z)$; the solution sheet uses $f_Z(z)$. Same object.)</span></p>
+<details class="sol"><summary>Solution — with the arithmetic the solution sheet omits</summary><div class="body">
+<p><b>Step 1 — write down the condition.</b> A pdf must integrate to $1$. Outside $(-2,1)$ the density is $0$ and contributes nothing, so the whole integral collapses onto that interval:
+$$1 \;=\; \int_{-\infty}^{\infty} f_Z(z)\,dz \;=\; \int_{-2}^{1} \gamma\,(1 + z^2)\,dz \;=\; \gamma \int_{-2}^{1} (1+z^2)\,dz,$$
+the constant $\gamma$ coming out of the integral by linearity.</p>
+<p><b>Step 2 — the antiderivative.</b> We need $G$ with $G'(z) = 1 + z^2$. Term by term, an antiderivative of $1$ is $z$ and an antiderivative of $z^2$ is $z^3/3$ (since $\frac{d}{dz}\frac{z^3}{3} = \frac{3z^2}{3} = z^2$). So
+$$G(z) \;=\; z + \tfrac13 z^3 .$$</p>
+<p><b>Step 3 — substitute the limits.</b> By the fundamental theorem of calculus the integral is $G(1) - G(-2)$. Evaluating each end separately (this is the step the solution sheet skips):
+$$G(1) \;=\; 1 + \tfrac13(1)^3 \;=\; 1 + \tfrac13 \;=\; \tfrac43,$$
+$$G(-2) \;=\; (-2) + \tfrac13(-2)^3 \;=\; -2 + \tfrac{-8}{3} \;=\; -\tfrac63 - \tfrac83 \;=\; -\tfrac{14}{3} .$$
+Therefore
+$$\int_{-2}^{1}(1+z^2)\,dz \;=\; \tfrac43 - \left(-\tfrac{14}{3}\right) \;=\; \tfrac43 + \tfrac{14}{3} \;=\; \tfrac{18}{3} \;=\; 6 .$$
+(Keys <code>recP1_G_at_1</code>, <code>recP1_G_at_m2</code>, <code>recP1_integral_no_gamma</code>.)</p>
+<p><b>Step 4 — solve for $\gamma$.</b> The condition is $\gamma \cdot 6 = 1$, so dividing both sides by $6$,
+$$\boxed{\;\gamma \;=\; \tfrac16 \;\approx\; 0.166667\;}$$
+This is the sheet's "$6\gamma$, from which we conclude $\gamma = 1/6$", now with the two missing lines restored. Sign check: $\gamma &gt; 0$ and $1 + z^2 &gt; 0$, so $f_Z \ge 0$ — the other pdf requirement holds. Numerical confirmation: <code>scipy.integrate.quad</code> of $(1+z^2)/6$ over $[-2,1]$ returns $1.0$ to $1.1\times10^{-14}$ (<code>recP1_scipy_norm_check</code>).</p>
+<p><b>Reading the answer.</b> The density is an upward parabola on $(-2,1)$: it is largest at the left end, $f_Z(-2^+) = (1+4)/6 = 5/6 \approx 0.8333$, dips to its minimum $f_Z(0) = 1/6 \approx 0.1667$ at the origin, and rises again to $f_Z(1^-) = 2/6 = 1/3$. So $Z$ is pulled toward $-2$: values near $-2$ are about five times as likely, per unit length, as values near $0$. Part (b), the CDF, is completed in §1.4 once CDFs are defined.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.1.</b> A density has the form $f_X(x) = cx$ for $0 \le x \le 2$ and $0$ elsewhere. (a) Find $c$. (b) Find $\mathbf{P}(X \le 1)$. (c) Is $f_X(x) \le 1$ for all $x$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) Normalization: $\int_0^2 cx\,dx = c\big[\tfrac{x^2}{2}\big]_0^2 = c\big(\tfrac{4}{2} - 0\big) = 2c$. Setting $2c = 1$ gives $c = 1/2$ (<code>p11_c</code>).</p>
+<p>(b) $\mathbf{P}(X \le 1) = \int_0^1 \tfrac12 x\,dx = \tfrac12\big[\tfrac{x^2}{2}\big]_0^1 = \tfrac12\cdot\tfrac12 = \tfrac14 = 0.25$ (<code>p11_P_X_le_1</code>). Note $\mathbf{P}(X \le 1) = 1/4$, not $1/2$: the density is small near $0$, so the left half of the range carries much less than half the mass.</p>
+<p>(c) No — and it does not matter. At $x = 2$, $f_X(2) = 1$; the maximum on the range is exactly $1$ here, but had the range been $[0,1]$ the constant would be $c = 2$ and the density would reach $2$. Only the area is constrained.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.2.</b> $X$ has density $f_X(x) = 3x^2$ on $[0,1]$ and $0$ elsewhere. Verify it is a pdf and compute $\mathbf{P}(0.2 \le X \le 0.5)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Legitimate?</b> $3x^2 \ge 0$ on $[0,1]$. ✓ And $\int_0^1 3x^2\,dx = \big[x^3\big]_0^1 = 1 - 0 = 1$ ✓ (an antiderivative of $3x^2$ is $x^3$).</p>
+<p><b>The probability.</b> Same antiderivative, new limits:
+$$\mathbf{P}(0.2 \le X \le 0.5) = \big[x^3\big]_{0.2}^{0.5} = (0.5)^3 - (0.2)^3 = 0.125 - 0.008 = 0.117$$
+(<code>p12_val</code>). Sanity check on the shape: $f_X$ increases on $[0,1]$, so the interval $[0.2,0.5]$ — width $0.3$, sitting in the low-density region — collects less than $0.3$ of the mass. ✓</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.3.</b> Let $X$ be uniform on $[0, 0.02]$ (a $20$-millisecond jitter, measured in seconds). What is $f_X(0.01)$, and what is $\mathbf{P}(0.009 \le X \le 0.011)$? Reconcile the two numbers.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The density is constant at $1/(0.02 - 0) = 50$ per second (<code>unif_height_w0.02</code>) on the range, so $f_X(0.01) = 50$ — fifty times larger than $1$.</p>
+<p>The probability is the area of a rectangle of height $50$ and width $0.011 - 0.009 = 0.002$:
+$$\mathbf{P}(0.009 \le X \le 0.011) = 50 \times 0.002 = 0.1 .$$
+Perfectly legal. The reconciliation is the delta-interval reading: $50\ \text{s}^{-1}$ times $0.002\ \text{s}$ is the dimensionless $0.1$. Change the unit to milliseconds and the same density is $0.05\ \text{ms}^{-1}$ while the probability stays $0.1$ — probabilities are unit-free, densities are not.</p>
+</div></details></div>
+
+<h3>1.2 Expectation and variance by integration</h3>
+
+<p>Every definition here is the G2 definition with the sum replaced by an integral and the PMF replaced by the density. The delta-interval reading is why: $f_X(x)\,dx$ is the probability mass sitting in $[x, x+dx]$, exactly the role $p_X(x)$ played in G2.</p>
+
+<div class="defn"><b>Definition (expectation, expected value of a function, variance; L08 slide 3, B&amp;T §3.1 pp. 143–145).</b> For a continuous random variable $X$ with pdf $f_X$:
+$$\mathbb{E}[X] \;=\; \int_{-\infty}^{\infty} x\,f_X(x)\,dx, \qquad\qquad
+\mathbb{E}[g(X)] \;=\; \int_{-\infty}^{\infty} g(x)\,f_X(x)\,dx,$$
+$$\operatorname{var}(X) \;=\; \sigma_X^2 \;=\; \mathbb{E}\big[(X - \mathbb{E}[X])^2\big] \;=\; \int_{-\infty}^{\infty} \big(x - \mathbb{E}[X]\big)^2 f_X(x)\,dx .$$
+Here $g$ is any (nice) real function, $\sigma_X^2$ is the standard notation for the variance and $\sigma_X = \sqrt{\operatorname{var}(X)}$ is the <b>standard deviation</b>, in the same units as $X$. The middle formula is the <b>expected-value rule</b>: you may integrate $g$ against the density of $X$ without first finding the density of $g(X)$ — the continuous twin of G2's $\mathbb{E}[g(X)] = \sum_x g(x)p_X(x)$. (The integrals are assumed to converge absolutely; §1.5 Practice shows a case where they do not.)</div>
+
+<div class="note"><b>Interpretation — center of mass, again.</b> Lay a thin rod along the $x$-axis whose mass density at $x$ is $f_X(x)$; the total mass is $\int f_X = 1$. Then $\mathbb{E}[X] = \int x f_X(x)\,dx$ is literally the rod's center of mass, and $\operatorname{var}(X)$ is its moment of inertia about that center. Every intuition you built in G2 (§2–§3) survives verbatim: the mean is the balance point, the variance measures spread in squared units, the standard deviation restores the original units.</div>
+
+<div class="thm"><b>Property (all the G2 algebra carries over; B&amp;T §3.1 p. 145).</b> For constants $a, b$ and any function $g$:
+$$\mathbb{E}[aX + b] = a\,\mathbb{E}[X] + b, \qquad \operatorname{var}(aX+b) = a^2\operatorname{var}(X), \qquad
+\operatorname{var}(X) = \mathbb{E}[X^2] - \big(\mathbb{E}[X]\big)^2 .$$
+</div>
+
+<details class="sol"><summary>Proof of the three identities — the integral versions of the G2 proofs</summary><div class="body">
+<p><b>Linearity.</b> Apply the expected-value rule with $g(x) = ax+b$ and split the integral (linearity of integration):
+$$\mathbb{E}[aX+b] = \int_{-\infty}^{\infty}(ax+b)f_X(x)\,dx = a\int_{-\infty}^{\infty} x f_X(x)\,dx + b\int_{-\infty}^{\infty} f_X(x)\,dx = a\,\mathbb{E}[X] + b\cdot 1,$$
+the last step using the definition of $\mathbb{E}[X]$ and normalization.</p>
+<p><b>Variance of a linear function.</b> Write $\mu = \mathbb{E}[X]$, so $\mathbb{E}[aX+b] = a\mu + b$ by the line above. Then
+$$\operatorname{var}(aX+b) = \int \big((ax+b) - (a\mu+b)\big)^2 f_X(x)\,dx = \int \big(a(x-\mu)\big)^2 f_X(x)\,dx = a^2\int (x-\mu)^2 f_X(x)\,dx,$$
+because the two $+b$'s cancel inside the bracket and $a$ pulls out squared. The remaining integral is $\operatorname{var}(X)$. Note $b$ has vanished: shifting a distribution does not change its spread.</p>
+<p><b>The computational formula.</b> Expand the square inside the integral, $(x-\mu)^2 = x^2 - 2\mu x + \mu^2$, and split into three integrals:
+$$\operatorname{var}(X) = \int x^2 f_X\,dx \;-\; 2\mu\int x f_X\,dx \;+\; \mu^2\int f_X\,dx = \mathbb{E}[X^2] - 2\mu\cdot\mu + \mu^2\cdot 1 = \mathbb{E}[X^2] - \mu^2 .$$
+The three integrals are, in order, $\mathbb{E}[X^2]$ (expected-value rule with $g(x)=x^2$), $\mathbb{E}[X] = \mu$, and normalization. $\blacksquare$ This identity is usually the cheaper route: one integral $\int x^2 f_X$ instead of an integral involving the mean you just computed.</p>
+</div></details>
+
+<div class="recipe"><b>Recipe — computing $\mathbb{E}[X]$ and $\operatorname{var}(X)$ from a density.</b>
+<ol>
+<li><b>Check the density.</b> $f_X \ge 0$ and $\int f_X = 1$. If a constant is unknown, this fixes it (Example 1.1).</li>
+<li><b>Restrict the limits.</b> The integral $\int_{-\infty}^{\infty}$ is only ever over the region where $f_X &gt; 0$; write those actual limits down before integrating anything.</li>
+<li><b>Mean:</b> integrate $x f_X(x)$. State the antiderivative, then substitute the upper and lower limits <em>separately</em>.</li>
+<li><b>Second moment:</b> integrate $x^2 f_X(x)$ the same way.</li>
+<li><b>Variance:</b> $\operatorname{var}(X) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$. (Direct integration of $(x - \mathbb{E}[X])^2 f_X(x)$ is equivalent; use whichever is algebraically lighter — for the uniform, a shift substitution makes the direct route trivial, see §1.3.)</li>
+<li><b>Sanity checks:</b> the mean must lie inside the range of $X$; the variance must be $\ge 0$; the standard deviation should be a modest fraction of the range (for a distribution on an interval of length $L$ it is always at most $L/2$).</li>
+</ol>
+</div>
+
+<div class="ex"><b>Practice 1.4.</b> $X$ has pdf $f_X(x) = 2x$ on $[0,1]$. Compute $\mathbb{E}[X]$, $\mathbb{E}[X^2]$, $\operatorname{var}(X)$ and $\sigma_X$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Mean.</b> $\displaystyle \mathbb{E}[X] = \int_0^1 x\cdot 2x\,dx = \int_0^1 2x^2\,dx = \Big[\tfrac{2x^3}{3}\Big]_0^1 = \tfrac23 - 0 = \tfrac23 \approx 0.6667$ (<code>p2a_mean</code>). It exceeds the midpoint $0.5$ because the density tilts mass toward $1$. ✓</p>
+<p><b>Second moment.</b> $\displaystyle \mathbb{E}[X^2] = \int_0^1 x^2\cdot 2x\,dx = \int_0^1 2x^3\,dx = \Big[\tfrac{x^4}{2}\Big]_0^1 = \tfrac12 - 0 = \tfrac12$ (<code>p2a_EX2</code>).</p>
+<p><b>Variance.</b> $\operatorname{var}(X) = \tfrac12 - \big(\tfrac23\big)^2 = \tfrac12 - \tfrac49 = \tfrac{9}{18} - \tfrac{8}{18} = \tfrac1{18} \approx 0.055556$, so $\sigma_X = \sqrt{1/18} \approx 0.2357$ (<code>p2a_var</code>, cross-checked by quadrature in <code>p2a_scipy</code>). Check: $\sigma_X \le L/2 = 0.5$. ✓</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.5.</b> With the same $f_X(x) = 2x$ on $[0,1]$, use the expected-value rule to find $\mathbb{E}[1/X]$ — without finding the density of $1/X$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Take $g(x) = 1/x$ and integrate against $f_X$:
+$$\mathbb{E}\Big[\tfrac1X\Big] = \int_0^1 \frac{1}{x}\cdot 2x\,dx = \int_0^1 2\,dx = \big[2x\big]_0^1 = 2 .$$
+The factor $x$ in the density cancels the $1/x$ singularity, so the integral converges. Two lessons: (i) the expected-value rule saves you an entire derived-distribution computation (that machinery is §4); (ii) $\mathbb{E}[1/X] = 2 \ne 1/\mathbb{E}[X] = 3/2$ — expectation does not commute with nonlinear functions, exactly as in G2.</p>
+</div></details></div>
+
+<h3>1.3 The continuous uniform random variable</h3>
+
+<p>L08 slide 3 introduces the uniform with two blanks left for lecture. We fill them, then derive the variance the slide asserts.</p>
+
+<div class="ex"><b>Example 1.2 (L08 slide 3, all blanks filled + the [DERIVATION GAP] closed) — the uniform on $[a,b]$.</b>
+<p><b>Statement as printed.</b> "Continuous Uniform r.v.": $f_X(x) = \underline{\hspace{1.5cm}}$ for $a \le x \le b$; $\mathbb{E}[X] = \underline{\hspace{1.5cm}}$; and
+$$\sigma_X^2 = \int_a^b\Big(x - \frac{a+b}{2}\Big)^2\frac{1}{b-a}\,dx = \frac{(b-a)^2}{12},$$
+with the middle steps omitted. Here $a &lt; b$ are the endpoints of the interval on which $X$ is equally likely to land.</p>
+
+<p><b>Blank 1 — the density.</b> "Uniform" means the density is a constant $c$ on $[a,b]$ and $0$ outside. Normalization pins $c$ down; no choice is involved:
+$$1 = \int_{-\infty}^{\infty} f_X(x)\,dx = \int_a^b c\,dx = c\big[x\big]_a^b = c\,(b-a) \quad\Longrightarrow\quad c = \frac{1}{b-a}.$$
+So
+$$\boxed{\;f_X(x) = \begin{cases}\dfrac{1}{b-a}, & a \le x \le b,\\[4pt] 0, & \text{otherwise.}\end{cases}\;}$$
+This is the $1/(b-a)$ that already appears inside the slide's variance integral. Note the immediate corollary, the one you actually use: for $a \le u \le v \le b$,
+$$\mathbf{P}(u \le X \le v) = \int_u^v \frac{dx}{b-a} = \frac{v-u}{b-a} = \frac{\text{length of the sub-interval}}{\text{length of the whole interval}},$$
+which is G1's "geometric probability" recovered as a density statement.</p>
+
+<p><b>Blank 2 — the mean.</b> Integrate $x$ against the density, pulling the constant $1/(b-a)$ out:
+$$\mathbb{E}[X] = \int_a^b x\cdot\frac{1}{b-a}\,dx = \frac{1}{b-a}\Big[\frac{x^2}{2}\Big]_a^b = \frac{1}{b-a}\cdot\frac{b^2 - a^2}{2}.$$
+Factor the difference of squares, $b^2 - a^2 = (b-a)(b+a)$, and cancel the $(b-a)$:
+$$\mathbb{E}[X] = \frac{(b-a)(b+a)}{2(b-a)} = \boxed{\;\frac{a+b}{2}\;}$$
+the midpoint — as symmetry demands. (This is the value the slide silently uses inside its variance integral.)</p>
+
+<p><b>The variance, every step.</b> Start from the slide's integral and substitute $u = x - \frac{a+b}{2}$, so $du = dx$. The limits move with the substitution:
+$$x = a \;\Longrightarrow\; u = a - \frac{a+b}{2} = \frac{2a - a - b}{2} = -\frac{b-a}{2}, \qquad
+x = b \;\Longrightarrow\; u = \frac{b-a}{2}.$$
+Abbreviate $c = \frac{b-a}{2}$ (half the interval length). Then
+$$\sigma_X^2 = \frac{1}{b-a}\int_{-c}^{c} u^2\,du = \frac{1}{b-a}\Big[\frac{u^3}{3}\Big]_{-c}^{c}
+= \frac{1}{b-a}\left(\frac{c^3}{3} - \frac{(-c)^3}{3}\right) = \frac{1}{b-a}\cdot\frac{2c^3}{3},$$
+using $(-c)^3 = -c^3$ so the two terms add rather than cancel. Now put $c^3 = \frac{(b-a)^3}{8}$:
+$$\sigma_X^2 = \frac{1}{b-a}\cdot\frac{2}{3}\cdot\frac{(b-a)^3}{8} = \frac{2(b-a)^3}{24(b-a)} = \boxed{\;\frac{(b-a)^2}{12}\;}$$
+which is the slide's answer, now derived. (Numerically verified for five intervals in <code>unif_*_var</code>; e.g. $[2,7]$ gives $25/12 \approx 2.083333$ both symbolically and by quadrature.)</p>
+
+<p><b>Cross-check by the other route.</b> Using $\operatorname{var}(X) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$:
+$$\mathbb{E}[X^2] = \frac{1}{b-a}\Big[\frac{x^3}{3}\Big]_a^b = \frac{b^3 - a^3}{3(b-a)} = \frac{(b-a)(a^2+ab+b^2)}{3(b-a)} = \frac{a^2+ab+b^2}{3},$$
+factoring $b^3 - a^3 = (b-a)(b^2+ab+a^2)$. Then, over the common denominator $12$,
+$$\operatorname{var}(X) = \frac{a^2+ab+b^2}{3} - \frac{(a+b)^2}{4} = \frac{4(a^2+ab+b^2) - 3(a+b)^2}{12} = \frac{4a^2+4ab+4b^2 - 3a^2-6ab-3b^2}{12} = \frac{a^2 - 2ab + b^2}{12} = \frac{(b-a)^2}{12}. \checkmark$$</p>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s1_uniform}}" alt="The uniform density on the interval from 2 to 7: a flat rectangle of height 0.2 between x equals 2 and x equals 7, zero elsewhere, with a dashed vertical line at the mean 4.5 and a double-headed arrow marking the interval mu minus sigma to mu plus sigma with sigma equal to 1.443." style="max-width:700px">
+<div class="figcap">Fig. 1.2 — The continuous uniform on $[2,7]$ (L08 slide 3, blanks filled). Height $1/(b-a) = 0.2$, mean $(a+b)/2 = 4.5$, variance $(b-a)^2/12 = 25/12 \approx 2.083$, so $\sigma = \sqrt{25/12} \approx 1.443$ (<code>unif_2_7_*</code>). The $\pm\sigma$ band covers about $58\%$ of the interval — a flat distribution is "wide" relative to its range.</div>
+
+<div class="note"><b>Interpretation — why $12$, and the discrete echo.</b> The $12$ is not magic: it is $2/3 \times 1/8$ after the substitution, i.e. it comes from integrating $u^2$ over a symmetric interval of half-width $(b-a)/2$. What matters is the <em>scaling</em>: $\operatorname{var} \propto (b-a)^2$, so $\sigma \propto (b-a)$. Double the interval and the standard deviation doubles, which is forced anyway by $\operatorname{var}(aX+b) = a^2\operatorname{var}(X)$ — every uniform is a linear function of the uniform on $[0,1]$, namely $X = a + (b-a)U$. Compare G2's discrete uniform on $n$ consecutive integers, with variance $(n^2-1)/12$: same $12$, and for large $n$ the two agree, since an interval of length $n$ holds $n$ integers.</div>
+
+<div class="warn"><b>Gotcha — the uniform's mean and median coincide, but nothing else does.</b> Symmetry gives mean $=$ median $= (a+b)/2$; that is special to symmetric densities. The <em>mode</em> is undefined (every point of $[a,b]$ maximizes $f_X$). And "uniform" refers to the density, not to any function of $X$: if $X$ is uniform on $[0,1]$, then $X^2$ is <em>not</em> uniform — its density is $1/(2\sqrt{y})$ on $[0,1]$, which blows up at $0$ (that computation is §4).</div>
+
+<div class="ex"><b>Practice 1.6.</b> Buses leave every $10$ minutes. You arrive at a time unrelated to the schedule, so your wait $X$ is uniform on $[0,10]$. Find $\mathbb{E}[X]$, $\operatorname{var}(X)$, $\sigma_X$ and $\mathbf{P}(X &gt; 7)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$a = 0$, $b = 10$, density $1/10 = 0.1$ on $[0,10]$.</p>
+<p>$\mathbb{E}[X] = (0+10)/2 = 5$ minutes. $\operatorname{var}(X) = (10-0)^2/12 = 100/12 = 8.3\overline{3}$, so $\sigma_X = \sqrt{100/12} \approx 2.886751$ minutes (<code>unif_0_10_*</code>).</p>
+<p>$\mathbf{P}(X &gt; 7) = \dfrac{10 - 7}{10 - 0} = 0.3$ by the length-ratio corollary — no integration needed.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.7.</b> $X$ is uniform on $[2,7]$. (a) Find $\mathbb{E}[3X - 1]$ and $\operatorname{var}(3X-1)$ without integrating. (b) Find $\mathbb{E}[X^2]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) From Fig. 1.2, $\mathbb{E}[X] = 4.5$ and $\operatorname{var}(X) = 25/12$. By the linearity properties of §1.2,
+$$\mathbb{E}[3X-1] = 3(4.5) - 1 = 12.5, \qquad \operatorname{var}(3X-1) = 3^2\cdot\frac{25}{12} = \frac{225}{12} = 18.75 .$$
+The $-1$ shifts the mean and leaves the variance alone.</p>
+<p>(b) Rearranging the computational formula, $\mathbb{E}[X^2] = \operatorname{var}(X) + (\mathbb{E}[X])^2 = \dfrac{25}{12} + 20.25 = 2.08\overline{3} + 20.25 = 22.33\overline{3}$. (Cross-check with the closed form derived above: $(a^2+ab+b^2)/3 = (4 + 14 + 49)/3 = 67/3 = 22.33\overline{3}$. ✓)</p>
+</div></details></div>
+
+<h3>1.4 Cumulative distribution functions: one object for all three worlds</h3>
+
+<p>The pdf handles continuous random variables, the PMF handles discrete ones, and neither handles a random variable that is part atom and part smear — like Al's waiting time below, which is $0$ with probability $2/3$ and otherwise spread over an interval. The CDF handles all three without modification, which is why L08 slide 8 prints it <em>between</em> the two columns.</p>
+
+<div class="defn"><b>Definition (CDF; L08 slide 4, B&amp;T §3.2 p. 148).</b> The <b>cumulative distribution function</b> of any random variable $X$ is
+$$F_X(x) \;=\; \mathbf{P}(X \le x), \qquad x \in \mathbb{R}.$$
+It specializes to
+$$F_X(x) = \sum_{k \le x} p_X(k) \quad\text{($X$ discrete)}, \qquad\qquad F_X(x) = \int_{-\infty}^{x} f_X(t)\,dt \quad\text{($X$ continuous)},$$
+where $k$ runs over the values of a discrete $X$ and $t$ is the dummy integration variable (it must differ from the limit $x$). The definition $\mathbf{P}(X \le x)$ makes sense for <em>every</em> random variable, whatever its type — that is the whole point.</div>
+
+<div class="thm"><b>Property (what every CDF looks like; B&amp;T §3.2 p. 148).</b>
+<ol>
+<li><b>Nondecreasing:</b> if $x \le y$ then $F_X(x) \le F_X(y)$, because $\{X \le x\} \subseteq \{X \le y\}$ and probability is monotone (G1).</li>
+<li><b>Limits:</b> $F_X(x) \to 0$ as $x \to -\infty$ and $F_X(x) \to 1$ as $x \to +\infty$.</li>
+<li><b>Right-continuous:</b> $F_X(x) = \lim_{\varepsilon \downarrow 0} F_X(x+\varepsilon)$ — the "$\le$" in the definition puts the value at each jump on the <em>upper</em> step (the closed dot in Fig. 1.3).</li>
+<li><b>Interval probabilities:</b> $\mathbf{P}(a &lt; X \le b) = F_X(b) - F_X(a)$, always.</li>
+<li><b>Jumps are point masses:</b> $\mathbf{P}(X = x) = F_X(x) - \lim_{\varepsilon \downarrow 0}F_X(x - \varepsilon)$, the size of the jump at $x$. A continuous random variable has no jumps; a discrete one is <em>all</em> jumps.</li>
+<li><b>Recovering the pdf:</b> if $X$ is continuous, then wherever $F_X$ is differentiable,
+$$f_X(x) = \frac{dF_X}{dx}(x),$$
+by the fundamental theorem of calculus applied to $F_X(x) = \int_{-\infty}^x f_X(t)\,dt$.</li>
+</ol>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s1_cdf_trio}}" alt="A two-row, three-column figure. Top row: a uniform pdf rectangle; a discrete PMF with three spikes of heights one sixth, three sixths and two sixths at 1, 2 and 4; and a mixed distribution showing a rectangular slab of height one half on the interval zero to one with a heavy arrow at one half denoting an atom of mass one half. Bottom row: the corresponding CDFs — a continuous ramp rising from 0 at a to 1 at b; a right-continuous staircase with closed dots on the upper step and open dots on the lower step, levels one sixth, four sixths and one; and a CDF that ramps, jumps from one quarter to three quarters at x equals one half, then ramps again to one." style="max-width:960px">
+<div class="figcap">Fig. 1.3 — L08 slides 4 and 5 combined. The CDF (bottom row) exists for all three types; the pdf/PMF picture above it does not. Left: continuous ⇒ the CDF is continuous, and its <em>slope</em> is the density. Middle: discrete ⇒ the CDF is flat with jumps, and the <em>jump heights</em> are the PMF values $1/6, 3/6, 2/6$, giving levels $1/6, 4/6, 1$ (<code>stair_cdf_levels</code>). Right: mixed ⇒ both features at once.</div>
+
+<div class="note"><b>Interpretation — the CDF is the "how much mass so far" function.</b> Sweep a vertical line from $-\infty$ to $+\infty$ and accumulate the probability you have passed. Continuous mass makes the accumulation rise smoothly; an atom of mass $p$ makes it leap by $p$. This is why the CDF is the universal object: accumulation is defined however the mass is distributed. It is also why the CDF is the right tool for maxima and minima (§1.6) and for derived distributions (§4) — those problems are naturally phrased as "$\mathbf{P}(\text{something} \le x)$", which is a CDF question by definition.</div>
+
+<div class="warn"><b>Gotcha — $\mathbf{P}(a &lt; X \le b) = F_X(b) - F_X(a)$ is exact; the other three versions are not.</b> With jumps present, $\mathbf{P}(a \le X \le b)$ differs from $F_X(b) - F_X(a)$ by the mass at $a$. For a <em>continuous</em> $X$ all four versions agree, because no point carries mass — which is precisely why people forget the distinction and then get mixed problems wrong. Match the inequality to the "$\le$" in the definition and you never have to think about it.</div>
+
+<div class="warn"><b>Gotcha — you cannot differentiate a CDF at a jump.</b> A mixed random variable has no pdf: the "derivative" of a jump is a delta function, not an ordinary function (L08 slide 5 draws it as an arrow for exactly this reason). Do not attempt $f_X = F_X'$ on such a distribution — work with the CDF, or split into the discrete and continuous parts as in Example 1.4.</div>
+
+<div class="ex"><b>Example 1.3 (rec08 P1(b), continued from Example 1.1) — the CDF of the quadratic density.</b>
+<p><b>Statement.</b> With $\gamma = 1/6$, find the cumulative distribution function of $Z$.</p>
+<details class="sol"><summary>Solution — with the lower-limit evaluation the solution sheet omits</summary><div class="body">
+<p><b>Step 1 — three regimes.</b> $F_Z(z) = \int_{-\infty}^{z} f_Z(t)\,dt$, and the integrand is nonzero only on $(-2,1)$, so:</p>
+<ul>
+<li>If $z &lt; -2$: the whole integration range lies where $f_Z = 0$, so $F_Z(z) = 0$.</li>
+<li>If $z &gt; 1$: the range covers all the mass, so $F_Z(z) = 1$ (this <em>is</em> Example 1.1's normalization).</li>
+<li>If $-2 \le z \le 1$: only the part from $-2$ to $z$ contributes, so $F_Z(z) = \int_{-2}^{z}\tfrac16(1+t^2)\,dt$.</li>
+</ul>
+<p><b>Step 2 — the middle piece.</b> Using the antiderivative $G(t) = t + \tfrac13 t^3$ from Example 1.1,
+$$F_Z(z) = \frac16\Big[t + \tfrac13 t^3\Big]_{-2}^{z} = \frac16\Big(\big(z + \tfrac13 z^3\big) - G(-2)\Big) .$$
+And $G(-2) = -\tfrac{14}{3}$, computed in Example 1.1 Step 3. Subtracting a negative adds:
+$$F_Z(z) = \frac16\Big(z + \frac{z^3}{3} + \frac{14}{3}\Big), \qquad -2 \le z \le 1 .$$
+That $\tfrac{14}{3}$ is the constant the solution sheet produces without showing where it comes from (<code>recP1_cdf_constant</code>).</p>
+<p><b>Step 3 — assemble.</b>
+$$F_Z(z) = \begin{cases} 0, & z &lt; -2,\\[3pt] \dfrac16\Big(z + \dfrac{z^3}{3} + \dfrac{14}{3}\Big), & -2 \le z \le 1,\\[6pt] 1, & z &gt; 1 .\end{cases}$$</p>
+<p><b>Step 4 — check the joins (always do this).</b> At $z = -2$: $\tfrac16(-2 - \tfrac83 + \tfrac{14}{3}) = \tfrac16(-2 + 2) = 0$ ✓ — it meets the left piece. At $z = 1$: $\tfrac16(1 + \tfrac13 + \tfrac{14}{3}) = \tfrac16(1 + 5) = 1$ ✓ — it meets the right piece. No jumps, so $Z$ is genuinely continuous. Spot values (<code>recP1_FZ_*</code>): $F_Z(-1) = 5/9 \approx 0.5556$, $F_Z(0) = 7/9 \approx 0.7778$, $F_Z(0.5) \approx 0.8681$.</p>
+<p><b>Step 5 — reverse check.</b> Differentiating the middle piece, $\frac{d}{dz}\frac16\big(z + \frac{z^3}{3} + \frac{14}{3}\big) = \frac16\big(1 + z^2\big) = f_Z(z)$ ✓, as property 6 requires. Note also that $F_Z(0) = 7/9$: more than three quarters of the mass sits left of the origin, confirming the leftward tilt observed in Example 1.1.</p>
+</div></details></div>
+
+<div class="ex"><b>Example 1.4 (rec08 P2 = B&amp;T Problem 3.9, pp. 186–187) — Al's waiting time for a taxi or a bus.</b>
+<p><b>Statement.</b> The taxi stand and the bus stop near Al's home are in the same location. Al goes there at a given time; if a taxi is waiting (probability $2/3$) he boards it immediately. Otherwise he waits for whichever comes first, a taxi or a bus. The next taxi arrives after a time uniformly distributed on $[0,10]$ minutes; the next bus arrives in exactly $5$ minutes. Find the CDF and the expected value of Al's waiting time.</p>
+<p class="srcref">The rec08 solution sheet contains no work at all — it says only "See textbook, Problem 3.9, page 187". Everything below is the full derivation; the book's compressed version is reproduced at the end for comparison.</p>
+<details class="sol"><summary>Solution — the entire [SOLUTION GAP] filled</summary><div class="body">
+<p><b>Step 0 — name the random quantities.</b> Let $X$ be Al's waiting time in minutes (what we want). Let $T \sim \text{Uniform}[0,10]$ be the time until the next taxi arrives, given that none is waiting. The bus arrives deterministically at time $5$. Then
+$$X = \begin{cases} 0 & \text{if a taxi is already waiting (probability } 2/3),\\ \min(T, 5) & \text{otherwise (probability } 1/3).\end{cases}$$
+So $X$ takes the single value $0$ with a lump of probability, the single value $5$ with another lump (whenever the bus wins), and a spread of values in $(0,5)$ (whenever the taxi wins). It is a <b>mixed</b> random variable — exactly the situation the book's problem is built around, and its preamble (p. 186) supplies the framework we now use.</p>
+
+<p><b>Step 1 — the mixed-random-variable framework (stated in the preamble of the same B&amp;T Problem 3.9, p. 186).</b> If $X$ equals a discrete random variable $Y$ with probability $p$ and a continuous random variable $Z$ with probability $1-p$, then by the total probability theorem applied to the event $\{X \le x\}$,
+$$F_X(x) = \mathbf{P}(X \le x) = p\,\mathbf{P}(Y \le x) + (1-p)\,\mathbf{P}(Z \le x) = p\,F_Y(x) + (1-p)\,F_Z(x),$$
+and, conforming to the total expectation theorem,
+$$\mathbb{E}[X] = p\,\mathbb{E}[Y] + (1-p)\,\mathbb{E}[Z].$$
+So the job is to identify the splitting event, $p$, $Y$ and $Z$.</p>
+
+<p><b>Step 2 — the splitting event $A$ and its probability.</b> Following the book, let
+$$A = \{\text{Al finds a taxi waiting}\} \cup \{\text{Al has to wait and the bus arrives first}\},$$
+i.e. the event that his waiting time is one of the two special values $0$ or $5$. First, given that he has to wait, the bus (at exactly $5$) beats the taxi precisely when $T &gt; 5$, and since $T$ is uniform on $[0,10]$ the length-ratio rule of §1.3 gives
+$$\mathbf{P}(\text{taxi takes more than } 5 \text{ minutes}) = \mathbf{P}(T &gt; 5) = \frac{10-5}{10-0} = \frac12 .$$
+Now decompose $A$ into its two disjoint pieces and use the multiplication rule on the second:
+$$\mathbf{P}(A) = \underbrace{\frac23}_{\text{taxi waiting}} + \underbrace{\frac13 \cdot \frac12}_{\text{must wait, then bus wins}} = \frac23 + \frac16 = \frac46 + \frac16 = \frac56 \approx 0.8333 .$$
+(Keys <code>taxi_p_taxi_gt5</code>, <code>taxi_p_bus_branch</code>, <code>taxi_PA</code>.) Hence $p = \mathbf{P}(A) = 5/6$ and $1 - p = 1/6$.</p>
+
+<p><b>Step 3 — the discrete component $Y$ (the law of $X$ given $A$).</b> Given $A$, the waiting time is $0$ or $5$. By the definition of conditional probability,
+$$p_Y(0) = \mathbf{P}(X = 0 \mid A) = \frac{\mathbf{P}(X = 0,\ A)}{\mathbf{P}(A)} = \frac{2/3}{5/6} = \frac23\cdot\frac65 = \frac{12}{15} = \frac45 = 0.8,$$
+$$p_Y(5) = \mathbf{P}(X = 5 \mid A) = \frac{\mathbf{P}(X = 5,\ A)}{\mathbf{P}(A)} = \frac{1/6}{5/6} = \frac16\cdot\frac65 = \frac{3}{15} = \frac15 = 0.2 .$$
+(The book prints these as $12/15$ and $3/15$; keys <code>taxi_pY0</code>, <code>taxi_pY5</code>.) Check: $4/5 + 1/5 = 1$ ✓. Its mean is
+$$\mathbb{E}[Y] = 0\cdot\frac45 + 5\cdot\frac15 = 1 \text{ minute}.$$</p>
+
+<p><b>Step 4 — the continuous component $Z$ (the law of $X$ given $A^c$).</b> The complementary event $A^c$ is "Al must wait <em>and</em> the taxi arrives within $5$ minutes", of probability $\frac13\cdot\frac12 = \frac16$ ✓ (it agrees with $1 - 5/6$). On $A^c$ the waiting time is $T$ itself, conditioned on $T &lt; 5$. Conditioning a density on an event of the form $\{T \in A\}$ rescales it on that set (B&amp;T §3.5, p. 165):
+$$f_Z(z) = f_{T \mid \{T &lt; 5\}}(z) = \frac{f_T(z)}{\mathbf{P}(T &lt; 5)} = \frac{1/10}{1/2} = \frac15, \qquad 0 \le z \le 5,$$
+and $0$ elsewhere. So $Z$ is uniform on $[0,5]$ — as it must be: chopping a uniform density and renormalizing leaves it uniform. Its mean is $\mathbb{E}[Z] = (0+5)/2 = 5/2 = 2.5$ minutes.</p>
+
+<p><b>Step 5 — assemble the CDF.</b> Insert into $F_X = p F_Y + (1-p)F_Z$ region by region.</p>
+<ul>
+<li><b>$x &lt; 0$:</b> both components are $\le x$ with probability $0$, so $F_X(x) = 0$.</li>
+<li><b>$0 \le x &lt; 5$:</b> $F_Y(x) = \mathbf{P}(Y \le x) = p_Y(0) = 4/5$ (the value $5$ has not been reached yet), and $F_Z(x) = x/5$ (uniform on $[0,5]$). Hence
+$$F_X(x) = \frac56\cdot\frac45 + \frac16\cdot\frac{x}{5} = \frac{20}{30} + \frac{x}{30} = \frac23 + \frac{x}{30}.$$</li>
+<li><b>$x \ge 5$:</b> $F_Y(x) = 1$ and $F_Z(x) = 1$, so $F_X(x) = \frac56 + \frac16 = 1$.</li>
+</ul>
+$$\boxed{\;F_X(x) = \begin{cases} 0, & x &lt; 0,\\[3pt] \dfrac23 + \dfrac{x}{30}, & 0 \le x &lt; 5,\\[6pt] 1, & x \ge 5 .\end{cases}\;}$$
+
+<p><b>Step 6 — read the shape and check it.</b> At $x = 0$ the CDF leaps from $0$ to $2/3$: that jump <em>is</em> $\mathbf{P}(X = 0) = 2/3$. It then ramps with slope $1/30$ (the density of the continuous part, $\frac16\cdot\frac15$), reaching
+$$F_X(5^-) = \frac23 + \frac{5}{30} = \frac{20}{30} + \frac{5}{30} = \frac{25}{30} = \frac56 ,$$
+and at $x = 5$ it leaps the remaining $1 - \frac56 = \frac16$: that jump is $\mathbf{P}(X = 5) = \frac16$, the bus. Total mass accounted for: $\frac23 + \frac{5}{30} + \frac16 = 1$ ✓. Intermediate value: $F_X(2.5) = \frac23 + \frac{2.5}{30} = 0.75$ (<code>taxi_F_2.5_exact</code>) — three quarters of the time Al is on his way within $2\tfrac12$ minutes.</p>
+
+<p><b>Step 7 — the expected value.</b>
+$$\mathbb{E}[X] = \mathbf{P}(A)\,\mathbb{E}[Y] + \big(1-\mathbf{P}(A)\big)\,\mathbb{E}[Z] = \frac56\cdot 1 + \frac16\cdot\frac52 = \frac56 + \frac{5}{12} = \frac{10}{12} + \frac{5}{12} = \frac{15}{12} = \boxed{\;\frac54 = 1.25 \text{ minutes}\;}$$
+matching the book's $15/12$ (<code>taxi_EX</code>).</p>
+
+<p><b>Step 8 — an independent cross-check.</b> Compute $\mathbb{E}[X]$ directly from $X = \mathbf{1}\{\text{must wait}\}\cdot\min(T,5)$. Since he waits with probability $1/3$ and $T$ is independent of that,
+$$\mathbb{E}[X] = \frac13\,\mathbb{E}[\min(T,5)], \qquad
+\mathbb{E}[\min(T,5)] = \int_0^5 t\cdot\frac{1}{10}\,dt + 5\cdot\mathbf{P}(T &gt; 5) = \frac{1}{10}\Big[\frac{t^2}{2}\Big]_0^5 + 5\cdot\frac12 = \frac{25}{20} + \frac52 = 1.25 + 2.5 = 3.75,$$
+so $\mathbb{E}[X] = 3.75/3 = 1.25$ ✓. A four-million-run Monte Carlo simulation of the whole story gives mean $1.25058$ and $F_X(2.5) = 0.74986$ (<code>taxi_MC_*</code>), confirming both answers.</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s1_taxi_cdf}}" alt="The CDF of Al's waiting time: it is zero for negative x, jumps from 0 to two thirds at x equals zero, then rises linearly with slope one thirtieth from two thirds at x equals zero to five sixths just before x equals five, then jumps from five sixths to one at x equals five and stays at one. Closed dots mark the upper end of each jump and open dots the lower end. A short dashed line marks the mean at 1.25 minutes." style="max-width:780px">
+<div class="figcap">Fig. 1.4 — Al's waiting time (rec08 P2 / B&amp;T Problem 3.9). Two jumps and one ramp: the jump $2/3$ at $x=0$ is "a taxi was already there", the jump $1/6$ at $x=5$ is "the bus won", the ramp of slope $1/30$ in between is "a taxi came first". Mean $5/4$ min. Every level is from <code>computes/g3_s1.py</code> keys <code>taxi_*</code>.</div>
+
+<div class="note"><b>Interpretation — how to read a mixed CDF at a glance.</b> Flat stretches mean "no probability lives here". Jumps mean "an atom lives exactly here", and the jump height is its mass. Sloped stretches mean "continuous mass lives here", and the slope is the density there. Al's picture says: two thirds of the mass is concentrated at $0$, one sixth is concentrated at $5$, and the remaining sixth is spread evenly over $(0,5)$ — which you can read off the graph without any algebra. This is the practical reason to draw the CDF first for any waiting-time problem with a "maybe it already happened" branch.</div>
+
+<div class="ex"><b>Practice 1.8.</b> A random variable has CDF $F_X(x) = 0$ for $x &lt; 0$, $F_X(x) = x^2$ for $0 \le x \le 1$, and $F_X(x) = 1$ for $x &gt; 1$. (a) Is $X$ continuous? (b) Find its pdf. (c) Find $\mathbf{P}(0.25 &lt; X \le 0.75)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) Yes: $F_X$ is continuous everywhere (at $x=0$ both pieces give $0$; at $x=1$ both give $1$), so there are no jumps and hence no point masses.</p>
+<p>(b) Differentiate on the middle piece: $f_X(x) = \frac{d}{dx}x^2 = 2x$ for $0 \le x \le 1$, and $0$ elsewhere — the density of Practice 1.4. (Check: $\int_0^1 2x\,dx = [x^2]_0^1 = 1$ ✓.)</p>
+<p>(c) $\mathbf{P}(0.25 &lt; X \le 0.75) = F_X(0.75) - F_X(0.25) = 0.75^2 - 0.25^2 = 0.5625 - 0.0625 = 0.5$. Differencing the CDF is faster than integrating the pdf whenever the CDF is already in hand.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.9.</b> Let $U$ be uniform on $[0,2]$ and set $X = \min(U, 1)$ (a sensor that saturates at $1$). Find $F_X$, identify the atom, and compute $\mathbb{E}[X]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>CDF.</b> For $0 \le x &lt; 1$: $\{X \le x\} = \{U \le x\}$, so $F_X(x) = x/2$. For $x \ge 1$: $X \le 1$ always, so $F_X(x) = 1$. For $x &lt; 0$: $F_X(x) = 0$.
+$$F_X(x) = \begin{cases}0, & x &lt; 0,\\ x/2, & 0 \le x &lt; 1,\\ 1, & x \ge 1.\end{cases}$$</p>
+<p><b>The atom.</b> $F_X(1^-) = 1/2$ while $F_X(1) = 1$, a jump of $1/2$: $\mathbf{P}(X = 1) = \mathbf{P}(U \ge 1) = 1/2$ ✓. So $X$ is mixed — half continuous (uniform density $1/2$ on $[0,1)$), half a single atom at $1$.</p>
+<p><b>Mean.</b> Split as in Example 1.4, with $p = 1/2$ for the atom $Y \equiv 1$ and $1-p = 1/2$ for $Z$ uniform on $[0,1]$:
+$$\mathbb{E}[X] = \tfrac12\cdot 1 + \tfrac12\cdot\tfrac12 = \tfrac12 + \tfrac14 = 0.75 .$$
+Cross-check by direct integration against the continuous part plus the atom: $\int_0^1 x\cdot\frac12\,dx + 1\cdot\frac12 = \frac14 + \frac12 = 0.75$ ✓. Note $\mathbb{E}[X] = 0.75 &lt; \mathbb{E}[U] = 1$: saturation can only pull the mean down.</p>
+</div></details></div>
+
+<h3>1.5 The exponential random variable and memorylessness</h3>
+
+<p>The exponential is the continuous analogue of G2's geometric: it models the time you wait for an event that has no schedule and no memory — a light bulb burning out, a customer arriving, a packet failing. rec08 P3 derives its CDF, mean and variance; rec09 P2 asks for the memorylessness property and then defers to the textbook. Both are done in full here.</p>
+
+<div class="defn"><b>Definition (exponential random variable; rec08 P3, B&amp;T §3.1 p. 146).</b> For a parameter $\lambda &gt; 0$, the random variable $X$ is <b>exponential with parameter $\lambda$</b> (written $X \sim \text{Exp}(\lambda)$) if
+$$f_X(x) = \begin{cases}\lambda e^{-\lambda x}, & x \ge 0,\\ 0, & \text{otherwise.}\end{cases}$$
+The parameter $\lambda$ has units of $1/\text{time}$ and is called the <b>rate</b>; $x$ is the elapsed time. The density is legitimate: it is nonnegative since $\lambda &gt; 0$ and $e^{-\lambda x} &gt; 0$, and
+$$\int_0^{\infty}\lambda e^{-\lambda x}\,dx = \Big[-e^{-\lambda x}\Big]_0^{\infty} = \big(0\big) - \big(-1\big) = 1,$$
+using $\frac{d}{dx}\big(-e^{-\lambda x}\big) = \lambda e^{-\lambda x}$ and $e^{-\lambda x}\to 0$ as $x \to\infty$.</div>
+
+<div class="ex"><b>Example 1.5 (rec08 P3(a)–(c), with every [SOLUTION GAP] filled) — CDF, mean and variance of the exponential.</b>
+
+<p><b>(a) The CDF.</b> For $x &lt; 0$ the density is identically zero on $(-\infty, x]$, so
+$$F_X(x) = \int_{-\infty}^{x} f_X(t)\,dt = 0 .$$
+For $x \ge 0$ the integrand is zero on $(-\infty, 0)$ and $\lambda e^{-\lambda t}$ on $[0,x]$:
+$$F_X(x) = \int_{0}^{x}\lambda e^{-\lambda t}\,dt = \Big[-e^{-\lambda t}\Big]_{0}^{x} .$$
+Substituting the limits separately: at $t = x$ the antiderivative is $-e^{-\lambda x}$; at $t = 0$ it is $-e^{0} = -1$. Subtracting,
+$$F_X(x) = -e^{-\lambda x} - (-1) = 1 - e^{-\lambda x} .$$
+Hence
+$$\boxed{\;F_X(x) = \begin{cases}0, & x &lt; 0,\\ 1 - e^{-\lambda x}, & x \ge 0,\end{cases}\qquad\text{equivalently}\qquad \mathbf{P}(X &gt; x) = e^{-\lambda x} \ \ (x \ge 0).\;}$$
+The tail form $\mathbf{P}(X &gt; x) = e^{-\lambda x}$ is the one worth memorizing; it is the survival probability, and it drives §1.6 and memorylessness below.</p>
+
+<p><b>(b) The mean, by parts — every step.</b> We must evaluate $\mathbb{E}[X] = \int_0^\infty x\,\lambda e^{-\lambda x}\,dx$. Integration by parts says $\int_0^\infty u\,dv = \big[uv\big]_0^\infty - \int_0^\infty v\,du$. Choose
+$$u = x \;\Longrightarrow\; du = dx, \qquad dv = \lambda e^{-\lambda x}dx \;\Longrightarrow\; v = -e^{-\lambda x},$$
+the choice of $v$ being verified by differentiating: $\frac{d}{dx}(-e^{-\lambda x}) = \lambda e^{-\lambda x}$ ✓. (Why this choice? Because differentiating $u = x$ removes the polynomial factor, whereas the exponential integrates back to itself.) Then
+$$\mathbb{E}[X] = \Big[-x e^{-\lambda x}\Big]_0^{\infty} \;-\; \int_0^{\infty}\big(-e^{-\lambda x}\big)\,dx \;=\; \Big[-x e^{-\lambda x}\Big]_0^{\infty} \;+\; \int_0^{\infty} e^{-\lambda x}\,dx .$$
+<em>The boundary term (the sheet drops it silently).</em> At the lower limit, $-0\cdot e^{0} = 0$. At the upper limit we need $\lim_{x\to\infty} x e^{-\lambda x}$. Since $e^{\lambda x}$ grows faster than any polynomial, $x/e^{\lambda x} \to 0$ (formally, one application of L'Hôpital's rule gives $1/(\lambda e^{\lambda x}) \to 0$). Concretely, at $\lambda = 1$, $x = 100$ the value is $3.720\times10^{-42}$ (<code>exp_bdry_x_e_1_at_100</code>). So the boundary term is $0 - 0 = 0$.
+<em>The remaining integral.</em> An antiderivative of $e^{-\lambda x}$ is $-\frac{1}{\lambda}e^{-\lambda x}$, so
+$$\int_0^{\infty}e^{-\lambda x}dx = \Big[-\frac{1}{\lambda}e^{-\lambda x}\Big]_0^{\infty} = 0 - \Big(-\frac{1}{\lambda}\Big) = \frac{1}{\lambda}.$$
+Therefore
+$$\boxed{\;\mathbb{E}[X] = 0 + \frac1\lambda = \frac{1}{\lambda}\;}$$
+Verified by quadrature for $\lambda = 0.5, 1, 2, 0.2$ (<code>exp_lam*_mean</code>).</p>
+
+<p><b>(c) The variance.</b> First the second moment, by parts again with $u = x^2$, $dv = \lambda e^{-\lambda x}dx$, so $du = 2x\,dx$ and $v = -e^{-\lambda x}$:
+$$\mathbb{E}[X^2] = \int_0^{\infty}x^2\lambda e^{-\lambda x}dx = \Big[-x^2 e^{-\lambda x}\Big]_0^{\infty} + \int_0^{\infty}2x\,e^{-\lambda x}\,dx .$$
+<em>Boundary term.</em> At $x = 0$ it is $0$; as $x\to\infty$, $x^2 e^{-\lambda x}\to 0$ for the same growth reason (at $\lambda=1$, $x=100$: $3.720\times 10^{-40}$, key <code>exp_bdry_x2_e_1_at_100</code>). So it vanishes.
+<em>The remaining integral — the step the sheet compresses.</em> Multiply and divide by $\lambda$ so that the density reappears inside:
+$$\int_0^{\infty}2x\,e^{-\lambda x}dx = \frac{2}{\lambda}\int_0^{\infty}x\,\lambda e^{-\lambda x}\,dx = \frac{2}{\lambda}\,\mathbb{E}[X] = \frac{2}{\lambda}\cdot\frac1\lambda = \frac{2}{\lambda^2}.$$
+That is exactly the sheet's "$= \frac{2}{\lambda}\mathbb{E}[X]$", now with the inserted factor $\lambda$ made explicit. Hence $\mathbb{E}[X^2] = 2/\lambda^2$, and
+$$\operatorname{var}(X) = \mathbb{E}[X^2] - \big(\mathbb{E}[X]\big)^2 = \frac{2}{\lambda^2} - \Big(\frac1\lambda\Big)^2 = \frac{2}{\lambda^2} - \frac{1}{\lambda^2} = \boxed{\;\frac{1}{\lambda^2}\;}$$
+so $\sigma_X = 1/\lambda = \mathbb{E}[X]$: <b>the exponential's standard deviation equals its mean.</b> All four values confirmed numerically in <code>exp_lam*_*</code>.</p>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s1_exponential}}" alt="Left panel: exponential densities for lambda equal to 0.5, 1 and 2, each starting at height lambda at x equals zero and decaying; the lambda equals 2 curve is tallest and fastest-decaying. Right panel: the corresponding CDFs, each rising from zero and approaching one, with larger lambda approaching one faster." style="max-width:920px">
+<div class="figcap">Fig. 1.5 — The exponential family (rec08 P3; B&amp;T §3.1 p. 146). The pdf starts at height $\lambda$ and decays at rate $\lambda$; the CDF $1 - e^{-\lambda x}$ climbs to $1$. Larger $\lambda$ means a faster clock: mean $1/\lambda$ and standard deviation $1/\lambda$ both shrink.</div>
+
+<div class="note"><b>Interpretation — $\lambda$ is a rate, $1/\lambda$ is a timescale.</b> Read the delta-interval rule at $x = 0$: $\mathbf{P}(0 \le X \le \delta) \approx \lambda\delta$. So $\lambda$ is the instantaneous rate at which the event happens — $\lambda = 3$ per hour means a $3\delta$ chance in the next $\delta$ hours. Everything else follows dimensionally: the mean wait is $1/\lambda$, the standard deviation is $1/\lambda$, the variance is $1/\lambda^2$. A useful universal number: $\mathbf{P}(X \le \mathbb{E}[X]) = 1 - e^{-\lambda/\lambda} = 1 - e^{-1} = 0.632121$ for <em>every</em> $\lambda$ (<code>exp_P_within_1sd</code>). About $63\%$ of exponential waits are shorter than average — the distribution is heavily right-skewed, and the rare long waits drag the mean above the median $\ln 2/\lambda \approx 0.693/\lambda$.</div>
+
+<div class="warn"><b>Gotcha — $\lambda$ versus $1/\lambda$.</b> Half of all exponential errors are this one. If a problem says "bulbs last $1000$ hours on average", that is $\mathbb{E}[X] = 1000$, so $\lambda = 1/1000$ per hour, and $\mathbf{P}(X &gt; x) = e^{-x/1000}$ — not $e^{-1000x}$. Sanity check every exponential answer by plugging in $x = \mathbb{E}[X]$ and confirming you get $e^{-1} \approx 0.368$ for the tail.</div>
+
+<div class="thm"><b>Property (memorylessness; rec09 P2 = B&amp;T Example 3.13, p. 165).</b> Let $T \sim \text{Exp}(\lambda)$ and let $t \ge 0$. Conditioned on $A = \{T &gt; t\}$, the <em>additional</em> time $X = T - t$ is again exponential with the same parameter $\lambda$:
+$$\mathbf{P}(X &gt; x \mid T &gt; t) = e^{-\lambda x}, \qquad \mathbf{P}(X \le x \mid T &gt; t) = 1 - e^{-\lambda x}, \qquad x \ge 0 .$$
+</div>
+
+<div class="ex"><b>Example 1.6 (rec09 P2 — the whole [SOLUTION GAP] filled; solved here because the exponential lives in this section).</b>
+<p><b>Statement.</b> The time $T$ until a new light bulb burns out is exponential with parameter $\lambda$. Ariadne turns the light on, leaves the room, and when she returns $t$ time units later finds the bulb still on — the event $A = \{T &gt; t\}$. Let $X$ be the additional time until the bulb burns out. What is the conditional CDF of $X$ given $A$? <span class="srcref">(The rec09 solution sheet says only "See Example 3.13 in the textbook on page 165".)</span></p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 — translate the question into an event about $T$.</b> $X = T - t$ is the residual life. For $x \ge 0$,
+$$\{X &gt; x\} \cap A = \{T - t &gt; x\} \cap \{T &gt; t\} = \{T &gt; t + x\} \cap \{T &gt; t\} = \{T &gt; t+x\},$$
+the last equality because $x \ge 0$ makes $t + x \ge t$, so $\{T &gt; t+x\}$ is already contained in $\{T &gt; t\}$ — the intersection is the smaller set.</p>
+<p><b>Step 2 — apply the definition of conditional probability (G1 §2).</b>
+$$\mathbf{P}(X &gt; x \mid A) = \frac{\mathbf{P}(\{X &gt; x\}\cap A)}{\mathbf{P}(A)} = \frac{\mathbf{P}(T &gt; t + x)}{\mathbf{P}(T &gt; t)} .$$</p>
+<p><b>Step 3 — insert the exponential tail from Example 1.5(a).</b> $\mathbf{P}(T &gt; s) = e^{-\lambda s}$, so
+$$\mathbf{P}(X &gt; x \mid A) = \frac{e^{-\lambda(t+x)}}{e^{-\lambda t}} = e^{-\lambda(t+x) + \lambda t} = e^{-\lambda x},$$
+using the exponent law $e^{p}/e^{q} = e^{p-q}$ and cancelling the $\lambda t$'s. The elapsed time $t$ has vanished entirely.</p>
+<p><b>Step 4 — the conditional CDF.</b> Taking complements,
+$$F_{X\mid A}(x) = \mathbf{P}(X \le x \mid A) = 1 - e^{-\lambda x}, \qquad x \ge 0,$$
+which is precisely the unconditional exponential CDF of Example 1.5(a). Differentiating, the conditional density is $\lambda e^{-\lambda x}$: the residual life is $\text{Exp}(\lambda)$, the same distribution as a brand-new bulb. In particular the expected remaining life is $\mathbb{E}[X \mid T &gt; t] = 1/\lambda$, no matter how long the bulb has already burned.</p>
+<p><b>Numerical confirmation.</b> With $\lambda = 0.4$: for every $t \in \{0,1,3,10,50\}$ and every $x \in \{0.5,2,5,9\}$, the conditional tail $e^{-\lambda(t+x)}/e^{-\lambda t}$ equals the fresh tail $e^{-\lambda x}$ to within $2.3\times10^{-15}$ (<code>mem_lam0.4_*</code>, <code>mem_max_abs_dev</code>) — e.g. both equal $0.81873075$ at $x = 0.5$ and $0.44932896$ at $x = 2$.</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s1_memoryless}}" alt="Left panel: the exponential density with rate 0.4; a dashed vertical line at t equals 3 marks the moment Ariadne returns and the region to the right of it is shaded, labelled P(T greater than t) equals e to the minus lambda t. Right panel: two curves plotted against extra time x, a thick pale curve for the fresh-bulb density lambda e to the minus lambda x and a dashed curve for the conditional density of the residual life given survival past t; the two curves coincide exactly." style="max-width:920px">
+<div class="figcap">Fig. 1.6 — Memorylessness (rec09 P2 / B&amp;T Example 3.13, p. 165), $\lambda = 0.4$, $t = 3$. Left: condition on the shaded tail. Right: divide that tail by its own mass $e^{-\lambda t}$ and slide it back to the origin — you recover the original density exactly. The two curves are drawn separately and lie on top of each other.</div>
+
+<div class="note"><b>Interpretation — "used is as good as new", and the geometric echo.</b> The exponential is the <em>only</em> continuous distribution with this property, and it is the direct continuous analogue of G2's geometric memorylessness $\mathbf{P}(N &gt; k+j \mid N &gt; k) = (1-p)^j = \mathbf{P}(N &gt; j)$. The mechanism is identical: the tail is a pure exponential in the argument, $e^{-\lambda x}$ versus $(1-p)^k$, and dividing two such tails leaves only the difference of exponents. Practically it means an exponential model is appropriate exactly when the item does not age — radioactive decay, arrivals of unrelated customers, a modem line failing from external noise — and inappropriate when it does. Real light bulbs and real machinery <em>do</em> wear out, so the memorylessness of an exponential model is a modeling assumption to be checked, not a law of nature.</div>
+
+<div class="warn"><b>Gotcha — memorylessness is not "the past does not matter for everything".</b> It says the <em>residual</em> life has the same law. It does <em>not</em> say $\mathbb{E}[T \mid T &gt; t] = \mathbb{E}[T]$; in fact $\mathbb{E}[T \mid T &gt; t] = t + 1/\lambda$, which grows with $t$. Nor does it hold for $x &lt; 0$ (the conditional law of $T$ given $T &gt; t$ puts zero mass below $t$). Keep straight which random variable you are describing: $T$ shifted, or $T$ itself.</div>
+
+<div id="w-g3s1-memoryless"></div>
+<script>
+Widget.create({ el: '#w-g3s1-memoryless', height: 320,
+  title: 'Memorylessness: slide the "already elapsed" time and watch nothing happen',
+  note: 'Left curve: the pdf of T ~ Exp(lambda), with the survival region beyond t shaded. ' +
+        'Dashed curve: the conditional density of the residual life X = T - t given T > t, ' +
+        'plotted against absolute time, i.e. lambda*exp(-lambda*(x-t)) for x >= t. ' +
+        'It is the original pdf translated by t, never reshaped. The readout compares ' +
+        'P(X > x | T > t) with the fresh-bulb P(T > x); they agree to machine precision ' +
+        '(verified in computes/g3_s1.py, key widget_mem_check, max deviation 2.2e-16).',
+  controls: [
+    {type:'range', id:'lam', label:'rate λ', min:0.1, max:2, step:0.05, value:0.4},
+    {type:'range', id:'t', label:'time already elapsed, t', min:0, max:8, step:0.1, value:3},
+    {type:'range', id:'x', label:'extra time asked about, x', min:0, max:8, step:0.1, value:2}
+  ],
+  draw(s, canvas, out) {
+    const lam = s.lam, t = s.t, x = s.x;
+    const XMAX = 16, ymax = lam * 1.15;
+    const P = new Plot(canvas, { xlim:[0, XMAX], ylim:[0, ymax], height:320,
+      xlabel:'absolute time', ylabel:'density' });
+    P.frame();
+    const f = u => lam * Math.exp(-lam * u);
+    // shaded survival tail beyond t
+    const xs = [], ys = [];
+    for (let i = 0; i <= 200; i++) { const u = t + (XMAX - t) * i / 200; xs.push(u); ys.push(f(u)); }
+    P.area(xs, ys, {color:0, alpha:0.22});
+    P.func(f, {label:'pdf of T (fresh bulb)', color:0});
+    // conditional density of T given T > t, in absolute time
+    const cx = [], cy = [];
+    for (let i = 0; i <= 200; i++) { const u = t + (XMAX - t) * i / 200; cx.push(u); cy.push(lam * Math.exp(-lam * (u - t))); }
+    P.line(cx, cy, {label:'conditional density given T > t', color:1, dash:[6,4]});
+    P.vline(t, {color:'#eb6834'});
+    P.vline(t + x, {color:'#1baf7a'});
+    P.legend();
+    const condTail = Math.exp(-lam * (t + x)) / Math.exp(-lam * t);
+    const freshTail = Math.exp(-lam * x);
+    out.textContent =
+      'λ = ' + lam.toFixed(2) + '   t = ' + t.toFixed(1) + '   x = ' + x.toFixed(1) +
+      '   |   P(T > t) = ' + Math.exp(-lam * t).toFixed(6) +
+      '   P(T > t+x) = ' + Math.exp(-lam * (t + x)).toFixed(6) +
+      '   →  P(X > x | T > t) = ' + condTail.toFixed(6) +
+      '   versus fresh P(T > x) = ' + freshTail.toFixed(6) +
+      '   (difference ' + Math.abs(condTail - freshTail).toExponential(1) + ')' +
+      '   |   E[remaining] = 1/λ = ' + (1 / lam).toFixed(4) + ' regardless of t';
+  }});
+</script>
+
+<div class="ex"><b>Practice 1.10.</b> Server response times are exponential with mean $5$ seconds. Find (a) $\lambda$; (b) $\mathbf{P}(X &gt; 10)$; (c) $\mathbf{P}(X \le 5)$; (d) the median; (e) $\operatorname{var}(X)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) $\mathbb{E}[X] = 1/\lambda = 5$, so $\lambda = 0.2$ per second.</p>
+<p>(b) $\mathbf{P}(X &gt; 10) = e^{-0.2 \times 10} = e^{-2} = 0.135335$ (<code>exp_lam02_P_gt_10</code>).</p>
+<p>(c) $\mathbf{P}(X \le 5) = 1 - e^{-0.2\times5} = 1 - e^{-1} = 0.632121$ — the universal $63\%$ figure.</p>
+<p>(d) The median $m$ solves $1 - e^{-0.2m} = 0.5$, i.e. $e^{-0.2m} = 0.5$, i.e. $-0.2m = \ln 0.5 = -\ln 2$, so $m = \ln 2/0.2 = 5\ln 2 = 3.465736$ seconds (<code>exp_lam02_median</code>). The median is well below the mean $5$ — the right tail is long.</p>
+<p>(e) $\operatorname{var}(X) = 1/\lambda^2 = 1/0.04 = 25$, so $\sigma_X = 5$ seconds $= \mathbb{E}[X]$ ✓.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.11.</b> A bulb has an exponential lifetime with mean $1000$ hours. It has been burning for $800$ hours. What is the probability it survives another $200$? What is its expected remaining life?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>By memorylessness the $800$ hours are irrelevant:
+$$\mathbf{P}(T &gt; 1000 \mid T &gt; 800) = \mathbf{P}(T &gt; 200) = e^{-200/1000} = e^{-0.2} = 0.818731$$
+(<code>mem_bulb_P200_more</code>, identical to <code>mem_bulb_P_fresh_200</code>). The expected remaining life is $1/\lambda = 1000$ hours — the same as for a brand-new bulb. A real bulb would do worse; this is the modeling assumption at work.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.12 (mixed CDF meets the exponential; B&amp;T Problem 3.6, p. 186).</b> Calamity Jane goes to the bank and is equally likely to find $0$ or $1$ customers ahead of her. If a customer is present, that customer's service time is exponential with parameter $\lambda$. What is the CDF of Jane's waiting time $W$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Let $C$ be the number of customers ahead, with $\mathbf{P}(C=0) = \mathbf{P}(C=1) = 1/2$. Condition on $C$ (total probability theorem, G1 §2):
+$$F_W(w) = \mathbf{P}(W \le w) = \tfrac12\,\mathbf{P}(W \le w \mid C = 0) + \tfrac12\,\mathbf{P}(W \le w \mid C = 1).$$
+Given $C = 0$, $W = 0$, so $\mathbf{P}(W \le w \mid C=0) = 1$ for $w \ge 0$ and $0$ for $w &lt; 0$. Given $C = 1$, $W$ is exponential, so $\mathbf{P}(W \le w \mid C=1) = 1 - e^{-\lambda w}$ for $w \ge 0$. Hence for $w \ge 0$
+$$F_W(w) = \tfrac12\cdot 1 + \tfrac12\big(1 - e^{-\lambda w}\big) = 1 - \tfrac12 e^{-\lambda w},$$
+and $F_W(w) = 0$ for $w &lt; 0$.</p>
+<p>Read the shape: $F_W(0) = 1 - 1/2 = 1/2$, a jump of $1/2$ at the origin (the atom $\mathbf{P}(W = 0) = 1/2$), then a smooth climb to $1$. Mixed, exactly like Al's taxi. Mean: $\mathbb{E}[W] = \frac12\cdot 0 + \frac12\cdot\frac1\lambda = \frac{1}{2\lambda}$.</p>
+</div></details></div>
+
+<h3>1.6 Maxima and minima of independent exponentials</h3>
+
+<p>These two problems (rec08 P3(d),(e)) are the standard advertisement for the CDF: neither the max nor the min has an obvious density, but both have an obvious <em>CDF</em>, because "$\max \le z$" and "$\min &gt; w$" both factor across independent components.</p>
+
+<div class="recipe"><b>Recipe — the law of a maximum or a minimum of independent random variables (B&amp;T §3.2 p. 151).</b>
+<ol>
+<li><b>Never</b> attack the density directly. Write the event in terms of an inequality on <em>every</em> component.</li>
+<li><b>Maximum:</b> $\{\max_i X_i \le z\} = \bigcap_i \{X_i \le z\}$ — the largest is below $z$ exactly when all are. Independence gives $F_{\max}(z) = \prod_i F_{X_i}(z)$.</li>
+<li><b>Minimum:</b> $\{\min_i X_i &gt; w\} = \bigcap_i \{X_i &gt; w\}$ — the smallest exceeds $w$ exactly when all do. Independence gives $\mathbf{P}(\min &gt; w) = \prod_i \mathbf{P}(X_i &gt; w)$, i.e. multiply the <em>tails</em>, then take $F_{\min} = 1 - \prod_i(1 - F_{X_i})$.</li>
+<li><b>Differentiate</b> the resulting CDF to get the pdf (if the result is continuous).</li>
+<li><b>Check:</b> the pdf must be nonnegative and integrate to $1$; $\mathbb{E}[\min] \le \mathbb{E}[X_i] \le \mathbb{E}[\max]$.</li>
+</ol>
+</div>
+
+<div class="ex"><b>Example 1.7 (rec08 P3(d)) — the maximum of three i.i.d. exponentials.</b>
+<p><b>Statement.</b> $X_1, X_2, X_3$ are independent, each $\text{Exp}(\lambda)$. Find the pdf of $Z = \max\{X_1,X_2,X_3\}$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 — the event.</b> The maximum of a set is at most $z$ exactly when every element is at most $z$. So for $z \ge 0$,
+$$\mathbf{P}(Z \le z) = \mathbf{P}\big(\max\{X_1,X_2,X_3\}\le z\big) = \mathbf{P}(X_1 \le z,\ X_2 \le z,\ X_3 \le z).$$</p>
+<p><b>Step 2 — independence.</b> The three events $\{X_i \le z\}$ are independent because the $X_i$ are, so the probability of the intersection is the product:
+$$= \mathbf{P}(X_1 \le z)\,\mathbf{P}(X_2 \le z)\,\mathbf{P}(X_3 \le z).$$</p>
+<p><b>Step 3 — insert the exponential CDF</b> (Example 1.5(a)); each factor is the same:
+$$= \big(1 - e^{-\lambda z}\big)^3 .$$
+For $z &lt; 0$ each factor is $0$, so $F_Z(z) = 0$. Hence
+$$F_Z(z) = \begin{cases}0, & z &lt; 0,\\ \big(1 - e^{-\lambda z}\big)^3, & z \ge 0 .\end{cases}$$</p>
+<p><b>Step 4 — differentiate.</b> Apply the chain rule to $g(z)^3$ with $g(z) = 1 - e^{-\lambda z}$, $g'(z) = \lambda e^{-\lambda z}$:
+$$f_Z(z) = \frac{d}{dz}\big(1-e^{-\lambda z}\big)^3 = 3\big(1-e^{-\lambda z}\big)^2\cdot \lambda e^{-\lambda z} .$$
+So
+$$\boxed{\;f_Z(z) = \begin{cases}0, & z &lt; 0,\\ 3\lambda e^{-\lambda z}\big(1-e^{-\lambda z}\big)^2, & z \ge 0 .\end{cases}\;}$$</p>
+<p><b>Step 5 — checks and extras.</b> $f_Z \ge 0$ ✓, and numerical integration gives $\int_0^\infty f_Z = 1.0$ (<code>max3_pdf_integrates_to</code>). Unlike an exponential, $f_Z(0) = 0$: the maximum of three waits is almost never tiny. The density peaks at $z = \ln 3/\lambda \approx 1.0986/\lambda$ (<code>max3_mode</code>). Its mean, using the tail formula $\mathbb{E}[Z] = \int_0^\infty\big(1 - F_Z(z)\big)dz$ valid for nonnegative random variables, expands with $u = e^{-\lambda z}$:
+$$1 - (1-u)^3 = 3u - 3u^2 + u^3 = 3e^{-\lambda z} - 3e^{-2\lambda z} + e^{-3\lambda z},$$
+$$\mathbb{E}[Z] = \frac{3}{\lambda} - \frac{3}{2\lambda} + \frac{1}{3\lambda} = \frac{1}{\lambda}\Big(3 - \frac32 + \frac13\Big) = \frac{11}{6\lambda},$$
+each term integrated by $\int_0^\infty e^{-k\lambda z}dz = 1/(k\lambda)$. For $\lambda = 1$ that is $1.8\overline{3}$, matching both quadrature and a two-million-run simulation, $1.83341$ (<code>max3_mean_*</code>). Notice $\mathbb{E}[Z] = \frac1\lambda(1 + \frac12 + \frac13)$ — the harmonic pattern: waiting for the last of $n$ independent exponentials costs $\frac1\lambda\sum_{k=1}^n \frac1k$.</p>
+</div></details></div>
+
+<div class="ex"><b>Example 1.8 (rec08 P3(e), with the source's inequality typo corrected) — the minimum of two i.i.d. exponentials.</b>
+<p><b>Statement.</b> $X_1, X_2$ independent $\text{Exp}(\lambda)$. Find the pdf of $W = \min\{X_1,X_2\}$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 — the event, stated as a tail.</b> The minimum of a set exceeds $w$ exactly when every element does. So for $w \ge 0$,
+$$\mathbf{P}(W \ge w) = \mathbf{P}\big(\min\{X_1,X_2\}\ge w\big) = \mathbf{P}(X_1 \ge w,\ X_2 \ge w).$$</p>
+<p><b>Step 2 — independence.</b>
+$$= \mathbf{P}(X_1 \ge w)\,\mathbf{P}(X_2 \ge w).$$</p>
+<div class="warn"><b>[SOURCE TYPO] rec08 P3(e), the independence step.</b> The solution sheet prints this line as $\mathbf{P}(X_1 \le w)\,\mathbf{P}(X_2 \le w)$, with both inequalities reversed. It must read "$\ge$": the line above it and the line below it both use $\ge$, and only $\mathbf{P}(X_i \ge w) = e^{-\lambda w}$ produces the $(e^{-\lambda w})^2 = e^{-2\lambda w}$ that the sheet itself goes on to write. (With "$\le$" the product would be $(1-e^{-\lambda w})^2$, the CDF of a <em>maximum</em>.) The corrected version is used here and throughout.</div>
+<p><b>Step 3 — insert the exponential tail.</b> $\mathbf{P}(X_i \ge w) = e^{-\lambda w}$ (Example 1.5(a); the endpoint is immaterial since points have no mass), so
+$$\mathbf{P}(W \ge w) = \big(e^{-\lambda w}\big)^2 = e^{-2\lambda w},$$
+using $(e^{c})^2 = e^{2c}$.</p>
+<p><b>Step 4 — the CDF and pdf.</b> Taking complements, $F_W(w) = 1 - e^{-2\lambda w}$ for $w \ge 0$ and $0$ for $w &lt; 0$. Compare with Example 1.5(a): <b>this is exactly the CDF of an exponential with parameter $2\lambda$.</b> Differentiating,
+$$\boxed{\;f_W(w) = \begin{cases}0, & w &lt; 0,\\ 2\lambda e^{-2\lambda w}, & w \ge 0 .\end{cases}\;}$$
+Consequently $\mathbb{E}[W] = 1/(2\lambda)$ and $\operatorname{var}(W) = 1/(2\lambda)^2$, no new work needed (<code>min2_mean</code>, <code>min2_var</code>; simulation gives $0.50013$ against the exact $0.5$ at $\lambda = 1$).</p>
+<p><b>Step 5 — the general rule (the part worth remembering).</b> The same two lines with $n$ independent exponentials of possibly <em>different</em> rates $\lambda_1,\dots,\lambda_n$ give
+$$\mathbf{P}(\min_i X_i &gt; w) = \prod_{i=1}^n e^{-\lambda_i w} = e^{-(\lambda_1+\cdots+\lambda_n)w},$$
+so $\min_i X_i \sim \text{Exp}(\lambda_1+\cdots+\lambda_n)$: <b>rates add.</b> Checked numerically for rates $0.5, 1.5, 2.0$: the minimum has rate $4.0$ and mean $0.25$, against a simulated $0.24995$ (<code>min_general_*</code>).</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s1_maxmin}}" alt="Left panel: three densities on the same axes for lambda equal to one — the density of the minimum of two exponentials, which starts at height two and decays fastest; a dashed reference curve for a single exponential starting at height one; and the density of the maximum of three exponentials, which starts at zero, rises to a peak near z equals one, then decays. Vertical dotted lines mark the means at one half and eleven sixths. Right panel: the corresponding three CDFs." style="max-width:920px">
+<div class="figcap">Fig. 1.7 — Max and min of independent $\text{Exp}(1)$ variables (rec08 P3(d),(e)). The minimum is again exponential, with doubled rate — it starts at height $2\lambda$ and has mean $1/(2\lambda) = 0.5$. The maximum is <em>not</em> exponential: its density vanishes at the origin and peaks at $\ln 3 \approx 1.0986$, with mean $11/6 \approx 1.833$.</div>
+
+<div class="note"><b>Interpretation — why minima stay in the family and maxima do not.</b> "Minimum" is a statement about tails, and the exponential tail $e^{-\lambda w}$ is <em>multiplicative</em>: multiplying tails just adds exponents, so you land back on an exponential. "Maximum" is a statement about CDFs, and the exponential CDF $1 - e^{-\lambda z}$ is not multiplicative — cubing it produces a genuinely new shape. Physically: with $n$ independent competing failure mechanisms each of rate $\lambda_i$, the system fails at rate $\sum_i \lambda_i$ — hazards add, which is why redundancy in series is so damaging and why "the first of many things to go wrong" happens fast. Waiting for the <em>last</em> of $n$ events is the opposite: it costs $\frac{1}{\lambda}(1 + \frac12 + \cdots + \frac1n)$, growing like $\ln n$.</div>
+
+<div class="warn"><b>Gotcha — do not multiply densities.</b> The recipe multiplies <em>CDFs</em> (for a max) or <em>tail probabilities</em> (for a min). Multiplying the densities $f_{X_1}(x)f_{X_2}(x)$ computes nothing meaningful — that expression is the joint density evaluated on the diagonal, not the law of a max or min. Always go through the CDF, then differentiate once at the end.</div>
+
+<div class="ex"><b>Practice 1.13.</b> Three machines fail independently with exponential lifetimes of means $10$, $20$ and $30$ hours. What is the distribution of the time until the first failure, and its mean?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The rates are $\lambda_1 = 1/10 = 0.1$, $\lambda_2 = 1/20 = 0.05$, $\lambda_3 = 1/30 = 0.03\overline{3}$ per hour. By the rate-addition rule of Example 1.8 Step 5, the minimum is exponential with rate
+$$\lambda = 0.1 + 0.05 + 0.0333\overline{3} = 0.1833\overline{3} \text{ per hour}$$
+(<code>p_min_machines_rate</code>), so the expected time to first failure is
+$$\frac{1}{0.18333\overline{3}} = \frac{60}{11} \approx 5.4545 \text{ hours}$$
+(<code>p_min_machines_mean</code>). Note this is well under the shortest individual mean, $10$ hours — three independent ways to fail is much worse than one.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.14.</b> $X_1, X_2$ are independent $\text{Exp}(\lambda)$ and $M = \max\{X_1,X_2\}$. Find $F_M$, $f_M$ and $\mathbb{E}[M]$, and check the answer against the harmonic pattern of Example 1.7.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$F_M(m) = \mathbf{P}(X_1 \le m)\mathbf{P}(X_2 \le m) = (1 - e^{-\lambda m})^2$ for $m \ge 0$. Differentiating with the chain rule, $f_M(m) = 2(1-e^{-\lambda m})\lambda e^{-\lambda m} = 2\lambda e^{-\lambda m} - 2\lambda e^{-2\lambda m}$.</p>
+<p>For the mean use the tail formula: $1 - F_M(m) = 1 - (1 - 2e^{-\lambda m} + e^{-2\lambda m}) = 2e^{-\lambda m} - e^{-2\lambda m}$, so
+$$\mathbb{E}[M] = \int_0^\infty\big(2e^{-\lambda m} - e^{-2\lambda m}\big)dm = \frac{2}{\lambda} - \frac{1}{2\lambda} = \frac{3}{2\lambda}.$$
+Harmonic check: $\frac1\lambda(1 + \frac12) = \frac{3}{2\lambda}$ ✓. A cute identity worth noticing: $\mathbb{E}[\max] + \mathbb{E}[\min] = \frac{3}{2\lambda} + \frac{1}{2\lambda} = \frac{2}{\lambda} = \mathbb{E}[X_1] + \mathbb{E}[X_2]$, which must hold because $\max + \min = X_1 + X_2$ pointwise.</p>
+</div></details></div>
+
+<h3>1.7 The normal (Gaussian) random variable</h3>
+
+<p>The normal is the most important distribution in the subject, for a reason that only becomes visible in G6 (the central limit theorem): sums of many independent contributions look normal regardless of what the contributions look like. L08 slides 6 and 7 present it, leave four blanks — three on slide 6 ($\mathbb{E}[X]$ for the standard normal, then $\mathbb{E}[Y]$ and $\operatorname{var}(Y)$ for $Y = aX+b$) and one on slide 7 (the standardization $\frac{X-\mu}{\sigma} \sim N(\underline{\hspace{1cm}})$) — and assert two facts with "it turns out", plus an unproved "Fact". All of that is settled here.</p>
+
+<div class="defn"><b>Definition (standard and general normal; L08 slide 6, B&amp;T §3.3 p. 153).</b> A random variable $X$ is <b>standard normal</b>, written $N(0,1)$, if
+$$f_X(x) = \frac{1}{\sqrt{2\pi}}e^{-x^2/2}, \qquad -\infty &lt; x &lt; \infty .$$
+More generally $X$ is <b>normal with parameters $\mu$ and $\sigma^2 &gt; 0$</b>, written $N(\mu,\sigma^2)$, if
+$$f_X(x) = \frac{1}{\sigma\sqrt{2\pi}}\,e^{-(x-\mu)^2/2\sigma^2}, \qquad -\infty &lt; x &lt; \infty .$$
+Here $\mu$ is a location parameter (the center of symmetry), $\sigma &gt; 0$ is a scale parameter (the width), and $x$ ranges over the whole line — a normal random variable can take any real value, however extreme.</div>
+
+<div class="note"><b>Interpretation — the anatomy of the formula.</b> Read it in three pieces.
+<ul>
+<li>$(x-\mu)^2$ measures squared distance from the center. Because it is even in $(x-\mu)$, the density is symmetric about $\mu$: $f_X(\mu + c) = f_X(\mu - c)$.</li>
+<li>$e^{-(\cdot)/2\sigma^2}$ turns distance into decay, and it decays <em>very</em> fast — squared distance in the exponent means the tails die faster than any exponential. Dividing by $\sigma^2$ sets the scale on which "far" is measured: at $|x - \mu| = \sigma$ the exponent is $-1/2$, at $2\sigma$ it is $-2$, at $3\sigma$ it is $-4.5$.</li>
+<li>$\frac{1}{\sigma\sqrt{2\pi}}$ is pure bookkeeping — the unique constant making the area $1$. It is derived below. Its size is dictated by $\sigma$: a narrow bell must be tall, and indeed the peak height is $1/(\sigma\sqrt{2\pi}) = 0.398942/\sigma$ (e.g. $0.398942$ at $\sigma=1$, $0.099736$ at $\sigma=4$ — keys <code>normal_mu*_peak</code>).</li>
+</ul>
+</div>
+
+<details class="sol"><summary>Where $1/\sqrt{2\pi}$ comes from — the Gaussian integral, in full</summary><div class="body">
+<p>We must show $I := \int_{-\infty}^{\infty}e^{-x^2/2}dx = \sqrt{2\pi}$; then dividing by $I$ makes the area $1$. The function $e^{-x^2/2}$ has no elementary antiderivative, so the one-dimensional approach is hopeless. The trick is to square the integral and pass to polar coordinates.</p>
+<p><b>Step 1 — square it, writing the second copy in a new variable $y$.</b>
+$$I^2 = \left(\int_{-\infty}^{\infty}e^{-x^2/2}dx\right)\left(\int_{-\infty}^{\infty}e^{-y^2/2}dy\right) = \int_{-\infty}^{\infty}\!\!\int_{-\infty}^{\infty} e^{-x^2/2}e^{-y^2/2}\,dx\,dy = \int_{-\infty}^{\infty}\!\!\int_{-\infty}^{\infty} e^{-(x^2+y^2)/2}\,dx\,dy,$$
+combining the exponentials with $e^{p}e^{q} = e^{p+q}$. The double integral is over the whole plane.</p>
+<p><b>Step 2 — polar coordinates.</b> Put $x = r\cos\theta$, $y = r\sin\theta$ with $r \ge 0$ and $\theta \in [0,2\pi)$. Then $x^2 + y^2 = r^2$ (Pythagoras), and the area element becomes $dx\,dy = r\,dr\,d\theta$ (the Jacobian of the polar map is $r$). So
+$$I^2 = \int_0^{2\pi}\!\!\int_0^{\infty} e^{-r^2/2}\,r\,dr\,d\theta .$$
+The extra factor $r$ is what rescues the computation.</p>
+<p><b>Step 3 — the radial integral.</b> Substitute $s = r^2/2$, so $ds = r\,dr$; when $r = 0$, $s = 0$, and as $r\to\infty$, $s\to\infty$:
+$$\int_0^{\infty} e^{-r^2/2}\,r\,dr = \int_0^{\infty}e^{-s}\,ds = \big[-e^{-s}\big]_0^{\infty} = 0 - (-1) = 1 .$$</p>
+<p><b>Step 4 — the angular integral.</b> The inner result does not depend on $\theta$, so
+$$I^2 = \int_0^{2\pi} 1\,d\theta = 2\pi \quad\Longrightarrow\quad I = \sqrt{2\pi} \approx 2.5066283,$$
+taking the positive root since the integrand is positive. Numerically confirmed by quadrature: $\int e^{-x^2/2}dx = 2.5066282746 = \sqrt{2\pi}$ (<code>gauss_integral</code>, <code>sqrt_2pi</code>). Hence $\frac{1}{\sqrt{2\pi}} = 0.398942$ is the required prefactor for $N(0,1)$.</p>
+<p><b>Step 5 — the general case.</b> For $N(\mu,\sigma^2)$, substitute $y = (x-\mu)/\sigma$, so $x = \mu + \sigma y$ and $dx = \sigma\,dy$ (the limits stay $\pm\infty$):
+$$\int_{-\infty}^{\infty}e^{-(x-\mu)^2/2\sigma^2}dx = \int_{-\infty}^{\infty}e^{-y^2/2}\,\sigma\,dy = \sigma\sqrt{2\pi} .$$
+So the normalizing constant is $\frac{1}{\sigma\sqrt{2\pi}} = \frac{1}{\sqrt{2\pi\sigma^2}}$, which is the form in the definition. $\blacksquare$</p>
+</div></details>
+
+<div class="ex"><b>Example 1.9 (L08 slide 6 — all three blanks filled and both "it turns out"s proved).</b>
+<p><b>Blank 1: for the standard normal, $\mathbb{E}[X] = \underline{\hspace{1cm}}$ (with $\operatorname{var}(X) = 1$ given).</b> The answer is $\mathbb{E}[X] = 0$. Proof: with $\varphi(x) = \frac{1}{\sqrt{2\pi}}e^{-x^2/2}$,
+$$\mathbb{E}[X] = \int_{-\infty}^{\infty}x\,\varphi(x)\,dx .$$
+An antiderivative of $x\varphi(x)$ is $-\varphi(x)$, because $\frac{d}{dx}\Big(-\frac{1}{\sqrt{2\pi}}e^{-x^2/2}\Big) = -\frac{1}{\sqrt{2\pi}}e^{-x^2/2}\cdot(-x) = x\varphi(x)$ by the chain rule. Therefore
+$$\mathbb{E}[X] = \big[-\varphi(x)\big]_{-\infty}^{\infty} = 0 - 0 = 0,$$
+since $\varphi(x)\to0$ at both ends. (Equivalently: $x\varphi(x)$ is an odd function and is absolutely integrable, so its integral over a symmetric range vanishes.) Confirmed numerically as $0.0$ (<code>stdnormal_mean</code>).</p>
+
+<p><b>The "it turns out" for the general normal: $\mathbb{E}[X] = \mu$.</b> Substitute $y = (x-\mu)/\sigma$, i.e. $x = \mu + \sigma y$, $dx = \sigma\,dy$:
+$$\mathbb{E}[X] = \int_{-\infty}^{\infty} x\,\frac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2}dx = \int_{-\infty}^{\infty}(\mu + \sigma y)\,\frac{1}{\sigma\sqrt{2\pi}}e^{-y^2/2}\,\sigma\,dy = \int_{-\infty}^{\infty}(\mu+\sigma y)\varphi(y)\,dy,$$
+the two $\sigma$'s cancelling. Splitting the integral,
+$$= \mu\underbrace{\int\varphi(y)\,dy}_{=\,1\ \text{(normalization)}} + \sigma\underbrace{\int y\,\varphi(y)\,dy}_{=\,0\ \text{(just proved)}} = \mu .$$</p>
+
+<p><b>The "it turns out" for the variance: $\operatorname{var}(X) = \sigma^2$.</b> Same substitution:
+$$\operatorname{var}(X) = \int (x-\mu)^2\frac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2}dx = \int (\sigma y)^2\varphi(y)\,dy = \sigma^2\int y^2\varphi(y)\,dy .$$
+It remains to show $\int y^2\varphi(y)dy = 1$ (this is the slide's "$\operatorname{var}(X)=1$" for the standard normal). Integrate by parts with $u = y$ and $dv = y\varphi(y)\,dy$, so $du = dy$ and $v = -\varphi(y)$ (the antiderivative found above):
+$$\int_{-\infty}^{\infty}y^2\varphi(y)\,dy = \big[-y\,\varphi(y)\big]_{-\infty}^{\infty} + \int_{-\infty}^{\infty}\varphi(y)\,dy .$$
+The boundary term is $0$ because $\varphi$ decays like $e^{-y^2/2}$, which crushes the linear factor $y$ at both ends. The remaining integral is $1$ by normalization. Hence $\int y^2\varphi = 1$ and $\operatorname{var}(X) = \sigma^2$. Numerically: $\operatorname{var} = 1.0$ for the standard normal, and $(2,16)$, $(-1,0.25)$, $(10,9)$ for the three general cases checked (<code>stdnormal_var</code>, <code>normal_mu*_var</code>).</p>
+
+<p><b>Blanks 2 and 3: if $Y = aX + b$, then $\mathbb{E}[Y] = \underline{\hspace{1cm}}$ and $\operatorname{var}(Y) = \underline{\hspace{1cm}}$.</b> By the general linearity properties of §1.2 (which need no normality at all),
+$$\boxed{\;\mathbb{E}[Y] = a\mu + b, \qquad \operatorname{var}(Y) = a^2\sigma^2 .\;}$$</p>
+
+<p><b>The slide's unproved "Fact": $Y = aX+b \sim N(a\mu+b,\ a^2\sigma^2)$.</b> Linearity alone gives the mean and variance; it does not give <em>normality</em>. Here is the CDF argument the slide omits. <b>Assume first that $a &gt; 0$</b>; the case $a &lt; 0$ is handled immediately afterwards, and $a = 0$ is excluded because $Y = b$ is then constant, not normal. For any $y$,
+$$F_Y(y) = \mathbf{P}(aX + b \le y) = \mathbf{P}\Big(X \le \frac{y-b}{a}\Big) = F_X\Big(\frac{y-b}{a}\Big),$$
+dividing by the positive $a$ preserves the inequality. Differentiate in $y$, using the chain rule (the inner derivative is $1/a$):
+$$f_Y(y) = \frac{1}{a}f_X\Big(\frac{y-b}{a}\Big) = \frac{1}{a}\cdot\frac{1}{\sigma\sqrt{2\pi}}\exp\left\{-\frac{\big(\frac{y-b}{a}-\mu\big)^2}{2\sigma^2}\right\}.$$
+Simplify the bracket by putting it over the common denominator $a$:
+$$\frac{y-b}{a}-\mu = \frac{y - b - a\mu}{a} = \frac{y - (a\mu+b)}{a} \quad\Longrightarrow\quad \Big(\frac{y-b}{a}-\mu\Big)^2 = \frac{\big(y-(a\mu+b)\big)^2}{a^2}.$$
+Substituting back, and recalling $a &gt; 0$ so that $a = |a|$,
+$$f_Y(y) = \frac{1}{|a|\,\sigma\sqrt{2\pi}}\exp\left\{-\frac{\big(y-(a\mu+b)\big)^2}{2a^2\sigma^2}\right\},$$
+which is exactly the $N(a\mu+b,\ a^2\sigma^2)$ density with center $a\mu + b$ and scale $|a|\sigma$.</p>
+
+<p><b>The case $a &lt; 0$.</b> Dividing by a negative number <em>reverses</em> the inequality, so the first line becomes
+$$F_Y(y) = \mathbf{P}(aX+b \le y) = \mathbf{P}\Big(X \ge \frac{y-b}{a}\Big) = 1 - F_X\Big(\frac{y-b}{a}\Big),$$
+using $\mathbf{P}(X \ge c) = 1 - F_X(c)$ (legitimate here because $X$ is continuous, so the point $c$ carries no mass). Differentiating, the minus sign in front and the inner derivative $1/a &lt; 0$ multiply to give $-1/a = 1/|a|$:
+$$f_Y(y) = -\frac{1}{a}f_X\Big(\frac{y-b}{a}\Big) = \frac{1}{|a|}f_X\Big(\frac{y-b}{a}\Big),$$
+and the rest of the algebra is unchanged since only $a^2 = |a|^2$ appears in the exponent. So for <em>every</em> $a \ne 0$,
+$$\boxed{\;f_Y(y) = \frac{1}{|a|\,\sigma\sqrt{2\pi}}\exp\left\{-\frac{\big(y-(a\mu+b)\big)^2}{2a^2\sigma^2}\right\}, \qquad Y \sim N\big(a\mu+b,\ a^2\sigma^2\big).\;}$$
+The $|a|$ matters: with a bare $a$ the prefactor would be negative for $a &lt; 0$, which no density can be. $\blacksquare$ (This is the "normality is preserved by linear transformations" box on B&amp;T p. 154; the technique — write the CDF, then differentiate, minding the sign of the multiplier — is the general derived-distribution method of §4, where the two-case $1/|a|$ formula reappears in full generality, and the monotone-decreasing case is worked again in §3.6 Example 3.10.)</p>
+</div>
+
+<div class="ex"><b>Example 1.10 (L08 slide 7 — the standardization blank and the $N(2,16)$ computation, with the [DERIVATION GAP] closed).</b>
+<p><b>Blank: if $X \sim N(\mu,\sigma^2)$ then $\dfrac{X-\mu}{\sigma} \sim N(\underline{\hspace{1.5cm}})$.</b> The answer is $N(0,1)$. Proof: $\frac{X-\mu}{\sigma}$ is the linear function $aX+b$ with $a = 1/\sigma$ and $b = -\mu/\sigma$. By Example 1.9, it is normal with
+$$\text{mean} = a\mu + b = \frac{\mu}{\sigma} - \frac{\mu}{\sigma} = 0, \qquad \text{variance} = a^2\sigma^2 = \frac{\sigma^2}{\sigma^2} = 1 .$$
+So $Z = \frac{X-\mu}{\sigma} \sim N(0,1)$, whatever $\mu$ and $\sigma$ were. This is <b>standardization</b>, and it is why one table suffices for the entire two-parameter family.</p>
+
+<p><b>The slide's example: $X \sim N(2,16)$, find $\mathbf{P}(X \le 3)$.</b></p>
+<p><em>Step 1 — extract $\sigma$.</em> The second parameter is the <em>variance</em>, so $\sigma^2 = 16$ and $\sigma = \sqrt{16} = 4$. (The slide writes the $4$ without comment; this is the [DERIVATION GAP].) The mean is $\mu = 2$.</p>
+<p><em>Step 2 — standardize both sides of the inequality.</em> Subtracting $2$ and dividing by the positive number $4$ leaves the inequality direction unchanged:
+$$\mathbf{P}(X \le 3) = \mathbf{P}\left(\frac{X-2}{4} \le \frac{3-2}{4}\right) = \mathbf{P}(Z \le 0.25) = \Phi(0.25),$$
+where $Z \sim N(0,1)$ by the blank just filled and $\Phi$ denotes its CDF.</p>
+<p><em>Step 3 — read the table.</em> Go to the row $0.2$ and the column $.05$ of the standard normal table: the entry is $\mathbf{0.5987}$. (The slide stops at "CDF(0.25)" without giving the number; this is the rest of the gap.) So
+$$\boxed{\;\mathbf{P}(X \le 3) = \Phi(0.25) = 0.5987\;}$$
+<code>scipy</code> gives $0.598706$ (<code>slide7_Phi_0.25_scipy</code>), and computing $\mathbf{P}(X\le3)$ directly from the $N(2,16)$ CDF without standardizing gives the same $0.598706$ (<code>slide7_direct</code>) — the standardization is exact, not an approximation.</p>
+<p><em>Sanity check.</em> $3$ is just above the mean $2$, only a quarter of a standard deviation, so the answer should be just above $0.5$. It is. ✓</p>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s1_normal}}" alt="Three panels. Left: three normal densities with different means and standard deviations — a tall narrow bell at 6, a medium bell at 0, and a wide flat bell at 3 — each with a dotted vertical line at its mean. Middle: after standardizing, all three collapse onto a single standard normal bell centered at zero. Right: the standard normal density with the region to the left of z equals 0.25 shaded, annotated Phi(0.25) equals 0.5987." style="max-width:980px">
+<div class="figcap">Fig. 1.8 — L08 slides 6–7. Left: the two-parameter family $N(\mu,\sigma^2)$ — $\mu$ slides the bell, $\sigma$ stretches it (and the peak height $1/(\sigma\sqrt{2\pi})$ falls to keep the area at $1$). Middle: $Z = (X-\mu)/\sigma$ maps every member onto the same $N(0,1)$ curve, which is why one table suffices. Right: the slide's example, $\mathbf{P}(X \le 3)$ for $X \sim N(2,16)$, is the shaded area $\Phi(0.25) = 0.5987$.</div>
+
+<div class="recipe"><b>Recipe — computing any normal probability from the $\Phi$ table (L08 slide 7, B&amp;T §3.3 pp. 154–155).</b>
+<ol>
+<li><b>Identify $\mu$ and $\sigma$.</b> Remember the notation $N(\mu,\sigma^2)$ carries the <em>variance</em>; take a square root.</li>
+<li><b>Standardize every bound.</b> Replace $\{a \le X \le b\}$ by $\left\{\frac{a-\mu}{\sigma} \le Z \le \frac{b-\mu}{\sigma}\right\}$; subtracting a constant and dividing by the positive $\sigma$ preserves inequalities.</li>
+<li><b>Express in $\Phi$.</b> $\mathbf{P}(Z \le z) = \Phi(z)$; $\mathbf{P}(Z &gt; z) = 1 - \Phi(z)$; $\mathbf{P}(z_1 \le Z \le z_2) = \Phi(z_2) - \Phi(z_1)$.</li>
+<li><b>Negative arguments:</b> the table only lists $z \ge 0$. Use the symmetry of the bell,
+$$\Phi(-z) = 1 - \Phi(z).$$
+Example: $\Phi(-0.5) = 1 - 0.6915 = 0.3085$ (<code>Phi_minus_0.5</code>, matching <code>Phi_minus_0.5_via_symmetry</code>).</li>
+<li><b>Read the table:</b> row = $z$ to one decimal, column = the second decimal. E.g. $\Phi(1.71)$: row $1.7$, column $.01$, giving $0.9564$ (<code>Phi_1.71_table</code>, book p. 155).</li>
+<li><b>Check the sign.</b> If your bound is above the mean the answer must exceed $0.5$; below the mean, less than $0.5$. This catches standardization sign errors instantly.</li>
+</ol>
+<p>The L08 table stops at $z = 2.0$; the book's version (p. 155) runs to $3.49$. Beyond that, $\Phi(z) &gt; 0.9998$ and the tail is negligible for hand computation.</p>
+</div>
+
+<div class="note"><b>Interpretation — the $k\sigma$ rule of thumb.</b> Standardization makes distance from the mean measurable in units of $\sigma$, and the resulting numbers are worth knowing by heart (<code>normal_P_within_*sigma</code>):
+$$\mathbf{P}(|X-\mu| \le \sigma) = 0.682689, \qquad \mathbf{P}(|X-\mu| \le 2\sigma) = 0.954500, \qquad \mathbf{P}(|X-\mu| \le 3\sigma) = 0.997300 .$$
+So about $68\%$, $95\%$ and $99.7\%$ — the "68–95–99.7 rule". One-sided: $\mathbf{P}(X &gt; \mu + 2\sigma) = 0.02275$ and $\mathbf{P}(X &gt; \mu+3\sigma) = 0.00135$. Each derivation is one line, e.g. $\mathbf{P}(|X-\mu|\le 2\sigma) = \Phi(2) - \Phi(-2) = 2\Phi(2) - 1 = 2(0.9772) - 1 = 0.9545$.</div>
+
+<div class="warn"><b>Gotcha — $N(\mu,\sigma^2)$: the second slot is the variance, not the standard deviation.</b> $N(2,16)$ has $\sigma = 4$, not $16$. Getting this wrong scales every $z$-score by $\sigma$ and quietly produces plausible-looking nonsense. Whenever you see a normal, write down $\sigma = \sqrt{\text{second parameter}}$ as your first line.</div>
+
+<div class="warn"><b>Gotcha — there is no closed form for $\Phi$.</b> L08 slide 7 states this explicitly: the CDF of the normal cannot be written with elementary functions, which is why tables (and, in the widget below, a numerical approximation) exist at all. Do not go looking for an antiderivative of $e^{-x^2/2}$; there is none. This is also why normal probabilities are always the one place in this course where you read a number off a table instead of computing it.</div>
+
+<div id="w-g3s1-normal"></div>
+<script>
+Widget.create({ el: '#w-g3s1-normal', height: 330,
+  title: 'Normal explorer: move μ and σ, shade [a, b], read P(a ≤ X ≤ b)',
+  note: 'The shaded area is the probability. Φ is evaluated with the Zelen–Severo rational ' +
+        'approximation (Abramowitz–Stegun 26.2.17), whose maximum absolute error against ' +
+        'scipy.stats.norm.cdf over z in [-6, 6] is 7.452e-08 (verified in computes/g3_s1.py, ' +
+        'keys widget_Phi_max_abs_err and widget_Phi_spotcheck) — far tighter than the four ' +
+        'decimals of the printed table. Things to try: (1) hold μ and [a,b] fixed and grow σ — ' +
+        'the peak falls as 1/σ while the area stays 1; (2) set μ=0, σ=1, a=-1, b=1 to see ' +
+        '0.682689, then a=-2, b=2 for 0.954500 and a=-3, b=3 for 0.997300; (3) set μ=2, σ=4, ' +
+        'a=-18 (far enough left to act as −∞) and b=3 to reproduce L08 slide 7: 0.5987. ' +
+        'The x-window follows μ and σ automatically, out to ±4.2σ.',
+  controls: [
+    {type:'range', id:'mu', label:'mean μ', min:-8, max:8, step:0.1, value:0},
+    {type:'range', id:'sg', label:'std dev σ', min:0.3, max:5, step:0.05, value:1},
+    {type:'range', id:'a', label:'left endpoint a', min:-30, max:30, step:0.1, value:-1},
+    {type:'range', id:'b', label:'right endpoint b', min:-30, max:30, step:0.1, value:1}
+  ],
+  draw(s, canvas, out) {
+    // Zelen & Severo (A&S 26.2.17) approximation to the standard normal CDF.
+    function Phi(z) {
+      const p = 0.2316419;
+      const b1 = 0.319381530, b2 = -0.356563782, b3 = 1.781477937,
+            b4 = -1.821255978, b5 = 1.330274429;
+      const neg = z < 0; const az = Math.abs(z);
+      const t = 1 / (1 + p * az);
+      const poly = t * (b1 + t * (b2 + t * (b3 + t * (b4 + t * b5))));
+      const tail = Math.exp(-az * az / 2) / Math.sqrt(2 * Math.PI) * poly;
+      const v = 1 - tail;
+      return neg ? 1 - v : v;
+    }
+    const mu = s.mu, sg = s.sg;
+    const a = Math.min(s.a, s.b), b = Math.max(s.a, s.b);
+    const peak = 1 / (sg * Math.sqrt(2 * Math.PI));
+    const XLO = Math.min(mu - 4.2 * sg, a - 0.3 * sg);
+    const XHI = Math.max(mu + 4.2 * sg, b + 0.3 * sg);
+    const P = new Plot(canvas, { xlim:[XLO, XHI], ylim:[0, peak * 1.18], height:330,
+      xlabel:'x', ylabel:'f_X(x)' });
+    P.frame();
+    const f = u => Math.exp(-((u - mu) * (u - mu)) / (2 * sg * sg)) / (sg * Math.sqrt(2 * Math.PI));
+    const ax = Math.max(a, XLO), bx = Math.min(b, XHI);
+    if (bx > ax) {
+      const xs = [], ys = [];
+      for (let i = 0; i <= 240; i++) { const u = ax + (bx - ax) * i / 240; xs.push(u); ys.push(f(u)); }
+      P.area(xs, ys, {color:0, alpha:0.30});
+    }
+    P.func(f, {label:'N(μ, σ²) density', color:0});
+    P.vline(mu, {color:'#eb6834'});
+    P.vline(a, {color:'#1baf7a'});
+    P.vline(b, {color:'#1baf7a'});
+    P.legend();
+    const za = (a - mu) / sg, zb = (b - mu) / sg;
+    const prob = Phi(zb) - Phi(za);
+    out.textContent =
+      'μ = ' + mu.toFixed(2) + '   σ = ' + sg.toFixed(2) + '   (σ² = ' + (sg * sg).toFixed(3) + ')' +
+      '   peak height = 1/(σ√(2π)) = ' + peak.toFixed(6) +
+      '   |   a = ' + a.toFixed(2) + ' → z = ' + za.toFixed(4) + ', Φ = ' + Phi(za).toFixed(6) +
+      '   ;   b = ' + b.toFixed(2) + ' → z = ' + zb.toFixed(4) + ', Φ = ' + Phi(zb).toFixed(6) +
+      '   |   P(a ≤ X ≤ b) = Φ(z_b) − Φ(z_a) = ' + prob.toFixed(6);
+  }});
+</script>
+
+<div class="ex"><b>Practice 1.15.</b> Exam scores are $N(70, 25)$. What fraction of students score between $65$ and $80$? Use the table.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mu = 70$, $\sigma = \sqrt{25} = 5$. Standardize both bounds:
+$$z_{\text{lo}} = \frac{65-70}{5} = -1, \qquad z_{\text{hi}} = \frac{80-70}{5} = 2 .$$
+Then
+$$\mathbf{P}(65 \le X \le 80) = \Phi(2) - \Phi(-1) = \Phi(2) - \big(1 - \Phi(1)\big) = 0.9772 - (1 - 0.8413) = 0.9772 - 0.1587 = 0.8185 .$$
+(Table values from L08 slide 7; <code>scipy</code> gives $0.818595$ — key <code>pnorm_answer</code> — so the table rounding costs about $10^{-4}$.) About $82\%$ of the class.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.16.</b> $X \sim N(2,16)$ and $Y = 3X + 1$. Name the distribution of $Y$ and find $\mathbf{P}(Y \le 19)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>By Example 1.9's Fact with $a=3$, $b=1$, $\mu=2$, $\sigma^2=16$:
+$$\mathbb{E}[Y] = 3(2)+1 = 7, \qquad \operatorname{var}(Y) = 3^2(16) = 144, \qquad Y \sim N(7, 144), \ \sigma_Y = 12 .$$
+Then $\mathbf{P}(Y \le 19) = \Phi\big(\frac{19-7}{12}\big) = \Phi(1) = 0.8413$ (<code>pY_*</code>; scipy $0.841345$). Cross-check without the Fact: $Y \le 19 \iff 3X + 1 \le 19 \iff X \le 6$, and $\mathbf{P}(X \le 6) = \Phi\big(\frac{6-2}{4}\big) = \Phi(1)$ ✓ — the same $z$-score, as it must be, since standardizing is itself a linear map.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 1.17.</b> $X$ is normal with mean $0$ and standard deviation $\sigma$ (B&amp;T Problem 3.12). Compute $\mathbf{P}(X \ge k\sigma)$ and $\mathbf{P}(|X| \ge k\sigma)$ for $k = 1,2,3$, and say why the answers do not depend on $\sigma$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Standardizing, $\mathbf{P}(X \ge k\sigma) = \mathbf{P}\big(\frac{X-0}{\sigma} \ge k\big) = 1 - \Phi(k)$ — the $\sigma$ cancels, which is the entire point of standardization. From the table (and <code>normal_P_gt_*sigma</code>):
+$$1-\Phi(1) = 0.158655, \qquad 1-\Phi(2) = 0.022750, \qquad 1-\Phi(3) = 0.001350 .$$
+By symmetry $\mathbf{P}(|X| \ge k\sigma) = 2\big(1-\Phi(k)\big)$: $0.317311$, $0.045500$, $0.002700$ respectively. In words, reading the two-sided numbers: a normal quantity strays more than two standard deviations from its mean about one time in twenty-two ($1/0.045500 = 22.0$), and more than three about one time in $370$ ($1/0.002700 = 370.4$) — keys <code>normal_odds_abs_gt_2sigma</code>, <code>normal_odds_abs_gt_3sigma</code>. One-sidedly — strays that far <em>above</em> the mean — the same events are one time in $44.0$ and one time in $740.8$ (<code>normal_odds_gt_2sigma</code>, <code>normal_odds_gt_3sigma</code>). Quote whichever you like, but do not mix the two conventions in one sentence.</p>
+</div></details></div>
+
+<h3>1.8 Choosing a method</h3>
+
+<p>Everything in this section is one of six moves. The chart below is the decision guide; the summary box after it is the reference card.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s1_flow}}" alt="A three-column flowchart. The top box asks what you are being asked for, with arrows to three branches: probability of an interval; expectation, expected value of a function, or variance; and the law of a maximum, minimum, or mixed random variable. Each branch leads to a method box — integrate the pdf or difference the CDF; integrate against the pdf; go through the CDF and then differentiate — and then to a shortcut box listing the named-family answers. A footer box says always finish with a sanity check that the density is nonnegative, integrates to one, and that the CDF is nondecreasing from zero to one." style="max-width:900px">
+<div class="figcap">Fig. 1.9 — Decision guide for §1. The middle row is what always works; the bottom row is the shortcut when the distribution is one of the three named families. Sources: L08 slides 2–7, rec08 P1–P3, B&amp;T §3.1–3.3.</div>
+
+<div class="warn"><b>Gotcha — the three errors that account for most lost points in this material.</b> (i) Treating a density value as a probability, or asserting $f_X \le 1$ (§1.1). (ii) Confusing $\lambda$ with $1/\lambda$ in an exponential (§1.5). (iii) Reading the second parameter of $N(\mu,\sigma^2)$ as the standard deviation (§1.7). Every one of them is caught by a units check: probabilities are dimensionless, densities are per-unit-$x$, $\lambda$ is per-unit-time, $\sigma$ has the units of $x$ and $\sigma^2$ has its square.</div>
+
+<div class="ex"><b>Practice 1.18 (synthesis).</b> $X$ is exponential with $\lambda = 1$. Let $Y = \min(X, 2)$. (a) Find $F_Y$. (b) Is $Y$ continuous, discrete or mixed? (c) Find $\mathbb{E}[Y]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) For $0 \le y &lt; 2$: $\{Y \le y\} = \{X \le y\}$, so $F_Y(y) = 1 - e^{-y}$. For $y \ge 2$: $Y \le 2$ always, so $F_Y(y) = 1$. For $y &lt; 0$: $0$.</p>
+<p>(b) Mixed: $F_Y(2^-) = 1 - e^{-2} = 0.864665$ while $F_Y(2) = 1$, a jump of $e^{-2} = 0.135335$ — the atom $\mathbf{P}(Y = 2) = \mathbf{P}(X \ge 2) = e^{-2}$ ✓ (<code>exp_lam02_P_gt_10</code> is the same number $e^{-2}$).</p>
+<p>(c) Use the tail formula $\mathbb{E}[Y] = \int_0^\infty \mathbf{P}(Y &gt; y)\,dy$, valid for any nonnegative random variable including mixed ones. Here $\mathbf{P}(Y &gt; y) = e^{-y}$ for $0 \le y &lt; 2$ and $0$ for $y \ge 2$, so
+$$\mathbb{E}[Y] = \int_0^2 e^{-y}dy = \big[-e^{-y}\big]_0^2 = 1 - e^{-2} = 0.864665 .$$
+Sanity: $\mathbb{E}[Y] &lt; \mathbb{E}[X] = 1$, as truncation requires ✓. Compare Practice 1.9 — the same "saturating sensor" structure, with the uniform replaced by an exponential.</p>
+</div></details></div>
+
+<div class="summary"><b>§1 cheatsheet — continuous random variables.</b>
+<table>
+<tr><th class="l">Object</th><th class="l">Definition / formula</th><th class="l">Source</th></tr>
+<tr><th class="l">pdf</th><td>$\mathbf{P}(a\le X\le b) = \int_a^b f_X$; &nbsp; $\int_{-\infty}^{\infty}f_X = 1$; &nbsp; $f_X \ge 0$ (may exceed $1$)</td><td>L08 s2, B&amp;T §3.1</td></tr>
+<tr><th class="l">density reading</th><td>$\mathbf{P}(x \le X \le x+\delta) \approx f_X(x)\,\delta$ — probability per unit length</td><td>L08 s2</td></tr>
+<tr><th class="l">mean / rule / variance</th><td>$\mathbb{E}[X]=\int x f_X$; &nbsp; $\mathbb{E}[g(X)]=\int g f_X$; &nbsp; $\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$</td><td>L08 s3, B&amp;T §3.1</td></tr>
+<tr><th class="l">CDF</th><td>$F_X(x)=\mathbf{P}(X\le x)$; nondecreasing, right-continuous, $0\to1$; $f_X=F_X'$; jump at $x$ $=\mathbf{P}(X=x)$</td><td>L08 s4–5, B&amp;T §3.2</td></tr>
+<tr><th class="l">Uniform$[a,b]$</th><td>$f=\frac{1}{b-a}$; &nbsp; $F=\frac{x-a}{b-a}$; &nbsp; $\mathbb{E}=\frac{a+b}{2}$; &nbsp; $\operatorname{var}=\frac{(b-a)^2}{12}$</td><td>L08 s3</td></tr>
+<tr><th class="l">Exponential$(\lambda)$</th><td>$f=\lambda e^{-\lambda x}$; &nbsp; $F=1-e^{-\lambda x}$; &nbsp; tail $e^{-\lambda x}$; &nbsp; $\mathbb{E}=\frac1\lambda$; &nbsp; $\operatorname{var}=\frac1{\lambda^2}$; memoryless</td><td>rec08 P3, rec09 P2</td></tr>
+<tr><th class="l">Normal$(\mu,\sigma^2)$</th><td>$f=\frac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2}$; &nbsp; $\mathbb{E}=\mu$; &nbsp; $\operatorname{var}=\sigma^2$; &nbsp; $aX+b\sim N(a\mu+b,a^2\sigma^2)$</td><td>L08 s6, B&amp;T §3.3</td></tr>
+<tr><th class="l">standardizing</th><td>$Z=\frac{X-\mu}{\sigma}\sim N(0,1)$; &nbsp; $\mathbf{P}(X\le c)=\Phi\!\big(\frac{c-\mu}{\sigma}\big)$; &nbsp; $\Phi(-z)=1-\Phi(z)$</td><td>L08 s7, B&amp;T §3.3</td></tr>
+<tr><th class="l">max / min</th><td>$F_{\max}=\prod F_i$; &nbsp; $\mathbf{P}(\min&gt;w)=\prod \mathbf{P}(X_i&gt;w)$; &nbsp; exponential rates add: $\min\sim\text{Exp}(\sum\lambda_i)$</td><td>rec08 P3(d,e), B&amp;T §3.2</td></tr>
+<tr><th class="l">mixed r.v.</th><td>$F_X=pF_Y+(1-p)F_Z$; &nbsp; $\mathbb{E}[X]=p\,\mathbb{E}[Y]+(1-p)\mathbb{E}[Z]$; no pdf exists</td><td>rec08 P2, B&amp;T Problem 3.9</td></tr>
+<tr><th class="l">key numbers</th><td>$\Phi(0.25)=0.5987$; &nbsp; $68/95/99.7\%$ within $1/2/3\sigma$; &nbsp; $\mathbf{P}(\text{Exp}\le\text{its mean})=1-e^{-1}=0.6321$</td><td>L08 s7</td></tr>
+</table>
+<p><b>What is next.</b> §2 puts two continuous random variables on one page: joint, marginal and conditional densities, and independence (L09, rec09). §3 does Bayes-style inference with densities (L10, rec11). §4 derives the distribution of $g(X)$ and of sums via convolution (L11, rec11) — generalizing the CDF-then-differentiate move used here for $\max$, $\min$ and $aX+b$. §5 is the synthesis and the rec10 quiz-review checkpoint.</p>
+</div>

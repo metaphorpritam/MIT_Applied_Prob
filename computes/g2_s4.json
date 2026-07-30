@@ -1,0 +1,1369 @@
+{
+ "grid_total": [
+  1,
+  1
+ ],
+ "pX_1": [
+  3,
+  20
+ ],
+ "pX_2": [
+  2,
+  5
+ ],
+ "pX_3": [
+  3,
+  10
+ ],
+ "pX_4": [
+  3,
+  20
+ ],
+ "pY_1": [
+  1,
+  20
+ ],
+ "pY_2": [
+  1,
+  4
+ ],
+ "pY_3": [
+  9,
+  20
+ ],
+ "pY_4": [
+  1,
+  4
+ ],
+ "pX_sum": [
+  1,
+  1
+ ],
+ "pY_sum": [
+  1,
+  1
+ ],
+ "EX": [
+  49,
+  20
+ ],
+ "EX_float": 2.45,
+ "EY": [
+  29,
+  10
+ ],
+ "EY_float": 2.9,
+ "varX": [
+  339,
+  400
+ ],
+ "varX_float": 0.8475,
+ "varY": [
+  69,
+  100
+ ],
+ "varY_float": 0.69,
+ "EXY": [
+  139,
+  20
+ ],
+ "EXY_float": 6.95,
+ "EX_times_EY": [
+  1421,
+  200
+ ],
+ "cov_XY": [
+  -31,
+  200
+ ],
+ "cov_XY_float": -0.155,
+ "indep_violations_count": 15,
+ "indep_first_violation": [
+  1,
+  4,
+  "1/20",
+  "3/80"
+ ],
+ "indep_check_1_1_joint": [
+  0,
+  1
+ ],
+ "indep_check_1_1_product": [
+  3,
+  400
+ ],
+ "indep_check_2_4_joint": [
+  1,
+  10
+ ],
+ "indep_check_2_4_product": [
+  1,
+  10
+ ],
+ "pXgY_1_given_1": [
+  0,
+  1
+ ],
+ "pXgY_2_given_1": [
+  1,
+  1
+ ],
+ "pXgY_3_given_1": [
+  0,
+  1
+ ],
+ "pXgY_4_given_1": [
+  0,
+  1
+ ],
+ "E_X_given_Y1": [
+  2,
+  1
+ ],
+ "E_X_given_Y1_float": 2.0,
+ "var_X_given_Y1": [
+  0,
+  1
+ ],
+ "var_X_given_Y1_float": 0.0,
+ "pXgY_1_given_2": [
+  0,
+  1
+ ],
+ "pXgY_2_given_2": [
+  1,
+  5
+ ],
+ "pXgY_3_given_2": [
+  3,
+  5
+ ],
+ "pXgY_4_given_2": [
+  1,
+  5
+ ],
+ "E_X_given_Y2": [
+  3,
+  1
+ ],
+ "E_X_given_Y2_float": 3.0,
+ "var_X_given_Y2": [
+  2,
+  5
+ ],
+ "var_X_given_Y2_float": 0.4,
+ "pXgY_1_given_3": [
+  2,
+  9
+ ],
+ "pXgY_2_given_3": [
+  4,
+  9
+ ],
+ "pXgY_3_given_3": [
+  1,
+  9
+ ],
+ "pXgY_4_given_3": [
+  2,
+  9
+ ],
+ "E_X_given_Y3": [
+  7,
+  3
+ ],
+ "E_X_given_Y3_float": 2.3333333333333335,
+ "var_X_given_Y3": [
+  10,
+  9
+ ],
+ "var_X_given_Y3_float": 1.1111111111111112,
+ "pXgY_1_given_4": [
+  1,
+  5
+ ],
+ "pXgY_2_given_4": [
+  2,
+  5
+ ],
+ "pXgY_3_given_4": [
+  2,
+  5
+ ],
+ "pXgY_4_given_4": [
+  0,
+  1
+ ],
+ "E_X_given_Y4": [
+  11,
+  5
+ ],
+ "E_X_given_Y4_float": 2.2,
+ "var_X_given_Y4": [
+  14,
+  25
+ ],
+ "var_X_given_Y4_float": 0.56,
+ "pYgX_1_given_2": [
+  1,
+  8
+ ],
+ "pYgX_2_given_2": [
+  1,
+  8
+ ],
+ "pYgX_3_given_2": [
+  1,
+  2
+ ],
+ "pYgX_4_given_2": [
+  1,
+  4
+ ],
+ "E_Y_given_X2": [
+  23,
+  8
+ ],
+ "E_Y_given_X2_float": 2.875,
+ "total_expectation_check_EX": [
+  49,
+  20
+ ],
+ "P_B": [
+  9,
+  20
+ ],
+ "P_B_float": 0.45,
+ "pB_joint_1_3": [
+  2,
+  9
+ ],
+ "pB_joint_1_4": [
+  1,
+  9
+ ],
+ "pB_joint_2_3": [
+  4,
+  9
+ ],
+ "pB_joint_2_4": [
+  2,
+  9
+ ],
+ "pXgB_1": [
+  1,
+  3
+ ],
+ "pXgB_2": [
+  2,
+  3
+ ],
+ "pYgB_3": [
+  2,
+  3
+ ],
+ "pYgB_4": [
+  1,
+  3
+ ],
+ "E_X_given_B": [
+  5,
+  3
+ ],
+ "E_X_given_B_float": 1.6666666666666667,
+ "var_X_given_B": [
+  2,
+  9
+ ],
+ "var_X_given_B_float": 0.2222222222222222,
+ "E_Y_given_B": [
+  10,
+  3
+ ],
+ "var_Y_given_B": [
+  2,
+  9
+ ],
+ "cond_on_B_independent": true,
+ "condB_prod_1_3": [
+  2,
+  9
+ ],
+ "condB_prod_1_4": [
+  1,
+  9
+ ],
+ "condB_prod_2_3": [
+  4,
+  9
+ ],
+ "condB_prod_2_4": [
+  2,
+  9
+ ],
+ "E_XY_given_B": [
+  50,
+  9
+ ],
+ "E_XY_given_B_float": 5.555555555555555,
+ "E_X_given_B_times_E_Y_given_B": [
+  50,
+  9
+ ],
+ "widget": {
+  "none": {
+   "P_event": [
+    1,
+    1
+   ],
+   "pmf": {
+    "1": [
+     3,
+     20
+    ],
+    "2": [
+     2,
+     5
+    ],
+    "3": [
+     3,
+     10
+    ],
+    "4": [
+     3,
+     20
+    ]
+   },
+   "E": 2.45,
+   "var": 0.8475,
+   "E_frac": "49/20",
+   "var_frac": "339/400"
+  },
+  "Y=1": {
+   "P_event": [
+    1,
+    20
+   ],
+   "pmf": {
+    "1": [
+     0,
+     1
+    ],
+    "2": [
+     1,
+     1
+    ],
+    "3": [
+     0,
+     1
+    ],
+    "4": [
+     0,
+     1
+    ]
+   },
+   "E": 2.0,
+   "var": 0.0,
+   "E_frac": "2",
+   "var_frac": "0"
+  },
+  "Y=2": {
+   "P_event": [
+    1,
+    4
+   ],
+   "pmf": {
+    "1": [
+     0,
+     1
+    ],
+    "2": [
+     1,
+     5
+    ],
+    "3": [
+     3,
+     5
+    ],
+    "4": [
+     1,
+     5
+    ]
+   },
+   "E": 3.0,
+   "var": 0.4,
+   "E_frac": "3",
+   "var_frac": "2/5"
+  },
+  "Y=3": {
+   "P_event": [
+    9,
+    20
+   ],
+   "pmf": {
+    "1": [
+     2,
+     9
+    ],
+    "2": [
+     4,
+     9
+    ],
+    "3": [
+     1,
+     9
+    ],
+    "4": [
+     2,
+     9
+    ]
+   },
+   "E": 2.3333333333333335,
+   "var": 1.1111111111111112,
+   "E_frac": "7/3",
+   "var_frac": "10/9"
+  },
+  "Y=4": {
+   "P_event": [
+    1,
+    4
+   ],
+   "pmf": {
+    "1": [
+     1,
+     5
+    ],
+    "2": [
+     2,
+     5
+    ],
+    "3": [
+     2,
+     5
+    ],
+    "4": [
+     0,
+     1
+    ]
+   },
+   "E": 2.2,
+   "var": 0.56,
+   "E_frac": "11/5",
+   "var_frac": "14/25"
+  },
+  "X<=2,Y>=3": {
+   "P_event": [
+    9,
+    20
+   ],
+   "pmf": {
+    "1": [
+     1,
+     3
+    ],
+    "2": [
+     2,
+     3
+    ],
+    "3": [
+     0,
+     1
+    ],
+    "4": [
+     0,
+     1
+    ]
+   },
+   "E": 1.6666666666666667,
+   "var": 0.2222222222222222,
+   "E_frac": "5/3",
+   "var_frac": "2/9"
+  },
+  "X<=2": {
+   "P_event": [
+    11,
+    20
+   ],
+   "pmf": {
+    "1": [
+     3,
+     11
+    ],
+    "2": [
+     8,
+     11
+    ],
+    "3": [
+     0,
+     1
+    ],
+    "4": [
+     0,
+     1
+    ]
+   },
+   "E": 1.7272727272727273,
+   "var": 0.19834710743801653,
+   "E_frac": "19/11",
+   "var_frac": "24/121"
+  }
+ },
+ "slide5_varX_used": [
+  339,
+  400
+ ],
+ "slide5_var_2X": [
+  339,
+  100
+ ],
+ "slide5_var_2X_float": 3.39,
+ "slide5_var_zero": [
+  0,
+  1
+ ],
+ "slide5_var_X_minus_3Y_symbolic": "var(X)+9var(Y)",
+ "slide5_indep_example_varX": [
+  339,
+  400
+ ],
+ "slide5_indep_example_varY": [
+  69,
+  100
+ ],
+ "slide5_var_X_minus_3Y_num": [
+  2823,
+  400
+ ],
+ "slide5_var_X_minus_3Y_num_float": 7.0575,
+ "binom_n": 10,
+ "binom_p": [
+  3,
+  10
+ ],
+ "binom_E_Xi": [
+  3,
+  10
+ ],
+ "binom_var_Xi": [
+  21,
+  100
+ ],
+ "binom_var_Xi_float": 0.21,
+ "binom_EX_formula": [
+  3,
+  1
+ ],
+ "binom_EX_float": 3.0,
+ "binom_varX_formula": [
+  21,
+  10
+ ],
+ "binom_varX_float": 2.1,
+ "binom_brute_EX": [
+  3,
+  1
+ ],
+ "binom_brute_varX": [
+  21,
+  10
+ ],
+ "binom_pmf": [
+  0.0282475249,
+  0.121060821,
+  0.2334744405,
+  0.266827932,
+  0.200120949,
+  0.1029193452,
+  0.036756909,
+  0.009001692,
+  0.0014467005,
+  0.000137781,
+  5.9049e-06
+ ],
+ "rec06p1_pNK_0_0": [
+  1,
+  4
+ ],
+ "rec06p1_pNK_0_1": [
+  0,
+  1
+ ],
+ "rec06p1_pNK_0_2": [
+  0,
+  1
+ ],
+ "rec06p1_pNK_0_3": [
+  0,
+  1
+ ],
+ "rec06p1_pNK_1_0": [
+  1,
+  8
+ ],
+ "rec06p1_pNK_1_1": [
+  1,
+  8
+ ],
+ "rec06p1_pNK_1_2": [
+  0,
+  1
+ ],
+ "rec06p1_pNK_1_3": [
+  0,
+  1
+ ],
+ "rec06p1_pNK_2_0": [
+  1,
+  16
+ ],
+ "rec06p1_pNK_2_1": [
+  1,
+  8
+ ],
+ "rec06p1_pNK_2_2": [
+  1,
+  16
+ ],
+ "rec06p1_pNK_2_3": [
+  0,
+  1
+ ],
+ "rec06p1_pNK_3_0": [
+  1,
+  32
+ ],
+ "rec06p1_pNK_3_1": [
+  3,
+  32
+ ],
+ "rec06p1_pNK_3_2": [
+  3,
+  32
+ ],
+ "rec06p1_pNK_3_3": [
+  1,
+  32
+ ],
+ "rec06p1_total": [
+  1,
+  1
+ ],
+ "rec06p1_pK_0": [
+  15,
+  32
+ ],
+ "rec06p1_pK_1": [
+  11,
+  32
+ ],
+ "rec06p1_pK_2": [
+  5,
+  32
+ ],
+ "rec06p1_pK_3": [
+  1,
+  32
+ ],
+ "rec06p1_pK_sum": [
+  1,
+  1
+ ],
+ "rec06p1_pKgN_0_given2": [
+  1,
+  4
+ ],
+ "rec06p1_pKgN_1_given2": [
+  1,
+  2
+ ],
+ "rec06p1_pKgN_2_given2": [
+  1,
+  4
+ ],
+ "rec06p1_pNgK_2_given2": [
+  2,
+  5
+ ],
+ "rec06p1_pNgK_3_given2": [
+  3,
+  5
+ ],
+ "rec06p1_E_K_given_N2": [
+  1,
+  1
+ ],
+ "rec06p1_E_N_given_K2": [
+  13,
+  5
+ ],
+ "rec06p1_E_N_given_K2_float": 2.6,
+ "rec06p1_E_N": [
+  3,
+  2
+ ],
+ "rec06p1_E_K": [
+  3,
+  4
+ ],
+ "rec06p1_E_K_float": 0.75,
+ "rec06p1_E_K_total_exp": [
+  3,
+  4
+ ],
+ "rec06p1_var_K": [
+  11,
+  16
+ ],
+ "rec06p1_var_K_float": 0.6875,
+ "rec06p1_var_N": [
+  5,
+  4
+ ],
+ "rec06p1_N_K_independent": false,
+ "rec06p1_pN0_times_pK1": [
+  11,
+  128
+ ],
+ "rec06p2_pX_0": [
+  1,
+  4
+ ],
+ "rec06p2_pX_2": [
+  1,
+  4
+ ],
+ "rec06p2_pX_4": [
+  1,
+  2
+ ],
+ "rec06p2_pY_0": [
+  1,
+  8
+ ],
+ "rec06p2_pY_1": [
+  3,
+  8
+ ],
+ "rec06p2_pY_2": [
+  1,
+  4
+ ],
+ "rec06p2_pY_3": [
+  1,
+  4
+ ],
+ "rec06p2_E_Y_given_X0": [
+  2,
+  1
+ ],
+ "rec06p2_var_Y_given_X0": [
+  1,
+  1
+ ],
+ "rec06p2_E_Y_given_X2": [
+  3,
+  2
+ ],
+ "rec06p2_var_Y_given_X2": [
+  1,
+  4
+ ],
+ "rec06p2_E_Y_given_X4": [
+  3,
+  2
+ ],
+ "rec06p2_var_Y_given_X4": [
+  5,
+  4
+ ],
+ "rec06p2_E_X_given_Y0": [
+  4,
+  1
+ ],
+ "rec06p2_var_X_given_Y0": [
+  0,
+  1
+ ],
+ "rec06p2_var_X_given_Y0_float": 0.0,
+ "rec06p2_E_X_given_Y1": [
+  2,
+  1
+ ],
+ "rec06p2_var_X_given_Y1": [
+  8,
+  3
+ ],
+ "rec06p2_var_X_given_Y1_float": 2.6666666666666665,
+ "rec06p2_E_X_given_Y2": [
+  3,
+  1
+ ],
+ "rec06p2_var_X_given_Y2": [
+  1,
+  1
+ ],
+ "rec06p2_var_X_given_Y2_float": 1.0,
+ "rec06p2_E_X_given_Y3": [
+  2,
+  1
+ ],
+ "rec06p2_var_X_given_Y3": [
+  4,
+  1
+ ],
+ "rec06p2_var_X_given_Y3_float": 4.0,
+ "rec06p2_pR_0": [
+  3,
+  8
+ ],
+ "rec06p2_pR_1": [
+  1,
+  4
+ ],
+ "rec06p2_pR_2": [
+  1,
+  4
+ ],
+ "rec06p2_pR_3": [
+  1,
+  8
+ ],
+ "rec06p2_pR_sum": [
+  1,
+  1
+ ],
+ "rec06p2_E_R": [
+  9,
+  8
+ ],
+ "rec06p2_E_R_float": 1.125,
+ "rec06p2_EXY": [
+  15,
+  4
+ ],
+ "rec06p2_EXY_float": 3.75,
+ "rec06p2_A_points": [
+  [
+   4,
+   3
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   4,
+   2
+  ],
+  [
+   2,
+   1
+  ],
+  [
+   4,
+   1
+  ],
+  [
+   4,
+   0
+  ]
+ ],
+ "rec06p2_notA_points": [
+  [
+   0,
+   3
+  ],
+  [
+   0,
+   1
+  ]
+ ],
+ "rec06p2_P_A": [
+  3,
+  4
+ ],
+ "rec06p2_E_XY_given_A": [
+  5,
+  1
+ ],
+ "rec06p2_E_X": [
+  5,
+  2
+ ],
+ "rec06p2_E_Y": [
+  13,
+  8
+ ],
+ "rec06p2_E_X_times_E_Y": [
+  65,
+  16
+ ],
+ "rec06p2_cov": [
+  -5,
+  16
+ ],
+ "rec07p2_pX1": [
+  1,
+  3
+ ],
+ "rec07p2_pYgX_1_given1": [
+  1,
+  4
+ ],
+ "rec07p2_pYgX_2_given1": [
+  1,
+  2
+ ],
+ "rec07p2_pYgX_3_given1": [
+  1,
+  4
+ ],
+ "rec07p2_E_Y_given_X1": [
+  2,
+  1
+ ],
+ "rec07p2_var_Y_given_X1": [
+  1,
+  2
+ ],
+ "rec07p2_var_Y_given_X1_float": 0.5,
+ "rec07p2_pY1_row": [
+  1,
+  4
+ ],
+ "rec07p2_mass_forced_into_22": [
+  5,
+  12
+ ],
+ "rec07p2_pX2_if_indep": [
+  2,
+  3
+ ],
+ "rec07p2_pY2_if_indep": [
+  7,
+  12
+ ],
+ "rec07p2_product_pX2_pY2": [
+  7,
+  18
+ ],
+ "rec07p2_product_float": 0.3888888888888889,
+ "rec07p2_pXY22_needed": [
+  5,
+  12
+ ],
+ "rec07p2_pXY22_needed_float": 0.4166666666666667,
+ "rec07p2_ratio_x1": [
+  1,
+  1
+ ],
+ "rec07p2_ratio_x2": [
+  1,
+  2
+ ],
+ "rec07p2_p22_from_condindep": [
+  1,
+  3
+ ],
+ "rec07p2_p22_float": 0.3333333333333333,
+ "rec07p2_P_B": [
+  3,
+  4
+ ],
+ "rec07p2_P_B_float": 0.75,
+ "rec07p2_pXY_given_B_22": [
+  4,
+  9
+ ],
+ "rec07p2_pXY_given_B_22_float": 0.4444444444444444,
+ "rec07p2_pXY_given_B_1_1": [
+  1,
+  9
+ ],
+ "rec07p2_pXY_given_B_2_1": [
+  2,
+  9
+ ],
+ "rec07p2_pXY_given_B_1_2": [
+  2,
+  9
+ ],
+ "rec07p2_pXgB_1": [
+  1,
+  3
+ ],
+ "rec07p2_pXgB_2": [
+  2,
+  3
+ ],
+ "rec07p2_pYgB_1": [
+  1,
+  3
+ ],
+ "rec07p2_pYgB_2": [
+  2,
+  3
+ ],
+ "rec07p2_condB_check_22": [
+  4,
+  9
+ ],
+ "prac41_pX0": [
+  1,
+  2
+ ],
+ "prac41_pX1": [
+  1,
+  2
+ ],
+ "prac41_pY0": [
+  1,
+  4
+ ],
+ "prac41_pY1": [
+  3,
+  4
+ ],
+ "prac41_indep": true,
+ "prac43_P_XeqY": [
+  1,
+  10
+ ],
+ "prac43_cond": {
+  "(2, 2)": "1/2",
+  "(3, 3)": "1/2"
+ },
+ "prac43_E_X_given_diag": [
+  5,
+  2
+ ],
+ "prac43_E_X_given_diag_float": 2.5,
+ "prac_die_mean": [
+  7,
+  2
+ ],
+ "prac_die_var": [
+  35,
+  12
+ ],
+ "prac_die_var_float": 2.9166666666666665,
+ "prac_var_sum_3dice": [
+  35,
+  4
+ ],
+ "prac_var_D1_minus_D2": [
+  35,
+  6
+ ],
+ "prac_binom_mean_5_half": [
+  5,
+  2
+ ],
+ "prac_binom_var_5_half": [
+  5,
+  4
+ ],
+ "prac_pNgK0_0": [
+  8,
+  15
+ ],
+ "prac_pNgK0_1": [
+  4,
+  15
+ ],
+ "prac_pNgK0_2": [
+  2,
+  15
+ ],
+ "prac_pNgK0_3": [
+  1,
+  15
+ ],
+ "prac_E_N_given_K0": [
+  11,
+  15
+ ],
+ "prac_E_N_given_K0_float": 0.7333333333333333,
+ "pYgX_1_given_3": [
+  0,
+  1
+ ],
+ "pYgX_2_given_3": [
+  1,
+  2
+ ],
+ "pYgX_3_given_3": [
+  1,
+  6
+ ],
+ "pYgX_4_given_3": [
+  1,
+  3
+ ],
+ "E_Y_given_X3": [
+  17,
+  6
+ ],
+ "E_Y_given_X3_float": 2.8333333333333335,
+ "E_Y2_given_X3": [
+  53,
+  6
+ ],
+ "var_Y_given_X3": [
+  29,
+  36
+ ],
+ "var_Y_given_X3_float": 0.8055555555555556,
+ "EX2_grid": [
+  137,
+  20
+ ],
+ "EY2_grid": [
+  91,
+  10
+ ],
+ "E_X_plus_Y": [
+  107,
+  20
+ ],
+ "E_X_plus_Y_float": 5.35,
+ "P_Xle2": [
+  11,
+  20
+ ],
+ "P_Yge3": [
+  7,
+  10
+ ],
+ "P_union": [
+  4,
+  5
+ ],
+ "P_Xle2_given_Yge3": [
+  9,
+  14
+ ],
+ "P_Yge3_given_Xle2": [
+  9,
+  11
+ ],
+ "rec06p1_EK2": [
+  5,
+  4
+ ],
+ "prac49c_each_star": [
+  5,
+  36
+ ],
+ "binom_EX2": [
+  111,
+  10
+ ],
+ "binom_EX2_float": 11.1,
+ "hat_n2_P_Xi_eq_1": [
+  1,
+  2
+ ],
+ "hat_n2_E_Xi": [
+  1,
+  2
+ ],
+ "hat_n2_E_Xi2": [
+  1,
+  2
+ ],
+ "hat_n2_P_X1X2_eq_1": [
+  1,
+  2
+ ],
+ "hat_n2_n_offdiag_pairs": 2,
+ "hat_n2_E_X": [
+  1,
+  1
+ ],
+ "hat_n2_E_X2": [
+  2,
+  1
+ ],
+ "hat_n2_var_X": [
+  1,
+  1
+ ],
+ "hat_n2_P_X2_given_X1": [
+  1,
+  1
+ ],
+ "hat_n2_indicators_independent": false,
+ "hat_n2_brute_E_X": [
+  1,
+  1
+ ],
+ "hat_n2_brute_E_X2": [
+  2,
+  1
+ ],
+ "hat_n2_brute_var_X": [
+  1,
+  1
+ ],
+ "hat_n3_P_Xi_eq_1": [
+  1,
+  3
+ ],
+ "hat_n3_E_Xi": [
+  1,
+  3
+ ],
+ "hat_n3_E_Xi2": [
+  1,
+  3
+ ],
+ "hat_n3_P_X1X2_eq_1": [
+  1,
+  6
+ ],
+ "hat_n3_n_offdiag_pairs": 6,
+ "hat_n3_E_X": [
+  1,
+  1
+ ],
+ "hat_n3_E_X2": [
+  2,
+  1
+ ],
+ "hat_n3_var_X": [
+  1,
+  1
+ ],
+ "hat_n3_P_X2_given_X1": [
+  1,
+  2
+ ],
+ "hat_n3_indicators_independent": false,
+ "hat_n3_brute_E_X": [
+  1,
+  1
+ ],
+ "hat_n3_brute_E_X2": [
+  2,
+  1
+ ],
+ "hat_n3_brute_var_X": [
+  1,
+  1
+ ],
+ "hat_n5_P_Xi_eq_1": [
+  1,
+  5
+ ],
+ "hat_n5_E_Xi": [
+  1,
+  5
+ ],
+ "hat_n5_E_Xi2": [
+  1,
+  5
+ ],
+ "hat_n5_P_X1X2_eq_1": [
+  1,
+  20
+ ],
+ "hat_n5_n_offdiag_pairs": 20,
+ "hat_n5_E_X": [
+  1,
+  1
+ ],
+ "hat_n5_E_X2": [
+  2,
+  1
+ ],
+ "hat_n5_var_X": [
+  1,
+  1
+ ],
+ "hat_n5_P_X2_given_X1": [
+  1,
+  4
+ ],
+ "hat_n5_indicators_independent": false,
+ "hat_n5_brute_E_X": [
+  1,
+  1
+ ],
+ "hat_n5_brute_E_X2": [
+  2,
+  1
+ ],
+ "hat_n5_brute_var_X": [
+  1,
+  1
+ ],
+ "hat_n10_P_Xi_eq_1": [
+  1,
+  10
+ ],
+ "hat_n10_E_Xi": [
+  1,
+  10
+ ],
+ "hat_n10_E_Xi2": [
+  1,
+  10
+ ],
+ "hat_n10_P_X1X2_eq_1": [
+  1,
+  90
+ ],
+ "hat_n10_n_offdiag_pairs": 90,
+ "hat_n10_E_X": [
+  1,
+  1
+ ],
+ "hat_n10_E_X2": [
+  2,
+  1
+ ],
+ "hat_n10_var_X": [
+  1,
+  1
+ ],
+ "hat_n10_P_X2_given_X1": [
+  1,
+  9
+ ],
+ "hat_n10_indicators_independent": false,
+ "hat_n100_P_Xi_eq_1": [
+  1,
+  100
+ ],
+ "hat_n100_E_Xi": [
+  1,
+  100
+ ],
+ "hat_n100_E_Xi2": [
+  1,
+  100
+ ],
+ "hat_n100_P_X1X2_eq_1": [
+  1,
+  9900
+ ],
+ "hat_n100_n_offdiag_pairs": 9900,
+ "hat_n100_E_X": [
+  1,
+  1
+ ],
+ "hat_n100_E_X2": [
+  2,
+  1
+ ],
+ "hat_n100_var_X": [
+  1,
+  1
+ ],
+ "hat_n100_P_X2_given_X1": [
+  1,
+  99
+ ],
+ "hat_n100_indicators_independent": false
+}

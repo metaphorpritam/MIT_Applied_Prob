@@ -1,0 +1,663 @@
+<h2 id="g2-s5">§5 &nbsp; Synthesis: the discrete toolbox</h2>
+<p class="srcref">Sources: L05 slides 2–8 · L06 slides 2–8 · L07 slides 2–8 · rec05 P1–P4 · rec06 P1–P3 · rec07 P1–P3 · B&amp;T §2.1–2.7. Every number on this page is recomputed in <code>computes/g2_s5.py</code> (closed forms are checked against brute-force summation over the PMF).</p>
+
+<p>Three lectures replaced outcomes by numbers. The replacement bought two things that G1 could not
+express: a single object, the PMF, that carries a whole table of probabilities at once, and two
+summary numbers, the mean and the variance, that compress that table into a location and a spread.
+Everything else in G2 — conditional PMFs, joint PMFs, independence, indicators, total expectation —
+is machinery for computing those two numbers without ever writing the full table down. This section
+puts the whole toolbox on one page, lists the traps that generate most of the wrong answers, and says
+precisely what breaks when the values stop being discrete.</p>
+
+<h3>5.1 How the pieces fit together</h3>
+
+<p>Read the map below as a dependency graph: an arrow means "the target is defined in terms of, or
+derived from, the source". Three chains descend from the PMF. The <em>left</em> chain is conditioning
+— a conditional PMF is just a PMF on a smaller universe, and summing conditional expectations against
+the weights of a partition is the total expectation theorem. The <em>middle</em> chain is averaging —
+expectation, then the expected-value rule that lets you average any function of $X$ without finding
+its PMF, then variance as the special case $g(x)=(x-\mathbb{E}[X])^2$. The <em>right</em> chain is
+multiplicity — joint PMFs, the independence test, and the linearity/indicator machinery that makes
+sums tractable.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s5_conceptmap}}" alt="Concept map: random variable leads to PMF, which branches into three chains — conditional PMF and total expectation; expectation, expected-value rule and variance; joint PMF, independence, linearity and the indicator method — all feeding into the G3 continuous preview." style="max-width:940px">
+<div class="figcap">Fig. 5.1 — Dependency map of the G2 toolbox (L05 slides 2–8; L06 slides 5, 7, 8; L07 slides 3–7). Solid arrows: definition or derivation. The bottom box is the G3 preview of §5.5.</div>
+
+<div class="note"><b>Interpretation — there are only three moves.</b> The first is <em>partition and add</em>:
+$p_X(x)$ itself is built by collecting all outcomes with $X(\omega)=x$ and adding their probabilities
+(L05 slide 4), marginalization $p_X(x)=\sum_y p_{X,Y}(x,y)$ adds over a partition by the value of $Y$
+(L06 slide 8), and total expectation adds conditional means over a partition of $\Omega$ (L06 slide 7).
+The second is <em>reweight without rebuilding</em>: the expected-value rule
+$\mathbb{E}[g(X)]=\sum_x g(x)p_X(x)$ says you may leave the PMF of $X$ alone and change only the
+numbers you multiply it by (L05 slide 7) — that single trick delivers second moments, variances, and
+every "average cost/time/profit" question in the recitations. The third is <em>decompose into
+indicators</em>: write $X=\sum_i X_i$ with each $X_i\in\{0,1\}$ and use linearity (L07 slides 6–7).
+If a G2 problem feels hard, you are almost certainly missing one of these three moves.</div>
+
+<div class="ex"><b>Practice 5.1 (name the move).</b> For each task, say which of the three moves —
+<em>partition and add</em>, <em>reweight without rebuilding</em>, <em>decompose into indicators</em> —
+does the work, and write the one identity you would invoke.
+<ol>
+<li>You have $p_X$ for a die-like $X$ and want $\mathbb{E}[3X^2-2X+1]$.</li>
+<li>$400$ students have independent uniform birthdays; you want the expected number of days of the
+year on which at least one birthday falls.</li>
+<li>A fair coin decides whether $X$ is uniform on $\{1,\ldots,4\}$ or geometric($1/5$); you want
+$\mathbb{E}[X]$.</li>
+<li>You have $p_{X,Y}$ and want $p_Y$.</li>
+</ol>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>1. Reweight without rebuilding.</b> The expected-value rule
+$\mathbb{E}[g(X)]=\sum_x g(x)p_X(x)$ with $g(x)=3x^2-2x+1$ (L05 slide 7). You never need the PMF of
+$3X^2-2X+1$. Linearity then lets you split it further as
+$3\mathbb{E}[X^2]-2\mathbb{E}[X]+1$ if you prefer.</p>
+<p><b>2. Decompose into indicators.</b> Let $D_d=1$ if day $d$ has at least one birthday. Then the
+count is $\sum_{d=1}^{365}D_d$ and $\mathbb{E}[\text{count}]=\sum_d\mathbf{P}(D_d=1)$ (L07 slides
+6–7). The $D_d$ are dependent — there are only $400$ birthdays to go around — and linearity does not
+care.</p>
+<p><b>3. Partition and add.</b> Total expectation over the partition $\{$heads, tails$\}$:
+$\mathbb{E}[X]=\tfrac12\mathbb{E}[X\mid\text{heads}]+\tfrac12\mathbb{E}[X\mid\text{tails}]$
+(L06 slide 7).</p>
+<p><b>4. Partition and add.</b> Marginalization $p_Y(y)=\sum_x p_{X,Y}(x,y)$ partitions the event
+$\{Y=y\}$ by the value of $X$ (L06 slide 8).</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.2 (the middle chain, end to end).</b> $X$ is the number of heads in
+three tosses of a fair coin. Using only the expected-value rule and the computational form of the
+variance, find $\mathbb{E}[X]$, $\mathbb{E}[X^2]$ and $\operatorname{var}(X)$, then check the last
+against the binomial formula in §5.2.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$X\sim$ binomial($3,\tfrac12$), so $p_X(0)=p_X(3)=\tfrac18$ and $p_X(1)=p_X(2)=\tfrac38$ (these
+sum to $1$). The definition gives
+$$\mathbb{E}[X]=0\cdot\tfrac18+1\cdot\tfrac38+2\cdot\tfrac38+3\cdot\tfrac18=\tfrac{0+3+6+3}{8}=\tfrac{12}{8}=\tfrac32 .$$
+The expected-value rule with $g(x)=x^2$ reuses that same PMF — no new PMF is built:
+$$\mathbb{E}[X^2]=0\cdot\tfrac18+1\cdot\tfrac38+4\cdot\tfrac38+9\cdot\tfrac18=\tfrac{0+3+12+9}{8}=\tfrac{24}{8}=3 .$$
+Then $\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2=3-\tfrac94=\tfrac34=0.75$, and the
+table's $np(1-p)=3\cdot\tfrac12\cdot\tfrac12=\tfrac34$ agrees. (Compute key
+<code>practice.p5_1b</code>.)</p>
+</div></details></div>
+
+<h3>5.2 The PMF zoo</h3>
+
+<p>Four families cover almost every discrete model in this course. In the table, $p$ is the success
+probability of a single trial, $n$ is the number of trials, and $a,b$ are the smallest and largest
+values of the uniform range (all integers between them are included). The "mechanism" column is the
+sentence in the problem statement that should make you reach for that row.</p>
+
+<table>
+<thead>
+<tr><th class="l">Family</th><th class="l">PMF</th><th class="num">$\mathbb{E}[X]$</th><th class="num">$\operatorname{var}(X)$</th><th class="l">Mechanism that produces it</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td class="l"><b>Bernoulli($p$)</b></td>
+  <td class="l">$p_X(1)=p$, $p_X(0)=1-p$</td>
+  <td class="num">$p$</td>
+  <td class="num">$p(1-p)$</td>
+  <td class="l">One trial with two outcomes; an <em>indicator</em> of any event $A$ with $p=\mathbf{P}(A)$.</td>
+  <td class="l">L07 s6, s7; B&amp;T §2.2</td>
+</tr>
+<tr>
+  <td class="l"><b>Uniform on $\{a,\ldots,b\}$</b></td>
+  <td class="l">$p_X(k)=\dfrac{1}{b-a+1}$, $k=a,\ldots,b$</td>
+  <td class="num">$\dfrac{a+b}{2}$</td>
+  <td class="num">$\dfrac{(b-a)(b-a+2)}{12}$</td>
+  <td class="l">"Equally likely", "fair die", "picked at random" with no value preferred over another.</td>
+  <td class="l">L05 s6; L06 s5; B&amp;T §2.2</td>
+</tr>
+<tr>
+  <td class="l"><b>Binomial($n,p$)</b></td>
+  <td class="l">$p_X(k)=\dbinom{n}{k}p^k(1-p)^{n-k}$, $k=0,\ldots,n$</td>
+  <td class="num">$np$</td>
+  <td class="num">$np(1-p)$</td>
+  <td class="l"><em>Count</em> the successes in a fixed number $n$ of independent identical trials.</td>
+  <td class="l">L05 s5; L07 s6; rec05 P2; B&amp;T §2.2</td>
+</tr>
+<tr>
+  <td class="l"><b>Geometric($p$)</b></td>
+  <td class="l">$p_X(k)=(1-p)^{k-1}p$, $k=1,2,\ldots$</td>
+  <td class="num">$\dfrac{1}{p}$</td>
+  <td class="num">$\dfrac{1-p}{p^2}$</td>
+  <td class="l"><em>Wait</em> for the first success in independent identical trials; the number of trials is unbounded.</td>
+  <td class="l">L05 s3; L06 s6, s7; rec06 P3; B&amp;T §2.4</td>
+</tr>
+</tbody>
+</table>
+
+<p>The special value $a=0$, $b=n$ of the uniform row is the one on L05 slide 6: mean $n/2$ and
+variance $n(n+2)/12$, both verified in <code>computes/g2_s5.py</code> for $n=1,4,9,100$ against
+brute-force summation (key <code>uniform_0_n_rule.instances</code>: $n=1\to\tfrac12,\tfrac14$;
+$n=4\to 2,2$; $n=9\to\tfrac92,\tfrac{33}{4}$; $n=100\to 50, 850$). Three sanity instances of the other rows, each computed twice —
+once from the closed form, once by summing over the PMF:</p>
+
+<table>
+<thead>
+<tr><th class="l">Instance</th><th class="num">$\sum_x p_X(x)$</th><th class="num">$\mathbb{E}[X]$</th><th class="num">$\mathbb{E}[X^2]$</th><th class="num">$\operatorname{var}(X)$</th></tr>
+</thead>
+<tbody>
+<tr><td class="l">Bernoulli($0.3$)</td><td class="num">$1$</td><td class="num">$0.3$</td><td class="num">$0.3$</td><td class="num">$0.21$</td></tr>
+<tr><td class="l">Binomial($10,0.3$)</td><td class="num">$1$</td><td class="num">$3$</td><td class="num">$11.1$</td><td class="num">$2.1$</td></tr>
+<tr><td class="l">Geometric($0.2$), summed to $k=4000$</td><td class="num">$1.000000000000000$</td><td class="num">$5.000000000000$</td><td class="num">—</td><td class="num">$20.000000000000$</td></tr>
+</tbody>
+</table>
+
+<div class="note"><b>Interpretation — the zoo is two mechanisms, not four.</b> Bernoulli is the atom.
+Binomial and geometric are the two different questions you can ask about a stream of Bernoulli trials:
+<em>fix the number of trials and count the successes</em> (binomial), or <em>fix the number of successes
+at one and count the trials</em> (geometric). That is why their means point in opposite directions:
+more trials raises $np$, whereas a larger success probability <em>lowers</em> $1/p$. The uniform is the
+odd one out — it encodes ignorance rather than a trial mechanism, and it is the only one of the four
+whose variance does not involve $p$ at all.</div>
+
+<div class="note"><b>Interpretation — where the variances come from.</b> $p(1-p)$ is maximized at
+$p=1/2$ (value $0.25$) and vanishes at $p=0$ and $p=1$: a coin you already know the answer to has no
+spread. The binomial variance is $n$ copies of that, $np(1-p)$, because a binomial random variable is
+a sum of $n$ <em>independent</em> indicators and variances of independent random variables add
+(L07 slide 5). The geometric variance $(1-p)/p^2$ blows up as $p\to 0$ far faster than its mean $1/p$
+does — for $p=0.2$ the mean is $5$ but the standard deviation is $\sqrt{20}\approx 4.47$, i.e. almost
+as large as the mean itself. Rare-event waiting times are wildly unpredictable, not merely long.</div>
+
+<div class="recipe"><b>Recipe — picking the tool.</b>
+<ol>
+<li><b>Is the quantity a number attached to each outcome?</b> If not, it is an event and G1 already
+handles it. If yes, name it $X$ and say in words what $X(\omega)$ is.</li>
+<li><b>Does it come from one of the four mechanisms?</b> one trial $\to$ Bernoulli; nothing prefers
+one value $\to$ uniform; count successes in $n$ fixed trials $\to$ binomial; wait for the first
+success $\to$ geometric. Then read the mean and variance off the table and stop.</li>
+<li><b>If no family fits, build the PMF</b> (L05 slide 4): collect the outcomes with $X(\omega)=x$,
+add their probabilities, repeat for every $x$, then check $\sum_x p_X(x)=1$.</li>
+<li><b>Then answer the actual question.</b> A mean of a function of $X$ $\to$ the expected-value rule,
+never a new PMF. A mean of a sum $\to$ linearity and indicators, and note that independence is
+<em>not</em> required. A spread $\to$ $\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$.
+A mean you can only compute inside each scenario $\to$ total expectation.</li>
+</ol></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s5_flowchart}}" alt="Decision flowchart: is the quantity a number attached to each outcome? Then does it come from one of four standard mechanisms (Bernoulli, uniform, binomial, geometric)? Otherwise build the PMF from scratch; finally route to expected-value rule, linearity/indicators, variance, or total expectation depending on what is asked." style="max-width:880px">
+<div class="figcap">Fig. 5.2 — Decision flowchart for a discrete problem (L05 slides 3–8; L06 slides 5–7; L07 slides 4–7).</div>
+
+<div class="ex"><b>Practice 5.3 (identify the family).</b> For each verbal setup, name the family and
+its parameters, then read off $\mathbb{E}[X]$ and $\operatorname{var}(X)$ from the table above.
+<ol>
+<li>A machine stamps out parts; each is defective with probability $0.02$, independently of the
+others. $X$ = number of defectives in a batch of $50$.</li>
+<li>You half-remember a phone number and try a guess; each attempt is correct with probability
+$1/4$, independently. $X$ = number of attempts up to and including the first correct one.</li>
+<li>A fair $12$-sided die is rolled once and $X$ is the face shown.</li>
+<li>One student is picked at random from a class of $30$ that contains $12$ women; $X=1$ if the
+student picked is a woman and $X=0$ otherwise.</li>
+</ol>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>1. Binomial($50,0.02$)</b> — the mechanism is "count the successes in a fixed number of
+independent identical trials". $\mathbb{E}[X]=np=50(0.02)=1$ and
+$\operatorname{var}(X)=np(1-p)=50(0.02)(0.98)=0.98$.</p>
+<p><b>2. Geometric($1/4$)</b> — "wait for the first success", with the number of trials unbounded.
+$\mathbb{E}[X]=1/p=4$ and $\operatorname{var}(X)=(1-p)/p^2=(3/4)/(1/16)=12$. Note the standard
+deviation $\sqrt{12}\approx 3.46$ is nearly as big as the mean, as always for a geometric.</p>
+<p><b>3. Uniform on $\{1,\ldots,12\}$</b> — "fair die", nothing prefers one value. With $a=1,b=12$,
+$\mathbb{E}[X]=(a+b)/2=13/2=6.5$ and
+$\operatorname{var}(X)=(b-a)(b-a+2)/12=(11)(13)/12=143/12\approx 11.916667$.</p>
+<p><b>4. Bernoulli($0.4$)</b> — one trial with two outcomes; $X$ is the indicator of the event
+"a woman is picked", whose probability is $12/30=0.4$. So $\mathbb{E}[X]=p=0.4$ and
+$\operatorname{var}(X)=p(1-p)=0.4(0.6)=0.24$. (All four in compute key
+<code>practice.p5_2a</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.4 (when no family fits).</b> Five cards are dealt from a well-shuffled
+$52$-card deck, without replacement. Let $X$ be the number of aces among them. Is $X$ binomial? What
+is $\mathbb{E}[X]$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Not binomial.</b> Step 2 of the recipe fails: the five draws are trials with two outcomes, but
+they are <em>not independent</em> — drawing an ace first lowers the chance of an ace second, from
+$4/52$ to $3/51$. The true PMF is hypergeometric.</p>
+<p><b>The mean is still easy</b>, because linearity needs no independence. Let $X_i=1$ if the $i$th
+card dealt is an ace. By symmetry each single card is equally likely to be any of the $52$, so
+$\mathbf{P}(X_i=1)=4/52=1/13$ for every $i$ — including the fifth. Then
+$$\mathbb{E}[X]=\sum_{i=1}^{5}\mathbf{P}(X_i=1)=5\cdot\frac{1}{13}=\frac{5}{13}\approx 0.384615,$$
+exactly what binomial($5,1/13$) would have said. The <em>variance</em> is where the difference shows
+up: the true value is $940/2873\approx 0.327184$, smaller than the binomial answer
+$5\cdot\frac1{13}\cdot\frac{12}{13}\approx 0.355030$, because sampling without replacement makes the
+indicators negatively dependent. This is the §5.3 fault line in miniature: means transfer, variances
+of sums do not. (Compute key <code>practice.p5_2b</code>, checked against the exact hypergeometric
+PMF.)</p>
+</div></details></div>
+
+<h3>5.3 The expectation and variance identities</h3>
+
+<p>Every identity of G2 in one place. Here $X,Y$ are random variables on the same sample space,
+$g$ and $h$ are real-valued functions, $a,b,\alpha,\beta$ are constants (not random), $\{A_i\}$ is a
+partition of $\Omega$ into disjoint events with $\mathbf{P}(A_i)&gt;0$, and $\sigma_X$ is the standard
+deviation. The "needs independence" column is the one to check first when an identity fails.</p>
+
+<table>
+<thead>
+<tr><th class="l">Identity</th><th class="l">Statement</th><th class="l">Needs independence?</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr><td class="l" colspan="4"><b>Expectation</b></td></tr>
+<tr><td class="l">Definition</td><td class="l">$\mathbb{E}[X]=\sum_x x\,p_X(x)$ (center of gravity of the PMF)</td><td class="l">no</td><td class="l">L05 s6; B&amp;T §2.4</td></tr>
+<tr><td class="l">Expected-value rule</td><td class="l">$\mathbb{E}[g(X)]=\sum_x g(x)\,p_X(x)$ — no need for $p_{g(X)}$</td><td class="l">no</td><td class="l">L05 s7; rec05 P1(a)</td></tr>
+<tr><td class="l">Two-variable version</td><td class="l">$\mathbb{E}[g(X,Y)]=\sum_x\sum_y g(x,y)\,p_{X,Y}(x,y)$</td><td class="l">no</td><td class="l">L07 s4; rec07 P1</td></tr>
+<tr><td class="l">Constants</td><td class="l">$\mathbb{E}[\alpha]=\alpha$</td><td class="l">no</td><td class="l">L05 s7</td></tr>
+<tr><td class="l">Scaling / shifting</td><td class="l">$\mathbb{E}[\alpha X+\beta]=\alpha\mathbb{E}[X]+\beta$</td><td class="l">no</td><td class="l">L05 s7; rec05 P1(b)</td></tr>
+<tr><td class="l">Centering</td><td class="l">$\mathbb{E}\big[X-\mathbb{E}[X]\big]=0$</td><td class="l">no</td><td class="l">L06 s2</td></tr>
+<tr><td class="l">Linearity (sums)</td><td class="l">$\mathbb{E}[aX+bY]=a\mathbb{E}[X]+b\mathbb{E}[Y]$; $\mathbb{E}[X_1+\cdots+X_n]=\sum_i\mathbb{E}[X_i]$</td><td class="l"><b>no</b> — the most useful fact in G2</td><td class="l">L07 s4; rec07 P1</td></tr>
+<tr><td class="l">Products</td><td class="l">$\mathbb{E}[XY]=\mathbb{E}[X]\,\mathbb{E}[Y]$, and $\mathbb{E}[g(X)h(Y)]=\mathbb{E}[g(X)]\,\mathbb{E}[h(Y)]$</td><td class="l"><b>yes</b></td><td class="l">L07 s4</td></tr>
+<tr><td class="l">Total expectation</td><td class="l">$\mathbb{E}[X]=\sum_i \mathbf{P}(A_i)\,\mathbb{E}[X\mid A_i]$, with $\mathbb{E}[X\mid A_i]=\sum_x x\,p_{X\mid A_i}(x)$</td><td class="l">no</td><td class="l">L06 s5, s7; rec07 P3</td></tr>
+<tr><td class="l">Indicator method</td><td class="l">$X=\sum_i X_i$, $X_i\in\{0,1\}$ $\Rightarrow$ $\mathbb{E}[X]=\sum_i\mathbf{P}(X_i=1)$</td><td class="l">no</td><td class="l">L07 s6, s7</td></tr>
+<tr><td class="l" colspan="4"><b>Variance</b></td></tr>
+<tr><td class="l">Definition</td><td class="l">$\operatorname{var}(X)=\mathbb{E}\big[(X-\mathbb{E}[X])^2\big]=\sum_x (x-\mathbb{E}[X])^2p_X(x)\ \ge 0$</td><td class="l">no</td><td class="l">L05 s8</td></tr>
+<tr><td class="l">Computational form</td><td class="l">$\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$</td><td class="l">no</td><td class="l">L05 s8; rec05 P1(c)</td></tr>
+<tr><td class="l">Standard deviation</td><td class="l">$\sigma_X=\sqrt{\operatorname{var}(X)}$ — same units as $X$</td><td class="l">no</td><td class="l">L06 s2</td></tr>
+<tr><td class="l">Shift invariance</td><td class="l">$\operatorname{var}(X+a)=\operatorname{var}(X)$</td><td class="l">no</td><td class="l">L07 s5</td></tr>
+<tr><td class="l">Scaling</td><td class="l">$\operatorname{var}(aX+b)=a^2\operatorname{var}(X)$, so $\sigma_{aX+b}=|a|\,\sigma_X$</td><td class="l">no</td><td class="l">L05 s8; L07 s5</td></tr>
+<tr><td class="l">Sums</td><td class="l">$\operatorname{var}(X+Y)=\operatorname{var}(X)+\operatorname{var}(Y)$</td><td class="l"><b>yes</b></td><td class="l">L07 s5</td></tr>
+<tr><td class="l">Linear combination</td><td class="l">$X,Y$ independent $\Rightarrow$ $\operatorname{var}(aX+bY)=a^2\operatorname{var}(X)+b^2\operatorname{var}(Y)$</td><td class="l"><b>yes</b></td><td class="l">L07 s5</td></tr>
+<tr><td class="l" colspan="4"><b>PMF bookkeeping</b></td></tr>
+<tr><td class="l">Normalization</td><td class="l">$\sum_x p_X(x)=1$; $\sum_x\sum_y p_{X,Y}(x,y)=1$; $\sum_x p_{X\mid Y}(x\mid y)=1$ for each fixed $y$</td><td class="l">no</td><td class="l">L05 s3; L06 s8</td></tr>
+<tr><td class="l">Marginalization</td><td class="l">$p_X(x)=\sum_y p_{X,Y}(x,y)$</td><td class="l">no</td><td class="l">L06 s8; L07 s2</td></tr>
+<tr><td class="l">Multiplication rule</td><td class="l">$p_{X,Y}(x,y)=p_X(x)\,p_{Y\mid X}(y\mid x)$; chain rule for three: $p_{X,Y,Z}=p_X\,p_{Y\mid X}\,p_{Z\mid X,Y}$</td><td class="l">no</td><td class="l">L07 s2, s3</td></tr>
+<tr><td class="l">Total probability for PMFs</td><td class="l">$p_X(x)=\sum_i\mathbf{P}(A_i)\,p_{X\mid A_i}(x)$</td><td class="l">no</td><td class="l">L06 s7</td></tr>
+<tr><td class="l">Independence</td><td class="l">$p_{X,Y}(x,y)=p_X(x)p_Y(y)$ for <em>all</em> $x,y$ (three r.v.'s: the triple product for all $x,y,z$)</td><td class="l">—</td><td class="l">L07 s3</td></tr>
+<tr><td class="l">Memorylessness</td><td class="l">Geometric: given $X&gt;n$, the r.v. $X-n$ is again geometric($p$)</td><td class="l">—</td><td class="l">L06 s6</td></tr>
+</tbody>
+</table>
+
+<div class="note"><b>Interpretation — the fault line runs through the middle of the table.</b> Notice
+that <em>every</em> expectation identity except the product rule holds without any independence
+assumption, while <em>every</em> variance-of-a-sum identity needs it. That asymmetry is the single most
+exploitable fact in the subject. It is why the hat problem (L07 slides 7–8) can compute
+$\mathbb{E}[X]=1$ in one line by linearity even though the indicators $X_i$ are strongly dependent,
+and it is why computing $\operatorname{var}(X)=1$ in that same problem took a whole extra slide of
+work with the cross terms $\mathbb{E}[X_iX_j]$ (worked in full in Example 5.1 below). Whenever a problem asks for a mean of a sum, look for
+indicators before you look for a PMF.</div>
+
+<div class="ex"><b>Example 5.1 (L07 slides 7–8 — the hat problem, worked in full).</b> $n\ge 2$ people throw
+their hats into a box, the hats are mixed, and each person then draws one hat at random — formally,
+the assignment of hats to people is a uniformly random permutation of the $n$ hats. Let $X$ be the
+number of people who get their own hat back. Find $\mathbb{E}[X]$ and $\operatorname{var}(X)$.
+Both slides leave every step blank; the derivation below fills them, and every value is recomputed in
+<code>computes/g2_s5.py</code> (keys <code>hat</code>, <code>hat_ingredients</code>) at $n=3,5,10,100$.
+
+<p><b>Step 1 — decompose into indicators.</b> Writing the PMF of $X$ directly is a derangement count
+and is genuinely hard; the indicator method avoids it entirely. For $i=1,\ldots,n$ set
+$$X_i=\begin{cases}1,&\text{if person }i\text{ draws his own hat},\\ 0,&\text{otherwise},\end{cases}
+\qquad\text{so that}\qquad X=X_1+X_2+\cdots+X_n,$$
+because adding a $1$ for each person who succeeds is exactly counting the successes.</p>
+
+<p><b>Step 2 — the single-indicator probability.</b> Person $i$ is equally likely to end up with any
+one of the $n$ hats (symmetry: the permutation is uniform, so every hat is equally likely to land on
+person $i$). Exactly one of those $n$ hats is his own, so
+$$\mathbf{P}(X_i=1)=\frac{1}{n},\qquad\text{hence}\qquad
+\mathbb{E}[X_i]=1\cdot\frac1n+0\cdot\Big(1-\frac1n\Big)=\frac1n,$$
+using the definition of expectation on a two-value PMF. (At $n=3$ this is $1/3$; at $n=100$ it is
+$1/100$.)</p>
+
+<p><b>Step 3 — the mean, by linearity alone.</b> The $X_i$ are <em>not</em> independent: given that
+person $1$ took his own hat, person $2$ now draws from $n-1$ hats, so
+$\mathbf{P}(X_2=1\mid X_1=1)=1/(n-1)\neq 1/n$. Linearity does not care, since it holds for any
+random variables on the same sample space (L07 slide 4):
+$$\mathbb{E}[X]=\sum_{i=1}^{n}\mathbb{E}[X_i]=n\cdot\frac1n=1.$$
+On average exactly one person gets his own hat, whatever $n$ is.</p>
+
+<p><b>Step 4 — expand the square.</b> Use the computational form
+$\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2=\mathbb{E}[X^2]-1$ (L05 slide 8, with
+$\mathbb{E}[X]=1$ from step 3). Multiplying out the sum and splitting the $n^2$ products into the $n$
+with $i=j$ and the rest,
+$$X^2=\Big(\sum_i X_i\Big)^2=\sum_{i}X_i^2+\sum_{i\neq j}X_iX_j .$$</p>
+
+<p><b>Step 5 — the diagonal terms.</b> Each $X_i$ takes only the values $0$ and $1$, and $0^2=0$,
+$1^2=1$, so $X_i^2=X_i$ identically. Hence $\mathbb{E}[X_i^2]=\mathbb{E}[X_i]=1/n$, and the $n$
+diagonal terms contribute
+$$\sum_{i}\mathbb{E}[X_i^2]=n\cdot\frac1n=1 .$$</p>
+
+<p><b>Step 6 — the cross terms.</b> For $i\neq j$ the product $X_iX_j$ is again a $0$–$1$ variable: it
+equals $1$ exactly when persons $i$ <em>and</em> $j$ both get their own hats. So its expectation is
+that event's probability, and the multiplication rule of G1 gives
+$$\mathbb{E}[X_iX_j]=\mathbf{P}(X_i=1,\,X_j=1)=\mathbf{P}(X_i=1)\,\mathbf{P}(X_j=1\mid X_i=1)
+=\frac1n\cdot\frac{1}{n-1}=\frac{1}{n(n-1)},$$
+the conditional factor being $1/(n-1)$ because once person $i$ has removed his own hat, person $j$ is
+equally likely to hold any of the remaining $n-1$ hats, one of which is his. Note this is
+<em>larger</em> than $\frac1n\cdot\frac1n$, the value independence would have predicted.</p>
+
+<p><b>Step 7 — count the cross terms and add.</b> The index pairs $(i,j)$ with $i\neq j$ are ordered:
+$n$ choices for $i$ and $n-1$ remaining choices for $j$, so there are $n(n-1)$ of them. Every one has
+the same expectation, so by linearity
+$$\mathbb{E}[X^2]=\underbrace{n\cdot\frac1n}_{\text{diagonal}}
++\underbrace{n(n-1)\cdot\frac{1}{n(n-1)}}_{\text{cross terms}}=1+1=2 .$$</p>
+
+<p><b>Step 8 — the variance.</b>
+$$\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2=2-1^2=1 .$$
+Both the mean and the variance are $1$ for every $n\ge 2$ — the count of matches neither grows nor
+spreads as the crowd gets larger. Each factor of $n$ in a count is cancelled by a factor of $1/n$ in
+a probability, twice over in step 7.</p>
+
+<p><b>Why this needed a whole extra slide.</b> Step 3 was one line because linearity is free. Steps
+4–7 were long because $\operatorname{var}(X)=\sum_i\operatorname{var}(X_i)$ is <em>illegal</em> here:
+the $X_i$ are dependent, and that rule would have given $n\cdot\frac1n(1-\frac1n)=1-\frac1n$, which
+is wrong for every finite $n$ (it says $2/3$ at $n=3$). The cross terms are exactly the correction
+that the illegal shortcut throws away.</p></div>
+
+<p>The following worked values are the calibration points of G2. If you can reproduce all of them you
+have the section (all recomputed in <code>computes/g2_s5.py</code>).</p>
+
+<table>
+<thead>
+<tr><th class="l">Quantity</th><th class="num">Value</th><th class="l">What it teaches</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr><td class="l">$p_X(2)$ for $X=\min(F,S)$, two fair tetrahedral rolls</td><td class="num">$5/16$</td><td class="l">Building a PMF by cell counting; here $\mathbb{E}[X]=15/8=1.875$ and $\operatorname{var}(X)=55/64=0.859375$.</td><td class="l">L05 s4</td></tr>
+<tr><td class="l">Number of $2$-head sequences in $4$ tosses</td><td class="num">$\binom{4}{2}=6$</td><td class="l">The binomial PMF is "count the sequences, multiply by the common probability $p^2(1-p)^2$".</td><td class="l">L05 s5</td></tr>
+<tr><td class="l">$\mathbb{E}[X]$, $X$ uniform on $\{0,\ldots,n\}$</td><td class="num">$n/2$</td><td class="l">Symmetry: the center of gravity of a symmetric PMF is its center.</td><td class="l">L05 s6</td></tr>
+<tr><td class="l">$\mathbb{E}[V]$, $\operatorname{var}(V)$, $\sigma_V$ for the two-point speed PMF</td><td class="num">$100.5$; $9900.25$; $99.5$</td><td class="l">A PMF with two far-apart masses has a mean that is <em>not</em> a typical value.</td><td class="l">L06 s3</td></tr>
+<tr><td class="l">$\mathbb{E}[T]=\mathbb{E}[200/V]$ vs $200/\mathbb{E}[V]$</td><td class="num">$100.5$ vs $1.990050$</td><td class="l">$\mathbb{E}[g(V)]\neq g(\mathbb{E}[V])$ — a factor of $50$ apart.</td><td class="l">L06 s4</td></tr>
+<tr><td class="l">$\mathbb{E}[TV]$ vs $\mathbb{E}[T]\mathbb{E}[V]$</td><td class="num">$200$ vs $10100.25$</td><td class="l">Products factor only under independence; here $T$ is a function of $V$.</td><td class="l">L06 s4</td></tr>
+<tr><td class="l">$\mathbb{E}[X\mid X\ge 2]$, $X$ uniform on $\{1,2,3,4\}$</td><td class="num">$3$ (vs $\mathbb{E}[X]=2.5$)</td><td class="l">Conditioning renormalizes the surviving masses to $1/3$ each.</td><td class="l">L06 s5</td></tr>
+<tr><td class="l">$\mathbb{E}[X]$ for geometric($p$), via total expectation</td><td class="num">$1/p$</td><td class="l">$\mathbb{E}[X]=p\cdot 1+(1-p)(1+\mathbb{E}[X])$; checked at $p=1/5$: $5=0.2+0.8\cdot 6$.</td><td class="l">L06 s7</td></tr>
+<tr><td class="l">$\operatorname{var}(X)$ for geometric($p$)</td><td class="num">$(1-p)/p^2$</td><td class="l">$p=1/2\to 2$; $p=1/5\to 20$; $p=9/10\to 10/81=0.123457$.</td><td class="l">rec06 P3; B&amp;T §2.6, B&amp;T Example 2.17</td></tr>
+<tr><td class="l">Hat problem: $\mathbb{E}[X]$ and $\operatorname{var}(X)$</td><td class="num">$1$ and $1$</td><td class="l">Both are free of $n$: verified at $n=3,5,10,100$ via $\mathbb{E}[X^2]=n\cdot\frac1n+n(n-1)\cdot\frac{1}{n(n-1)}=2$ (derived in Example 5.1).</td><td class="l">L07 s7, s8</td></tr>
+<tr><td class="l">Buses: $\mathbb{E}[X]$ (student-sampled) vs $\mathbb{E}[Y]$ (driver-sampled)</td><td class="num">$5814/148=39.28$ vs $37$</td><td class="l">Size-biased sampling inflates the mean by $\operatorname{var}(Y)/\mathbb{E}[Y]=2.283784$.</td><td class="l">rec05 P3</td></tr>
+<tr><td class="l">St. Petersburg: $\mathbb{E}[\text{gain}]$</td><td class="num">$\infty$</td><td class="l">$\sum_{k\ge1}2^k2^{-k}=\sum_{k\ge1}1$; the partial sum to $k=100$ is exactly $\$100$ and grows without bound.</td><td class="l">rec05 P4; B&amp;T Problem 2.21 (p. 123)</td></tr>
+</tbody>
+</table>
+
+<div class="ex"><b>Practice 5.5 (what can you compute?).</b> You are told only that
+$\mathbb{E}[X]=2$, $\operatorname{var}(X)=3$, $\mathbb{E}[Y]=-1$, $\operatorname{var}(Y)=5$, and that
+$X$ and $Y$ are <em>dependent</em> in an unspecified way. Which of the following can you evaluate,
+and which need information you do not have? (a) $\mathbb{E}[X+Y]$; (b) $\mathbb{E}[3X-2Y+4]$;
+(c) $\operatorname{var}(X+Y)$; (d) $\mathbb{E}[XY]$; (e) $\operatorname{var}(2X+1)$; (f) $\sigma_X$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Computable: $1$.</b> Linearity of expectation is in the "no" column —
+$\mathbb{E}[X+Y]=\mathbb{E}[X]+\mathbb{E}[Y]=2+(-1)=1$.</p>
+<p><b>(b) Computable: $12$.</b> Same row, plus the constant and scaling rows:
+$3(2)-2(-1)+4=6+2+4=12$.</p>
+<p><b>(c) Not computable.</b> The variance-of-a-sum row is in the "yes" column. In general
+$\operatorname{var}(X+Y)=\operatorname{var}(X)+\operatorname{var}(Y)+2\operatorname{cov}(X,Y)$, and
+you were given no covariance. All you can say is that it lies somewhere in
+$[(\sqrt5-\sqrt3)^2,(\sqrt5+\sqrt3)^2]$; it equals $8$ only if the covariance happens to vanish.</p>
+<p><b>(d) Not computable.</b> $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]=-2$ requires independence,
+which is explicitly denied.</p>
+<p><b>(e) Computable: $12$.</b> $\operatorname{var}(aX+b)=a^2\operatorname{var}(X)=4(3)=12$; the
+$+1$ is invisible to the variance.</p>
+<p><b>(f) Computable: $\sqrt3\approx 1.732051$.</b> The standard deviation is a function of
+$\operatorname{var}(X)$ alone.</p>
+<p><b>The pattern:</b> everything involving one variable at a time, or a <em>sum</em> inside an
+expectation, is free; everything involving a <em>product</em> or a variance of a sum needs the joint
+law. (Compute key <code>practice.p5_3a</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.6 (memorylessness plus an identity).</b> $X$ is geometric with
+$p=1/5$. Find $\mathbb{E}[X\mid X&gt;3]$ and $\operatorname{var}(X\mid X&gt;3)$ without summing a
+series.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>By the memorylessness row of the table, conditioned on $\{X&gt;3\}$ the variable $X-3$ is again
+geometric($1/5$): the three failed trials are wasted and you are back where you started (L06 slide 6).
+Hence $\mathbb{E}[X-3\mid X&gt;3]=1/p=5$, and by the shifting rule for expectations
+$$\mathbb{E}[X\mid X&gt;3]=3+\mathbb{E}[X-3\mid X&gt;3]=3+5=8 .$$
+For the variance, the shift-invariance row gives
+$$\operatorname{var}(X\mid X&gt;3)=\operatorname{var}(X-3\mid X&gt;3)=\frac{1-p}{p^2}=\frac{4/5}{1/25}=20,$$
+unchanged from the unconditional $20$. Conditioning on a delay moves the mean but not the spread.
+(Both checked by brute-force summation over the conditional PMF in compute key
+<code>practice.p5_3b</code>.)</p>
+</div></details></div>
+
+<h3>5.4 Top gotchas of G2</h3>
+
+<p>These six errors account for most of the lost points on discrete random variables. Each is a place
+where two objects that read the same in English are different in the formalism.</p>
+
+<div class="warn"><b>Gotcha 1 — $\mathbb{E}[g(X)]\neq g(\mathbb{E}[X])$.</b> The expectation operator
+passes through <em>linear</em> functions and nothing else (L05 slide 7). The lecture's own counterexample
+is the 200-mile trip at random speed $V$ with $\mathbf{P}(V=1)=\mathbf{P}(V=200)=1/2$ (L06 slides 3–4).
+The travel time is $T=200/V$, so
+$$\mathbb{E}[T]=\tfrac12\cdot\tfrac{200}{1}+\tfrac12\cdot\tfrac{200}{200}=\tfrac12(200)+\tfrac12(1)=100.5\ \text{hours},$$
+whereas $200/\mathbb{E}[V]=200/100.5=1.990050$ hours — the two answers differ by a factor of about
+$50$. Half the time you crawl for 200 hours, and that half alone contributes $100$ to the average.
+The same failure with $g(x)=x^2$ is exactly the variance: for $X$ uniform on $\{1,2,3,4\}$,
+$\mathbb{E}[X^2]=7.5$ while $(\mathbb{E}[X])^2=6.25$, and the gap $1.25$ <em>is</em>
+$\operatorname{var}(X)$. Since $\operatorname{var}(X)\ge 0$ always, $\mathbb{E}[X^2]\ge(\mathbb{E}[X])^2$
+with equality only when $X$ is a constant — the gap has a sign, and you can use it as a check.</div>
+
+<div class="warn"><b>Gotcha 2 — $X$ is not $x$, and neither is $\mathbb{E}[X]$.</b> $X$ is a
+<em>function</em> on the sample space (L05 slide 2), $x$ is a <em>number</em> it might equal, and
+$p_X(x)$ is the probability of the event $\{\omega:X(\omega)=x\}$. Consequences: $p_X(X)$ and
+$\mathbf{P}(X)$ are meaningless; the summation index in $\sum_x x\,p_X(x)$ is the lower-case $x$ and
+the sum is over values, not outcomes; and $\mathbb{E}[X]$ is a <em>number</em>, not a random variable
+— which is why $\mathbb{E}\big[X-\mathbb{E}[X]\big]=\mathbb{E}[X]-\mathbb{E}[X]=0$ is legal
+(L06 slide 2) and why $\mathbb{E}\big[\mathbb{E}[X]\big]=\mathbb{E}[X]$. Also note that
+$\mathbb{E}[X]$ need not be a value $X$ can take: for the speed PMF, $\mathbb{E}[V]=100.5$ but $V$ is
+only ever $1$ or $200$.</div>
+
+<div class="warn"><b>Gotcha 3 — variance is not linear, and does not care about shifts.</b> The correct
+rules are $\operatorname{var}(aX+b)=a^2\operatorname{var}(X)$ (L05 slide 8, L07 slide 5) — note the
+square, the absolute value of $a$, and the total disappearance of $b$. For binomial($10,0.3$) with
+$\operatorname{var}(X)=2.1$: $\operatorname{var}(-3X+7)=9\cdot 2.1=18.9$, <em>not</em> $-3\cdot 2.1$ and
+not $18.9+7$. Variance is a squared distance from the mean, so shifting the whole PMF moves the mean
+with it and changes nothing, while stretching by $a$ stretches every deviation by $|a|$ and every
+squared deviation by $a^2$. The additive rule $\operatorname{var}(X+Y)=\operatorname{var}(X)+\operatorname{var}(Y)$
+requires independence and fails spectacularly otherwise (L07 slide 5): if $Y=X$ then
+$\operatorname{var}(X+Y)=\operatorname{var}(2X)=4\operatorname{var}(X)$, not $2\operatorname{var}(X)$;
+if $Y=-X$ then $X+Y\equiv 0$ and $\operatorname{var}(X+Y)=0$. On the L06 slide 8 joint PMF the
+dependence is mild but real: $\operatorname{var}(X)+\operatorname{var}(Y)=0.8475+0.69=1.5375$ while
+$\operatorname{var}(X+Y)=1.2275$, the difference $-0.31$ being twice the covariance
+$\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]=6.95-7.105=-0.155$.</div>
+
+<div class="warn"><b>Gotcha 4 — independence of random variables is stronger than it looks.</b> The
+definition demands $p_{X,Y}(x,y)=p_X(x)p_Y(y)$ for <em>every</em> pair $(x,y)$ — the qualifier is
+printed in red on L07 slide 3 for a reason. One violated cell kills it, and a single zero in the joint
+table is usually enough: on the L06 slide 8 / L07 slide 3 table, $p_{X,Y}(1,1)=0$ while
+$p_X(1)=3/20&gt;0$ and $p_Y(1)=1/20&gt;0$, so the product is positive and independence fails immediately.
+As with events in G1, pairwise independence of $X,Y,Z$ does not give independence: the definition
+requires $p_{X,Y,Z}(x,y,z)=p_X(x)p_Y(y)p_Z(z)$ for all triples. And independence is not preserved by
+conditioning — restricting the table to $X\le 2$ and $Y\ge 3$ changes which cells exist and can create
+or destroy the factorization. Finally, matching means is not independence: $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$
+is <em>implied by</em> independence but does not imply it.</div>
+
+<div class="warn"><b>Gotcha 5 — size-biased sampling: who you ask changes the answer.</b> Four buses
+carry $40,33,25,50$ students, total $148$ (rec05 P3). Ask a randomly chosen <em>driver</em> for his bus
+size and you sample buses uniformly: $\mathbb{E}[Y]=\tfrac14(40+33+25+50)=37$. Ask a randomly chosen
+<em>student</em> and each bus is selected in proportion to its own size, $p_X(x)=x/148$, so
+$$\mathbb{E}[X]=\frac{40^2+33^2+25^2+50^2}{148}=\frac{1600+1089+625+2500}{148}=\frac{5814}{148}=39.283784\approx 39.28.$$
+The inflation $39.283784-37=2.283784$ is exactly $\operatorname{var}(Y)/\mathbb{E}[Y]$, so it vanishes
+only when all buses are the same size. The lesson generalizes: sampling by "pick a random member"
+over-represents large groups (class sizes, queue lengths, family sizes), and the two questions "how
+big is a typical bus" and "how big is the bus a typical student rode" have genuinely different
+answers. Always ask what the uniform draw is uniform <em>over</em>.</div>
+
+<div class="warn"><b>Gotcha 6 — expectations can be infinite, or undefined.</b> $\mathbb{E}[X]=\sum_x
+x\,p_X(x)$ is an infinite series when the range of $X$ is infinite, and it need not converge. In the
+St. Petersburg game (rec05 P4 = B&amp;T Problem 2.21, p. 123) you toss a fair coin until the first tail; if that
+happens on toss $k$ you receive $2^k$ dollars. The first tail occurs on toss $k$ exactly when the
+first $k-1$ tosses are heads and the $k$th is a tail, so by independence $p_X(2^k)=(1/2)^{k-1}(1/2)=2^{-k}$,
+and
+$$\mathbb{E}[X]=\sum_{k=1}^{\infty}2^k\cdot 2^{-k}=\sum_{k=1}^{\infty}1=\infty,$$
+each term contributing exactly one dollar: the partial sum through $k=100$ is $\$100$, through
+$k=1000$ it is $\$1000$, and it never stops growing. So "expected gain" is not a finite number and
+cannot be the price you would pay; the recitation's simulations averaged only $\$19.20$ over $20$
+plays and $\$11.16$ over $200$ plays, because the enormous payoffs that carry the mean occur too
+rarely to show up. A finite mean is a property of a PMF that you must verify, not assume — and the
+same warning applies to $\mathbb{E}[X^2]$, so a random variable can have a finite mean and an infinite
+variance.</div>
+
+<div class="note"><b>Interpretation — a three-line self-check.</b> Before writing a final number, ask:
+(i) does the PMF sum to $1$? (ii) is $\mathbb{E}[X]$ inside the range of values of $X$, and is
+$\operatorname{var}(X)\ge 0$ with $\mathbb{E}[X^2]\ge(\mathbb{E}[X])^2$? (iii) did I use a product or
+a variance-of-a-sum rule anywhere, and if so did I actually verify independence? Gotchas 1, 3 and 4
+all fail one of these three checks, and each check costs a line.</div>
+
+<div class="ex"><b>Practice 5.7 (spot the error — gotchas 1–3).</b> Each claim below is wrong. Name
+the gotcha, say precisely which step is illegal, and give the correct answer.
+<ol>
+<li>"$V$ equals $1$ or $200$ mph with probability $1/2$ each and $T=200/V$. Since
+$\mathbb{E}[V]=100.5$, the expected travel time is $\mathbb{E}[T]=200/100.5\approx 1.990050$ hours."</li>
+<li>"$X$ is the face of a fair die and $Y=7-X$. Then
+$\operatorname{var}(X+Y)=\operatorname{var}(X)+\operatorname{var}(Y)=2\cdot\tfrac{35}{12}\approx 5.833333$."</li>
+<li>"For $X\sim$ binomial($10,0.3$) with $\operatorname{var}(X)=2.1$, we get
+$\operatorname{var}(2X-5)=2(2.1)-5=-0.8$."</li>
+</ol>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>1. Gotcha 1.</b> The illegal step is pushing the expectation through the nonlinear
+$g(v)=200/v$. Expectation commutes with linear functions only. Correct:
+$\mathbb{E}[T]=\tfrac12(200/1)+\tfrac12(200/200)=100+0.5=100.5$ hours — a factor of about $50$ off
+the claimed answer.</p>
+<p><b>2. Gotcha 3.</b> The additive rule was applied to dependent variables; here $Y$ is a
+deterministic function of $X$, about as dependent as it gets. Correct: $X+Y=X+(7-X)=7$ is a
+constant, so $\operatorname{var}(X+Y)=0$. The claimed $5.833333$ is not merely inaccurate, it is
+maximally wrong. (Note $\operatorname{var}(Y)=\operatorname{var}(-X+7)=(-1)^2\operatorname{var}(X)=35/12$
+is itself correct.)</p>
+<p><b>3. Gotcha 3 again.</b> Two errors: the constant $b=-5$ was carried through (variance ignores
+shifts) and $a=2$ was not squared. Correct:
+$\operatorname{var}(2X-5)=2^2\operatorname{var}(X)=4(2.1)=8.4$. A negative variance is impossible, so
+check (ii) of the self-check would have caught it. (Compute key <code>practice.p5_4a</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.8 (spot the error — gotchas 4–6).</b> Same instructions.
+<ol>
+<li>"On the L06 slide 8 joint table I checked one cell, $p_{X,Y}(2,3)=p_X(2)p_Y(3)$. So $X$ and $Y$
+are independent."</li>
+<li>"Four buses carry $40,33,25,50$ students. Pick a student at random; the expected size of the bus
+he rode is $(40+33+25+50)/4=37$."</li>
+<li>"Every PMF has a mean, so the fair price of the St. Petersburg game is $\mathbb{E}[X]$, whatever
+that number turns out to be."</li>
+</ol>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>1. Gotcha 4.</b> Independence requires the factorization at <em>every</em> pair $(x,y)$, not
+one. One counterexample cell kills it, and this table has an easy one: $p_{X,Y}(1,1)=0$ while
+$p_X(1)=3/20&gt;0$ and $p_Y(1)=1/20&gt;0$, so the product is positive and the equality fails.
+A single verified cell proves nothing.</p>
+<p><b>2. Gotcha 5.</b> That computation samples <em>buses</em> uniformly, which is the driver's
+question, not the student's. A random student lands on a bus with probability proportional to its
+size, $p_X(x)=x/148$, giving
+$\mathbb{E}[X]=(40^2+33^2+25^2+50^2)/148=5814/148\approx 39.283784$. The claimed $37$ is
+$\mathbb{E}[Y]$, and the gap $2.283784=\operatorname{var}(Y)/\mathbb{E}[Y]$ is the size bias.</p>
+<p><b>3. Gotcha 6.</b> The premise is false: $\mathbb{E}[X]=\sum_x x\,p_X(x)$ is an infinite series
+when the range is infinite and need not converge. Here every term is exactly $1$ dollar
+($2^k\cdot 2^{-k}$), so the sum diverges and there is no finite $\mathbb{E}[X]$ to quote as a price.
+Finiteness of a mean is something you verify, not assume.</p>
+</div></details></div>
+
+<h3>5.5 The bridge to G3: what breaks when the values are continuous</h3>
+
+<p>Everything in this section assumed $X$ takes values in a finite or countable set, so that the
+events $\{X=x\}$ partition $\Omega$ into pieces that can be listed and added. Suppose instead $X$ is
+the exact time a bus arrives, or a voltage, or a point chosen uniformly in $[0,1]$. Two things break
+at once.</p>
+
+<ol>
+<li><b>The PMF collapses to zero.</b> By the continuous uniform law of G1 (L01 slide 10),
+$\mathbf{P}(X=x)=0$ for every single $x$ in $[0,1]$: a point has zero length. So $p_X(x)\equiv 0$,
+and it carries no information at all — yet $X$ is certainly somewhere. The object $p_X$ has to be
+replaced.</li>
+<li><b>The sum has nothing to run over.</b> $\sum_x x\,p_X(x)$ is a sum over the values with positive
+mass, and there are none. Uncountably many terms cannot be added.</li>
+</ol>
+
+<p>The repair is the same one calculus always makes: replace mass by <em>density</em> and sums by
+integrals. Chop $[0,1]$ into $m$ equal bins of width $1/m$ and put mass $1/m$ at each bin's midpoint.
+The mass per bin $\to 0$, but the mass <em>per unit length</em> stays at $\frac{1/m}{1/m}=1$ for every
+$m$ — that ratio is the density, and it survives the limit while the mass does not. The moments of the
+discretized version converge to the continuous answers (computed in <code>computes/g2_s5.py</code>):</p>
+
+<table>
+<thead>
+<tr><th class="num">bins $m$</th><th class="num">mass per bin</th><th class="num">density</th><th class="num">$\mathbb{E}[X]$</th><th class="num">$\operatorname{var}(X)$</th></tr>
+</thead>
+<tbody>
+<tr><td class="num">$4$</td><td class="num">$0.25$</td><td class="num">$1$</td><td class="num">$0.5$</td><td class="num">$0.078125$</td></tr>
+<tr><td class="num">$10$</td><td class="num">$0.1$</td><td class="num">$1$</td><td class="num">$0.5$</td><td class="num">$0.0825$</td></tr>
+<tr><td class="num">$100$</td><td class="num">$0.01$</td><td class="num">$1$</td><td class="num">$0.5$</td><td class="num">$0.083325$</td></tr>
+<tr><td class="num">$1000$</td><td class="num">$0.001$</td><td class="num">$1$</td><td class="num">$0.5$</td><td class="num">$0.08333325$</td></tr>
+<tr><td class="num">limit</td><td class="num">$0$</td><td class="num">$1$</td><td class="num">$1/2$</td><td class="num">$1/12=0.083333\ldots$</td></tr>
+</tbody>
+</table>
+
+<div class="defn"><b>Definition (preview, G3).</b> A random variable $X$ is <em>continuous</em> if there
+is a nonnegative function $f_X$, its <em>probability density function</em> (PDF), with
+$$\mathbf{P}(a\le X\le b)=\int_a^b f_X(x)\,dx\quad\text{for all }a\le b,\qquad
+\int_{-\infty}^{\infty}f_X(x)\,dx=1,$$
+and then
+$$\mathbb{E}[X]=\int_{-\infty}^{\infty} x\,f_X(x)\,dx,\qquad
+\mathbb{E}[g(X)]=\int_{-\infty}^{\infty} g(x)\,f_X(x)\,dx,\qquad
+\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2.$$
+Every entry of the table in §5.3 survives with $\sum_x\rightarrow\int dx$ and
+$p_X\rightarrow f_X$.</div>
+
+<div class="warn"><b>Gotcha — the density is not a probability.</b> $p_X(x)$ was a probability, so
+$0\le p_X(x)\le 1$. A density $f_X(x)$ is a probability <em>per unit length</em> and may exceed $1$:
+the uniform density on $[0,\tfrac12]$ equals $2$ everywhere on that interval, and
+$\int_0^{1/2}2\,dx=1$ is still fine. Only the integral is a probability. Two further discrete habits
+that do not transfer: $\mathbf{P}(X=x)=0$ in the continuous case, so $\le$ and $&lt;$ may be
+interchanged freely inside probabilities (they may <em>not</em> for discrete $X$); and
+$\mathbf{P}(X=x\mid Y=y)$ cannot be defined by the G1 formula because the conditioning event has
+probability zero, which is why G3 has to redefine conditioning from scratch.</div>
+
+<div class="note"><b>Interpretation — what carries over unchanged.</b> All the <em>structural</em>
+results of G2 are statements about expectations, not about PMFs, and expectations survive the
+translation verbatim: linearity, $\mathbb{E}[g(X)]\neq g(\mathbb{E}[X])$, the variance identities,
+independence implying $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$ and additive variances, total
+expectation over a partition, and the indicator method — indicators are still discrete even when $X$
+is not, which is exactly why the trick keeps working. What changes is only the bookkeeping used to
+evaluate them. That is the reason this section is organized around the identity table rather than the
+zoo: the zoo is discrete-specific, the identities are forever.</div>
+
+<div class="ex"><b>Practice 5.9 (read the limit table).</b> In the discretization of the uniform on
+$[0,1]$ into $m$ bins, say what happens as $m\to\infty$ to (i) the mass per bin, (ii) the density,
+(iii) $\mathbb{E}[X]$, (iv) $\operatorname{var}(X)$, (v) $\mathbf{P}(X=0.5)$. Then explain why the
+variance column approaches $1/12$ from <em>below</em> rather than oscillating.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(i) The mass per bin is $1/m\to 0$: this is the collapse that makes the PMF useless.
+(ii) The density is $\frac{1/m}{1/m}=1$ for every $m$ and stays $1$ in the limit — it is the object
+that survives. (iii) $\mathbb{E}[X]=0.5$ exactly at every $m$, by the symmetry of the midpoints
+about $1/2$. (iv) $\operatorname{var}(X)\to 1/12=0.0833\ldots$. (v) $\mathbf{P}(X=0.5)$ is $1/m$
+while $0.5$ is a bin midpoint and $\to 0$; in the limit every single point has probability zero.</p>
+<p><b>Why from below.</b> The discretized variance has the closed form
+$$\operatorname{var}_m(X)=\frac{1}{12}\Big(1-\frac{1}{m^2}\Big)=\frac1{12}-\frac{1}{12m^2},$$
+verified against brute-force summation at $m=4,10,100,1000$ (compute key
+<code>practice.p5_5a</code>): $5/64=0.078125$, $33/400=0.0825$, $0.083325$, $0.08333325$. The
+correction $-1/(12m^2)$ is negative for every finite $m$, so the approach is monotone from below and
+never overshoots. Intuitively, collapsing each bin onto its midpoint removes the spread
+<em>within</em> bins — a uniform on a bin of width $1/m$ has variance $1/(12m^2)$ — and keeps only
+the spread <em>between</em> bins.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.10 (what survives?).</b> For each fact, say whether it holds verbatim
+for continuous $X$, holds after a notational change, or fails outright.
+(a) $\mathbb{E}[aX+bY]=a\mathbb{E}[X]+b\mathbb{E}[Y]$; (b) $\mathbb{E}[g(X)]=\sum_x g(x)p_X(x)$;
+(c) $\operatorname{var}(aX+b)=a^2\operatorname{var}(X)$; (d) $0\le p_X(x)\le 1$;
+(e) the indicator method; (f) $\mathbf{P}(X\le c)=\mathbf{P}(X&lt;c)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Verbatim.</b> Linearity is a statement about expectations, and expectations survive the
+translation untouched — this is the whole point of §5.5.</p>
+<p><b>(b) Notational change.</b> The rule itself survives; only the bookkeeping changes:
+$\mathbb{E}[g(X)]=\int_{-\infty}^{\infty}g(x)f_X(x)\,dx$, with $\sum_x\to\int dx$ and
+$p_X\to f_X$.</p>
+<p><b>(c) Verbatim.</b> It is derived from linearity and the definition of variance, both of which
+are expectation statements.</p>
+<p><b>(d) Fails.</b> The replacement object is a density, a probability <em>per unit length</em>, and
+$f_X(x)&gt;1$ is perfectly legal — the uniform density on $[0,\tfrac12]$ equals $2$. Only
+$f_X\ge 0$ and $\int f_X=1$ survive.</p>
+<p><b>(e) Verbatim.</b> An indicator is a $0$–$1$ random variable no matter what $X$ is, so it stays
+discrete and $\mathbb{E}[X_i]=\mathbf{P}(X_i=1)$ still holds. That is exactly why the trick keeps
+working in G3.</p>
+<p><b>(f) Holds for continuous $X$, fails for discrete $X$.</b> This one runs the other way:
+$\mathbf{P}(X=c)=0$ in the continuous case makes $\le$ and $&lt;$ interchangeable, whereas for a
+discrete $X$ with an atom at $c$ the two differ by $p_X(c)$.</p>
+</div></details></div>
+
+<div class="summary"><b>§5 in one box.</b>
+<ul>
+<li><b>Three moves.</b> Partition and add (build a PMF, marginalize, total expectation); reweight
+without rebuilding (expected-value rule); decompose into indicators (linearity). Fig. 5.1.</li>
+<li><b>Four families.</b> Bernoulli($p$): $p$, $p(1-p)$. Uniform $\{a,\ldots,b\}$: $(a+b)/2$,
+$(b-a)(b-a+2)/12$. Binomial($n,p$): $np$, $np(1-p)$. Geometric($p$): $1/p$, $(1-p)/p^2$. Binomial and
+geometric are the two questions you can ask of the same Bernoulli stream. Fig. 5.2.</li>
+<li><b>The fault line.</b> Every expectation rule except $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$
+holds without independence; every variance-of-a-sum rule needs it. Linearity is free — use indicators.
+Example 5.1 (the hat problem) is the canonical case: $\mathbb{E}[X]=1$ in one line, but
+$\operatorname{var}(X)=1$ needs the cross terms $\mathbb{E}[X_iX_j]=1/(n(n-1))$ and the $n(n-1)$
+pair count.</li>
+<li><b>Six traps.</b> $\mathbb{E}[g(X)]\neq g(\mathbb{E}[X])$ ($100.5$ vs $1.990050$ hours);
+$X$ vs $x$ vs $\mathbb{E}[X]$; $\operatorname{var}(aX+b)=a^2\operatorname{var}(X)$ and is not additive
+without independence ($1.2275$ vs $1.5375$); independence must hold for <em>all</em> $(x,y)$;
+size-biased sampling ($39.28$ vs $37$); infinite expectations exist (St. Petersburg).</li>
+<li><b>Next.</b> Continuous values force $p_X\to f_X$ and $\sum_x\to\int dx$, because
+$\mathbf{P}(X=x)=0$. Densities may exceed $1$; the identity table survives unchanged.</li>
+</ul></div>

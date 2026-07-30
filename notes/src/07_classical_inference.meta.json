@@ -1,0 +1,7 @@
+{
+  "title": "G7 · Classical Statistical Inference",
+  "subtitle": "Estimators and confidence intervals, maximum likelihood, linear regression, and the likelihood-ratio test — MIT 6.041 Lectures 23–25, Recitations 23–24",
+  "prev": ["06_limits_bayesian.html", "G6 · Limit Theorems & Bayesian Inference"],
+  "next": null,
+  "sources": "MIT 6.041/6.431 F10 L23–L25 slide handouts, recitations 23–24 (+ official solutions), Bertsekas–Tsitsiklis ch. 9"
+}

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MIT 6.041 — Interactive Study Notes</title>
+<meta name="description" content="The complete MIT 6.041 course as seven interactive, adversarially-reviewed study notes.">
+<style>
+:root {
+  --ink:#1a1a1a; --muted:#52514e; --rule:#d3d1cb; --hair:#e6e4de; --accent:#1f3a5f;
+  --link:#1c5cab; --page:#e8e6e1; --paper:#ffffff; --card:#fdfdfb; --chip:#f1efe9;
+  --shadow:0 6px 28px rgba(0,0,0,.10); --shadow-hi:0 10px 28px rgba(0,0,0,.16);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7;
+}
+:root[data-theme="dark"] {
+  --ink:#e8e6e1; --muted:#b8b6ad; --rule:#3a3a38; --hair:#2c2c2a; --accent:#8ab4e8;
+  --link:#6ea8e8; --page:#0d0d0d; --paper:#1e1e1c; --card:#232321; --chip:#2a2a27;
+  --shadow:0 6px 28px rgba(0,0,0,.5); --shadow-hi:0 10px 30px rgba(0,0,0,.65);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#2e9e2e; --s7:#9085e9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink:#e8e6e1; --muted:#b8b6ad; --rule:#3a3a38; --hair:#2c2c2a; --accent:#8ab4e8;
+    --link:#6ea8e8; --page:#0d0d0d; --paper:#1e1e1c; --card:#232321; --chip:#2a2a27;
+    --shadow:0 6px 28px rgba(0,0,0,.5); --shadow-hi:0 10px 30px rgba(0,0,0,.65);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#2e9e2e; --s7:#9085e9;
+  }
+}
+* { box-sizing: border-box; }
+html { background: var(--page); -webkit-text-size-adjust: 100%; }
+body {
+  font-family: "Charter","Iowan Old Style","Cambria","Georgia",serif;
+  color: var(--ink); background: var(--paper);
+  max-width: 1000px; margin: 28px auto; padding: 0 0 0 0;
+  box-shadow: var(--shadow); line-height: 1.55; font-size: 15px;
+}
+.wrap { padding: 0 46px 40px; }
+.sans { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+
+/* ---------- top bar ---------- */
+.topbar {
+  display: flex; align-items: center; gap: 12px; justify-content: space-between;
+  padding: 14px 46px 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px; color: var(--muted);
+}
+.eyebrow { letter-spacing: .13em; text-transform: uppercase; font-size: 11px; font-weight: 600; }
+#themetoggle {
+  background: none; border: 1px solid var(--rule); border-radius: 999px; cursor: pointer;
+  font: inherit; font-size: 12px; padding: 4px 13px; color: var(--ink);
+  transition: border-color .15s, background .15s;
+}
+#themetoggle:hover { border-color: var(--accent); background: var(--chip); }
+
+/* ---------- hero ---------- */
+.hero { padding: 22px 46px 26px; border-bottom: 1px solid var(--hair); }
+h1 { font-size: 34px; line-height: 1.15; margin: 6px 0 10px; letter-spacing: -.01em; }
+h1 .dot { color: var(--s1); }
+.pitch { font-size: 17px; color: var(--muted); margin: 0 0 22px; max-width: 40em; }
+.pitch b { color: var(--ink); font-weight: 600; }
+
+/* learning arc strip */
+.arc { display: flex; align-items: stretch; gap: 0; margin: 0 0 22px; flex-wrap: wrap; }
+.arc-step {
+  flex: 1 1 130px; min-width: 0; position: relative;
+  padding: 9px 14px 9px 16px; background: var(--chip);
+  border-left: 4px solid var(--c);
+}
+.arc-step { border-radius: 0 6px 6px 0; }
+.arc-step + .arc-step { margin-left: 18px; }
+.arc-step .k {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 10px;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--c); font-weight: 700;
+}
+.arc-step .v { font-size: 14.5px; line-height: 1.3; margin-top: 2px; }
+.arc-step .n { font-family: system-ui, sans-serif; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.arc-step::after {
+  content: "›"; position: absolute; right: -14px; top: 50%; z-index: 2;
+  transform: translateY(-55%); font-family: system-ui, sans-serif;
+  font-size: 19px; line-height: 1; color: var(--muted); opacity: .75;
+}
+.arc-step:last-child::after { display: none; }
+
+/* stat chips */
+.stats { display: flex; flex-wrap: wrap; gap: 8px; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.stat {
+  display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 12px;
+  border: 1px solid var(--rule); border-radius: 999px; font-size: 12.5px; color: var(--muted);
+}
+.stat b { font-size: 13.5px; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat.verified { border-color: var(--s6); color: var(--s6); }
+.stat.verified b { color: var(--s6); }
+
+/* ---------- section headings ---------- */
+.sec {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 30px 0 14px; display: flex; align-items: center; gap: 12px;
+}
+.sec::after { content: ""; flex: 1; height: 1px; background: var(--hair); }
+
+/* ---------- note cards ---------- */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid > .card:last-child { grid-column: 1 / -1; }
+.card {
+  display: flex; flex-direction: column; position: relative; overflow: hidden;
+  border: 1px solid var(--rule); border-radius: 8px; background: var(--card);
+  padding: 15px 17px 13px 19px; text-decoration: none; color: var(--ink);
+  transition: box-shadow .16s, transform .16s, border-color .16s;
+}
+.card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--stripe); }
+.card:hover { box-shadow: var(--shadow-hi); transform: translateY(-2px); border-color: var(--stripe); }
+.card:focus-visible { outline: 2px solid var(--stripe); outline-offset: 2px; }
+.card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.lecs {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11px; font-weight: 600;
+  color: #fff; background: var(--stripe); border-radius: 999px; padding: 2px 9px; white-space: nowrap;
+}
+:root[data-theme="dark"] .lecs { color: #14140f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lecs { color: #14140f; } }
+.gid { font-family: system-ui, sans-serif; font-size: 11px; color: var(--muted); letter-spacing: .08em; font-weight: 600; }
+.card h2 { margin: 0 0 6px; font-size: 18px; line-height: 1.25; color: var(--ink); font-weight: 600; }
+.card p { margin: 0 0 9px; color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.card p .ex { font-style: italic; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 11px; }
+.chip {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 10.5px;
+  background: var(--chip); color: var(--muted); border-radius: 4px; padding: 2px 7px; white-space: nowrap;
+}
+.foot { margin-top: auto; border-top: 1px solid var(--hair); padding-top: 8px; }
+.badge {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 10.5px; font-weight: 600;
+  color: var(--s6); border: 1px solid var(--s6); border-radius: 999px; padding: 1px 8px;
+  display: inline-block; margin-bottom: 5px;
+}
+.metrics {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11px; color: var(--muted);
+  display: flex; flex-wrap: wrap; gap: 4px 10px;
+}
+.metrics span { font-variant-numeric: tabular-nums; }
+.metrics b { color: var(--ink); font-weight: 600; }
+
+/* ---------- how to use ---------- */
+.how { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.how > div { padding: 14px 16px; border-right: 1px solid var(--hair); }
+.how > div:last-child { border-right: 0; }
+.how .num {
+  font-family: system-ui, sans-serif; font-size: 11px; font-weight: 700; color: var(--c);
+  letter-spacing: .1em; margin-bottom: 4px;
+}
+.how h3 { margin: 0 0 4px; font-size: 14.5px; font-weight: 600; }
+.how p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+a.dl { color: var(--link); text-decoration: none; border-bottom: 1px solid currentColor; }
+a.dl:hover { color: var(--s2); }
+
+/* ---------- footer ---------- */
+footer {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11.5px; line-height: 1.6;
+  color: var(--muted); border-top: 1px solid var(--hair); margin-top: 34px; padding-top: 16px;
+}
+footer p { margin: 0 0 7px; max-width: 62em; }
+footer a { color: var(--link); }
+footer .lic { color: var(--ink); font-weight: 600; }
+footer .disc { font-style: italic; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; }
+  .how { grid-template-columns: 1fr 1fr; }
+  .how > div:nth-child(2) { border-right: 0; }
+  .how > div:nth-child(-n+2) { border-bottom: 1px solid var(--hair); }
+}
+@media (max-width: 620px) {
+  body { margin: 0; box-shadow: none; font-size: 15px; }
+  .wrap { padding: 0 20px 30px; }
+  .topbar { padding: 12px 20px 0; }
+  .hero { padding: 16px 20px 20px; }
+  h1 { font-size: 25px; }
+  .pitch { font-size: 15.5px; }
+  .arc { display: block; }
+  .arc-step { margin: 0 0 4px !important; border-radius: 6px !important; }
+  .arc-step::after { display: none; }
+  .how { grid-template-columns: 1fr; }
+  .how > div { border-right: 0 !important; border-bottom: 1px solid var(--hair); }
+  .how > div:last-child { border-bottom: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="eyebrow">MIT OpenCourseWare · Fall 2010</span>
+  <button id="themetoggle"></button>
+</div>
+
+<header class="hero">
+  <h1>6.041 <span class="dot">·</span> Probabilistic Systems Analysis</h1>
+  <p class="pitch">The complete MIT 6.041 course as <b>seven interactive, adversarially-reviewed study notes</b> — full derivations, every slide example solved, practice problems with hidden solutions, and widgets you can play with.</p>
+
+  <div class="arc">
+    <div class="arc-step" style="--c:var(--s1)">
+      <div class="k">Stage 1</div><div class="v">Probability models</div><div class="n">Note 1 · L01–L04</div>
+    </div>
+    <div class="arc-step" style="--c:var(--s3)">
+      <div class="k">Stage 2</div><div class="v">Random variables</div><div class="n">Notes 2–3 · L05–L11</div>
+    </div>
+    <div class="arc-step" style="--c:var(--s4)">
+      <div class="k">Stage 3</div><div class="v">Random processes</div><div class="n">Notes 4–5 · L12–L18</div>
+    </div>
+    <div class="arc-step" style="--c:var(--s7)">
+      <div class="k">Stage 4</div><div class="v">Inference</div><div class="n">Notes 6–7 · L19–L25</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <span class="stat"><b>7</b> notes</span>
+    <span class="stat"><b>25</b> lectures &amp; <b>24</b> recitations covered</span>
+    <span class="stat"><b>226</b> figures</span>
+    <span class="stat"><b>36</b> live widgets</span>
+    <span class="stat verified">✓ every number machine-verified</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="sec">The seven notes — read in order</div>
+
+<div class="grid">
+
+  <a class="card" href="01_probability_basics.html" style="--stripe:var(--s1)">
+    <div class="card-top"><span class="lecs">L01–L04</span><span class="gid">G1</span></div>
+    <h2>Probability Fundamentals</h2>
+    <p>Sample spaces, the axioms, conditioning, total probability, Bayes' rule, independence, counting. <span class="ex">Monty Hall, Romeo &amp; Juliet, the birthday problem.</span></p>
+    <div class="chips"><span class="chip">axioms</span><span class="chip">conditioning</span><span class="chip">Bayes' rule</span><span class="chip">independence</span><span class="chip">counting</span></div>
+    <div class="foot">
+      <span class="badge">✓ complete · adversarially reviewed</span>
+      <div class="metrics"><span><b>32</b> figures</span><span><b>8</b> widgets</span><span><b>53</b> practice questions</span><span><b>25</b> slide examples solved</span><span><b>38</b> gaps filled</span><span><b>47</b> issues found &amp; fixed</span></div>
+    </div>
+  </a>
+
+  <a class="card" href="02_discrete_rvs.html" style="--stripe:var(--s2)">
+    <div class="card-top"><span class="lecs">L05–L07</span><span class="gid">G2</span></div>
+    <h2>Discrete Random Variables</h2>
+    <p>PMFs, expectation, variance, joint and conditional PMFs, independence of random variables. <span class="ex">The bus paradox, St. Petersburg, two heads in a row.</span></p>
+    <div class="chips"><span class="chip">PMFs</span><span class="chip">expectation</span><span class="chip">variance</span><span class="chip">joint &amp; conditional</span><span class="chip">independence</span></div>
+    <div class="foot">
+      <span class="badge">✓ complete · adversarially reviewed</span>
+      <div class="metrics"><span><b>25</b> figures</span><span><b>4</b> widgets</span><span><b>49</b> issues found &amp; fixed</span><span>consistency-polished</span></div>
+    </div>
+  </a>
+
+  <a class="card" href="03_continuous_rvs.html" style="--stripe:var(--s3)">
+    <div class="card-top"><span class="lecs">L08–L11</span><span class="gid">G3</span></div>
+    <h2>Continuous Random Variables</h2>
+    <p>PDFs and CDFs, the normal family, multiple continuous RVs, continuous Bayes, derived distributions, covariance and correlation. <span class="ex">Buffon's needle, the broken stick, the convolution animator.</span></p>
+    <div class="chips"><span class="chip">PDFs &amp; CDFs</span><span class="chip">normal family</span><span class="chip">continuous Bayes</span><span class="chip">derived distributions</span><span class="chip">covariance</span></div>
+    <div class="foot">
+      <span class="badge">✓ complete · adversarially reviewed</span>
+      <div class="metrics"><span><b>38</b> figures</span><span><b>5</b> widgets</span><span><b>56</b> issues found &amp; fixed</span><span>consistency-polished</span></div>
+    </div>
+  </a>
+
+  <a class="card" href="04_expectation_processes.html" style="--stripe:var(--s4)">
+    <div class="card-top"><span class="lecs">L12–L15</span><span class="gid">G4</span></div>
+    <h2>Iterated Expectations &amp; Arrival Processes</h2>
+    <p>Law of iterated expectations, sums of a random number of RVs, the Bernoulli and Poisson processes. <span class="ex">Random incidence, the coupon collector.</span></p>
+    <div class="chips"><span class="chip">iterated expectations</span><span class="chip">random sums</span><span class="chip">Bernoulli process</span><span class="chip">Poisson process</span></div>
+    <div class="foot">
+      <span class="badge">✓ complete · adversarially reviewed</span>
+      <div class="metrics"><span><b>27</b> figures</span><span><b>6</b> widgets</span><span><b>38</b> issues found &amp; fixed</span><span>consistency-polished</span></div>
+    </div>
+  </a>
+
+  <a class="card" href="05_markov_chains.html" style="--stripe:var(--s5)">
+    <div class="card-top"><span class="lecs">L16–L18</span><span class="gid">G5</span></div>
+    <h2>Markov Chains</h2>
+    <p>Transition probabilities, recurrence and transience, steady-state behavior, absorption probabilities and expected absorption times. <span class="ex">The spider and the fly, gambler's ruin.</span></p>
+    <div class="chips"><span class="chip">transition probabilities</span><span class="chip">recurrence</span><span class="chip">steady state</span><span class="chip">absorption</span></div>
+    <div class="foot">
+      <span class="badge">✓ complete · adversarially reviewed</span>
+      <div class="metrics"><span><b>42</b> figures</span><span><b>4</b> widgets</span><span><b>50</b> issues found &amp; fixed</span><span>consistency-polished</span></div>
+    </div>
+  </a>
+
+  <a class="card" href="06_limits_bayesian.html" style="--stripe:var(--s6)">
+    <div class="card-top"><span class="lecs">L19–L22</span><span class="gid">G6</span></div>
+    <h2>Limit Theorems &amp; Bayesian Inference</h2>
+    <p>Chebyshev, the weak law of large numbers, the central limit theorem; Bayesian estimation, LMS and linear-LMS estimators. <span class="ex">The CLT animator, the posterior explorer.</span></p>
+    <div class="chips"><span class="chip">Chebyshev</span><span class="chip">weak law</span><span class="chip">central limit theorem</span><span class="chip">LMS estimation</span></div>
+    <div class="foot">
+      <span class="badge">✓ complete · adversarially reviewed</span>
+      <div class="metrics"><span><b>32</b> figures</span><span><b>4</b> widgets</span><span>extra-scrutiny CLT pass</span><span>critical numeric fixes</span><span>consistency-polished</span></div>
+    </div>
+  </a>
+
+  <a class="card" href="07_classical_inference.html" style="--stripe:var(--s7)">
+    <div class="card-top"><span class="lecs">L23–L25</span><span class="gid">G7</span></div>
+    <h2>Classical Statistical Inference</h2>
+    <p>Estimators and confidence intervals, maximum likelihood, linear regression, binary hypothesis testing and the likelihood-ratio test. <span class="ex">Ends with the full course concept map.</span></p>
+    <div class="chips"><span class="chip">confidence intervals</span><span class="chip">maximum likelihood</span><span class="chip">linear regression</span><span class="chip">hypothesis testing</span><span class="chip">concept map</span></div>
+    <div class="foot">
+      <span class="badge">✓ complete · adversarially reviewed</span>
+      <div class="metrics"><span><b>30</b> figures</span><span><b>5</b> widgets</span><span><b>49</b> issues found &amp; fixed</span><span>incl. a JS float-overflow PRNG bug</span></div>
+    </div>
+  </a>
+
+</div>
+
+<div class="sec">How to use these notes</div>
+
+<div class="how">
+  <div style="--c:var(--s1)">
+    <div class="num">01</div>
+    <h3>Read in order</h3>
+    <p>The seven notes form one continuous arc — each builds on the definitions and notation of the last.</p>
+  </div>
+  <div style="--c:var(--s3)">
+    <div class="num">02</div>
+    <h3>Play the widgets</h3>
+    <p>36 live simulations and explorers. Drag parameters until the theorem stops feeling like an assertion.</p>
+  </div>
+  <div style="--c:var(--s4)">
+    <div class="num">03</div>
+    <h3>Practice first, peek later</h3>
+    <p>Every practice problem hides its worked solution behind a collapsible. Attempt it before you open it.</p>
+  </div>
+  <div style="--c:var(--s7)">
+    <div class="num">04</div>
+    <h3>Works offline</h3>
+    <p>Each note is one self-contained file. Grab the <a class="dl" href="mit6041_interactive_notes_offline.zip" title="Offline bundle — shipped in the repository's dist/ folder and attached to GitHub Releases">offline zip</a> and read on a plane.</p>
+  </div>
+</div>
+
+<footer>
+  <p>Compiled from <a href="https://ocw.mit.edu/courses/6-041-probabilistic-systems-analysis-and-applied-probability-fall-2010/">MIT OpenCourseWare 6.041/6.431 Fall 2010</a>, John Tsitsiklis; textbook: Bertsekas &amp; Tsitsiklis, <i>Introduction to Probability</i> (2nd ed.).</p>
+  <p><span class="lic">Content license CC BY-NC-SA 4.0</span> (per <a href="https://ocw.mit.edu/pages/privacy-and-terms-of-use/">OCW terms</a>). Built with a PageIndex + LLM-wiki pipeline; every number recomputed in Python, all figures vision-verified.</p>
+  <p class="disc">Independent study resource — not affiliated with or endorsed by MIT.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){try{var s=localStorage.getItem('theme6041');if(s)document.documentElement.dataset.theme=s;}catch(e){}
+var b=document.getElementById('themetoggle');
+function cur(){return document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}
+function lab(){b.textContent=cur()==='dark'?'☀ light mode':'🌙 dark mode';}
+b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';document.documentElement.dataset.theme=n;try{localStorage.setItem('theme6041',n);}catch(e){}lab();});
+lab();})();
+</script>
+</body>
+</html>

@@ -1,0 +1,787 @@
+<h2 id="g3-s5">§5 &nbsp; Synthesis and checkpoint</h2>
+<p class="srcref">Sources: L08 slides 2–8 · L09 slides 1–8 · L10 slides 1–8 · L11 slides 2–8 · rec08 P1–P3 · rec09 P1–P4 · rec10 (all problems — the Spring 2010 Quiz 1, reused as a G1–G3 checkpoint) · rec11 P1–P3 · Bertsekas–Tsitsiklis (<b>B&amp;T</b>, as in §0) §3.1–3.6, B&amp;T §4.1–4.2. Every number on this page is recomputed in <code>computes/g3_s5.py</code> (closed forms cross-checked by <code>scipy.integrate.quad</code>; discrete answers by exact <code>Fraction</code> arithmetic), and every figure by <code>computes/g3_s5_figs.py</code>.</p>
+
+<p>Four lectures replaced the sum by the integral. Nothing else about the structure of probability
+changed: a random variable is still a function on the sample space, expectation is still a weighted
+average, conditioning still means restricting and renormalizing. What changed is the bookkeeping —
+$p_X(x)$ became $f_X(x)$, $\sum_x$ became $\int dx$, and the one operation that changed character rather
+than notation is the <em>derived distribution</em>: the concept exists in the discrete world too
+($p_Y(y)=\sum_{x:g(x)=y}p_X(x)$, and discrete convolution with it), but the continuous version needs
+machinery with no discrete analogue at all — the CDF-then-differentiate two-step and the $|dg/dx|$
+stretch factor. This section puts all of it on
+one page: the correspondence table, the identity list, the distribution zoo, the decision procedure for
+derived distributions, and the six mistakes that cost the most points. It then closes with a
+checkpoint — recitation 10 is not new material at all but the Spring 2010 Quiz 1, reused in this
+Fall 2010 offering as a mixed G1–G3 review, and every one of its problems is solved here in full.</p>
+
+<p>Everything summarized below was built earlier in this note: §0 set out the discrete/continuous
+correspondence, §1 developed PDFs, CDFs and the uniform, exponential and normal families (L08, rec08),
+§2 the joint, marginal and conditional densities and independence (L09, rec09), §3 the four Bayes
+variations (L10, rec11 P1–P2), and §4 derived distributions, convolution, and — in §4.8 — covariance
+and correlation (L11, rec11 P3). Where a
+result is only stated here, the section that proves it is named.</p>
+
+<h3>5.1 The whole of G3 on one page</h3>
+
+<p>The organizing picture is the "constellation of concepts" of L08 slide 8, redrawn as a table.
+Read each row as a translation rule. On the left is the discrete object from G2, on the right the
+continuous object from G3; wherever the middle column is filled, the concept is defined once and
+applies to both worlds. In all of what follows $X,Y$ are random variables on a common sample space,
+$x,y$ are numbers they might take, $a,b$ are real constants, $g$ is a real-valued function, $A$ is an
+event with $\mathbf{P}(A)&gt;0$, $\delta$ is a small positive length, and $B$ is a subset of the real
+line ("nice" enough to integrate over).</p>
+
+<table>
+<thead>
+<tr><th class="l">Discrete (G2)</th><th class="l">Shared</th><th class="l">Continuous (G3)</th><th class="l">Source</th><th class="l">Where in G3</th></tr>
+</thead>
+<tbody>
+<tr><td class="l">$p_X(x)=\mathbf{P}(X=x)$</td><td class="l">—</td><td class="l">$f_X(x)$ with $\mathbf{P}(a\le X\le b)=\int_a^b f_X(x)\,dx$</td><td class="l">L08 s2; B&amp;T §3.1</td><td class="l">§1.1</td></tr>
+<tr><td class="l">$p_X(x)\in[0,1]$</td><td class="l">—</td><td class="l">$f_X(x)\ge 0$, may exceed $1$</td><td class="l">L08 s2; B&amp;T §3.1</td><td class="l">§1.1</td></tr>
+<tr><td class="l">$\sum_x p_X(x)=1$</td><td class="l">—</td><td class="l">$\int_{-\infty}^{\infty}f_X(x)\,dx=1$</td><td class="l">L08 s2</td><td class="l">§1.1</td></tr>
+<tr><td class="l">$\mathbf{P}(X\in B)=\sum_{x\in B}p_X(x)$</td><td class="l">—</td><td class="l">$\mathbf{P}(X\in B)=\int_B f_X(x)\,dx$</td><td class="l">L08 s2</td><td class="l">§1.1</td></tr>
+<tr><td class="l">$F_X(x)=\sum_{k\le x}p_X(k)$</td><td class="l">$F_X(x)=\mathbf{P}(X\le x)$ — same object in both</td><td class="l">$F_X(x)=\int_{-\infty}^{x}f_X(t)\,dt$, and $f_X=dF_X/dx$</td><td class="l">L08 s4; B&amp;T §3.2</td><td class="l">§1.4</td></tr>
+<tr><td class="l">—</td><td class="l">$\mathbb{E}[X]$, $\operatorname{var}(X)$</td><td class="l">$\int x f_X(x)dx$, $\int (x-\mathbb{E}[X])^2f_X(x)dx$</td><td class="l">L08 s3; B&amp;T §3.1</td><td class="l">§1.2</td></tr>
+<tr><td class="l">$\mathbb{E}[g(X)]=\sum_x g(x)p_X(x)$</td><td class="l">—</td><td class="l">$\mathbb{E}[g(X)]=\int g(x)f_X(x)\,dx$</td><td class="l">L08 s3; L10 s4</td><td class="l">§1.2</td></tr>
+<tr><td class="l">$p_{X,Y}(x,y)$</td><td class="l">—</td><td class="l">$f_{X,Y}(x,y)$, $\mathbf{P}((X,Y)\in S)=\iint_S f_{X,Y}$</td><td class="l">L09 s3; B&amp;T §3.4</td><td class="l">§2.1</td></tr>
+<tr><td class="l">$p_X(x)=\sum_y p_{X,Y}(x,y)$</td><td class="l">—</td><td class="l">$f_X(x)=\int_{-\infty}^{\infty}f_{X,Y}(x,y)\,dy$</td><td class="l">L10 s1; B&amp;T §3.4</td><td class="l">§2.2</td></tr>
+<tr><td class="l">$p_{X|Y}(x|y)=\dfrac{p_{X,Y}(x,y)}{p_Y(y)}$</td><td class="l">—</td><td class="l">$f_{X|Y}(x|y)=\dfrac{f_{X,Y}(x,y)}{f_Y(y)}$, defined where $f_Y(y)&gt;0$</td><td class="l">L09 s5; L10 s1</td><td class="l">§2.3</td></tr>
+<tr><td class="l">$p_{X,Y}=p_Xp_Y$ for all $x,y$</td><td class="l">independence</td><td class="l">$f_{X,Y}(x,y)=f_X(x)f_Y(y)$ for <em>all</em> $x,y$</td><td class="l">L09 s5; B&amp;T §3.5</td><td class="l">§2.4</td></tr>
+<tr><td class="l">$p_X(x)=\sum_i\mathbf{P}(A_i)p_{X|A_i}(x)$</td><td class="l">total probability</td><td class="l">$f_X(x)=\sum_i\mathbf{P}(A_i)f_{X|A_i}(x)$</td><td class="l">B&amp;T §3.5</td><td class="l">§2.5</td></tr>
+<tr><td class="l">$\mathbb{E}[X]=\sum_i\mathbf{P}(A_i)\mathbb{E}[X|A_i]$</td><td class="l">total expectation</td><td class="l">same formula, $\mathbb{E}[X|A_i]=\int x f_{X|A_i}(x)dx$</td><td class="l">B&amp;T §3.5; rec10 P3.2</td><td class="l">§2.5</td></tr>
+<tr><td class="l">$p_{X|Y}=\dfrac{p_Xp_{Y|X}}{p_Y}$</td><td class="l">Bayes</td><td class="l">$f_{X|Y}=\dfrac{f_Xf_{Y|X}}{f_Y}$, plus the two mixed forms</td><td class="l">L10 s2, s3; B&amp;T §3.6</td><td class="l">§3.1–§3.5</td></tr>
+<tr><td class="l">$p_Y(y)=\sum_{x:g(x)=y}p_X(x)$</td><td class="l">derived distribution</td><td class="l">$F_Y(y)=\mathbf{P}(g(X)\le y)$, then $f_Y=dF_Y/dy$</td><td class="l">L10 s5, s6; B&amp;T §4.1</td><td class="l">§4.1</td></tr>
+<tr><td class="l">$p_W(w)=\sum_x p_X(x)p_Y(w-x)$</td><td class="l">convolution ($W=X+Y$, indep.)</td><td class="l">$f_W(w)=\int f_X(x)f_Y(w-x)\,dx$</td><td class="l">L11 s3, s4; B&amp;T §4.1</td><td class="l">§4.5–§4.6</td></tr></tbody>
+</table>
+
+<p>Three quantities have no discrete/continuous split at all, because they are defined through
+expectations rather than through the mass function: linearity $\mathbb{E}[aX+bY]=a\mathbb{E}[X]+b\mathbb{E}[Y]$,
+the variance rules $\operatorname{var}(aX+b)=a^2\operatorname{var}(X)$ and
+$\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$, and the covariance/correlation pair
+$\operatorname{cov}(X,Y)=\mathbb{E}\big[(X-\mathbb{E}[X])(Y-\mathbb{E}[Y])\big]$,
+$\rho=\operatorname{cov}(X,Y)/(\sigma_X\sigma_Y)$ (L11 slides 7–8). Linearity and the two variance rules
+were proved in G2 §5.3 and are imported here unchanged; covariance and correlation are new G3 material,
+proved in §4.8 of this note (definition, the computational formula
+$\operatorname{cov}(X,Y)=\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]$, the variance of a sum, and the bound
+$-1\le\rho\le1$ with its equality case).</p>
+
+<div class="note"><b>Interpretation — the density is a rate, not a probability.</b> The single line that
+makes the whole translation intelligible is L08 slide 2's
+$$\mathbf{P}(x\le X\le x+\delta)=\int_x^{x+\delta}f_X(s)\,ds\approx f_X(x)\cdot\delta .$$
+Read it as: <em>$f_X(x)$ is probability per unit length at $x$</em>, exactly as mass density is mass per
+unit volume. Multiply a density by a length and you get a probability; a density on its own is not one,
+and can be any nonnegative number. This one sentence explains why $\mathbf{P}(X=x)=0$ (take
+$\delta\to 0$), why $f_X$ can exceed $1$ (a short interval can hold a lot of probability), and why the
+conditional density $f_{X|Y}(x|y)$ can be defined at all even though $\mathbf{P}(Y=y)=0$: it is the
+limit of $\mathbf{P}(x\le X\le x+\delta\mid y\le Y\le y+\varepsilon)/\delta$ as $\varepsilon,\delta\to0$
+— dividing the conditional probability by $\delta$ turns it back into a density, and the factors of
+$\varepsilon$ in the numerator and denominator of that conditional probability cancel before the limit
+is taken. Gotcha 2 in §5.4 states the same limit.</div>
+
+<div class="ex"><b>Practice 5.1.</b> A random variable $X$ has $f_X(x)=2x$ for $0\le x\le 1$ and $0$
+elsewhere. (a) Check it is a legitimate PDF. (b) Find $F_X$. (c) Find $\mathbf{P}(X&gt;1/2)$ two ways.
+(d) Find $\mathbb{E}[X]$ and $\operatorname{var}(X)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a)</b> $f_X\ge 0$ on $[0,1]$ since $x\ge 0$ there. Normalization: the antiderivative of $2x$ is
+$x^2$, so $\int_0^1 2x\,dx=[x^2]_0^1=1^2-0^2=1$. Legitimate.</p>
+<p><b>(b)</b> For $0\le x\le 1$, $F_X(x)=\int_0^x 2t\,dt=[t^2]_0^x=x^2$; $F_X(x)=0$ for $x&lt;0$ and
+$F_X(x)=1$ for $x&gt;1$. Note $F_X$ is continuous and increasing, and $dF_X/dx=2x=f_X(x)$, as the
+correspondence table requires.</p>
+<p><b>(c)</b> By the CDF: $\mathbf{P}(X&gt;1/2)=1-F_X(1/2)=1-(1/2)^2=1-0.25=0.75$. By direct
+integration: $\int_{1/2}^{1}2x\,dx=[x^2]_{1/2}^{1}=1-\tfrac14=\tfrac34$. Both give $0.75$
+(<code>computes/g3_s5.py</code>).</p>
+<p><b>(d)</b> $\mathbb{E}[X]=\int_0^1 x\cdot 2x\,dx=\int_0^1 2x^2dx=\big[\tfrac{2}{3}x^3\big]_0^1=\tfrac23\approx 0.666667$.
+$\mathbb{E}[X^2]=\int_0^1x^2\cdot 2x\,dx=\big[\tfrac{1}{2}x^4\big]_0^1=\tfrac12$. Hence
+$\operatorname{var}(X)=\tfrac12-\big(\tfrac23\big)^2=\tfrac{9-8}{18}=\tfrac{1}{18}\approx 0.055556$.
+(This $X$ is a Beta$(2,1)$ variable — see §5.2 — and it is the posterior of rec11 P2.)</p></div></details></div>
+
+<div class="ex"><b>Practice 5.2.</b> Translate each discrete statement into its continuous counterpart,
+and say which of the two is <em>literally</em> the same statement. (i) $\sum_x p_X(x)=1$;
+(ii) $\mathbb{E}[aX+b]=a\mathbb{E}[X]+b$; (iii) $p_{X|Y}(x|y)=p_{X,Y}(x,y)/p_Y(y)$;
+(iv) $\mathbf{P}(X=x)&gt;0$ for at least one $x$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(i) $\int f_X(x)\,dx=1$ — a translation, not the same statement. (ii) identical in both worlds: it
+is a statement about expectations only, proved once (G2 §5.3, L05 slide 7) and never re-proved.
+(iii) $f_{X|Y}(x|y)=f_{X,Y}(x,y)/f_Y(y)$ (L09 slide 5) — a translation, and the one that needs the
+$\delta$-argument of the Interpretation box to be legitimate, since the conditioning event has
+probability $0$. (iv) has <em>no</em> continuous counterpart: for a continuous $X$,
+$\mathbf{P}(X=x)=0$ for every $x$. The correct continuous analogue of "$X$ is somewhere" is
+$\int f_X=1$, i.e. row 3.</p></div></details></div>
+
+<h3>5.2 The continuous distribution zoo</h3>
+
+<p>Four families cover essentially every continuous model in 6.041 up to this point. In the table
+$a&lt;b$ are the endpoints of a uniform range, $\lambda&gt;0$ is the rate of an exponential,
+$\mu$ and $\sigma&gt;0$ are the mean and standard deviation of a normal, and $\alpha,\beta&gt;0$ are the
+shape parameters of a beta, whose normalizing constant is
+$B(\alpha,\beta)=\int_0^1 q^{\alpha-1}(1-q)^{\beta-1}dq$. The final column names the mechanism in the
+problem statement that should make you reach for that row.</p>
+
+<table>
+<thead>
+<tr><th class="l">Family</th><th class="l">PDF $f_X(x)$</th><th class="l">CDF $F_X(x)$</th><th class="num">$\mathbb{E}[X]$</th><th class="num">$\operatorname{var}(X)$</th><th class="l">Mechanism / source</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td class="l"><b>Uniform$[a,b]$</b></td>
+  <td class="l">$\dfrac{1}{b-a}$ on $[a,b]$, else $0$</td>
+  <td class="l">$\dfrac{x-a}{b-a}$ on $[a,b]$</td>
+  <td class="num">$\dfrac{a+b}{2}$</td>
+  <td class="num">$\dfrac{(b-a)^2}{12}$</td>
+  <td class="l">"Equally likely anywhere in the range"; a point picked at random on a segment. L08 s3; B&amp;T §3.1; §1.3 of this note</td>
+</tr>
+<tr>
+  <td class="l"><b>Exponential$(\lambda)$</b></td>
+  <td class="l">$\lambda e^{-\lambda x}$ on $x\ge 0$, else $0$</td>
+  <td class="l">$1-e^{-\lambda x}$, $x\ge 0$</td>
+  <td class="num">$\dfrac{1}{\lambda}$</td>
+  <td class="num">$\dfrac{1}{\lambda^{2}}$</td>
+  <td class="l">Waiting time with no aging (memoryless); lifetime of a component. rec08 P3; rec09 P1, P2; B&amp;T §3.1; §1.5 of this note</td>
+</tr>
+<tr>
+  <td class="l"><b>Normal $N(\mu,\sigma^2)$</b></td>
+  <td class="l">$\dfrac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2}$</td>
+  <td class="l">no closed form; $\Phi\!\big(\frac{x-\mu}{\sigma}\big)$ from tables</td>
+  <td class="num">$\mu$</td>
+  <td class="num">$\sigma^{2}$</td>
+  <td class="l">Aggregate of many small independent effects; measurement noise. L08 s6, s7; L11 s5, s6; B&amp;T §3.3; §1.7 of this note</td>
+</tr>
+<tr>
+  <td class="l"><b>Beta$(\alpha,\beta)$</b></td>
+  <td class="l">$\dfrac{q^{\alpha-1}(1-q)^{\beta-1}}{B(\alpha,\beta)}$ on $[0,1]$</td>
+  <td class="l">no elementary form in general; $q^{2}$ for $(2,1)$</td>
+  <td class="num">$\dfrac{\alpha}{\alpha+\beta}$</td>
+  <td class="num">$\dfrac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}$</td>
+  <td class="l">A random <em>probability</em>: the posterior of an unknown Bernoulli parameter. rec11 P2; B&amp;T §3.6; §3.5 of this note</td>
+</tr>
+</tbody>
+</table>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s5_zoo}}" alt="Four columns of paired plots: uniform on [2,7], exponential with rate 2, normal with mean 2 and variance 16, and two beta densities; the top row shows each PDF and the bottom row the matching CDF." style="max-width:960px">
+<div class="figcap">Fig. 5.1 — The zoo: PDF (top) and CDF (bottom) for Uniform$[2,7]$, Exponential$(2)$, $N(2,16)$ and two Beta densities (L08 slides 3, 4, 6; rec08 P3; rec11 P2). Note the two densities that exceed $1$: the exponential at $x=0$ has $f(0)=\lambda=2$, and Beta$(2,1)$ reaches $2$ at $q=1$.</div>
+
+<p><b>Uniform, in full (fills the blanks and the derivation gap of L08 slide 3).</b> The slide leaves
+$f_X$ and $\mathbb{E}[X]$ blank and states the variance without integrating. Constancy plus
+normalization forces the height: if $f_X(x)=c$ on $[a,b]$ then
+$1=\int_a^b c\,dx=c\,[x]_a^b=c(b-a)$, so $c=1/(b-a)$. For the mean, the antiderivative of $x$ is
+$x^2/2$, so
+$$\mathbb{E}[X]=\int_a^b \frac{x}{b-a}\,dx=\frac{1}{b-a}\Big[\frac{x^2}{2}\Big]_a^b
+=\frac{1}{b-a}\cdot\frac{b^2-a^2}{2}=\frac{(b-a)(b+a)}{2(b-a)}=\frac{a+b}{2},$$
+the last step factoring the difference of squares and cancelling $b-a\ne 0$. For the variance,
+substitute $u=x-\frac{a+b}{2}$, so $du=dx$; the limits become $u=a-\frac{a+b}{2}=-\frac{b-a}{2}$ and
+$u=b-\frac{a+b}{2}=+\frac{b-a}{2}$. Writing $c=\frac{b-a}{2}$ for that half-width and using the
+antiderivative $u^3/3$,
+$$\operatorname{var}(X)=\frac{1}{b-a}\int_{-c}^{c}u^2\,du
+=\frac{1}{b-a}\Big[\frac{u^3}{3}\Big]_{-c}^{c}
+=\frac{1}{b-a}\cdot\frac{c^3-(-c)^3}{3}
+=\frac{2c^3}{3(b-a)}
+=\frac{2}{3(b-a)}\cdot\frac{(b-a)^3}{8}=\frac{(b-a)^2}{12}.$$
+Check at $a=2$, $b=7$: height $1/5=0.2$, mean $4.5$, variance $25/12=2.083333$ — all three reproduced
+by quadrature in <code>computes/g3_s5.py</code>.</p>
+
+<p><b>Exponential, in full (§1.5 of this note; rec08 P3).</b> Normalization uses the antiderivative
+$-e^{-\lambda x}$: $\int_0^\infty \lambda e^{-\lambda x}dx=\big[-e^{-\lambda x}\big]_0^{\infty}=0-(-1)=1$,
+since $e^{-\lambda x}\to 0$ as $x\to\infty$ for $\lambda&gt;0$. The CDF is the same integral stopped early,
+$F_X(x)=\big[-e^{-\lambda t}\big]_0^{x}=1-e^{-\lambda x}$. The mean is one integration by parts with
+$u=x$, $dv=\lambda e^{-\lambda x}dx$, hence $du=dx$ and $v=-e^{-\lambda x}$:
+$$\mathbb{E}[X]=\big[-x e^{-\lambda x}\big]_0^{\infty}+\int_0^{\infty}e^{-\lambda x}dx
+=0+\Big[-\frac{e^{-\lambda x}}{\lambda}\Big]_0^{\infty}=\frac{1}{\lambda},$$
+the boundary term vanishing at $\infty$ because the exponential beats the linear factor, and at $0$
+because of the factor $x$. The second moment is the same move with $u=x^2$, $du=2x\,dx$:
+$$\mathbb{E}[X^2]=\big[-x^2e^{-\lambda x}\big]_0^{\infty}+\int_0^{\infty}2xe^{-\lambda x}dx
+=0+\frac{2}{\lambda}\int_0^{\infty}x\,\lambda e^{-\lambda x}dx=\frac{2}{\lambda}\cdot\frac{1}{\lambda}
+=\frac{2}{\lambda^2},$$
+where the middle step multiplied and divided by $\lambda$ to recreate the density and reuse
+$\mathbb{E}[X]=1/\lambda$. Therefore
+$\operatorname{var}(X)=\frac{2}{\lambda^2}-\frac{1}{\lambda^2}=\frac{1}{\lambda^2}$. At $\lambda=2$:
+mean $0.5$, variance $0.25$, $\mathbf{P}(X&gt;1)=e^{-2}=0.135335$, median $\ln 2/2=0.346574$ — all
+verified numerically.</p>
+
+<p><b>Normal, in full (fills "it turns out that" on L08 slide 6).</b> Substitute $u=(x-\mu)/\sigma$, so
+$x=\mu+\sigma u$ and $dx=\sigma\,du$; the density becomes the standard one,
+$\varphi(u)=\frac{1}{\sqrt{2\pi}}e^{-u^2/2}$, and
+$$\mathbb{E}[X]=\int_{-\infty}^{\infty}(\mu+\sigma u)\varphi(u)\,du
+=\mu\underbrace{\int\varphi(u)du}_{=1}+\sigma\underbrace{\int u\varphi(u)du}_{=0}=\mu,$$
+the second integral vanishing because $u\varphi(u)$ is an odd function integrated over a symmetric
+range. For the variance, integrate by parts with $u\,dv$ where $dv=u\varphi(u)du$ and $v=-\varphi(u)$
+(since $\varphi'(u)=-u\varphi(u)$):
+$$\int u^2\varphi(u)du=\big[-u\varphi(u)\big]_{-\infty}^{\infty}+\int\varphi(u)du=0+1=1,
+\qquad\text{so}\qquad \operatorname{var}(X)=\sigma^2\cdot 1=\sigma^2 .$$
+<b>Standardization</b> (the blank on L08 slide 7): $Z=(X-\mu)/\sigma\sim N(0,1)$, which is the $a=1/\sigma$,
+$b=-\mu/\sigma$ case of the linear rule of §5.3. Hence for $X\sim N(2,16)$ — where $\sigma=\sqrt{16}=4$,
+a step the slide performs silently —
+$$\mathbf{P}(X\le 3)=\mathbf{P}\Big(\frac{X-2}{4}\le\frac{3-2}{4}\Big)=\Phi(0.25)=0.5987,$$
+matching the table row $0.2$, column $.05$ of the slide; the exact value is $0.598706$.</p>
+
+<p><b>Beta, in full (rec11 P2; §3.5 of this note).</b> The case that appears in this course is $\alpha=2$,
+$\beta=1$: $f_Q(q)=2q$ on $[0,1]$. Its normalization, mean and variance were computed in Practice 5.1
+($1$, $2/3$, $1/18=0.055556$), and they agree with the general formulas:
+$\frac{\alpha}{\alpha+\beta}=\frac{2}{3}$ and
+$\frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}=\frac{2\cdot 1}{9\cdot 4}=\frac{1}{18}$. Beta$(1,1)$
+is exactly the uniform on $[0,1]$ (mean $0.5$, variance $1/12=0.083333$), which is why a uniform prior
+on an unknown probability is the natural starting point. Four $(\alpha,\beta)$ pairs are checked against
+quadrature in <code>computes/g3_s5.py</code>.</p>
+
+<div class="note"><b>Interpretation — the zoo is three mechanisms plus one bookkeeping device.</b>
+The uniform encodes <em>ignorance over a range</em>: no point of $[a,b]$ is preferred, and its variance
+$(b-a)^2/12$ depends only on the width, not the location. The exponential encodes <em>waiting without
+aging</em>: it is the unique continuous distribution with $\mathbf{P}(X&gt;s+t\mid X&gt;s)=\mathbf{P}(X&gt;t)$
+(rec09 P2), the continuous mirror of the geometric's memorylessness from G2, and its mean and standard
+deviation are <em>equal</em> ($1/\lambda$ each) — waiting times are as spread out as they are long.
+The normal encodes <em>accumulation</em>: sums of many independent contributions, which is why the
+family is closed under addition (L11 slide 6) and under linear maps (L10 slide 8). The beta is the odd
+one out: it is not a mechanism but the shape a posterior takes when the unknown quantity is itself a
+probability, confined to $[0,1]$.</div>
+
+<div class="recipe"><b>Recipe — identifying the family from the sentence.</b>
+<ol>
+<li>"Chosen at random on/between …" with nothing else said $\to$ uniform; read off $a,b$ and write
+$1/(b-a)$ immediately.</li>
+<li>"Time until …", "lifetime", "the process has no memory", or a given constant hazard rate $\to$
+exponential; read off $\lambda$ as the <em>rate</em> (events per unit time), so the mean is $1/\lambda$.</li>
+<li>"Noise", "measurement error", "sum of many small effects", or the problem hands you $\mu$ and
+$\sigma^2$ $\to$ normal; immediately standardize before touching a table.</li>
+<li>The unknown is itself a probability in $[0,1]$, and data have been observed $\to$ beta.</li>
+<li>If none fits, do not force one: build $f_X$ from the model, then normalize by imposing
+$\int f_X=1$ (rec08 P1 is exactly this).</li>
+</ol></div>
+
+<div class="warn"><b>Gotcha — $\lambda$ is a rate, $1/\lambda$ is a time.</b> "Buses arrive on average
+every 10 minutes" means $\mathbb{E}[X]=10$, hence $\lambda=1/10$ per minute, <em>not</em> $\lambda=10$.
+The units are the check: $\lambda$ has units 1/time, so $\lambda e^{-\lambda x}$ has units 1/time —
+correct for a density in $x$. The same trap in reverse: for the normal, tables are indexed by
+$\sigma$, not $\sigma^2$, so $N(2,16)$ has $\sigma=4$.</div>
+
+<div class="ex"><b>Practice 5.3.</b> $X$ is exponential with $\lambda=2$ (per hour). Find
+$\mathbf{P}(X&gt;1)$, $\mathbb{E}[X]$, $\operatorname{var}(X)$, and the median $m$ (the value with
+$F_X(m)=1/2$). Is the median equal to the mean?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mathbf{P}(X&gt;1)=1-F_X(1)=1-(1-e^{-2\cdot 1})=e^{-2}=0.135335$.
+$\mathbb{E}[X]=1/\lambda=0.5$ h and $\operatorname{var}(X)=1/\lambda^2=0.25$, so $\sigma_X=0.5$ h — mean
+and standard deviation coincide. Median: solve $1-e^{-2m}=1/2\Rightarrow e^{-2m}=1/2\Rightarrow
+-2m=\ln(1/2)=-\ln 2\Rightarrow m=\ln 2/2=0.346574$ h. The median is <em>smaller</em> than the mean
+($0.3466&lt;0.5$): the density is right-skewed, so the long tail drags the mean above the middle value.
+All four numbers are in <code>computes/g3_s5.py</code>.</p></div></details></div>
+
+<div class="ex"><b>Practice 5.4.</b> $X\sim N(5,9)$. Find $\mathbf{P}(2&lt;X&lt;11)$ using the standard
+normal table of L08 slide 7.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Here $\mu=5$ and $\sigma=\sqrt{9}=3$. Standardize both endpoints — subtracting $\mu$ and dividing by
+$\sigma&gt;0$ preserves the inequalities:
+$$\mathbf{P}(2&lt;X&lt;11)=\mathbf{P}\Big(\frac{2-5}{3}&lt;Z&lt;\frac{11-5}{3}\Big)=\mathbf{P}(-1&lt;Z&lt;2)
+=\Phi(2)-\Phi(-1).$$
+The table gives $\Phi(2)=0.9772$ directly. It has no negative rows, so use the symmetry of the standard
+normal density about $0$: $\Phi(-1)=1-\Phi(1)=1-0.8413=0.1587$. Hence
+$\mathbf{P}(2&lt;X&lt;11)=0.9772-0.1587=0.8186$ (computed value $0.818595$). Sanity check: the interval is
+$\mu-\sigma$ to $\mu+2\sigma$, and $0.8186$ sits between the familiar $68\%$ and $95\%$ figures.</p></div></details></div>
+
+<h3>5.3 Derived distributions: which method, and when</h3>
+
+<p>A <em>derived distribution</em> is the PDF (or PMF) of $Y=g(X)$ or $Y=g(X_1,\dots,X_n)$ when the law
+of the inputs is known (L10 slide 4). Four techniques exist; choosing between them is most of the
+difficulty, so start with the question that eliminates the work entirely.</p>
+
+<div class="recipe"><b>Recipe — the derived-distribution decision procedure (L10 slides 4–6, 8; L11 slides 2–4).</b>
+<ol>
+<li><b>Do you actually need the distribution?</b> If the question asks only for $\mathbb{E}[g(X)]$ or
+$\operatorname{var}(g(X))$, use the expected-value rule $\mathbb{E}[g(X)]=\int g(x)f_X(x)dx$ (or the
+two-variable version $\iint g(x,y)f_{X,Y}(x,y)\,dx\,dy$) and stop. L10 slide 4 makes this its first
+point for a reason.</li>
+<li><b>Is $X$ discrete?</b> Then $p_Y(y)=\sum_{x:\,g(x)=y}p_X(x)$ — collect all $x$ mapping to the same
+$y$ and add (L10 slide 5). No calculus.</li>
+<li><b>Is $g$ linear, $Y=aX+b$ with $a\ne 0$?</b> Use $f_Y(y)=\frac{1}{|a|}f_X\!\big(\frac{y-b}{a}\big)$
+(L10 slide 8).</li>
+<li><b>Is $g$ a strictly monotonic function of one variable?</b> Use
+$f_Y(y)=f_X(x)\big/\big|\frac{dg}{dx}(x)\big|$ evaluated at $x=g^{-1}(y)$ (L11 slide 2).</li>
+<li><b>Is $Y=X_1+X_2$ with $X_1,X_2$ independent?</b> Convolve:
+$f_W(w)=\int f_{X}(x)f_{Y}(w-x)\,dx$ (L11 slide 4).</li>
+<li><b>Otherwise — and always, if unsure — the CDF method.</b> Write $F_Y(y)=\mathbf{P}(g(X)\le y)$,
+express the event as a region in the sample space of the inputs, compute its probability as an area or
+integral of $f_X$ (or $f_{X,Y}$), then differentiate: $f_Y(y)=dF_Y/dy$. This never fails, handles
+non-monotonic $g$ and several variables, and is the method of L10 slide 6.</li>
+<li><b>Finish, every time:</b> state the range of $y$ for which each expression is valid, and verify
+$\int f_Y(y)\,dy=1$.</li>
+</ol></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s5_flowchart}}" alt="Decision flowchart: first ask whether only the expectation is needed (expected-value rule); then whether X is discrete (sum the PMF); then whether g is monotonic in one variable (derivative formula); then whether it is a sum of independent variables (convolution); otherwise the CDF method, ending with a support statement and a normalization check." style="max-width:900px">
+<div class="figcap">Fig. 5.2 — Which derived-distribution method to use (L10 slides 4–6, 8; L11 slides 2–4; B&amp;T §4.1–4.2).</div>
+
+<table>
+<thead>
+<tr><th class="l">Method</th><th class="l">Formula</th><th class="l">Applies when</th><th class="l">Worked instance (recomputed)</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td class="l">Expected-value rule</td>
+  <td class="l">$\mathbb{E}[g(X)]=\int g(x)f_X(x)dx$</td>
+  <td class="l">Only a moment is wanted</td>
+  <td class="l">$X\sim U[0,2]$, $\mathbb{E}[X^3]=\int_0^2 x^3\cdot\frac12 dx=\big[\frac{x^4}{8}\big]_0^2=2$ — no PDF of $X^3$ needed. L10 s4</td>
+</tr>
+<tr>
+  <td class="l">Discrete collection</td>
+  <td class="l">$p_Y(y)=\sum_{x:\,g(x)=y}p_X(x)$</td>
+  <td class="l">$X$ discrete</td>
+  <td class="l">rec10 P3.1: two outcomes give $X=3$, so $p_X(3)=\frac14+\frac1{16}=\frac{5}{16}$. L10 s5</td>
+</tr>
+<tr>
+  <td class="l">CDF method</td>
+  <td class="l">$F_Y(y)=\mathbf{P}(g(X)\le y)$, then differentiate</td>
+  <td class="l">Always; required if $g$ is non-monotonic or multivariate</td>
+  <td class="l">$X\sim U[0,2]$, $Y=X^3$: $f_Y(y)=\frac{1}{6y^{2/3}}$ on $0&lt;y&lt;8$; mass $1$, $\mathbb{E}[Y]=2$. L10 s6</td>
+</tr>
+<tr>
+  <td class="l">Linear formula</td>
+  <td class="l">$f_Y(y)=\frac{1}{|a|}f_X\!\big(\frac{y-b}{a}\big)$</td>
+  <td class="l">$Y=aX+b$, $a\ne 0$</td>
+  <td class="l">$X\sim N(2,16)$, $Y=-3X+5$: $Y\sim N(-1,144)$ — mean and variance confirmed by quadrature. L10 s8</td>
+</tr>
+<tr>
+  <td class="l">Monotonic formula</td>
+  <td class="l">$f_Y(y)=f_X(x)\big/\big|\frac{dg}{dx}(x)\big|$, $x=g^{-1}(y)$</td>
+  <td class="l">One variable, $g$ strictly monotonic and differentiable</td>
+  <td class="l">Joan: $V\sim U[30,60]$, $T=200/V$, $f_T(t)=\frac{200}{30t^2}$ on $[\frac{10}{3},\frac{20}{3}]$; $\mathbb{E}[T]=\frac{20}{3}\ln 2=4.620981$ h. L10 s7; L11 s2</td>
+</tr>
+<tr>
+  <td class="l">Convolution</td>
+  <td class="l">$f_W(w)=\int f_X(x)f_Y(w-x)dx$</td>
+  <td class="l">$W=X+Y$, $X\perp Y$ <em>independent</em></td>
+  <td class="l">Two independent $U[0,1]$: $f_W$ triangular on $[0,2]$, $\mathbb{E}[W]=1$, $\operatorname{var}(W)=1/6=0.166667$. $N(0,2.25)+N(0,4)=N(0,6.25)$, s.d. $2.5$. L11 s3–s6</td>
+</tr>
+</tbody>
+</table>
+
+<p>The Joan example (L10 slide 7 leaves it unsolved; §3.6 of this note derives it in full, Example 3.9) is the
+cleanest illustration of why the support matters: $V$ ranges over $[30,60]$ and $t=200/v$ is
+<em>decreasing</em>, so $t$ ranges over $[200/60,200/30]=[3.333333,6.666667]$ — the endpoints swap.
+The normalization check confirms the algebra: with antiderivative $-1/t$,
+$$\int_{10/3}^{20/3}\frac{200}{30t^2}dt=\frac{200}{30}\Big[-\frac1t\Big]_{10/3}^{20/3}
+=\frac{20}{3}\Big(\frac{3}{10}-\frac{3}{20}\Big)=\frac{20}{3}\cdot\frac{3}{20}=1 .$$
+And $\mathbb{E}[T]=\frac{20}{3}\ln 2=4.620981$ hours exceeds the naive $200/\mathbb{E}[V]=200/45=4.444444$
+hours by $0.176537$ — the same $\mathbb{E}[g(X)]\ne g(\mathbb{E}[X])$ trap as G2's speed example, now
+continuous.</p>
+
+<div class="note"><b>Interpretation — why the $|dg/dx|$ factor is there.</b> The monotonic formula is
+conservation of probability plus a change of scale (L11 slide 2). The interval $[x,x+\delta]$ carries
+probability $f_X(x)\delta$; $g$ maps it to an interval of length approximately
+$\delta\,|\frac{dg}{dx}(x)|$ around $y=g(x)$, by the first-order Taylor expansion
+$g(x+\delta)\approx g(x)+\delta\frac{dg}{dx}(x)$. The <em>same</em> probability now sits in an interval of
+a different length, so the density must change by the reciprocal of the stretch:
+$f_X(x)\delta=f_Y(y)\cdot\delta|\frac{dg}{dx}(x)|$, and dividing by $\delta$ gives the formula. The
+absolute value is there because a decreasing $g$ reverses the interval but cannot make a length or a
+density negative. The linear case is the special case $|dg/dx|=|a|$.</div>
+
+<div class="ex"><b>Practice 5.5.</b> $X\sim$ Uniform$[0,1]$ and $Y=e^X$. Find $f_Y$ and
+$\mathbb{E}[Y]$, by the monotonic formula and by the CDF method, and check they agree.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Support first.</b> $e^x$ is increasing, so $x\in[0,1]$ gives $y\in[e^0,e^1]=[1,e]=[1,2.718282]$.</p>
+<p><b>Monotonic formula.</b> $g(x)=e^x$, $\frac{dg}{dx}=e^x&gt;0$, and the inverse is $x=\ln y$. Hence for
+$1\le y\le e$,
+$$f_Y(y)=\frac{f_X(\ln y)}{|e^{x}|_{x=\ln y}}=\frac{1}{e^{\ln y}}=\frac1y,$$
+using $f_X\equiv 1$ on $[0,1]$ and $e^{\ln y}=y$.</p>
+<p><b>CDF method.</b> $F_Y(y)=\mathbf{P}(e^X\le y)=\mathbf{P}(X\le\ln y)=F_X(\ln y)=\ln y$ for
+$1\le y\le e$ (taking $\ln$ is legal because it is increasing; $F_X(u)=u$ on $[0,1]$). Differentiating,
+$f_Y(y)=\frac{d}{dy}\ln y=\frac1y$ — the same answer.</p>
+<p><b>Checks.</b> $\int_1^{e}\frac{dy}{y}=[\ln y]_1^{e}=1-0=1$. And
+$\mathbb{E}[Y]=\int_1^{e}y\cdot\frac1y\,dy=[y]_1^{e}=e-1=1.718282$, which matches the expected-value
+rule route $\int_0^1 e^x dx=[e^x]_0^1=e-1$ (both computed in <code>computes/g3_s5.py</code>).</p></div></details></div>
+
+<div class="ex"><b>Practice 5.6.</b> $X\sim N(0,1)$ and $Y=X^2$. Why can you not use the monotonic
+formula? Find $f_Y$, and $\mathbb{E}[Y]$, $\operatorname{var}(Y)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Why not.</b> $g(x)=x^2$ is decreasing on $(-\infty,0]$ and increasing on $[0,\infty)$, so it is not
+one-to-one and has no single inverse: two values $\pm\sqrt{y}$ map to the same $y$. Use the CDF method
+(Fig. 5.2's default branch).</p>
+<p><b>CDF.</b> For $y&gt;0$, the event $\{X^2\le y\}$ is $\{-\sqrt y\le X\le\sqrt y\}$, so
+$$F_Y(y)=\Phi(\sqrt y)-\Phi(-\sqrt y)=2\Phi(\sqrt y)-1,$$
+using the symmetry $\Phi(-u)=1-\Phi(u)$. For $y\le 0$, $F_Y(y)=0$ since $X^2\ge 0$.</p>
+<p><b>Differentiate</b> with the chain rule, $\frac{d}{dy}\sqrt y=\frac{1}{2\sqrt y}$ and
+$\Phi'=\varphi$:
+$$f_Y(y)=2\varphi(\sqrt y)\cdot\frac{1}{2\sqrt y}=\frac{\varphi(\sqrt y)}{\sqrt y}
+=\frac{1}{\sqrt{2\pi y}}e^{-y/2},\qquad y&gt;0 .$$
+(This is the chi-square density with one degree of freedom.) Quadrature confirms
+$\int_0^\infty f_Y=1$, $\mathbb{E}[Y]=1$ and $\operatorname{var}(Y)=2$. The mean is also immediate from
+the expected-value rule without any derived density: $\mathbb{E}[X^2]=\operatorname{var}(X)+(\mathbb{E}[X])^2=1+0=1$
+— step 1 of the Recipe would have answered the mean question in one line.</p></div></details></div>
+
+<h3>5.4 Top gotchas of G3</h3>
+
+<p>Six errors account for most of the lost points on continuous random variables. Each is a place where
+a discrete habit transfers illegitimately.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s5_gotchas}}" alt="Three panels: densities above the height 1 for a uniform on [0,0.5] and a narrow normal; a triangular joint support showing a point where the joint density is zero but the product of marginals is positive; and the correct 1/(2 sqrt y) density against the wrong flat one for Y = X squared." style="max-width:960px">
+<div class="figcap">Fig. 5.3 — Three of the six gotchas: (a) densities exceed $1$ routinely (L08 slide 2), (b) a non-rectangular support forces dependence (rec09 P3; L09 slide 5), (c) dropping $|dg/dx|$ gives a wrong shape even when it integrates to something finite (L11 slide 2).</div>
+
+<div class="warn"><b>Gotcha 1 — $f_X(x)&gt;1$ is perfectly legal; $f_X(x)$ is not a probability.</b>
+Uniform on $[0,\frac12]$ has $f_X\equiv 2$ everywhere on that interval, and
+$\int_0^{1/2}2\,dx=[2x]_0^{1/2}=1$ is still exactly one. Exponential$(2)$ has $f(0)=2$; a normal with
+$\sigma=0.1$ peaks at $\frac{1}{0.1\sqrt{2\pi}}=3.989423$. What <em>is</em> bounded by $1$ is any
+integral of $f_X$ over a set. Corollary: never compare a density value to a probability, and never
+"read off" $\mathbf{P}(X=x)$ from the height of a curve.</div>
+
+<div class="warn"><b>Gotcha 2 — $\mathbf{P}(X=x)=0$, yet conditioning on $\{Y=y\}$ is legitimate.</b>
+For continuous $X$, $\mathbf{P}(X=x)=\lim_{\delta\to0}f_X(x)\delta=0$ for every single $x$. Two
+consequences pull in opposite directions. (i) You may freely swap $\le$ and $&lt;$ inside probabilities:
+$\mathbf{P}(X\le a)=\mathbf{P}(X&lt;a)$, so endpoints of integration never matter — a licence you
+absolutely do <em>not</em> have for discrete $X$, where $F_X$ jumps. (ii) The G1 definition
+$\mathbf{P}(A\mid B)=\mathbf{P}(A\cap B)/\mathbf{P}(B)$ cannot be applied with $B=\{Y=y\}$, because the
+denominator is $0$. Nevertheless $f_{X|Y}(x|y)=f_{X,Y}(x,y)/f_Y(y)$ is a genuine, well-defined object:
+it is the limit of $\mathbf{P}(x\le X\le x+\delta\mid y\le Y\le y+\varepsilon)/\delta$ as
+$\varepsilon,\delta\to0$, where the two factors of $\varepsilon$ cancel before the limit. So
+"conditioning on a measure-zero event" is not a fudge — it is a defined limit, and it is why L09 slide 5
+had to introduce the notion from scratch instead of quoting G1.</div>
+
+<div class="warn"><b>Gotcha 3 — forgetting the $|dg/dx|$ factor.</b> The commonest wrong answer in all
+of G3 is $f_Y(y)=f_X(g^{-1}(y))$. Take $X\sim U[0,1]$ and $Y=X^2$. The naive substitution gives
+$f_Y(y)=f_X(\sqrt y)=1$ on $[0,1]$, which even integrates to $1$ — so normalization alone will not save
+you. The correct answer, from $|dg/dx|=2x=2\sqrt y$, is
+$$f_Y(y)=\frac{f_X(\sqrt y)}{2\sqrt y}=\frac{1}{2\sqrt y},\qquad 0&lt;y\le 1,$$
+which also integrates to $1$ ($\int_0^1\frac{dy}{2\sqrt y}=[\sqrt y]_0^1=1$) but has a completely
+different shape: $f_Y(0.01)=5$, not $1$ (Fig. 5.3c). Squaring crowds the values of $X$ toward $0$, and
+the density must rise there to record it. The tell-tale symptom of the missing factor is a $Y$ whose
+mean comes out wrong: here $\mathbb{E}[Y]=\int_0^1 y\frac{dy}{2\sqrt y}=\big[\frac{y^{3/2}}{3}\big]_0^1=\frac13$,
+which agrees with $\mathbb{E}[X^2]=\int_0^1x^2dx=\frac13$, while the naive density would give
+$\frac12$.</div>
+
+<div class="warn"><b>Gotcha 4 — convolution limits.</b> The formula
+$f_W(w)=\int_{-\infty}^{\infty}f_X(x)f_Y(w-x)\,dx$ is written with infinite limits, but the integrand is
+zero unless <em>both</em> factors are nonzero: you must intersect $\{x: f_X(x)&gt;0\}$ with
+$\{x: f_Y(w-x)&gt;0\}$, and the answer depends on $w$. For two independent $U[0,1]$ variables the
+constraints are $0\le x\le 1$ and $0\le w-x\le 1$, i.e. $\max(0,w-1)\le x\le\min(1,w)$, so
+$$f_W(w)=\int_{\max(0,w-1)}^{\min(1,w)}1\,dx=\min(1,w)-\max(0,w-1)=
+\begin{cases}w,&0\le w\le 1,\\ 2-w,&1&lt;w\le 2,\\ 0,&\text{otherwise,}\end{cases}$$
+the triangular density — <em>two</em> cases, which is the whole content of the exercise. Getting a
+constant answer, or an answer that does not vanish outside $[0,2]$, means the limits were not split.
+Check: mass $1$, $\mathbb{E}[W]=1$, $\operatorname{var}(W)=\frac{1}{12}+\frac{1}{12}=\frac16=0.166667$,
+all verified numerically. Also remember that convolution requires <em>independence</em>: it is derived
+from $f_{W|X}(w|x)=f_Y(w-x)$ (L11 slide 4), which is exactly the step that uses it.</div>
+
+<div class="warn"><b>Gotcha 5 — $F$ and $f$ are different animals.</b> $F_X$ is a probability
+(dimensionless, in $[0,1]$, nondecreasing, $\to 0$ at $-\infty$ and $\to 1$ at $+\infty$); $f_X$ is a
+rate (units 1/$x$, unbounded above, not monotone). Confusions with a cost: differentiating when you
+should integrate (or vice versa); using $f$ where the CDF method needs $F$
+(step 1 is $F_Y(y)=\mathbf{P}(g(X)\le y)$, a probability, and only step 2 differentiates);
+and answering $\mathbf{P}(a\le X\le b)$ with $f_X(b)-f_X(a)$ instead of $F_X(b)-F_X(a)$. The CDF is
+also the one object defined for <em>every</em> random variable — discrete, continuous, or the mixed
+distributions of L08 slide 5, where $F_X$ has both ramps and jumps. If a distribution has an atom,
+$f_X$ does not exist there but $F_X$ still does.</div>
+
+<div class="warn"><b>Gotcha 6 — independence must factor over the whole plane, not just the formula.</b>
+$X$ and $Y$ are independent iff $f_{X,Y}(x,y)=f_X(x)f_Y(y)$ for <em>all</em> $(x,y)$ (L09 slide 5), and
+the qualifier is where the failures hide. Take the uniform density on the triangle
+$\{0\le y\le x\le 1\}$, i.e. $f_{X,Y}=2$ inside and $0$ outside (rec09 P3). Inside the triangle the
+formula "$2$" looks like a product of constants, but the marginals are
+$f_X(x)=\int_0^x 2\,dy=2x$ on $[0,1]$ and $f_Y(y)=\int_y^1 2\,dx=2(1-y)$ on $[0,1]$, and at the point
+$(0.2,0.8)$ — outside the triangle, since $0.8&gt;0.2$ — we get $f_{X,Y}(0.2,0.8)=0$ while
+$f_X(0.2)f_Y(0.8)=0.4\times 0.4=0.16\ne 0$. The factorization fails. <b>Rule of thumb:</b> if the
+support is not a rectangle (possibly infinite) with sides parallel to the axes, the variables are
+dependent, whatever the formula looks like inside. Knowing $X=0.2$ tells you $Y\le 0.2$: information has
+flowed, so independence is impossible.</div>
+
+<div class="note"><b>Interpretation — a four-line self-check for any continuous answer.</b>
+(i) Does the candidate density integrate to $1$ over the support you claimed? (ii) Is the support
+right — did the endpoints move or swap under $g$? (iii) Did I use a factorization, a convolution, or a
+variance-of-a-sum anywhere, and if so did I verify independence over the <em>whole</em> region?
+(iv) Is every symbol still the right type — a density where a density belongs, a probability where a
+probability belongs? Gotchas 1–6 each fail exactly one of these four checks, and each check costs one
+line.</div>
+
+<div class="ex"><b>Practice 5.7.</b> Find the error in each argument. (a) "$f_X(x)=4$ on $[0,\frac14]$
+is impossible, since probabilities cannot exceed $1$." (b) "$X\sim U[0,1]$, $Y=3X$, so
+$f_Y(y)=f_X(y/3)=1$ on $[0,3]$." (c) "$X,Y$ have $f_{X,Y}(x,y)=x+y$ on the unit square, and $x+y$ is a
+sum of a function of $x$ and a function of $y$, so $X$ and $Y$ are independent."
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a)</b> Gotcha 1: $4$ is a density, not a probability, and $\int_0^{1/4}4\,dx=[4x]_0^{1/4}=1$. The
+PDF is perfectly legal.</p>
+<p><b>(b)</b> Gotcha 3: the $\frac{1}{|a|}$ factor is missing. With $a=3$, $b=0$,
+$f_Y(y)=\frac13 f_X(y/3)=\frac13$ on $[0,3]$. The claimed answer integrates to $3$, not $1$ — the
+normalization check catches it instantly.</p>
+<p><b>(c)</b> Gotcha 6: independence requires a <em>product</em> factorization $f_X(x)f_Y(y)$, not a sum.
+Concretely $f_X(x)=\int_0^1(x+y)dy=\big[xy+\frac{y^2}{2}\big]_0^1=x+\frac12$ and likewise
+$f_Y(y)=y+\frac12$, so $f_X(x)f_Y(y)=(x+\frac12)(y+\frac12)=xy+\frac{x}{2}+\frac{y}{2}+\frac14$, which is
+not $x+y$ (at $(0,0)$: $\frac14$ versus $0$). Dependent.</p></div></details></div>
+
+<h3>5.5 Checkpoint — quiz-style review (G1–G3 mixed)</h3>
+
+<p>Recitation 10 is not new material: the solution handout is titled "6.041/6.431 Spring 2010 Quiz 1
+Solutions", so the session is a full-length quiz review over G1 (sample spaces, conditional probability,
+Bayes, independence) and G2 (PMFs, expectation, total expectation, geometric random variables). Use it
+as a checkpoint before continuing: every tool it exercises was built in an earlier section, cited below
+each part. All three problems are solved here in complete detail, with the counterexamples and arithmetic
+that the official solutions omit.</p>
+
+<div class="ex"><b>Example 5.1 (rec10 P1 — true/false identities).</b> For a model with sample space
+$\Omega$, events $A,B$, and a discrete random variable $X$ (any conditioning event has positive
+probability), exactly one statement in each list is <em>true</em> — true meaning it holds with no extra
+assumptions; false meaning some counterexample exists.<br>
+<b>1.1.</b> (a) $\mathbf{P}(A\cap B)$ may be larger than $\mathbf{P}(A)$. &nbsp;
+(b) $\operatorname{var}(X)$ may be larger than $\operatorname{var}(2X)$. &nbsp;
+(c) If $A^c\cap B^c=\emptyset$ then $\mathbf{P}(A\cup B)=1$. &nbsp;
+(d) If $A^c\cap B^c=\emptyset$ then $\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$. &nbsp;
+(e) If $\mathbf{P}(A)&gt;1/2$ and $\mathbf{P}(B)&gt;1/2$ then $\mathbf{P}(A\cup B)=1$.<br>
+<b>1.2.</b> (a) If $\mathbb{E}[X]=0$ then $\mathbf{P}(X&gt;0)=\mathbf{P}(X&lt;0)$. &nbsp;
+(b) $\mathbf{P}(A)=\mathbf{P}(A\mid B)+\mathbf{P}(A\mid B^c)$. &nbsp;
+(c) $\mathbf{P}(B\mid A)+\mathbf{P}(B\mid A^c)=1$. &nbsp;
+(d) $\mathbf{P}(B\mid A)+\mathbf{P}(B^c\mid A^c)=1$. &nbsp;
+(e) $\mathbf{P}(B\mid A)+\mathbf{P}(B^c\mid A)=1$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>1.1 — answer (c).</b> The official justification: by De Morgan's law
+$A\cup B=(A^c\cap B^c)^c=\emptyset^c=\Omega$, and $\mathbf{P}(\Omega)=1$ by the normalization axiom
+(G1 §1). Now the four refutations the handout omits.</p>
+<p><b>(a) False.</b> $A\cap B\subseteq A$, and monotonicity of probability (G1 §1; it follows from
+additivity applied to $A=(A\cap B)\cup(A\cap B^c)$, both terms nonnegative) gives
+$\mathbf{P}(A\cap B)\le\mathbf{P}(A)$ always. An intersection can never be more likely than either of
+its parts, so "may be larger" is impossible.</p>
+<p><b>(b) False.</b> By the scaling rule $\operatorname{var}(aX)=a^2\operatorname{var}(X)$ (G2 §5.3;
+L05 slide 8), $\operatorname{var}(2X)=4\operatorname{var}(X)\ge\operatorname{var}(X)$ because variances
+are nonnegative. With $X$ Bernoulli$(1/2)$: $\operatorname{var}(X)=1/4$ and
+$\operatorname{var}(2X)=1$. Equality happens only in the degenerate case $\operatorname{var}(X)=0$,
+never strict inequality the other way.</p>
+<p><b>(d) False.</b> The hypothesis $A^c\cap B^c=\emptyset$ says $A\cup B=\Omega$; it says nothing about
+independence. Counterexample: $\Omega=\{1,2,3\}$ with equally likely outcomes, $A=\{1,2\}$,
+$B=\{2,3\}$. Then $A^c=\{3\}$, $B^c=\{1\}$, so $A^c\cap B^c=\emptyset$ as required, but
+$\mathbf{P}(A\cap B)=\mathbf{P}(\{2\})=\frac13=0.333333$ while
+$\mathbf{P}(A)\mathbf{P}(B)=\frac23\cdot\frac23=\frac49=0.444444$. Not equal.</p>
+<p><b>(e) False.</b> Take $A=B$ with $\mathbf{P}(A)=\frac35&gt;\frac12$. Then
+$\mathbf{P}(A\cup B)=\mathbf{P}(A)=\frac35\ne 1$. (What <em>is</em> true, by inclusion–exclusion, is
+$\mathbf{P}(A\cap B)=\mathbf{P}(A)+\mathbf{P}(B)-\mathbf{P}(A\cup B)\ge\frac35+\frac35-1=\frac15&gt;0$:
+two events each more likely than a half must overlap. That is the true statement this option is
+imitating.)</p>
+<p><b>1.2 — answer (e).</b> $B$ and $B^c$ partition $\Omega$, so conditioned on $A$ they are two
+complementary events of the conditional model: $\mathbf{P}(\cdot\mid A)$ is itself a legitimate
+probability law (G1 §2), hence $\mathbf{P}(B\mid A)+\mathbf{P}(B^c\mid A)=\mathbf{P}(\Omega\mid A)=1$.
+The trap in (b), (c), (d) is that the <em>conditioning</em> event varies across the two terms, and there
+is no rule that adds probabilities computed in two different conditional universes.</p>
+<p><b>(a) False.</b> $\mathbb{E}[X]=0$ balances the PMF as a center of gravity, which says nothing about
+how much <em>mass</em> lies on each side. Take $\mathbf{P}(X=-1)=\frac23$ and $\mathbf{P}(X=2)=\frac13$:
+$\mathbb{E}[X]=(-1)\frac23+2\cdot\frac13=-\frac23+\frac23=0$, yet
+$\mathbf{P}(X&gt;0)=\frac13\ne\frac23=\mathbf{P}(X&lt;0)$. (This is the same lesson as G2's speed example:
+the mean is not the median and not a typical value.)</p>
+<p><b>(b) False.</b> The correct identity is the total probability theorem
+$\mathbf{P}(A)=\mathbf{P}(B)\mathbf{P}(A\mid B)+\mathbf{P}(B^c)\mathbf{P}(A\mid B^c)$ (G1 §2) — the
+weights are essential. Dropping them: let $A=B$ with $\mathbf{P}(A)=\frac12$. Then
+$\mathbf{P}(A\mid B)=1$ and $\mathbf{P}(A\mid B^c)=0$, so the right-hand side is $1+0=1\ne\frac12$.</p>
+<p><b>(c) False.</b> Let $B=\Omega$. Then $\mathbf{P}(B\mid A)=\mathbf{P}(B\mid A^c)=1$ and the sum is
+$2\ne 1$. (It happens to hold when $B=A$ with $0&lt;\mathbf{P}(A)&lt;1$, which is exactly why the option
+looks plausible — one example is not a proof.)</p>
+<p><b>(d) False.</b> Concretely, let $\Omega=\{1,2,\dots,8\}$ with all eight outcomes equally likely
+($\frac18$ each), $A=\{1,2,3,4\}$ and $B=\{1,5,6,7\}$. Then $\mathbf{P}(A)=\frac48=\frac12$ and
+$$\mathbf{P}(B\mid A)=\frac{\mathbf{P}(\{1\})}{\mathbf{P}(A)}=\frac{1/8}{1/2}=\frac14,\qquad
+\mathbf{P}(B^c\mid A^c)=\frac{\mathbf{P}(\{8\})}{\mathbf{P}(A^c)}=\frac{1/8}{1/2}=\frac14,$$
+since $B\cap A=\{1\}$, while $A^c=\{5,6,7,8\}$ and $B^c=\{2,3,4,8\}$ give $B^c\cap A^c=\{8\}$. The sum is
+$\frac14+\frac14=\frac12\ne 1$. The identity fails because the two terms are computed in two different
+conditional universes, $\mathbf{P}(\cdot\mid A)$ and $\mathbf{P}(\cdot\mid A^c)$; only (e), where both
+terms live in the same universe, is safe.</p>
+<p><b>Cross-references:</b> monotonicity and De Morgan — G1 §1; total probability and conditional models
+— G1 §2; variance scaling — G2 §5.3; center of gravity — G2 §5.4 Gotcha 2.</p></div></details></div>
+
+<div class="ex"><b>Example 5.2 (rec10 P2 — Heather and Taylor's unfair coin).</b> Independent tosses of
+a coin with $\mathbf{P}(\text{head})=p$, $0&lt;p&lt;1$, continue until either heads has come up twice
+(Heather wins) or tails has come up twice (Taylor wins); a full game is $2$ or $3$ tosses.
+<b>(2.1)</b> List the outcomes of a full game with their probabilities. <b>(2.2)</b>
+$\mathbf{P}(\text{Heather wins})$. <b>(2.3)</b> $\mathbf{P}(\text{Heather wins}\mid\text{first toss H})$.
+<b>(2.4)</b> $\mathbf{P}(\text{first toss H}\mid\text{Heather wins})$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(2.1) The sample space.</b> The game stops as soon as some face has appeared twice. If the first
+two tosses agree the game ends at length $2$; if they disagree, each face has appeared once, so the
+third toss decides. Enumerating, and writing $q=1-p$ for the probability of a tail:</p>
+<table>
+<thead><tr><th class="l">Outcome</th><th class="l">Probability</th><th class="l">Winner</th></tr></thead>
+<tbody>
+<tr><td class="l">HH</td><td class="l">$p\cdot p=p^2$</td><td class="l">Heather</td></tr>
+<tr><td class="l">HTH</td><td class="l">$p\,q\,p=p^2(1-p)$</td><td class="l">Heather</td></tr>
+<tr><td class="l">HTT</td><td class="l">$p\,q\,q=p(1-p)^2$</td><td class="l">Taylor</td></tr>
+<tr><td class="l">THH</td><td class="l">$q\,p\,p=p^2(1-p)$</td><td class="l">Heather</td></tr>
+<tr><td class="l">THT</td><td class="l">$q\,p\,q=p(1-p)^2$</td><td class="l">Taylor</td></tr>
+<tr><td class="l">TT</td><td class="l">$q\cdot q=(1-p)^2$</td><td class="l">Taylor</td></tr>
+</tbody>
+</table>
+<p>Each probability is a product because the tosses are independent (G1 §3; the multiplication rule
+along a sequential tree, G1 §2). Normalization check — expand and collect:
+$$p^2+2p^2(1-p)+2p(1-p)^2+(1-p)^2
+=p^2+2p^2-2p^3+2p-4p^2+2p^3+1-2p+p^2=1,$$
+since $-2p^3+2p^3=0$, $p^2+2p^2-4p^2+p^2=0$, $2p-2p=0$, leaving $1$. Verified symbolically at
+$p=\frac12,\frac13,\frac34,\frac15$ with exact fractions in <code>computes/g3_s5.py</code>.</p>
+<p><b>(2.2)</b> "Heather wins" $=\{\mathbf{HH},\mathbf{HTH},\mathbf{THH}\}$, a union of disjoint
+outcomes, so by additivity
+$$\mathbf{P}(\text{H wins})=p^2+p^2(1-p)+p^2(1-p)=p^2\big[1+2(1-p)\big]=p^2(3-2p).$$
+At $p=\frac12$ this is $\frac14\cdot 2=\frac12$, as symmetry demands (a fair coin makes the game fair).
+At $p=\frac13$: $\frac19\cdot\frac73=\frac{7}{27}=0.259259$; at $p=\frac34$:
+$\frac{9}{16}\cdot\frac32=\frac{27}{32}=0.843750$.</p>
+<p><b>(2.3)</b> By the definition of conditional probability (G1 §2),
+$$\mathbf{P}(\text{H wins}\mid\text{1st toss H})=\frac{\mathbf{P}(\{\text{H wins}\}\cap\{\text{1st H}\})}{\mathbf{P}(\text{1st H})}.$$
+<i>Numerator:</i> the winning outcomes that start with H are HH and HTH, so the intersection has
+probability $p^2+p^2(1-p)$. <i>Denominator (the step the handout skips):</i> the outcomes beginning with
+H are HH, HTH, HTT, with total probability
+$p^2+p^2(1-p)+p(1-p)^2=p\big[p+p(1-p)+(1-p)^2\big]=p\big[p+p-p^2+1-2p+p^2\big]=p\cdot 1=p$ —
+as it must be, since the first toss is a head with probability $p$ regardless of what follows. Hence,
+factoring $p^2$ out of the numerator,
+$$\frac{p^2\big[1+(1-p)\big]}{p}=\frac{p^2(2-p)}{p}=p(2-p).$$
+At $p=\frac12$: $\frac12\cdot\frac32=\frac34=0.75$. Sanity: $p(2-p)&gt;p^2(3-2p)$ for all
+$0&lt;p&lt;1$ (dividing by $p^2&gt;0$ turns it into $\frac{2-p}{p}&gt;3-2p$, true since the left side blows up
+as $p\to0$ and the two sides are equal only at $p=1$) — learning the first toss was a head is good news
+for Heather, as it should be.</p>
+<p><b>(2.4)</b> Same definition, other order — this is the Bayes-style inversion (G1 §2):
+$$\mathbf{P}(\text{1st H}\mid\text{H wins})=\frac{\mathbf{P}(\{\text{1st H}\}\cap\{\text{H wins}\})}{\mathbf{P}(\text{H wins})}
+=\frac{p^2+p^2(1-p)}{p^2(3-2p)}.$$
+The numerator is the same intersection as in (2.3), $p^2(2-p)$. Cancelling the common factor
+$p^2&gt;0$ from numerator and denominator (the step the handout does in one line):
+$$\frac{p^2(2-p)}{p^2(3-2p)}=\frac{2-p}{3-2p}.$$
+At $p=\frac12$: $\frac{1.5}{2}=\frac34=0.75$; at $p=\frac13$: $\frac{5/3}{7/3}=\frac57$; at $p=\frac15$:
+$\frac{9/5}{13/5}=\frac{9}{13}$. Interpretation: for $p&lt;1$ this is always $&gt;\frac12$ — knowing
+Heather won makes it more likely than not that the first toss was a head, because two of her three
+winning sequences start with H and the shortest one (HH) is the most likely of all.</p>
+<p><b>Cross-references:</b> sequential sample space and the multiplication rule — G1 §2; conditional
+probability and inversion — G1 §2; independence of tosses — G1 §3.</p></div></details></div>
+
+<div class="ex"><b>Example 5.3 (rec10 P3 — casino game with a fair 4-sided die).</b> A <b>basic game</b>
+rolls a fair 4-sided die: a first roll of $1,2,3$ pays that many dollars and ends the game; a first roll
+of $4$ pays \$2 plus the value of one bonus roll. Let $X$ be the payoff. <b>(3.1)</b> Find $p_X$.
+<b>(3.2)</b> Find $\mathbb{E}[X]$. <b>(3.3)</b> Find the conditional PMF of the first roll given
+$X=3$. <b>(3.4)</b> In the <b>extended game</b>, <em>every</em> roll of $4$ pays \$2 and the game
+continues; a roll of $1,2,3$ pays that amount and ends it. Let $Y$ be the payoff; find $\mathbb{E}[Y]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(3.1) Build the sequential model first.</b> Outcomes are the roll sequences of a full basic game.
+Each roll is uniform on $\{1,2,3,4\}$ and rolls are independent, so a one-roll outcome has probability
+$\frac14$ and a two-roll outcome has probability $\frac14\cdot\frac14=\frac1{16}$ (G1 §2 multiplication
+rule; G2 §5.2 building a PMF).</p>
+<table>
+<thead><tr><th class="l">$\omega$</th><th class="num">$\mathbf{P}(\{\omega\})$</th><th class="num">$X(\omega)$</th><th class="l">why</th></tr></thead>
+<tbody>
+<tr><td class="l">$(1)$</td><td class="num">$1/4$</td><td class="num">$1$</td><td class="l">pays the roll</td></tr>
+<tr><td class="l">$(2)$</td><td class="num">$1/4$</td><td class="num">$2$</td><td class="l">pays the roll</td></tr>
+<tr><td class="l">$(3)$</td><td class="num">$1/4$</td><td class="num">$3$</td><td class="l">pays the roll</td></tr>
+<tr><td class="l">$(4,1)$</td><td class="num">$1/16$</td><td class="num">$3$</td><td class="l">$\$2+\$1$</td></tr>
+<tr><td class="l">$(4,2)$</td><td class="num">$1/16$</td><td class="num">$4$</td><td class="l">$\$2+\$2$</td></tr>
+<tr><td class="l">$(4,3)$</td><td class="num">$1/16$</td><td class="num">$5$</td><td class="l">$\$2+\$3$</td></tr>
+<tr><td class="l">$(4,4)$</td><td class="num">$1/16$</td><td class="num">$6$</td><td class="l">$\$2+\$4$</td></tr>
+</tbody>
+</table>
+<p>The probabilities total $3\cdot\frac14+4\cdot\frac1{16}=\frac34+\frac14=1$, so the model is complete.
+Collecting outcomes by value — the definition of a PMF (G2 §5.1) — the only value hit twice is $x=3$,
+by $(3)$ and $(4,1)$; the addition the handout omits is
+$$p_X(3)=\frac14+\frac1{16}=\frac{4}{16}+\frac{1}{16}=\frac{5}{16}=0.3125 .$$
+Hence
+$$p_X(x)=\begin{cases}1/4,&x=1,2,\\ 5/16,&x=3,\\ 1/16,&x=4,5,6,\\ 0,&\text{otherwise,}\end{cases}
+\qquad\text{and}\quad \tfrac14+\tfrac14+\tfrac5{16}+3\cdot\tfrac1{16}=\tfrac{4+4+5+3}{16}=1 .$$</p>
+<p><b>(3.2) Two routes, same answer.</b> Directly from the PMF,
+$$\mathbb{E}[X]=1\cdot\tfrac14+2\cdot\tfrac14+3\cdot\tfrac5{16}+4\cdot\tfrac1{16}+5\cdot\tfrac1{16}+6\cdot\tfrac1{16}
+=\tfrac{4+8+15+4+5+6}{16}=\tfrac{42}{16}=\tfrac{21}{8}=2.625 .$$
+The elegant route is the total expectation theorem (G2 §5.3; L06 slide 7) with $A=\{\text{first roll is }4\}$,
+$\mathbf{P}(A)=\frac14$, $\mathbf{P}(A^c)=\frac34$. Given $A$, the payoff is $2$ plus a uniform draw from
+$\{1,2,3,4\}$, so its conditional distribution is uniform on $\{3,4,5,6\}$ and
+$\mathbb{E}[X\mid A]=\frac{3+4+5+6}{4}=\frac{18}{4}=4.5$. Given $A^c$, the payoff is uniform on
+$\{1,2,3\}$, so $\mathbb{E}[X\mid A^c]=\frac{1+2+3}{3}=2$. Therefore — the arithmetic the handout skips —
+$$\mathbb{E}[X]=\tfrac14(4.5)+\tfrac34(2)=\tfrac{9}{8}+\tfrac{3}{2}=\tfrac{9}{8}+\tfrac{12}{8}=\tfrac{21}{8}=2.625 .$$
+(For reference, $\mathbb{E}[X^2]=\frac{71}{8}$ and $\operatorname{var}(X)=\frac{71}{8}-\big(\frac{21}{8}\big)^2=\frac{568-441}{64}=\frac{127}{64}=1.984375$.)</p>
+<p><b>(3.3)</b> Let $Z$ be the result of the first roll and $B=\{X=3\}$. Conditioning on an event
+renormalizes over that event (G1 §2; G2 §5.3), so
+$$p_{Z\mid B}(z)=\frac{\mathbf{P}(\{Z=z\}\cap B)}{\mathbf{P}(B)} .$$
+From the table, $\mathbf{P}(B)=p_X(3)=\frac5{16}$; only two outcomes lie in $B$, namely $(3)$ with
+$Z=3$ and $(4,1)$ with $Z=4$. The evaluation the handout omits:
+$$p_{Z\mid B}(3)=\frac{1/4}{5/16}=\frac14\cdot\frac{16}{5}=\frac45=0.8,\qquad
+p_{Z\mid B}(4)=\frac{1/16}{5/16}=\frac{1}{16}\cdot\frac{16}{5}=\frac15=0.2,$$
+and $p_{Z\mid B}(z)=0$ otherwise; the two add to $1$, as any conditional PMF must. Interpretation: a
+payoff of \$3 arose from an honest roll of $3$ four times out of five, and from the bonus route only one
+time in five — the bonus route needs two specific rolls, so it is four times rarer.</p>
+<p><b>(3.4)</b> Decompose the payoff instead of chasing the PMF: let $L$ be the amount won on the
+<em>last</em> roll and $W$ the total won on all earlier rolls, so $Y=W+L$ by construction and, by
+linearity of expectation (G2 §5.3 — no independence needed), $\mathbb{E}[Y]=\mathbb{E}[W]+\mathbb{E}[L]$.</p>
+<p><i>The last roll.</i> The game ends exactly when a roll shows $1,2,3$. Conditioned on a given roll
+being the terminating one, that roll is uniform on $\{1,2,3\}$: each of $1,2,3$ has the same
+probability $\frac14$ of occurring, so conditioning on the event $\{$roll $\in\{1,2,3\}\}$ (probability
+$\frac34$) leaves them equally likely, $\frac{1/4}{3/4}=\frac13$ each. Moreover this conditional
+distribution is the same on every roll and does not depend on how many rolls came before, because the
+rolls are independent. Hence $\mathbb{E}[L]=\frac{1+2+3}{3}=2$, and the justification the handout
+asserts is exactly this independence.</p>
+<p><i>The earlier rolls.</i> Every non-terminating roll is a $4$ and pays \$2. If $N$ is the total number
+of rolls, there are $N-1$ of them, so $W=2(N-1)$. Calling a terminating roll a "success", the rolls are
+independent Bernoulli trials with success probability $\frac34$, and $N$ is the trial index of the first
+success — a geometric random variable with parameter $\frac34$ (G2 §5.2). Its mean, derived in G2 by
+total expectation ($\mathbb{E}[N]=p\cdot 1+(1-p)(1+\mathbb{E}[N])\Rightarrow\mathbb{E}[N]=1/p$), is
+$$\mathbb{E}[N]=\frac{1}{3/4}=\frac43 .$$
+Then, by linearity again, $\mathbb{E}[W]=\mathbb{E}[2(N-1)]=2\mathbb{E}[N]-2=2\cdot\frac43-2=\frac83-\frac63=\frac23$.</p>
+<p><i>Combine.</i> $\mathbb{E}[Y]=\frac23+2=\frac23+\frac63=\frac83=2.666667$ dollars. Two independent
+checks in <code>computes/g3_s5.py</code>: summing the series
+$\sum_{k\ge0}(\frac14)^k(\frac34)(2k+2)$ over the number $k$ of bonus rolls gives $\frac83$ exactly, and
+building the PMF of $Y$ outright ($p_Y(2k+j)$ gets $(\frac14)^k\cdot\frac14$ for each $j\in\{1,2,3\}$)
+gives total mass $1.000000000000000$ and mean $2.666666666667$. Note $\mathbb{E}[Y]&gt;\mathbb{E}[X]=2.625$:
+the unlimited extension is worth about four cents more per game.</p>
+<p><b>Cross-references:</b> sequential model and multiplication rule — G1 §2; PMF from a model, total
+expectation, conditional PMF given an event, geometric mean, linearity — G2 §5.1–§5.3.</p></div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s5_casino}}" alt="Three stem plots: the PMF of the basic-game payoff with a dashed line at its mean 21/8, the conditional PMF of the first roll given payoff 3 with masses 4/5 and 1/5, and the PMF of the extended-game payoff on a logarithmic scale with a dashed line at 8/3." style="max-width:960px">
+<div class="figcap">Fig. 5.4 — rec10 P3: PMF of the basic-game payoff $X$ with $\mathbb{E}[X]=21/8=2.625$ (left); conditional PMF of the first roll given $X=3$ (center); PMF of the extended-game payoff $Y$, log scale, with $\mathbb{E}[Y]=8/3\approx 2.667$ (right).</div>
+
+<div class="ex"><b>Practice 5.8 (rec10 P2 variant).</b> In the Heather–Taylor game, find
+$\mathbf{P}(\text{Taylor wins})$ and $\mathbf{P}(\text{first toss T}\mid\text{Taylor wins})$ in terms of
+$p$, without re-enumerating the sample space.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The game is symmetric under swapping the roles of heads and tails, which swaps $p$ and $q=1-p$ and
+swaps the two players. So every formula for Heather transfers with $p\to 1-p$:
+$$\mathbf{P}(\text{Taylor wins})=q^2(3-2q)=(1-p)^2\big(3-2(1-p)\big)=(1-p)^2(1+2p),$$
+$$\mathbf{P}(\text{1st T}\mid\text{Taylor wins})=\frac{2-q}{3-2q}=\frac{2-(1-p)}{3-2(1-p)}=\frac{1+p}{1+2p}.$$
+Checks (exact fractions, <code>computes/g3_s5.py</code>): at $p=\frac12$, $\mathbf{P}(\text{Taylor})=\frac12$
+and the conditional is $\frac{3/2}{2}=\frac34$ — matching Heather's numbers, as symmetry requires. At
+$p=\frac13$: $\mathbf{P}(\text{Taylor})=\frac{20}{27}$, and indeed
+$\frac{7}{27}+\frac{20}{27}=1$; the conditional is $\frac{4/3}{5/3}=\frac45$. At $p=\frac25$:
+$\mathbf{P}(\text{Taylor})=\frac{81}{125}$ and the conditional is $\frac{7/5}{9/5}=\frac79$.</p></div></details></div>
+
+<div class="ex"><b>Practice 5.9 (rec10 P3 variant).</b> Same extended game, but with a fair 6-sided die:
+a roll of $1,\dots,5$ pays that many dollars and ends the game; a roll of $6$ pays \$3 and the game
+continues. Find $\mathbb{E}[Y]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Reuse the decomposition $Y=W+L$. The terminating roll is uniform on $\{1,2,3,4,5\}$ (each has
+probability $\frac16$, and conditioning on the terminating event of probability $\frac56$ makes each
+$\frac{1/6}{5/6}=\frac15$), so $\mathbb{E}[L]=\frac{1+2+3+4+5}{5}=\frac{15}{5}=3$. The number of rolls
+$N$ is geometric with success probability $\frac56$, so $\mathbb{E}[N]=\frac{1}{5/6}=\frac65$, and each
+of the $N-1$ non-terminating rolls pays \$3:
+$$\mathbb{E}[W]=3\big(\mathbb{E}[N]-1\big)=3\Big(\frac65-1\Big)=3\cdot\frac15=\frac35=0.6 .$$
+Hence $\mathbb{E}[Y]=\frac35+3=\frac{18}{5}=3.6$ dollars, confirmed by summing
+$\sum_{k\ge0}(\frac16)^k(\frac56)(3k+3)=\frac{18}{5}$ in <code>computes/g3_s5.py</code>.</p></div></details></div>
+
+<h3>5.6 Bridge to G4</h3>
+
+<p>Two loose ends of G3 turn into the main themes of the next group. The first is a change in status for
+conditional expectation. Throughout G2 and G3, $\mathbb{E}[X\mid A]$ and $\mathbb{E}[X\mid Y=y]$ have
+been <em>numbers</em>: fix the conditioning event or the value $y$, and average. But $y$ was itself a
+value of a random variable, so the function $y\mapsto\mathbb{E}[X\mid Y=y]$ evaluated at the random $Y$
+is a new random variable, written $\mathbb{E}[X\mid Y]$. Once you allow that, the total expectation
+theorem used three times in this section becomes the compact law of iterated expectations
+$\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]=\mathbb{E}[X]$, and there is a matching decomposition of
+variance, $\operatorname{var}(X)=\mathbb{E}\big[\operatorname{var}(X\mid Y)\big]+\operatorname{var}\big(\mathbb{E}[X\mid Y]\big)$
+— the two ways randomness in $X$ can arise, within a scenario and across scenarios. The second loose end
+is the convolution of L11: adding independent random variables is such a common operation that it
+deserves a tool that turns it into multiplication, which is what transforms do, and repeated addition of
+i.i.d. terms is what generates the limit theorems and, with a random number of terms, the stochastic
+processes (Bernoulli, Poisson, Markov) that occupy the remainder of the course. The exponential
+distribution of §5.2 reappears immediately there as the inter-arrival time of the Poisson process — its
+memorylessness, proved in rec09 P2, is exactly the property that makes such a process possible.</p>
+
+<div class="summary"><b>§5 in one box.</b>
+<ul>
+<li><b>Translation.</b> $p_X\to f_X$, $\sum_x\to\int dx$, and everything else is unchanged.
+$F_X$, $\mathbb{E}$, $\operatorname{var}$, linearity, total probability/expectation, Bayes and
+independence are defined once and read in both worlds (L08 slide 8).</li>
+<li><b>Density is a rate:</b> $\mathbf{P}(x\le X\le x+\delta)\approx f_X(x)\delta$. Hence
+$\mathbf{P}(X=x)=0$, $f_X$ may exceed $1$, and $f_{X|Y}$ makes sense despite the measure-zero
+conditioning event.</li>
+<li><b>Zoo.</b> Uniform$[a,b]$: $\frac{1}{b-a}$, $\frac{a+b}{2}$, $\frac{(b-a)^2}{12}$.
+Exponential$(\lambda)$: $\lambda e^{-\lambda x}$, $\frac1\lambda$, $\frac1{\lambda^2}$, memoryless.
+$N(\mu,\sigma^2)$: standardize, closed under linear maps and sums.
+Beta$(\alpha,\beta)$: $\frac{\alpha}{\alpha+\beta}$, $\frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}$;
+Beta$(2,1)$ has $f(q)=2q$, mean $\frac23$, variance $\frac1{18}$. Fig. 5.1.</li>
+<li><b>Derived distributions.</b> Only a mean? expected-value rule. Discrete? sum the PMF.
+Linear? $\frac{1}{|a|}f_X(\frac{y-b}{a})$. Monotonic? divide by $|dg/dx|$. Sum of independents?
+convolve. Otherwise CDF method. Always state the support and check $\int f_Y=1$. Fig. 5.2.</li>
+<li><b>Six traps.</b> $f&gt;1$ is fine; $\mathbf{P}(X=x)=0$ but conditioning is still defined; never drop
+$|dg/dx|$ ($f_Y(0.01)=5$, not $1$); split the convolution limits (triangular, not constant);
+$F\ne f$; independence needs factorization on the <em>whole</em> plane — a triangular support is always
+dependent. Fig. 5.3.</li>
+<li><b>Checkpoint (rec10 = Quiz 1).</b> 1.1 answer (c), 1.2 answer (e), with counterexamples for all
+eight false options. Heather wins with probability $p^2(3-2p)$;
+$\mathbf{P}(\text{H wins}\mid\text{1st H})=p(2-p)$; $\mathbf{P}(\text{1st H}\mid\text{H wins})=\frac{2-p}{3-2p}$.
+Casino: $p_X(3)=\frac5{16}$, $\mathbb{E}[X]=\frac{21}{8}=2.625$, $p_{Z\mid X=3}=(\frac45,\frac15)$,
+$\mathbb{E}[Y]=\frac83\approx 2.667$. Fig. 5.4.</li>
+<li><b>Next.</b> $\mathbb{E}[X\mid Y]$ as a random variable, the law of iterated expectations, the
+variance decomposition, transforms, and processes built from repeated independent additions.</li>
+</ul></div>

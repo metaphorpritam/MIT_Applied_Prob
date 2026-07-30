@@ -1,0 +1,47 @@
+<h2 id="s1">1 &nbsp; Sample section</h2>
+<p>Inline math $p_X(k) = \binom{n}{k} p^k (1-p)^{n-k}$ and display math:</p>
+$$ \mathbb{E}[X] = \sum_{k=0}^{n} k \binom{n}{k} p^k (1-p)^{n-k} = np. $$
+<div class="defn"><b>Definition.</b> A <i>Bernoulli</i> random variable takes value 1 with probability $p$ and 0 with probability $1-p$.</div>
+<div class="thm"><b>Theorem.</b> If $X \sim \text{Bin}(n,p)$ then $\operatorname{var}(X) = np(1-p)$.</div>
+<div class="ex"><b>Example.</b> Toss $n=10$ fair coins; $P(X=5) = \binom{10}{5} 2^{-10} \approx 0.2461$.</div>
+<div class="warn"><b>Gotcha.</b> Boxes render with small-caps lead-ins.</div>
+
+<h3>1.1 Interactive check</h3>
+<div id="w-binom"></div>
+<script>
+Widget.create({
+  el: '#w-binom',
+  title: 'Binomial PMF explorer',
+  note: 'Drag n and p; the stem plot is the PMF of the number of successes.',
+  height: 280,
+  controls: [
+    {type:'range', id:'n', label:'n (trials)', min:1, max:60, step:1, value:10},
+    {type:'range', id:'p', label:'p (success prob.)', min:0.02, max:0.98, step:0.02, value:0.5},
+  ],
+  draw(s, canvas, out) {
+    const lognck = (n,k)=>{let a=0;for(let i=1;i<=k;i++)a+=Math.log((n-k+i)/i);return a;};
+    const xs=[], ys=[];
+    for (let k=0;k<=s.n;k++){xs.push(k);ys.push(Math.exp(lognck(s.n,k)+k*Math.log(s.p)+(s.n-k)*Math.log(1-s.p)));}
+    const ymax=Math.max(...ys);
+    const P=new Plot(canvas,{xlim:[-0.5,s.n+0.5],ylim:[0,ymax*1.15],xlabel:'k successes',ylabel:'P(X = k)',height:280});
+    P.frame();
+    P.stem(xs,ys,{label:'Bin('+s.n+', '+s.p+')'});
+    P.vline(s.n*s.p,{color:'#eb6834'});
+    P.text('E[X] = '+(s.n*s.p).toFixed(1), s.n*s.p, ymax*1.08, {color:'#eb6834'});
+    P.legend();
+    out.textContent='E[X] = np = '+(s.n*s.p).toFixed(2)+'    var(X) = np(1−p) = '+(s.n*s.p*(1-s.p)).toFixed(2);
+  }
+});
+</script>
+
+<h2 id="s2">2 &nbsp; Second section</h2>
+<p>Table check:</p>
+<table>
+<tr><th>Distribution</th><th>PMF</th><th>Mean</th><th>Variance</th></tr>
+<tr><td class="l">Bernoulli($p$)</td><td>$p^x(1-p)^{1-x}$</td><td>$p$</td><td>$p(1-p)$</td></tr>
+<tr><td class="l">Binomial($n,p$)</td><td>$\binom{n}{x}p^x(1-p)^{n-x}$</td><td>$np$</td><td>$np(1-p)$</td></tr>
+</table>
+<h3>2.1 Collapsible solution</h3>
+<details class="sol"><summary>Solution (click to expand)</summary><div class="body">
+<p>Step 1: $\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$. Step 2: substitute.</p>
+</div></details>

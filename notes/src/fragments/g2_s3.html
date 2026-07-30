@@ -1,0 +1,734 @@
+<h2 id="g2-s3">§3 &nbsp; Variance, conditioning, and the geometric distribution</h2>
+<p class="srcref">Sources: L06 slides 1–7 (raster p01–p02) · rec06 P3 (= B&amp;T Example 2.17, pp. 105–106) · rec07 P3 (= B&amp;T Problem 2.33, pp. 128–129) · B&amp;T §2.2 (geometric PMF), B&amp;T §2.4 (mean and variance), B&amp;T §2.6 (conditioning, total expectation, B&amp;T Example 2.17)</p>
+
+<p>Section 2 built the PMF and the expectation. Expectation is one number, and one number cannot describe a random variable: the constant $5$ and a coin-flip that pays $0$ or $10$ have the same mean and nothing else in common. This section adds the second number — the <b>variance</b> — and then adds the single most productive technique in the whole course: <b>conditioning a random variable on an event</b>, followed by <b>averaging the conditional answers back together</b> (the total expectation theorem). Those two ideas turn otherwise brutal infinite sums into one-line algebra, which is exactly how the geometric distribution's mean $1/p$ and variance $(1-p)/p^2$ fall out, and how "how long until two heads in a row?" becomes a $2\times2$ linear system.</p>
+
+<p>The section is organized as: the centered variable and why it is useless by itself (§3.1); variance and its two computational rules (§3.2); the trap $\mathbb{E}[g(X)] \neq g(\mathbb{E}[X])$, worked on the lecture's random-speed example (§3.3); conditional PMFs and conditional expectations (§3.4); the geometric PMF and its memorylessness (§3.5, with an interactive check); the total expectation theorem (§3.6); the mean and variance of the geometric (§3.7); and state recursions for waiting-time problems (§3.8).</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s3_flow}}" alt="Flowchart. Top box: you need E[X] or var(X). First decision: is the full PMF already in hand? Yes leads to summing directly. No leads to a second decision: does the experiment restart after a first step? Yes leads to conditioning on step 1 and using total expectation, then solving the resulting equation. No leads to a third decision: is X a function g(Y) of a simpler Y? Yes leads to the expected value rule, never g of E[Y]. No leads to splitting X into pieces and using linearity. A footer box lists the geometric shortcuts." style="max-width:900px">
+<div class="figcap">Fig. 3.1 — Decision guide for the whole section: which tool computes $\mathbb{E}[X]$ (L06 slides 2–7). Each leaf is derived below; the "restart" branch is §3.6–§3.8.</div>
+
+<h3>3.1 The centered variable, and why $\mathbb{E}\big[X - \mathbb{E}[X]\big] = 0$</h3>
+
+<p>L06 slide 2 reviews the machinery of Section 2 and then poses one question with the answer left blank. Here $X$ is a discrete random variable with PMF $p_X$, and we write $\mu = \mathbb{E}[X]$ for its mean — a single fixed number, not a random variable.</p>
+
+<div class="ex"><b>Example 3.1 (L06 slide 2 — the blank on the slide).</b> Evaluate $\mathbb{E}\big[X - \mathbb{E}[X]\big]$.
+
+<p><b>Solution — route 1, using the linearity rule already on the slide.</b> The slide states $\mathbb{E}[\alpha X + \beta] = \alpha\,\mathbb{E}[X] + \beta$ for constants $\alpha,\beta$. The quantity $X - \mathbb{E}[X]$ is of exactly this form with $\alpha = 1$ and $\beta = -\mu$ (legal, because $\mu$ is a <em>constant</em> once the PMF is fixed). Therefore
+$$\mathbb{E}\big[X - \mathbb{E}[X]\big] \;=\; \mathbb{E}[1\cdot X + (-\mu)] \;=\; 1\cdot\mathbb{E}[X] + (-\mu) \;=\; \mu - \mu \;=\; 0.$$</p>
+
+<p><b>Solution — route 2, from the expected-value rule, so nothing is assumed.</b> Apply $\mathbb{E}[g(X)] = \sum_x g(x)p_X(x)$ with $g(x) = x - \mu$:
+$$\mathbb{E}\big[X - \mu\big] \;=\; \sum_x (x - \mu)\,p_X(x) \;=\; \sum_x x\,p_X(x) \;-\; \sum_x \mu\, p_X(x),$$
+splitting the sum (a finite/absolutely convergent sum may be split term by term). The first sum is $\mathbb{E}[X] = \mu$ by definition. In the second, $\mu$ does not depend on the summation index $x$, so it factors out:
+$$\sum_x \mu\,p_X(x) \;=\; \mu \sum_x p_X(x) \;=\; \mu \cdot 1 \;=\; \mu,$$
+using the normalization property $\sum_x p_X(x) = 1$ of any PMF. Hence $\mathbb{E}[X-\mu] = \mu - \mu = 0$. $\blacksquare$</p>
+
+<p><b>Numerical sanity check</b> (computes/g2_s3.py, keys <code>A_EX</code>, <code>A_E_centered</code>). Take a deliberately lopsided PMF: $p_X(-3)=1/8$, $p_X(0)=3/8$, $p_X(2)=1/4$, $p_X(7)=1/4$ (these sum to $1$). Then
+$$\mu = (-3)\tfrac18 + 0\cdot\tfrac38 + 2\cdot\tfrac14 + 7\cdot\tfrac14 = -\tfrac{3}{8} + 0 + \tfrac{1}{2} + \tfrac{7}{4} = \tfrac{15}{8} = 1.875,$$
+and
+$$\mathbb{E}[X-\mu] = \left(-3-\tfrac{15}{8}\right)\tfrac18 + \left(0-\tfrac{15}{8}\right)\tfrac38 + \left(2-\tfrac{15}{8}\right)\tfrac14 + \left(7-\tfrac{15}{8}\right)\tfrac14 = -\tfrac{39}{64} - \tfrac{45}{64} + \tfrac{1}{32} + \tfrac{41}{32} = -\tfrac{84}{64} + \tfrac{84}{64} = 0,$$
+exactly $0$, as the algebra promised.</p>
+</div>
+
+<div class="note"><b>Interpretation.</b> $X - \mathbb{E}[X]$ is called the <b>centered</b> or <b>deviation</b> variable: it measures how far above or below its own mean $X$ landed. The result says the positive deviations and the negative deviations exactly balance, <em>weighted by probability</em>. In physical terms, $\mu$ is the center of mass of the probability distribution, and the total torque about the center of mass is zero. That is the good news; the bad news is that it makes $\mathbb{E}[X-\mu]$ completely useless as a measure of spread, because it is $0$ for <em>every</em> random variable — the wildest and the tamest alike. To measure spread you must destroy the cancellation, and the standard way is to square the deviation before averaging. That is §3.2.</div>
+
+<div class="warn"><b>Gotcha — $\mathbb{E}[X]$ is a number, $X$ is a function.</b> The expression $X - \mathbb{E}[X]$ mixes a random variable with a constant, which is fine. But $\mathbb{E}\big[\mathbb{E}[X]\big] = \mathbb{E}[X]$ (the expectation of a constant is that constant), and $\mathbb{E}[X]$ never carries a subscript $x$ — writing $\sum_x \mathbb{E}[X] p_X(x)$ and "simplifying" it to $\mathbb{E}[X]\sum_x p_X(x)$ is legal precisely because $\mathbb{E}[X]$ has no $x$ in it. Confusing the two is the single most common early error.</div>
+
+<div class="ex"><b>Practice 3.1.</b> Let $X$ have PMF $p_X(1) = 0.2$, $p_X(4) = 0.5$, $p_X(9) = 0.3$. (a) Verify by direct summation that $\mathbb{E}[X - \mathbb{E}[X]] = 0$. (b) Compute $\mathbb{E}\big[\,|X - \mathbb{E}[X]|\,\big]$ and explain why it is not zero.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) $\mathbb{E}[X] = 1(0.2) + 4(0.5) + 9(0.3) = 0.2 + 2.0 + 2.7 = 4.9$. The deviations are $1 - 4.9 = -3.9$, $4-4.9 = -0.9$, $9 - 4.9 = 4.1$, so
+$$\mathbb{E}[X-4.9] = (-3.9)(0.2) + (-0.9)(0.5) + (4.1)(0.3) = -0.78 - 0.45 + 1.23 = 0.$$</p>
+<p>(b) $\mathbb{E}[|X-4.9|] = 3.9(0.2) + 0.9(0.5) + 4.1(0.3) = 0.78 + 0.45 + 1.23 = 2.46$. Taking the absolute value first removes the signs, so nothing cancels; only after the signs are gone does the average distance become an honest measure of spread. (This <em>mean absolute deviation</em> is a legitimate spread measure — it is just algebraically far clumsier than the squared version, because $|\cdot|$ has no expansion rule while $(\cdot)^2$ does.)</p>
+</div></details></div>
+
+<h3>3.2 Variance and standard deviation</h3>
+
+<div class="defn"><b>Definition (variance, standard deviation — L06 slide 2; B&amp;T §2.4).</b> For a discrete random variable $X$ with mean $\mu = \mathbb{E}[X]$,
+$$\operatorname{var}(X) \;=\; \mathbb{E}\big[(X - \mathbb{E}[X])^2\big] \;=\; \sum_x (x-\mu)^2\, p_X(x),$$
+the probability-weighted average of the <em>squared</em> deviation from the mean. Its square root
+$$\sigma_X \;=\; \sqrt{\operatorname{var}(X)}$$
+is the <b>standard deviation</b>. Here $x$ ranges over the values $X$ can take and $p_X(x)$ is the probability of each.</div>
+
+<p>Two facts make the variance workable. The first says how it reacts to a linear change of units; the second is the formula you will actually compute with.</p>
+
+<div class="thm"><b>Property 1 (L06 slide 2).</b> For constants $a$ and $b$,
+$$\operatorname{var}(aX + b) \;=\; a^2 \operatorname{var}(X), \qquad \sigma_{aX+b} = |a|\,\sigma_X.$$
+</div>
+
+<details class="sol"><summary>Derivation — every step</summary><div class="body">
+<p>Put $Y = aX + b$; $Y$ is a new random variable, a rescaled and shifted copy of $X$. Here $a$ is the scale factor and $b$ the shift, both constants.</p>
+<p><b>Step 1 — its mean.</b> By the linearity rule $\mathbb{E}[\alpha X + \beta] = \alpha\mathbb{E}[X]+\beta$ from L06 slide 2,
+$$\mathbb{E}[Y] = \mathbb{E}[aX+b] = a\,\mathbb{E}[X] + b = a\mu + b.$$</p>
+<p><b>Step 2 — its deviation.</b> Subtract:
+$$Y - \mathbb{E}[Y] \;=\; (aX + b) - (a\mu + b) \;=\; aX - a\mu \;=\; a\,(X - \mu).$$
+The shift $b$ cancels exactly — it moved the variable and its mean by the same amount.</p>
+<p><b>Step 3 — square it.</b>
+$$\big(Y - \mathbb{E}[Y]\big)^2 = \big(a(X-\mu)\big)^2 = a^2 (X-\mu)^2.$$</p>
+<p><b>Step 4 — average it.</b> By the expected-value rule with $g(x) = a^2(x-\mu)^2$,
+$$\operatorname{var}(Y) = \sum_x a^2 (x-\mu)^2 p_X(x) = a^2 \sum_x (x-\mu)^2 p_X(x) = a^2 \operatorname{var}(X),$$
+pulling the constant $a^2$ out of the sum in the middle step.</p>
+<p><b>Step 5 — standard deviation.</b> Take square roots: $\sigma_Y = \sqrt{a^2\operatorname{var}(X)} = \sqrt{a^2}\,\sqrt{\operatorname{var}(X)} = |a|\,\sigma_X$. The absolute value is essential — $\sqrt{a^2} = |a|$, not $a$, and a standard deviation can never be negative. $\blacksquare$</p>
+<p><b>Numerical check</b> (computes/g2_s3.py, keys <code>G_varY</code>, <code>G_a2_varX</code>). Let $X$ be uniform on $\{1,2,3,4\}$, so $\mathbb{E}[X] = 5/2$ and (from Property 2 below) $\operatorname{var}(X) = 15/2 - 25/4 = 5/4$. Take $a = -3$, $b = 7$: then $Y$ takes the values $4, 1, -2, -5$ each with probability $1/4$, so $\mathbb{E}[Y] = (4+1-2-5)/4 = -1/2$ (which is indeed $-3(5/2)+7$), $\mathbb{E}[Y^2] = (16+1+4+25)/4 = 46/4 = 23/2$, and
+$$\operatorname{var}(Y) = \tfrac{23}{2} - \left(-\tfrac12\right)^2 = \tfrac{46}{4} - \tfrac14 = \tfrac{45}{4} = 11.25 \;=\; (-3)^2 \cdot \tfrac54 = 9 \cdot 1.25. \checkmark$$</p>
+</div></details>
+
+<div class="thm"><b>Property 2 (the computational formula — L06 slide 2).</b>
+$$\operatorname{var}(X) \;=\; \mathbb{E}[X^2] \;-\; \big(\mathbb{E}[X]\big)^2.$$
+</div>
+
+<details class="sol"><summary>Derivation — the algebra L06 slide 2 asserts but does not show</summary><div class="body">
+<p>Write $\mu = \mathbb{E}[X]$, a constant. Start from the definition and expand the square inside the sum:
+$$\operatorname{var}(X) \;=\; \sum_x (x - \mu)^2 p_X(x) \;=\; \sum_x \big(x^2 - 2\mu x + \mu^2\big) p_X(x),$$
+using only the binomial expansion $(x-\mu)^2 = x^2 - 2\mu x + \mu^2$.</p>
+<p>Split into three sums (legal term by term):
+$$= \sum_x x^2 p_X(x) \;-\; \sum_x 2\mu x\, p_X(x) \;+\; \sum_x \mu^2 p_X(x).$$</p>
+<p>Handle them one at a time. Every variable below has a name:</p>
+<ul>
+<li>$\displaystyle \sum_x x^2 p_X(x) = \mathbb{E}[X^2]$ — this is the expected-value rule with $g(x)=x^2$; $\mathbb{E}[X^2]$ is the <em>second moment</em>.</li>
+<li>$\displaystyle \sum_x 2\mu x\, p_X(x) = 2\mu \sum_x x\,p_X(x) = 2\mu\cdot\mu = 2\mu^2$ — the constant $2\mu$ comes out of the sum, and what is left is $\mathbb{E}[X] = \mu$.</li>
+<li>$\displaystyle \sum_x \mu^2 p_X(x) = \mu^2 \sum_x p_X(x) = \mu^2 \cdot 1 = \mu^2$ — again a constant out front, then PMF normalization.</li>
+</ul>
+<p>Assembling:
+$$\operatorname{var}(X) = \mathbb{E}[X^2] - 2\mu^2 + \mu^2 = \mathbb{E}[X^2] - \mu^2 = \mathbb{E}[X^2] - \big(\mathbb{E}[X]\big)^2. \qquad \blacksquare$$</p>
+<p><b>Worked instance.</b> $X$ uniform on $\{1,2,3,4\}$ (the PMF on L06 slide 5). Then
+$$\mathbb{E}[X] = \tfrac{1+2+3+4}{4} = \tfrac{10}{4} = \tfrac52, \qquad \mathbb{E}[X^2] = \tfrac{1+4+9+16}{4} = \tfrac{30}{4} = \tfrac{15}{2},$$
+so $\operatorname{var}(X) = \tfrac{15}{2} - \left(\tfrac52\right)^2 = \tfrac{30}{4} - \tfrac{25}{4} = \tfrac{5}{4} = 1.25$ and $\sigma_X = \sqrt{1.25} \approx 1.118034$. (computes/g2_s3.py keys <code>C_EX</code>, <code>C_EX2</code>, <code>C_varX</code>.)</p>
+</div></details>
+
+<div class="note"><b>Interpretation.</b> Read Property 2 as "average of the squares minus square of the average". It is faster than the definition because it needs only two sums over the PMF instead of one sum plus a subtraction inside every term. Read Property 1 as a units statement: variance lives in the <em>square</em> of the units of $X$ (if $X$ is in miles, $\operatorname{var}(X)$ is in square miles), which is why the standard deviation $\sigma_X$ — back in the original units — is the number you quote to a human. Shifting a variable by $b$ moves the whole picture without changing its width, so $b$ vanishes; stretching by $a$ stretches every deviation by $a$, and squared deviations by $a^2$.</div>
+
+<div class="warn"><b>Gotcha — $\operatorname{var}(aX+b) \neq a\operatorname{var}(X)+b$.</b> Variance is <em>not</em> linear. The two errors to never make: keeping the $+b$ (it always dies), and forgetting to square the $a$. A quick self-check: $\operatorname{var}(-X) = (-1)^2\operatorname{var}(X) = \operatorname{var}(X)$ — flipping a variable cannot change its spread, and any "rule" that gives $-\operatorname{var}(X)$ is broken, since variance is a sum of squares times probabilities and hence never negative.</div>
+
+<div class="warn"><b>Gotcha — $\mathbb{E}[X^2] \ge (\mathbb{E}[X])^2$, always.</b> Property 2 plus $\operatorname{var}(X)\ge 0$ forces this, with equality only when $\operatorname{var}(X)=0$, i.e. when $X$ is a constant with probability 1. So if a calculation ever produces $\mathbb{E}[X^2] &lt; (\mathbb{E}[X])^2$, one of the two moments is wrong. This is a free correctness check on every variance you compute — use it.</div>
+
+<div class="ex"><b>Practice 3.2.</b> $X$ is uniform on $\{0,1,2,3,4,5\}$. Find $\mathbb{E}[X]$, $\operatorname{var}(X)$, $\sigma_X$, and then $\operatorname{var}(10 - 4X)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Each value has probability $1/6$. $\mathbb{E}[X] = \frac{0+1+2+3+4+5}{6} = \frac{15}{6} = \frac52 = 2.5$.</p>
+<p>$\mathbb{E}[X^2] = \frac{0+1+4+9+16+25}{6} = \frac{55}{6} \approx 9.166667$.</p>
+<p>$\operatorname{var}(X) = \frac{55}{6} - \left(\frac52\right)^2 = \frac{110}{12} - \frac{75}{12} = \frac{35}{12} \approx 2.916667$. (This matches the general uniform-on-$n$-consecutive-integers formula $(n^2-1)/12 = (36-1)/12 = 35/12$.)</p>
+<p>$\sigma_X = \sqrt{35/12} \approx 1.707825$.</p>
+<p>$\operatorname{var}(10-4X) = (-4)^2\operatorname{var}(X) = 16\cdot\frac{35}{12} = \frac{140}{3} \approx 46.666667$; the $+10$ contributes nothing. (computes/g2_s3.py keys <code>I1_*</code> for $\mathbb{E}[X]$, $\mathbb{E}[X^2]$, $\operatorname{var}(X)$, $\sigma_X$, and <code>I10_var(10-4X)</code> for the last answer.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.3.</b> $X$ takes the values $-2, 1, 4$ with probabilities $1/4, 1/2, 1/4$. Compute $\mathbb{E}[X]$, $\operatorname{var}(X)$, and then $\mathbb{E}[5-2X]$, $\operatorname{var}(5-2X)$, $\sigma_{5-2X}$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mathbb{E}[X] = (-2)\frac14 + 1\cdot\frac12 + 4\cdot\frac14 = -\frac12 + \frac12 + 1 = 1$.</p>
+<p>$\mathbb{E}[X^2] = 4\cdot\frac14 + 1\cdot\frac12 + 16\cdot\frac14 = 1 + \frac12 + 4 = \frac{11}{2}$.</p>
+<p>$\operatorname{var}(X) = \frac{11}{2} - 1^2 = \frac92 = 4.5$. (Definition check: $\frac14(-3)^2 + \frac12(0)^2 + \frac14(3)^2 = \frac94 + 0 + \frac94 = \frac92$. ✓)</p>
+<p>$\mathbb{E}[5-2X] = 5 - 2(1) = 3$. $\operatorname{var}(5-2X) = (-2)^2 \cdot \frac92 = 18$. $\sigma_{5-2X} = \sqrt{18} = 3\sqrt2 \approx 4.242641$. (computes/g2_s3.py keys <code>I5_*</code>.)</p>
+</div></details></div>
+
+<h3>3.3 The expected-value rule bites: random speed</h3>
+
+<p>L06 slides 3–4 exist to plant one warning: <b>the expectation of a function is not the function of the expectation</b>. The vehicle is a trip of fixed distance $d = 200$ miles traversed at a constant but random speed $V$. The slide's PMF gives $V$ two values:
+$$p_V(1) = \tfrac12, \qquad p_V(200) = \tfrac12,$$
+i.e. the trip is either a crawl at $1$ mph or a rocket at $200$ mph, equally likely. The travel time is the random variable
+$$T \;=\; t(V) \;=\; \frac{d}{V} \;=\; \frac{200}{V} \quad \text{hours},$$
+which the slide gives in red (i.e. as part of the setup). Here $V$ is the speed in miles per hour, $t(\cdot)$ is the deterministic function "distance over speed", and $T$ is the resulting random travel time in hours.</p>
+
+<div class="ex"><b>Example 3.2 (L06 slides 3–4 — the three blanks on slide 3 and the two on slide 4, all solved).</b>
+
+<p><b>(i) $\mathbb{E}[V]$.</b> By the definition of expectation,
+$$\mathbb{E}[V] = \sum_v v\,p_V(v) = 1\cdot\tfrac12 + 200\cdot\tfrac12 = \tfrac12 + 100 = \tfrac{201}{2} = 100.5 \text{ mph}.$$</p>
+
+<p><b>(ii) $\operatorname{var}(V)$.</b> First the second moment, via the expected-value rule with $g(v)=v^2$:
+$$\mathbb{E}[V^2] = 1^2\cdot\tfrac12 + 200^2\cdot\tfrac12 = \tfrac12 + \tfrac{40000}{2} = \tfrac{40001}{2} = 20000.5.$$
+Then Property 2 of §3.2:
+$$\operatorname{var}(V) = \mathbb{E}[V^2] - \big(\mathbb{E}[V]\big)^2 = 20000.5 - (100.5)^2 = 20000.5 - 10100.25 = 9900.25 = \tfrac{39601}{4}.$$
+Cross-check from the definition: $\operatorname{var}(V) = \tfrac12(1-100.5)^2 + \tfrac12(200-100.5)^2 = \tfrac12(99.5)^2 + \tfrac12(99.5)^2 = (99.5)^2 = 9900.25$. ✓</p>
+
+<p><b>(iii) $\sigma_V$.</b> $\sigma_V = \sqrt{9900.25} = 99.5$ mph. (For any two-point PMF with equal masses $1/2$, the standard deviation is exactly half the gap between the two values: here $(200-1)/2 = 99.5$.)</p>
+
+<p><b>(iv) The time in hours, $T = t(V)$.</b> The function $t$ is applied outcome by outcome:
+$$t(1) = \frac{200}{1} = 200 \text{ hours}, \qquad t(200) = \frac{200}{200} = 1 \text{ hour}.$$
+Since $t$ is one-to-one on the two values, $T$ inherits the probabilities: $p_T(200) = 1/2$, $p_T(1) = 1/2$.</p>
+
+<p><b>(v) $\mathbb{E}[T]$, by the expected-value rule.</b> The slide writes $\mathbb{E}[T] = \mathbb{E}[t(V)] = \sum_v t(v)p_V(v)$; substituting,
+$$\mathbb{E}[T] = t(1)\,p_V(1) + t(200)\,p_V(200) = 200\cdot\tfrac12 + 1\cdot\tfrac12 = 100 + \tfrac12 = \tfrac{201}{2} = 100.5 \text{ hours}.$$</p>
+
+<p><b>(vi) The comparison the slide is built around.</b> The naive answer "distance over average speed" gives
+$$\frac{200}{\mathbb{E}[V]} = \frac{200}{100.5} = \frac{400}{201} \approx 1.990050 \text{ hours},$$
+whereas the correct expected travel time is $\mathbb{E}[T] = 100.5$ hours. The two differ by a factor of
+$$\frac{\mathbb{E}[T]}{200/\mathbb{E}[V]} = \frac{100.5}{1.990050} \approx 50.50125,$$
+so the naive computation understates the expected trip time by more than a factor of fifty. This is the slide's assertion $\mathbb{E}[200/V] = \mathbb{E}[T] \neq 200/\mathbb{E}[V]$.</p>
+
+<p><b>(vii) Filling the slide-4 derivation gap: $\mathbb{E}[T]\,\mathbb{E}[V] \neq 200$.</b> The product $TV$ is <em>identically</em> $200$ — whatever the speed, distance $=$ speed $\times$ time — so $\mathbb{E}[TV] = \mathbb{E}[200] = 200$ with no randomness left. But
+$$\mathbb{E}[T]\cdot\mathbb{E}[V] = 100.5 \times 100.5 = 10100.25 \;\neq\; 200 = \mathbb{E}[TV].$$
+Products of expectations are not expectations of products (that would require independence, and $T$ and $V$ are about as dependent as two variables can be — each determines the other).</p>
+
+<p><b>(viii) $\operatorname{var}(T)$ and $\sigma_T$, for completeness.</b> $\mathbb{E}[T^2] = 200^2\cdot\tfrac12 + 1^2\cdot\tfrac12 = \tfrac{40001}{2} = 20000.5$, so $\operatorname{var}(T) = 20000.5 - 100.5^2 = 9900.25$ and $\sigma_T = 99.5$ hours — numerically identical to the speed's, because the PMF of $T$ is the PMF of $V$ with the labels swapped. (All values: computes/g2_s3.py keys <code>B_*</code>.)</p>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s3_speed}}" alt="Three panels. (a) Stem plot of the PMF of the speed V with two spikes of height one half at v equals 1 and v equals 200, and a dashed line at the mean 100.5. (b) Stem plot of the PMF of the time T equals 200 over V, with spikes of height one half at t equals 1 and t equals 200, dashed line at the mean 100.5. (c) Horizontal bar chart comparing 200 divided by E of V, which is 1.990 hours, with E of T, which is 100.5 hours, annotated off by a factor of 50.5." style="max-width:900px">
+<div class="figcap">Fig. 3.2 — The random-speed example (L06 slides 3–4). Panels (a) and (b) are the same two-point PMF relabeled; panel (c) is the whole point — plugging the mean speed into $t(v)=200/v$ gives an answer 50 times too small.</div>
+
+<div class="note"><b>Interpretation — why the gap is so enormous, and which number you actually want.</b> The function $t(v) = 200/v$ is strongly <b>convex</b>: it plunges near $v=0$ and flattens for large $v$. Convexity means a chord lies above the curve, so averaging $t$ at the two endpoints (which is $\mathbb{E}[T]$) lands above the curve's value at the midpoint (which is $t(\mathbb{E}[V]) = 200/\mathbb{E}[V]$). That inequality — $\mathbb{E}[g(X)] \ge g(\mathbb{E}[X])$ for convex $g$ — is <b>Jensen's inequality</b>, and here the gap is $100.5 - 1.990050 \approx 98.51$ hours. Intuitively, the slow trip contributes $200$ hours and dominates the average; the fast trip is over in an hour and contributes almost nothing. The clock spends nearly all its time crawling.
+<p>The practically useful reading: the <b>effective average speed</b> for a fixed-distance trip is not $\mathbb{E}[V]$ but $d/\mathbb{E}[T] = 200/100.5 = 400/201 \approx 1.990050$ mph, which is the <b>harmonic mean</b> $2/(1/1 + 1/200)$ of the two speeds. Harmonic means are what you get when you average rates over a fixed distance; arithmetic means are what you get when you average rates over a fixed time. Choosing the wrong one is the error the slide is warning about.</p></div>
+
+<div class="warn"><b>Gotcha — $\mathbb{E}[g(X)] = g(\mathbb{E}[X])$ only when $g$ is affine.</b> The rule $\mathbb{E}[\alpha X + \beta] = \alpha\mathbb{E}[X]+\beta$ is true for every $X$ — but $g(x) = \alpha x + \beta$ is the <em>only</em> shape for which "push the expectation inside" is safe. For $g(x)=x^2$: $\mathbb{E}[X^2] \ge (\mathbb{E}[X])^2$, with strict inequality unless $X$ is constant (this is exactly $\operatorname{var}(X)&gt;0$). For $g(x)=1/x$ <em>on $x&gt;0$</em>: $\mathbb{E}[1/X] \ge 1/\mathbb{E}[X]$ whenever $X&gt;0$ — the hypothesis is not optional, since $1/x$ is not convex on any interval containing $0$ (take $X = \pm1$ with probability $1/2$ each: $\mathbb{E}[1/X]=0=\mathbb{E}[X]$ and $1/\mathbb{E}[X]$ is not even defined). Whenever the quantity you want is a nonlinear function of a random variable, compute the PMF of the function and average <em>that</em>.</div>
+
+<div class="recipe"><b>Recipe — computing $\mathbb{E}[g(X)]$ safely.</b>
+<ol>
+<li>Identify the underlying random variable $X$ and list its values $x$ with $p_X(x)$.</li>
+<li>Apply $g$ <b>outcome by outcome</b>: build the table of pairs $\big(g(x),\,p_X(x)\big)$.</li>
+<li>If several $x$ map to the same $g(x)$, merge them by <em>adding</em> their probabilities — that is the PMF $p_{g(X)}$.</li>
+<li>Sum: $\mathbb{E}[g(X)] = \sum_x g(x)p_X(x)$ (you may sum over the original $x$'s without merging; merging is only needed if you want the PMF itself).</li>
+<li><b>Never</b> shortcut to $g(\mathbb{E}[X])$ unless $g$ is of the form $\alpha x + \beta$.</li>
+<li>Sanity-check the direction: for convex $g$ (like $x^2$, $1/x$ on $x&gt;0$, $e^x$) the true answer must be $\ge g(\mathbb{E}[X])$.</li>
+</ol></div>
+
+<div class="ex"><b>Practice 3.4.</b> A 120-mile drive is made at a constant random speed $V$ that equals 30 mph or 60 mph, each with probability $1/2$. (a) What is $\mathbb{E}[V]$ and what naive travel time does it suggest? (b) What is the true $\mathbb{E}[T]$? (c) What is the effective average speed?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) $\mathbb{E}[V] = \frac12(30) + \frac12(60) = 45$ mph, suggesting $120/45 = 8/3 \approx 2.666667$ hours.</p>
+<p>(b) $T = 120/V$ takes the values $120/30 = 4$ h and $120/60 = 2$ h, each with probability $1/2$, so
+$$\mathbb{E}[T] = \tfrac12(4) + \tfrac12(2) = 3 \text{ hours}.$$
+The naive figure is 20 minutes too optimistic.</p>
+<p>(c) Effective speed $= 120/\mathbb{E}[T] = 120/3 = 40$ mph — the harmonic mean $2/(1/30 + 1/60) = 2/(3/60) = 40$, which is less than the arithmetic mean 45, as convexity requires. (computes/g2_s3.py keys <code>I2_*</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.5.</b> Let $X$ be the number of heads in two independent fair coin tosses, so $p_X(0)=1/4$, $p_X(1)=1/2$, $p_X(2)=1/4$. Compare $\mathbb{E}[X^2]$ with $(\mathbb{E}[X])^2$ and say what the difference equals.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mathbb{E}[X] = 0(\frac14) + 1(\frac12) + 2(\frac14) = 1$, so $(\mathbb{E}[X])^2 = 1$.</p>
+<p>$\mathbb{E}[X^2] = 0(\frac14) + 1(\frac12) + 4(\frac14) = \frac12 + 1 = \frac32 = 1.5$.</p>
+<p>They differ: $1.5 \neq 1$, and the difference $\mathbb{E}[X^2] - (\mathbb{E}[X])^2 = 0.5$ is exactly $\operatorname{var}(X)$ by Property 2 — which is the general reason $g(x)=x^2$ can never be pushed through an expectation unless the variable is constant.</p>
+</div></details></div>
+
+<h3>3.4 Conditional PMFs and conditional expectation</h3>
+
+<p>Conditioning was introduced in G1 for events. Nothing new is needed here: a conditional PMF is an ordinary PMF computed in the reduced universe where the conditioning event is known to have occurred.</p>
+
+<div class="defn"><b>Definition (conditional PMF and conditional expectation — L06 slide 5; B&amp;T §2.6).</b> Let $A$ be an event with $\mathbf{P}(A) &gt; 0$. The <b>conditional PMF of $X$ given $A$</b> is
+$$p_{X|A}(x) \;=\; \mathbf{P}(X = x \mid A) \;=\; \frac{\mathbf{P}\big(\{X=x\} \cap A\big)}{\mathbf{P}(A)},$$
+the second equality being the definition of conditional probability from G1. The <b>conditional expectation</b> is the ordinary expectation computed with this PMF:
+$$\mathbb{E}[X \mid A] \;=\; \sum_x x\, p_{X|A}(x), \qquad\text{and more generally}\qquad \mathbb{E}[g(X)\mid A] = \sum_x g(x)\,p_{X|A}(x).$$
+The <b>conditional variance</b> is likewise $\operatorname{var}(X \mid A) = \mathbb{E}\big[(X - \mathbb{E}[X\mid A])^2 \mid A\big] = \mathbb{E}[X^2 \mid A] - \big(\mathbb{E}[X\mid A]\big)^2$.</div>
+
+<div class="thm"><b>Property (a conditional PMF really is a PMF).</b> $p_{X|A}(x) \ge 0$ for all $x$ and $\sum_x p_{X|A}(x) = 1$.</div>
+
+<details class="sol"><summary>Proof</summary><div class="body">
+<p>Nonnegativity is immediate: the numerator $\mathbf{P}(\{X=x\}\cap A)$ and denominator $\mathbf{P}(A)$ are both nonnegative and the denominator is strictly positive. For normalization, the events $\{X = x\} \cap A$, as $x$ ranges over the values of $X$, are disjoint (different $x$'s cannot both occur) and their union is $A$ (whatever happens, $X$ takes <em>some</em> value). So by additivity,
+$$\sum_x \mathbf{P}\big(\{X=x\}\cap A\big) = \mathbf{P}(A),$$
+and dividing both sides by $\mathbf{P}(A)$,
+$$\sum_x p_{X|A}(x) = \frac{\mathbf{P}(A)}{\mathbf{P}(A)} = 1. \qquad\blacksquare$$</p>
+<p>The practical content: <b>conditioning is "delete and rescale"</b>. Delete the mass sitting outside $A$; multiply every surviving bar by the same factor $1/\mathbf{P}(A)$ so the total is 1 again. The <em>shape</em> of the surviving part is untouched.</p>
+</div></details>
+
+<div class="ex"><b>Example 3.3 (L06 slide 5 — the two blanks, solved).</b> $X$ is uniform on $\{1,2,3,4\}$, i.e. $p_X(x) = 1/4$ for $x \in \{1,2,3,4\}$ and $0$ otherwise. Let $A = \{X \ge 2\}$. Find $p_{X|A}(x)$ and $\mathbb{E}[X\mid A]$.
+
+<p><b>Step 1 — the conditioning probability.</b> $A$ is the event that $X$ takes one of the values $2,3,4$. These are disjoint outcomes, so
+$$\mathbf{P}(A) = p_X(2)+p_X(3)+p_X(4) = \tfrac14+\tfrac14+\tfrac14 = \tfrac34.$$</p>
+
+<p><b>Step 2 — the conditional PMF.</b> For $x \in \{2,3,4\}$ the event $\{X=x\}$ is contained in $A$, so $\{X=x\}\cap A = \{X=x\}$ and
+$$p_{X|A}(x) = \frac{p_X(x)}{\mathbf{P}(A)} = \frac{1/4}{3/4} = \frac13.$$
+For $x = 1$ the event $\{X=1\}$ is disjoint from $A$, so the numerator is $0$ and $p_{X|A}(1) = 0$. Hence
+$$p_{X|A}(x) = \begin{cases} 1/3, & x \in \{2,3,4\},\\ 0, & \text{otherwise.}\end{cases}$$
+Check: $1/3+1/3+1/3 = 1$. ✓ Conditioning on $A$ turned a uniform on four values into a uniform on three.</p>
+
+<p><b>Step 3 — the conditional expectation.</b>
+$$\mathbb{E}[X\mid A] = \sum_x x\,p_{X|A}(x) = 2\cdot\tfrac13 + 3\cdot\tfrac13 + 4\cdot\tfrac13 = \tfrac{2+3+4}{3} = \tfrac93 = 3.$$
+Compare with the unconditional $\mathbb{E}[X] = 5/2 = 2.5$: learning that $X$ is at least 2 pushes the mean up by $1/2$, as it must, since the conditioning removed the smallest value.</p>
+
+<p><b>Step 4 (bonus) — the conditional variance.</b> $\mathbb{E}[X^2\mid A] = \frac{4+9+16}{3} = \frac{29}{3}$, so
+$$\operatorname{var}(X\mid A) = \tfrac{29}{3} - 3^2 = \tfrac{29}{3} - \tfrac{27}{3} = \tfrac23 \approx 0.666667,$$
+smaller than the unconditional $\operatorname{var}(X) = 5/4 = 1.25$ — information narrowed the distribution. (computes/g2_s3.py keys <code>C_*</code>.)</p>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s3_condpmf}}" alt="Two stem plots side by side. Left: uniform PMF of X on 1, 2, 3, 4 with all bars at height one quarter, the region x at least 2 shaded, and a dashed line at the mean 2.5. Right: the conditional PMF given the shaded event, with the bar at x equals 1 greyed out and labeled removed, and bars at 2, 3, 4 raised to height one third, with a dashed line at the conditional mean 3 and an annotation that each surviving bar is rescaled by 1 over P(A) equals four thirds." style="max-width:760px">
+<div class="figcap">Fig. 3.3 — Conditioning is "delete and rescale" (L06 slide 5). The three surviving bars keep their relative sizes; all that changes is the common scale factor $1/\mathbf{P}(A) = 4/3$.</div>
+
+<div class="note"><b>Interpretation.</b> Everything you know about PMFs transfers verbatim to conditional PMFs — normalization, the expected-value rule, the variance formula, linearity — because $p_{X|A}$ <em>is</em> a PMF, just one describing a smaller universe. This is why the course never needs a separate theory of "conditional expectation": it is the same theory run inside a shrunken sample space. The only thing that is genuinely new is how to stitch the shrunken universes back together, which is §3.6.</div>
+
+<div class="warn"><b>Gotcha — conditioning can widen the spread, not just narrow it.</b> It is tempting to think conditioning always shrinks the variance; it does in Example 3.3, but not in general. Conditioning on $A = \{X \in \{1,4\}\}$ for the same uniform $X$ gives a conditional PMF with mass $1/2$ at each of $1$ and $4$, hence $\mathbb{E}[X\mid A] = 2.5$ — the mean is <em>unchanged</em> — while $\operatorname{var}(X\mid A) = (1.5)^2 = 2.25 &gt; 1.25$: keeping only the two extreme values hollowed out the middle. (The mean is equally free to move either way: conditioning on $\{X\ge2\}$ raised it to $3$, conditioning on $\{X\le2\}$ would lower it to $1.5$.) Conditioning reshapes the distribution; whether it narrows or widens depends entirely on which piece you kept.</div>
+
+<div class="ex"><b>Practice 3.6.</b> $X$ is uniform on $\{1,2,\dots,6\}$ (a fair die). Let $A = \{X \text{ is even}\}$. Find $p_{X|A}$, $\mathbb{E}[X\mid A]$, and $\operatorname{var}(X\mid A)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mathbf{P}(A) = \mathbf{P}(X\in\{2,4,6\}) = 3/6 = 1/2$. For $x \in \{2,4,6\}$, $p_{X|A}(x) = (1/6)/(1/2) = 1/3$; otherwise $0$.</p>
+<p>$\mathbb{E}[X\mid A] = \frac{2+4+6}{3} = 4$. $\mathbb{E}[X^2\mid A] = \frac{4+16+36}{3} = \frac{56}{3}$, so $\operatorname{var}(X\mid A) = \frac{56}{3} - 16 = \frac{56-48}{3} = \frac83 \approx 2.666667$.</p>
+<p>(Compare: unconditionally $\mathbb{E}[X]=3.5$ and $\operatorname{var}(X) = 91/6 - 49/4 = 35/12 \approx 2.916667$. Here conditioning raised the mean and slightly lowered the variance.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.7.</b> $X$ has $p_X(0) = 0.5$, $p_X(1) = 0.3$, $p_X(5) = 0.2$. Let $A = \{X \ge 1\}$. Find $\mathbb{E}[X \mid A]$, and then verify the identity $\mathbb{E}[X] = \mathbf{P}(A^c)\mathbb{E}[X\mid A^c] + \mathbf{P}(A)\mathbb{E}[X\mid A]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mathbf{P}(A) = 0.3 + 0.2 = 0.5$, so $p_{X|A}(1) = 0.3/0.5 = 0.6$ and $p_{X|A}(5) = 0.2/0.5 = 0.4$; these sum to 1. ✓</p>
+<p>$\mathbb{E}[X\mid A] = 1(0.6) + 5(0.4) = 0.6 + 2.0 = 2.6$.</p>
+<p>$A^c = \{X = 0\}$ has $\mathbf{P}(A^c) = 0.5$ and $\mathbb{E}[X\mid A^c] = 0$ (the only value there is $0$).</p>
+<p>Right-hand side: $0.5(0) + 0.5(2.6) = 1.3$. Direct: $\mathbb{E}[X] = 0(0.5)+1(0.3)+5(0.2) = 0.3+1.0 = 1.3$. ✓ This identity is the total expectation theorem of §3.6 in its two-piece form.</p>
+</div></details></div>
+
+<h3>3.5 The geometric PMF and memorylessness</h3>
+
+<div class="defn"><b>Definition (geometric random variable — L06 slide 6; B&amp;T §2.2 for the PMF, with the mean and variance derived in B&amp;T §2.6, B&amp;T Example 2.17).</b> Toss a coin repeatedly and independently, each toss coming up heads with probability $p \in (0,1]$. Let $X$ be the <b>number of tosses up to and including the first head</b>. Then
+$$p_X(k) \;=\; (1-p)^{k-1}\,p, \qquad k = 1, 2, 3, \ldots$$
+Here $k$ is the index of the toss on which the first head occurs, $p$ is the per-toss success probability, and $1-p$ (often written $q$) is the per-toss failure probability. We say $X$ is <b>geometric with parameter $p$</b>.</div>
+
+<details class="sol"><summary>Where the formula comes from, and why it is a legitimate PMF</summary><div class="body">
+<p><b>The formula.</b> The event $\{X = k\}$ is the single specific sequence "tail, tail, …, tail (a total of $k-1$ times), then head". The tosses are independent, so the probability of the sequence is the product of the per-toss probabilities:
+$$\mathbf{P}(X = k) = \underbrace{(1-p)(1-p)\cdots(1-p)}_{k-1 \text{ tails}} \cdot p = (1-p)^{k-1}p.$$</p>
+<p><b>Normalization.</b> Sum over all $k \ge 1$ and substitute $q = 1-p$, so $0 \le q &lt; 1$:
+$$\sum_{k=1}^{\infty} (1-p)^{k-1} p = p\sum_{k=1}^{\infty} q^{k-1} = p \sum_{j=0}^{\infty} q^{j} = p\cdot\frac{1}{1-q} = \frac{p}{p} = 1,$$
+where the third equality re-indexes with $j = k-1$ and the fourth is the geometric series $\sum_{j\ge0} q^j = 1/(1-q)$, valid because $|q| &lt; 1$. Verified numerically to 12 decimals for $p = 1/2, 1/5, 3/10$ (computes/g2_s3.py keys <code>D_p=*_pmf_total_numeric</code>).</p>
+<p><b>The tail probability</b>, needed constantly below:
+$$\mathbf{P}(X &gt; k) = \sum_{n = k+1}^{\infty}(1-p)^{n-1}p = p\, q^{k}\sum_{j=0}^{\infty} q^{j} = p\,q^{k}\cdot\frac{1}{1-q} = p\,q^k\cdot\frac1p = q^k = (1-p)^k.$$
+(Re-index with $n = k+1+j$ so that $q^{n-1} = q^{k+j}$, pull out $q^k$, sum the series.) There is a shorter argument that gives the same thing in one line: $X &gt; k$ means precisely that the first $k$ tosses were all tails, and by independence that has probability $(1-p)^k$.</p>
+</div></details>
+
+<div class="thm"><b>Theorem (memorylessness — L06 slide 6).</b> Let $X$ be geometric with parameter $p$ and let $k \ge 0$ be an integer. Conditioned on $\{X &gt; k\}$, the remaining number of tosses $X - k$ is again geometric with the same parameter $p$:
+$$\mathbf{P}\big(X - k = n \;\big|\; X &gt; k\big) \;=\; p_X(n) \;=\; (1-p)^{n-1}p, \qquad n = 1,2,\ldots$$
+Equivalently, $\mathbb{E}[X \mid X &gt; k] = k + \mathbb{E}[X] = k + 1/p$.</div>
+
+<details class="sol"><summary>Derivation — cleanly, every step (the slide only draws the picture)</summary><div class="body">
+<p><b>Step 1 — name the two events.</b> Fix an integer $n \ge 1$. The event of interest is $\{X - k = n\}$, i.e. $\{X = k+n\}$: the first head lands exactly $n$ tosses after the $k$ we have already watched fail. The conditioning event is $\{X &gt; k\}$: the first $k$ tosses were all tails.</p>
+<p><b>Step 2 — the intersection.</b> If $X = k+n$ with $n \ge 1$, then $X &gt; k$ automatically. So
+$$\{X = k+n\} \cap \{X &gt; k\} = \{X = k+n\},$$
+and the joint probability is just $p_X(k+n)$.</p>
+<p><b>Step 3 — apply the definition of conditional probability.</b>
+$$\mathbf{P}(X - k = n \mid X &gt; k) \;=\; \frac{\mathbf{P}\big(\{X = k+n\}\cap\{X &gt; k\}\big)}{\mathbf{P}(X &gt; k)} \;=\; \frac{p_X(k+n)}{\mathbf{P}(X &gt; k)}.$$</p>
+<p><b>Step 4 — substitute both pieces.</b> The numerator is $p_X(k+n) = (1-p)^{(k+n)-1}p = (1-p)^{k+n-1}p$. The denominator is $\mathbf{P}(X&gt;k) = (1-p)^k$, computed above. Therefore
+$$\mathbf{P}(X-k = n \mid X &gt; k) \;=\; \frac{(1-p)^{k+n-1}\,p}{(1-p)^{k}}.$$</p>
+<p><b>Step 5 — cancel.</b> Subtract exponents on the common base $(1-p)$:
+$$\frac{(1-p)^{k+n-1}}{(1-p)^{k}} = (1-p)^{(k+n-1)-k} = (1-p)^{n-1},$$
+so
+$$\mathbf{P}(X-k = n \mid X &gt; k) \;=\; (1-p)^{n-1}p \;=\; p_X(n).$$
+The $k$ has vanished entirely. $\blacksquare$</p>
+<p><b>Step 6 — the expectation form.</b> Because $X-k$ given $\{X&gt;k\}$ has the same PMF as $X$, it has the same mean:
+$$\mathbb{E}[X - k \mid X &gt; k] = \mathbb{E}[X] \quad\Longrightarrow\quad \mathbb{E}[X\mid X&gt;k] = k + \mathbb{E}[X].$$
+The first implication uses linearity inside the conditional universe: $\mathbb{E}[X-k \mid A] = \mathbb{E}[X\mid A] - k$ for the constant $k$. With $\mathbb{E}[X] = 1/p$ (proved in §3.7), $\mathbb{E}[X\mid X&gt;k] = k + 1/p$.</p>
+<p><b>Exact verification.</b> computes/g2_s3.py (keys <code>D2_*</code>) checks the identity in exact rational arithmetic for $p \in \{1/3, 1/5\}$, $k \in \{2,5\}$ and $n = 1,\dots,11$: zero mismatches.</p>
+</div></details>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s3_geometric}}" alt="Six panels. (a) Geometric PMF with p = 0.3, stems decaying from 0.3, with the region k greater than 2 shaded and labeled P(X greater than 2) equals 0.49, and annotations p and p times (1-p) squared. (b) The same stems for k greater than 2 renormalized so the first one is back at height p. (c) The renormalized stems shifted left by 2, identical in shape to panel (a). (d) An overlay of panel (a) and panel (c) showing the dots land on the same heights. (e) The tail probability P(X greater than k) plotted against k, decaying exponentially from 1. (f) Curves of E[X] = 1/p and sigma = sqrt(1-p)/p against p, both blowing up as p goes to zero." style="max-width:900px">
+<div class="figcap">Fig. 3.4 — Memorylessness of the geometric PMF (L06 slide 6, three-panel figure), extended with the tail (e) and the parameter dependence (f). Panels (a)→(b)→(c) are exactly the slide's three plots: renormalize, then shift back, and you recover the original.</div>
+
+<div class="note"><b>Interpretation — the coin has no memory, and neither should you.</b> Suppose you have tossed 10 tails in a row while waiting for a head. Memorylessness says the number of <em>additional</em> tosses you still need has exactly the same distribution as it had before you started — the ten wasted tosses bought you nothing and cost you nothing, informationally. This follows from independence of the tosses, but it is worth stating separately because it is the engine behind the one-line derivation of $\mathbb{E}[X] = 1/p$ in §3.7, and because it is the discrete cousin of the exponential distribution's memorylessness later in the course (B&amp;T §3.3, Example 3.13). The geometric is the <em>only</em> discrete distribution on $\{1,2,\ldots\}$ with this property.</div>
+
+<div class="warn"><b>Gotcha — memorylessness is not "the coin is due for a head".</b> The gambler's fallacy says a long run of tails makes a head more likely next toss. Memorylessness says the opposite of that: the conditional probability of a head on the next toss is still $p$, and the conditional expected wait is still $1/p$ more tosses. Nothing is "due". What memorylessness does <em>not</em> say is that $\mathbb{E}[X \mid X&gt;k] = \mathbb{E}[X]$ — the total wait $X$ certainly grows, to $k + 1/p$; it is only the <em>remaining</em> wait that is unchanged.</div>
+
+<div class="warn"><b>Gotcha — two conventions for "geometric".</b> This course counts the trial on which the first success occurs, so $X \in \{1,2,\ldots\}$, $\mathbb{E}[X]=1/p$. Many texts instead define the geometric as the <em>number of failures before</em> the first success, giving $Y = X - 1 \in \{0,1,2,\ldots\}$ with $\mathbb{E}[Y] = 1/p - 1 = (1-p)/p$. (The two standard Python routines both follow <em>this course's</em> convention, not that one: <code>scipy.stats.geom</code> has $\texttt{pmf}(0,p)=0$, $\texttt{pmf}(1,p)=p$ and mean $1/p$, and <code>numpy.random.geometric</code> returns values $\ge 1$ with sample mean $\approx 1/p$. To get the failures-only version you must shift deliberately — <code>scipy.stats.geom(p, loc=-1)</code>, or <code>numpy.random.negative_binomial(1, p)</code>.) The variances agree — $\operatorname{var}(Y) = \operatorname{var}(X-1) = \operatorname{var}(X) = (1-p)/p^2$ by §3.2 Property 1 — but the means differ by exactly 1. Always check which convention a formula assumes.</div>
+
+<p>The widget below is the numerical form of the theorem: it draws the original PMF $p_X(n)$ and, on top of it, the conditional PMF of the <em>remaining</em> tosses $X-k$ after $k$ observed failures. Move $k$ and watch nothing happen. (The identity was verified in exact and floating-point arithmetic in computes/g2_s3.py, keys <code>H_*</code>: maximum absolute difference below $10^{-15}$ for every $p$ and $k$ tested.)</p>
+
+<div id="w-g2s3-memoryless"></div>
+<script>
+Widget.create({ el: '#w-g2s3-memoryless', height: 330,
+  title: 'Geometric memorylessness: k wasted tosses change nothing',
+  note: 'Thick pale stems: the original PMF p_X(n) = (1-p)^(n-1) p of the number of tosses ' +
+        'until the first head. Small dark dots: the conditional PMF of the REMAINING tosses, ' +
+        'p_{X-k | X>k}(n) = p_X(k+n)/P(X>k), after k tails have already been observed. ' +
+        'They coincide for every k — that is memorylessness. Cross-checked against ' +
+        'computes/g2_s3.py keys H_p=*_k=*_max_abs_diff (all below 1e-15).',
+  controls: [
+    {type:'range', id:'p', label:'p = P(head) per toss', min:0.05, max:0.90, step:0.01, value:0.30},
+    {type:'range', id:'k', label:'k = failures already observed', min:0, max:15, step:1, value:4}
+  ],
+  draw(s, canvas, out) {
+    const p = s.p, k = Math.round(s.k), N = 22, q = 1 - p;
+    const xs = [], orig = [], cond = [];
+    const tail = Math.pow(q, k);                 // P(X > k)
+    for (let n = 1; n <= N; n++) {
+      xs.push(n);
+      orig.push(Math.pow(q, n - 1) * p);         // p_X(n)
+      cond.push(Math.pow(q, k + n - 1) * p / tail); // p_{X-k | X>k}(n)
+    }
+    let mx = 0;
+    for (let i = 0; i < N; i++) mx = Math.max(mx, Math.abs(orig[i] - cond[i]));
+    const P = new Plot(canvas, { xlim: [0, N + 1], ylim: [0, p * 1.22], height: 330,
+      xlabel: 'n = number of FURTHER tosses needed', ylabel: 'probability',
+      xticks: [1, 4, 7, 10, 13, 16, 19, 22] });
+    P.frame();
+    P.stem(xs, orig, { label: 'p_X(n)  — fresh start', color: 0, width: 6, r: 7 });
+    P.stem(xs, cond, { label: 'p_{X-k | X>k}(n)  — after k failures', color: 2, width: 1.5, r: 3 });
+    P.legend();
+    out.textContent =
+      'p = ' + p.toFixed(2) + '   k = ' + k +
+      '    P(X > k) = ' + tail.toExponential(4) +
+      '    E[X] = 1/p = ' + (1 / p).toFixed(4) +
+      '    E[X | X > k] = k + 1/p = ' + (k + 1 / p).toFixed(4) +
+      '    E[remaining] = ' + (1 / p).toFixed(4) +
+      '    max |p_X(n) − p_{X−k|X>k}(n)| = ' + mx.toExponential(2);
+  }
+});
+</script>
+
+<div class="ex"><b>Practice 3.8.</b> A component fails on any given day with probability $p = 0.02$, independently across days; $X$ is the day of failure. (a) What is $\mathbf{P}(X &gt; 30)$? (b) Given that it has survived 30 days, what is the expected number of <em>additional</em> days until failure? (c) What is $\mathbb{E}[X \mid X &gt; 30]$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) $\mathbf{P}(X&gt;30) = (1-0.02)^{30} = 0.98^{30} \approx 0.545484$.</p>
+<p>(b) By memorylessness the remaining wait is geometric with the same $p$, so its mean is $1/p = 1/0.02 = 50$ days. The 30 days of survival are irrelevant.</p>
+<p>(c) $\mathbb{E}[X\mid X&gt;30] = 30 + 1/p = 30 + 50 = 80$ days.</p>
+<p>Note the contrast with (b): the <em>total</em> lifetime conditional mean grows with the elapsed time, the <em>remaining</em> lifetime conditional mean does not. Both statements are the same theorem.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.9.</b> $X$ is geometric with parameter $p$. Show that $\mathbf{P}(X \text{ is even}) = \dfrac{1-p}{2-p}$, and evaluate it for $p = 1/2$ and $p = 1/4$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Write $q = 1-p$. The even values are $k = 2, 4, 6, \dots$, i.e. $k = 2j$ for $j \ge 1$:
+$$\mathbf{P}(X \text{ even}) = \sum_{j=1}^{\infty} p_X(2j) = \sum_{j=1}^{\infty} q^{2j-1}p = p\,q\sum_{j=1}^{\infty} q^{2j-2} = p\,q\sum_{i=0}^{\infty}(q^2)^{i} = \frac{p\,q}{1-q^2},$$
+re-indexing with $i = j-1$ and summing the geometric series in ratio $q^2 &lt; 1$. Now factor $1-q^2 = (1-q)(1+q) = p(1+q)$:
+$$\mathbf{P}(X\text{ even}) = \frac{p\,q}{p(1+q)} = \frac{q}{1+q} = \frac{1-p}{1+(1-p)} = \frac{1-p}{2-p}.$$</p>
+<p>For $p = 1/2$: $\frac{1/2}{3/2} = \frac13 \approx 0.333333$. For $p = 1/4$: $\frac{3/4}{7/4} = \frac37 \approx 0.428571$. Both confirmed by direct numerical summation (computes/g2_s3.py keys <code>I4_*</code>). Sanity: an even first success requires at least one failure first, so the answer must be below $1/2$, and it is.</p>
+</div></details></div>
+
+<h3>3.6 The total expectation theorem</h3>
+
+<p>Conditioning (§3.4) breaks a problem into easier universes. The total expectation theorem is how you put the pieces back together. Recall from G1 that events $A_1,\dots,A_n$ form a <b>partition</b> of the sample space $\Omega$ when they are pairwise disjoint ($A_i \cap A_j = \varnothing$ for $i \neq j$) and collectively exhaustive ($A_1 \cup \cdots \cup A_n = \Omega$); we also assume $\mathbf{P}(A_i) &gt; 0$ for each $i$ so the conditioning is defined.</p>
+
+<div class="thm"><b>Theorem (total probability / total expectation — L06 slide 7; B&amp;T §2.6).</b> Let $A_1,\dots,A_n$ partition $\Omega$. Then for any event $B$ and any discrete random variable $X$:
+$$\mathbf{P}(B) = \sum_{i=1}^{n}\mathbf{P}(A_i)\,\mathbf{P}(B\mid A_i), \tag{TP}$$
+$$p_X(x) = \sum_{i=1}^{n}\mathbf{P}(A_i)\,p_{X|A_i}(x) \quad\text{for every } x, \tag{TP-PMF}$$
+$$\mathbb{E}[X] = \sum_{i=1}^{n}\mathbf{P}(A_i)\,\mathbb{E}[X\mid A_i]. \tag{TE}$$
+</div>
+
+<details class="sol"><summary>Derivation of all three — the slide states them without proof</summary><div class="body">
+<p><b>(TP), the total probability theorem (G1).</b> Because the $A_i$ partition $\Omega$, the sets $B\cap A_1, \dots, B\cap A_n$ are pairwise disjoint and their union is $B$. Additivity gives
+$$\mathbf{P}(B) = \sum_{i=1}^n \mathbf{P}(B\cap A_i) = \sum_{i=1}^n \mathbf{P}(A_i)\mathbf{P}(B\mid A_i),$$
+the last step being the multiplication rule $\mathbf{P}(B\cap A_i) = \mathbf{P}(A_i)\mathbf{P}(B\mid A_i)$.</p>
+<p><b>(TP-PMF).</b> Apply (TP) with the specific event $B = \{X = x\}$:
+$$p_X(x) = \mathbf{P}(X = x) = \sum_{i=1}^n \mathbf{P}(A_i)\,\mathbf{P}(X = x\mid A_i) = \sum_{i=1}^n \mathbf{P}(A_i)\,p_{X|A_i}(x),$$
+using the definition of the conditional PMF from §3.4 in the last step. So the unconditional PMF is a <em>probability-weighted mixture</em> of the conditional PMFs.</p>
+<p><b>(TE).</b> Start from the definition of expectation and substitute (TP-PMF):
+$$\mathbb{E}[X] = \sum_x x\,p_X(x) = \sum_x x \left(\sum_{i=1}^{n}\mathbf{P}(A_i)p_{X|A_i}(x)\right).$$
+Multiply $x$ into the inner sum and exchange the order of summation (finite outer sum over $i$; the inner sum converges absolutely whenever $\mathbb{E}[X]$ exists):
+$$= \sum_{i=1}^{n}\mathbf{P}(A_i)\left(\sum_x x\, p_{X|A_i}(x)\right) = \sum_{i=1}^{n}\mathbf{P}(A_i)\,\mathbb{E}[X\mid A_i],$$
+recognizing the inner sum as the conditional expectation $\mathbb{E}[X\mid A_i]$ of §3.4. $\blacksquare$</p>
+<p>The same argument with $g(x)$ in place of $x$ gives $\mathbb{E}[g(X)] = \sum_i \mathbf{P}(A_i)\mathbb{E}[g(X)\mid A_i]$ — used with $g(x) = x^2$ in §3.7.</p>
+</div></details>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s3_partition}}" alt="Two panels. Left: a rectangle labeled Omega divided into three regions A1 top-left, A2 bottom-left and A3 on the right, with a grey tilted ellipse labeled B straddling all three; underneath, the formula P(B) equals the sum over i of P(Ai) times P(B given Ai). Right: three stacked-width boxes whose widths are the probabilities 0.5, 0.3 and 0.2, each labeled with its conditional mean 2, 5 and 9; underneath, E[X] equals 0.5 times 2 plus 0.3 times 5 plus 0.2 times 9 equals 4.3." style="max-width:880px">
+<div class="figcap">Fig. 3.5 — The partition picture (L06 slide 7, Venn figure) and the same idea as a weighted average of conditional means.</div>
+
+<div class="note"><b>Interpretation — "the unconditional average is the average of the conditional averages" (B&amp;T §2.6, p. 105).</b> Note the emphasis: it is a <em>weighted</em> average, with weights $\mathbf{P}(A_i)$, not a plain average of the conditional means. The theorem is a divide-and-conquer license: split the experiment along whatever line makes each piece easy — the first toss, the first stage, which machine produced the item — solve the easy conditional problems, then reassemble. In Fig. 3.5(b) the widths are the probabilities and the labels are the conditional means; the overall mean $0.5(2)+0.3(5)+0.2(9) = 1.0 + 1.5 + 1.8 = 4.3$ is the width-weighted average, which is dragged toward the wide (likely) blocks.</div>
+
+<div class="ex"><b>Example 3.4 (B&amp;T §2.6, B&amp;T Example 2.16 — a direct application).</b> Messages sent from Boston go to New York with probability $0.5$, Chicago with probability $0.3$, San Francisco with probability $0.2$. The transit time $X$ has conditional mean $0.05$ s for New York, $0.1$ s for Chicago, $0.3$ s for San Francisco. Find $\mathbb{E}[X]$.
+<p><b>Solution.</b> The three destinations form a partition ($A_1$ = "to New York", etc. — a message goes to exactly one). By (TE),
+$$\mathbb{E}[X] = 0.5(0.05) + 0.3(0.1) + 0.2(0.3) = 0.025 + 0.030 + 0.060 = 0.115 \text{ seconds}.$$
+Note the answer is much closer to the New York figure than to the San Francisco one, because half the traffic goes to New York.</p></div>
+
+<div class="warn"><b>Gotcha — the weights must be the probabilities of a genuine partition.</b> Two failure modes. (i) The $A_i$ overlap: then $\sum_i \mathbf{P}(A_i)\mathbb{E}[X\mid A_i]$ double-counts the overlap and the answer is wrong (usually too large). (ii) The $A_i$ miss part of $\Omega$: then $\sum_i \mathbf{P}(A_i) &lt; 1$ and the answer is too small. A free check: the weights must sum to exactly $1$. In Example 3.4, $0.5+0.3+0.2 = 1$. ✓</div>
+
+<div class="recipe"><b>Recipe — total expectation in practice.</b>
+<ol>
+<li><b>Choose the split.</b> Ask "what one fact, if I knew it, would make this problem easy?" Common answers: the outcome of the first trial; which stage the process is in; the value of an auxiliary variable. Make the possible answers your $A_1,\dots,A_n$.</li>
+<li><b>Check it is a partition.</b> Pairwise disjoint, and $\sum_i \mathbf{P}(A_i) = 1$.</li>
+<li><b>Compute each weight $\mathbf{P}(A_i)$.</b></li>
+<li><b>Compute each conditional expectation $\mathbb{E}[X\mid A_i]$</b> in the reduced universe. If one of them refers back to $\mathbb{E}[X]$ itself (because the process restarts), <em>keep it symbolic</em> — do not panic.</li>
+<li><b>Assemble</b> $\mathbb{E}[X] = \sum_i \mathbf{P}(A_i)\mathbb{E}[X\mid A_i]$. If step 4 produced $\mathbb{E}[X]$ on the right-hand side, you now have an <b>equation</b> in the single unknown $\mathbb{E}[X]$ — solve it algebraically (§3.7). If several states each produced an equation, you have a small linear system — solve it (§3.8).</li>
+<li><b>Sanity-check</b> the answer against an extreme case ($p\to0$, $p\to1$, symmetry).</li>
+</ol></div>
+
+<div class="ex"><b>Practice 3.10.</b> A file is "short" with probability $0.6$ and "long" with probability $0.4$. Short files average 2 KB, long files average 30 KB. (a) What is the expected size of a file? (b) If additionally short files are always exactly 2 KB and long files are 20 KB or 40 KB with equal probability, find $\mathbb{E}[X^2]$ and $\operatorname{var}(X)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) $\mathbb{E}[X] = 0.6(2) + 0.4(30) = 1.2 + 12.0 = 13.2$ KB (computes/g2_s3.py key <code>I6_EX</code>).</p>
+<p>(b) Conditional second moments: given short, $X = 2$ always, so $\mathbb{E}[X^2\mid \text{short}] = 4$. Given long, $X^2$ is $400$ or $1600$ with probability $1/2$ each, so $\mathbb{E}[X^2\mid\text{long}] = \frac{400+1600}{2} = 1000$. (Consistency check: $\mathbb{E}[X\mid\text{long}] = \frac{20+40}{2} = 30$ ✓ as stated.) By the $g(X)$ version of (TE),
+$$\mathbb{E}[X^2] = 0.6(4) + 0.4(1000) = 2.4 + 400 = 402.4.$$
+Then $\operatorname{var}(X) = 402.4 - (13.2)^2 = 402.4 - 174.24 = 228.16$, so $\sigma_X = \sqrt{228.16} \approx 15.105$ KB — a spread comparable to the mean, which is what a two-humped distribution looks like.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.11.</b> Let $X$ be uniform on $\{1,2,3,4\}$ and let $A_1 = \{X = 1\}$, $A_2 = \{X \ge 2\}$. Verify (TE) numerically using the results of Example 3.3.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$A_1$ and $A_2$ are disjoint and their union is everything, so they partition $\Omega$; weights $\mathbf{P}(A_1) = 1/4$, $\mathbf{P}(A_2) = 3/4$, summing to 1. ✓</p>
+<p>$\mathbb{E}[X\mid A_1] = 1$ (only one value is possible). $\mathbb{E}[X\mid A_2] = 3$ from Example 3.3. So
+$$\sum_i \mathbf{P}(A_i)\mathbb{E}[X\mid A_i] = \tfrac14(1) + \tfrac34(3) = \tfrac14 + \tfrac94 = \tfrac{10}{4} = \tfrac52,$$
+which is exactly $\mathbb{E}[X] = 5/2$. ✓ (computes/g2_s3.py key <code>C_total_expectation_check</code>.) This two-piece partition — "the first trial succeeded" versus "it did not" — is precisely the one that cracks the geometric in §3.7.</p>
+</div></details></div>
+
+<h3>3.7 Mean and variance of the geometric distribution</h3>
+
+<p>This is the payoff. L06 slide 6 writes the mean as an infinite sum and stops; L06 slide 7 says "solve to get $\mathbb{E}[X] = 1/p$" without showing the substitutions; rec06 P3 poses the variance and defers the whole solution to the textbook. All of it is filled in here.</p>
+
+<h4 style="margin-top:1.1em">The mean, by memorylessness and total expectation (L06 slide 7)</h4>
+
+<div class="ex"><b>Example 3.5 (L06 slide 7 — the derivation gap, filled).</b> $X$ geometric with parameter $p$. Show $\mathbb{E}[X] = 1/p$.
+
+<p><b>Step 1 — choose the partition.</b> The slide's choice: $A_1 = \{X = 1\}$ ("the first toss is a head") and $A_2 = \{X &gt; 1\}$ ("the first toss is a tail"). These are disjoint and exhaust the space (the first toss is one or the other), so they are a legitimate partition.</p>
+
+<p><b>Step 2 — the two weights.</b>
+$$\mathbf{P}(A_1) = \mathbf{P}(X=1) = p_X(1) = (1-p)^{1-1}p = (1-p)^0 p = p,$$
+$$\mathbf{P}(A_2) = \mathbf{P}(X&gt;1) = (1-p)^1 = 1-p,$$
+using the tail formula $\mathbf{P}(X&gt;k) = (1-p)^k$ with $k=1$. Check: $p + (1-p) = 1$. ✓</p>
+
+<p><b>Step 3 — the first conditional expectation.</b> Given $A_1 = \{X=1\}$, the random variable $X$ equals $1$ with conditional probability 1, so
+$$\mathbb{E}[X \mid X = 1] = 1.$$</p>
+
+<p><b>Step 4 — the second conditional expectation, via memorylessness.</b> Given $A_2 = \{X&gt;1\}$, one toss has been spent and it was a failure. By the theorem of §3.5 with $k=1$, the remaining wait $X - 1$ has the original geometric PMF, hence the original mean:
+$$\mathbb{E}[X - 1 \mid X &gt; 1] = \mathbb{E}[X] \quad\Longrightarrow\quad \mathbb{E}[X \mid X &gt; 1] = 1 + \mathbb{E}[X].$$
+In words (B&amp;T Example 2.17): "we have wasted one try, and we are back where we started."</p>
+
+<p><b>Step 5 — assemble via (TE).</b>
+$$\mathbb{E}[X] = \mathbf{P}(X=1)\,\mathbb{E}[X\mid X=1] + \mathbf{P}(X&gt;1)\,\mathbb{E}[X\mid X&gt;1] = p\cdot 1 + (1-p)\big(1 + \mathbb{E}[X]\big).$$</p>
+
+<p><b>Step 6 — solve the equation.</b> Expand the right-hand side:
+$$\mathbb{E}[X] = p + (1-p) + (1-p)\mathbb{E}[X] = 1 + (1-p)\mathbb{E}[X],$$
+since $p + (1-p) = 1$. Move the $\mathbb{E}[X]$ terms to the left:
+$$\mathbb{E}[X] - (1-p)\mathbb{E}[X] = 1 \quad\Longrightarrow\quad \mathbb{E}[X]\big(1 - (1-p)\big) = 1 \quad\Longrightarrow\quad \mathbb{E}[X]\,p = 1,$$
+and divide by $p &gt; 0$:
+$$\boxed{\;\mathbb{E}[X] = \frac1p\;}$$
+$\blacksquare$ (The compact form of the whole argument is the one-liner $\mathbb{E}[X] = 1 + (1-p)\mathbb{E}[X]$: "you always spend one toss, and with probability $1-p$ you must start over.")</p>
+</div>
+
+<details class="sol"><summary>Alternative 1 — evaluating the infinite sum directly (the sum L06 slide 6 writes but does not evaluate)</summary><div class="body">
+<p>Write $q = 1-p$, so $0 \le q &lt; 1$. The sum to evaluate is
+$$\mathbb{E}[X] = \sum_{k=1}^{\infty} k\,(1-p)^{k-1}p = p\sum_{k=1}^{\infty} k\,q^{k-1}.$$</p>
+<p><b>The inner sum by differentiation.</b> Start from the geometric series, valid for $|q|&lt;1$:
+$$\sum_{k=0}^{\infty} q^{k} = \frac{1}{1-q}.$$
+Differentiate both sides with respect to $q$ (a power series may be differentiated term by term inside its radius of convergence). On the left, the $k=0$ term differentiates to 0, so
+$$\frac{d}{dq}\sum_{k=0}^{\infty} q^k = \sum_{k=1}^{\infty} k\,q^{k-1}.$$
+On the right, $\dfrac{d}{dq}(1-q)^{-1} = (1-q)^{-2}$. Hence
+$$\sum_{k=1}^{\infty} k\,q^{k-1} = \frac{1}{(1-q)^2} = \frac{1}{p^2},$$
+substituting $1-q = p$.</p>
+<p><b>Finish.</b> $\mathbb{E}[X] = p\cdot\dfrac{1}{p^2} = \dfrac1p$. ✓ Same answer, considerably more work — which is the lecture's point in preferring the conditioning argument.</p>
+</div></details>
+
+<details class="sol"><summary>Alternative 2 — the tail-sum formula (shortest of all)</summary><div class="body">
+<p>For a random variable taking values in $\{1,2,3,\dots\}$,
+$$\mathbb{E}[X] = \sum_{k=0}^{\infty}\mathbf{P}(X &gt; k).$$
+<em>Why:</em> $\mathbf{P}(X&gt;k) = \sum_{n&gt;k} p_X(n)$, so summing over $k = 0,1,2,\dots$ counts $p_X(n)$ once for each $k \in \{0,1,\dots,n-1\}$ — that is $n$ times — giving $\sum_n n\,p_X(n) = \mathbb{E}[X]$.</p>
+<p>For the geometric, $\mathbf{P}(X&gt;k) = (1-p)^k = q^k$, so
+$$\mathbb{E}[X] = \sum_{k=0}^{\infty} q^k = \frac{1}{1-q} = \frac{1}{p}. \checkmark$$
+This is the "area under the tail" reading annotated in Fig. 3.4(e).</p>
+</div></details>
+
+<h4 style="margin-top:1.1em">The variance (rec06 P3 = B&amp;T Example 2.17, pp. 105–106)</h4>
+
+<div class="ex"><b>Example 3.6 (rec06 Problem 3 — statement).</b> <em>B&amp;T Example 2.17, Variance of the geometric distribution.</em> You write a software program over and over, and each time there is probability $p$ that it works correctly, independent of previous attempts. What is the variance of $X$, the number of tries until the program works correctly?
+
+<p class="srcref" style="margin-top:.4em">The rec06 solution handout says only "See the textbook, Example 2.17, pages 105–106" — no derivation and not even the answer. Everything below fills that gap.</p>
+
+<details class="sol"><summary>Solution — complete, every step</summary><div class="body">
+<p><b>Step 0 — model.</b> Each attempt is an independent trial with success probability $p$; $X$ is the index of the first success. So $X$ is geometric with parameter $p$: $p_X(k) = (1-p)^{k-1}p$ for $k = 1,2,\dots$. From §3.7 above, $\mathbb{E}[X] = 1/p$. By Property 2 of §3.2 we need one more number, $\mathbb{E}[X^2]$, and then
+$$\operatorname{var}(X) = \mathbb{E}[X^2] - \big(\mathbb{E}[X]\big)^2 = \mathbb{E}[X^2] - \frac{1}{p^2}.$$</p>
+
+<p><b>Step 1 — same partition, now applied to $X^2$.</b> Use the $g(X)$ version of the total expectation theorem (§3.6) with $g(x)=x^2$ and the partition $A_1 = \{X=1\}$, $A_2 = \{X&gt;1\}$:
+$$\mathbb{E}[X^2] = \mathbf{P}(X=1)\,\mathbb{E}[X^2\mid X=1] + \mathbf{P}(X&gt;1)\,\mathbb{E}[X^2\mid X&gt;1] = p\,\mathbb{E}[X^2\mid X=1] + (1-p)\,\mathbb{E}[X^2\mid X&gt;1].$$</p>
+
+<p><b>Step 2 — the easy conditional.</b> Given $X=1$, $X^2 = 1$ with conditional probability 1, so
+$$\mathbb{E}[X^2\mid X=1] = 1.$$</p>
+
+<p><b>Step 3 — the memoryless conditional.</b> Given $\{X&gt;1\}$, write $X = 1 + R$ where $R = X - 1$ is the number of <em>further</em> attempts. By memorylessness (§3.5 with $k=1$), conditioned on $\{X&gt;1\}$ the variable $R$ has the original geometric PMF; in particular $\mathbb{E}[R] = \mathbb{E}[X]$ and $\mathbb{E}[R^2] = \mathbb{E}[X^2]$. Now expand the square:
+$$X^2 = (1+R)^2 = 1 + 2R + R^2,$$
+and take conditional expectations, using linearity inside the conditional universe:
+$$\mathbb{E}[X^2\mid X&gt;1] = 1 + 2\,\mathbb{E}[R \mid X&gt;1] + \mathbb{E}[R^2\mid X&gt;1] = 1 + 2\,\mathbb{E}[X] + \mathbb{E}[X^2].$$
+This is the step the textbook compresses into "with similar reasoning".</p>
+
+<p><b>Step 4 — assemble.</b> Substitute Steps 2 and 3 into Step 1:
+$$\mathbb{E}[X^2] = p\cdot 1 + (1-p)\Big(1 + 2\,\mathbb{E}[X] + \mathbb{E}[X^2]\Big).$$</p>
+
+<p><b>Step 5 — solve for $\mathbb{E}[X^2]$.</b> Expand:
+$$\mathbb{E}[X^2] = p + (1-p) + 2(1-p)\mathbb{E}[X] + (1-p)\mathbb{E}[X^2] = 1 + 2(1-p)\mathbb{E}[X] + (1-p)\mathbb{E}[X^2],$$
+using $p + (1-p) = 1$. Collect the $\mathbb{E}[X^2]$ terms:
+$$\mathbb{E}[X^2] - (1-p)\mathbb{E}[X^2] = 1 + 2(1-p)\mathbb{E}[X] \quad\Longrightarrow\quad p\,\mathbb{E}[X^2] = 1 + 2(1-p)\mathbb{E}[X],$$
+so
+$$\mathbb{E}[X^2] = \frac{1 + 2(1-p)\mathbb{E}[X]}{p} = \frac{1}{p} + \frac{2(1-p)}{p}\,\mathbb{E}[X].$$</p>
+
+<p><b>Step 6 — substitute $\mathbb{E}[X] = 1/p$.</b>
+$$\mathbb{E}[X^2] = \frac1p + \frac{2(1-p)}{p}\cdot\frac1p = \frac{1}{p} + \frac{2(1-p)}{p^{2}} = \frac{p + 2(1-p)}{p^2} = \frac{2-p}{p^2}.$$</p>
+
+<p><b>Step 7 — the variance.</b>
+$$\operatorname{var}(X) = \mathbb{E}[X^2] - \big(\mathbb{E}[X]\big)^2 = \frac{2-p}{p^{2}} - \frac{1}{p^{2}} = \frac{(2-p) - 1}{p^{2}} = \frac{1-p}{p^{2}}.$$
+$$\boxed{\;\operatorname{var}(X) = \frac{1-p}{p^{2}}, \qquad \sigma_X = \frac{\sqrt{1-p}}{p}\;}$$
+$\blacksquare$</p>
+
+<p><b>Numerical verification</b> (computes/g2_s3.py, keys <code>D_p=*</code>): summing the PMF numerically to $k = 19999$,</p>
+<table>
+<tr><th class="l">$p$</th><th>$\mathbb{E}[X]$ (sum)</th><th>$1/p$</th><th>$\operatorname{var}(X)$ (sum)</th><th>$(1-p)/p^2$</th><th>$\sigma_X$</th></tr>
+<tr><th class="l">$1/2$</th><td>2.000000</td><td>2</td><td>2.000000</td><td>2</td><td>1.414214</td></tr>
+<tr><th class="l">$1/5$</th><td>5.000000</td><td>5</td><td>20.000000</td><td>20</td><td>4.472136</td></tr>
+<tr><th class="l">$3/10$</th><td>3.333333</td><td>10/3</td><td>7.777778</td><td>70/9</td><td>2.788867</td></tr>
+</table>
+
+<p><b>Alternative derivation of $\mathbb{E}[X^2]$ by direct summation</b> (for readers who want the series route). With $q = 1-p$, differentiate the geometric series twice:
+$$\sum_{k=0}^{\infty}q^k = \frac{1}{1-q} \;\xrightarrow{\;d/dq\;}\; \sum_{k=1}^{\infty}kq^{k-1} = \frac{1}{(1-q)^2} \;\xrightarrow{\;d/dq\;}\; \sum_{k=2}^{\infty}k(k-1)q^{k-2} = \frac{2}{(1-q)^3} = \frac{2}{p^3}.$$
+Multiply by $q$ to shift the exponent: $\sum_{k\ge1} k(k-1)q^{k-1} = 2q/p^3$ (the $k=1$ term is zero, so extending the lower limit is free). Therefore
+$$\mathbb{E}[X(X-1)] = p\sum_{k\ge1}k(k-1)q^{k-1} = p\cdot\frac{2q}{p^3} = \frac{2(1-p)}{p^{2}},$$
+and since $X^2 = X(X-1) + X$,
+$$\mathbb{E}[X^2] = \frac{2(1-p)}{p^2} + \frac1p = \frac{2-2p+p}{p^2} = \frac{2-p}{p^2},$$
+matching Step 6 exactly. ✓</p>
+</div></details>
+</div>
+
+<div class="note"><b>Interpretation — how spread out is a geometric wait?</b> With $\mathbb{E}[X] = 1/p$ and $\sigma_X = \sqrt{1-p}/p$, the <em>coefficient of variation</em> is
+$$\frac{\sigma_X}{\mathbb{E}[X]} = \frac{\sqrt{1-p}/p}{1/p} = \sqrt{1-p},$$
+which tends to $1$ as $p \to 0$. For rare successes the standard deviation is almost as large as the mean: if a bug appears on any given run with probability $p = 0.01$, you expect to wait 100 runs, but with a standard deviation of $\sqrt{0.99}/0.01 \approx 99.5$ runs. "About 100, plus or minus about 100" is the honest summary — geometric waits are wildly variable, and quoting only the mean badly misrepresents them. Fig. 3.4(f) shows both curves blowing up together as $p \to 0$.</div>
+
+<div class="warn"><b>Gotcha — $\operatorname{var}(X) \neq \big(\mathbb{E}[X]\big)^2 - \mathbb{E}[X]$ or any other misremembered shuffle.</b> Two reliable checks on $\operatorname{var}(X) = (1-p)/p^2$. (i) At $p = 1$ (every trial succeeds) $X \equiv 1$ is constant, and the formula gives $\operatorname{var}(X) = 0/1 = 0$. ✓ (ii) As $p\to0$ the variance must blow up, and $(1-p)/p^2 \to \infty$. ✓ A formula failing either check is wrong.</div>
+
+<div class="ex"><b>Practice 3.12.</b> $X$ is geometric with $p = 1/4$. Find $\mathbb{E}[X]$, $\operatorname{var}(X)$, $\sigma_X$, $\mathbf{P}(X&gt;6)$, $\mathbb{E}[X\mid X&gt;6]$ and $\operatorname{var}(X\mid X&gt;6)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mathbb{E}[X] = 1/p = 4$. $\operatorname{var}(X) = (1-1/4)/(1/4)^2 = (3/4)/(1/16) = 12$, so $\sigma_X = \sqrt{12} \approx 3.464102$.</p>
+<p>$\mathbf{P}(X&gt;6) = (1-p)^6 = (3/4)^6 = 729/4096 \approx 0.177979$.</p>
+<p>$\mathbb{E}[X\mid X&gt;6] = 6 + 1/p = 6 + 4 = 10$ by memorylessness.</p>
+<p>$\operatorname{var}(X\mid X&gt;6)$: conditioned on $\{X&gt;6\}$ we have $X = 6 + R$ with $R$ geometric($p$); adding the constant 6 does not change a variance (§3.2 Property 1 with $a=1$), so $\operatorname{var}(X\mid X&gt;6) = \operatorname{var}(R) = 12$ — unchanged. (computes/g2_s3.py keys <code>I3_*</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.13.</b> A quality inspector tests items one at a time; each is defective with probability $0.05$, independently. Let $X$ be the number of items tested up to and including the first defective. (a) $\mathbb{E}[X]$ and $\sigma_X$. (b) The inspector has tested 40 good items. What is the expected number of further tests until a defective appears? (c) Comment on how useful the mean alone is here.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) $\mathbb{E}[X] = 1/0.05 = 20$ items; $\operatorname{var}(X) = 0.95/0.05^2 = 0.95/0.0025 = 380$, so $\sigma_X = \sqrt{380} \approx 19.4936$.</p>
+<p>(b) Memorylessness: still $1/p = 20$ further tests, expected. The 40 clean tests are informationally worthless (under this model).</p>
+<p>(c) $\sigma_X \approx 19.49$ is nearly equal to $\mathbb{E}[X] = 20$ (coefficient of variation $\sqrt{1-p} = \sqrt{0.95} \approx 0.9747$), so the mean alone is a poor summary: outcomes of 2 and of 60 are both entirely ordinary. Quote a mean <em>and</em> a spread, or better, quote the tail $\mathbf{P}(X &gt; k) = 0.95^k$.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.14.</b> Re-derive $\operatorname{var}(X) = (1-p)/p^2$ for geometric $X$ by a third route: start from the observation $\operatorname{var}(X\mid X&gt;1) = \operatorname{var}(X)$ (memorylessness plus the shift-invariance of variance), and check that it agrees with Example 3.6.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Conditioned on $\{X&gt;1\}$ we have $X = 1 + R$ with $R$ geometric($p$), so $\operatorname{var}(X\mid X&gt;1) = \operatorname{var}(1+R) = \operatorname{var}(R) = \operatorname{var}(X) =: v$, and $\mathbb{E}[X \mid X&gt;1] = 1 + 1/p$. Hence
+$$\mathbb{E}[X^2\mid X&gt;1] = \operatorname{var}(X\mid X&gt;1) + \big(\mathbb{E}[X\mid X&gt;1]\big)^2 = v + \left(1+\tfrac1p\right)^2,$$
+using Property 2 rearranged, inside the conditional universe. Total expectation for $X^2$ with the same partition gives
+$$\mathbb{E}[X^2] = p(1) + (1-p)\left[v + \left(1+\tfrac1p\right)^2\right].$$
+Also $\mathbb{E}[X^2] = v + 1/p^2$ by Property 2. Equating,
+$$v + \frac{1}{p^2} = p + (1-p)v + (1-p)\frac{(p+1)^2}{p^2}.$$
+Collect $v$: $\;v\,p = p + (1-p)\frac{(p+1)^2}{p^2} - \frac{1}{p^2}$. Multiply through by $p^2$:
+$$v\,p^3 = p^3 + (1-p)(p+1)^2 - 1 = p^3 + (1-p)(p^2+2p+1) - 1.$$
+Expand $(1-p)(p^2+2p+1) = p^2+2p+1-p^3-2p^2-p = -p^3 - p^2 + p + 1$. So
+$$v\,p^3 = p^3 + \big(-p^3 - p^2 + p + 1\big) - 1 = -p^2 + p = p(1-p),$$
+giving $v = p(1-p)/p^3 = (1-p)/p^2$. ✓ Identical to Step 7 of Example 3.6, and then $\mathbb{E}[X^2] = v + 1/p^2 = (1-p)/p^2 + 1/p^2 = (2-p)/p^2$. ✓</p>
+</div></details></div>
+
+<h3>3.8 State recursions: waiting for two in a row</h3>
+
+<p>The conditioning trick of §3.7 solved <em>one</em> equation in one unknown because the geometric process has a single "state": either you have succeeded or you are back at the start. When a process has several states, the same trick produces one equation per state — a small linear system. rec07 P3 is the canonical example.</p>
+
+<div class="ex"><b>Example 3.7 (rec07 Problem 3 = B&amp;T Problem 2.33, pp. 128–129).</b> A coin with $\mathbf{P}(\text{heads}) = p$ is tossed successively and independently until a head comes twice in a row or a tail comes twice in a row. Find the expected value of the number of tosses.
+
+<p class="srcref" style="margin-top:.4em">The rec07 solutions handout gives only "See the textbook, Problem 2.33, page 128" — no recursion, no conditioning argument, no closed form. The full solution follows.</p>
+
+<details class="sol"><summary>Solution — complete, every step</summary><div class="body">
+<p><b>Notation.</b> Let $X$ be the total number of tosses until the game stops. Write $p = \mathbf{P}(\text{heads})$ and $q = 1-p = \mathbf{P}(\text{tails})$ on each toss. Let $H_k$ (respectively $T_k$) be the event that toss $k$ is a head (respectively a tail). The tosses are independent with $\mathbf{P}(H_k) = p$ and $\mathbf{P}(T_k) = q$ for every $k$.</p>
+
+<p><b>Why not compute the PMF?</b> One could find $p_X(n)$ directly — the game lasts at least $n$ tosses exactly when the first $n-1$ tosses alternate — but for an unfair coin those alternating-pattern probabilities depend on the parity of $n$ and on which symbol started, and the resulting sum is messy. (It <em>is</em> doable; the enumeration is carried out numerically in computes/g2_s3.py, function <code>two_in_row_sim_pmf</code>, as an independent check on the answer below.) Conditioning is far cleaner.</p>
+
+<p><b>Step 1 — the outer partition.</b> The events $H_1$ and $T_1$ (first toss head / first toss tail) are disjoint and exhaustive, so by total expectation,
+$$\mathbb{E}[X] = \mathbf{P}(H_1)\,\mathbb{E}[X\mid H_1] + \mathbf{P}(T_1)\,\mathbb{E}[X\mid T_1] = p\,a + q\,b,$$
+where we abbreviate
+$$a := \mathbb{E}[X\mid H_1], \qquad b := \mathbb{E}[X\mid T_1].$$
+$a$ is the expected total number of tosses given the first one was a head; $b$ is the same given the first was a tail.</p>
+
+<p><b>Step 2 — condition again on the second toss, to get an equation for $a$.</b> Given $H_1$, the events $H_2$ and $T_2$ partition what happens next, with $\mathbf{P}(H_2\mid H_1)=p$ and $\mathbf{P}(T_2\mid H_1)=q$ by independence. So
+$$a = \mathbb{E}[X\mid H_1] = p\,\mathbb{E}[X\mid H_1\cap H_2] + q\,\mathbb{E}[X\mid H_1\cap T_2].$$</p>
+<ul>
+<li><b>$\mathbb{E}[X\mid H_1\cap H_2] = 2$</b>: two heads in a row have occurred at tosses 1 and 2, so the game ends at toss 2 exactly. No randomness remains.</li>
+<li><b>$\mathbb{E}[X\mid H_1\cap T_2] = 1 + \mathbb{E}[X\mid T_1]= 1 + b$</b>: the game is not over, and the <em>only</em> thing that matters going forward is the identity of the most recent toss, which is a tail. So from toss 2 onward the situation is statistically identical to the situation right after a first toss that was a tail — costing $b$ more tosses in expectation — plus the one toss already spent at index 1. (Formally: the future depends on the past only through the last symbol, because the stopping rule only compares consecutive tosses.)</li>
+</ul>
+<p>Substituting,
+$$a = p\cdot 2 + q\,(1 + b) = 2p + q + q\,b. \tag{i}$$</p>
+
+<p><b>Step 3 — the symmetric equation for $b$.</b> Swapping the roles of heads and tails (and hence of $p$ and $q$, and of $a$ and $b$):
+$$b = q\cdot 2 + p\,(1 + a) = 2q + p + p\,a. \tag{ii}$$</p>
+
+<p><b>Step 4 — solve the $2\times2$ system.</b> Substitute (ii) into (i):
+$$a = 2p + q + q\big(2q + p + p\,a\big) = 2p + q + 2q^2 + pq + pq\,a.$$
+Collect the $a$ terms:
+$$a - pq\,a = 2p + q + 2q^2 + pq \quad\Longrightarrow\quad a\,(1 - pq) = 2p + q + 2q^2 + pq.$$
+Now simplify the right-hand side using $q = 1-p$ (equivalently $p + q = 1$). Claim: it equals $2 + q^2$. Check the difference:
+$$\big(2p + q + 2q^2 + pq\big) - \big(2 + q^2\big) = 2p + q + q^2 + pq - 2.$$
+Substitute $q = 1-p$ term by term: $2p + (1-p) + (1-p)^2 + p(1-p) - 2 = 2p + 1 - p + 1 - 2p + p^2 + p - p^2 - 2$. Group: the $p$ terms give $2p - p - 2p + p = 0$; the constants give $1 + 1 - 2 = 0$; the $p^2$ terms give $p^2 - p^2 = 0$. Total $= 0$, so indeed $2p+q+2q^2+pq = 2+q^2$ and
+$$\boxed{\;a = \mathbb{E}[X\mid H_1] = \frac{2+q^2}{1-pq}\;}$$
+By the head/tail symmetry of the argument,
+$$\boxed{\;b = \mathbb{E}[X\mid T_1] = \frac{2+p^2}{1-pq}\;}$$
+Both expressions are verified numerically below (and note they are exchanged by $p \leftrightarrow q$, as the symmetry of the problem requires).</p>
+
+<p><b>Step 5 — assemble.</b> From Step 1,
+$$\mathbb{E}[X] = p\,a + q\,b = p\cdot\frac{2+q^2}{1-pq} + q\cdot\frac{2+p^2}{1-pq} = \frac{2p + pq^2 + 2q + qp^2}{1-pq}.$$
+Factor the numerator: $2p + 2q = 2(p+q) = 2$, and $pq^2 + qp^2 = pq(q+p) = pq$. Hence
+$$\boxed{\;\mathbb{E}[X] = \frac{2 + pq}{1 - pq} = \frac{2 + p(1-p)}{1 - p(1-p)}\;}$$
+$\blacksquare$</p>
+
+<p><b>Step 6 — checks.</b></p>
+<ul>
+<li><b>Fair coin.</b> $p = q = 1/2$ gives $pq = 1/4$ and $\mathbb{E}[X] = \dfrac{2 + 0.25}{1 - 0.25} = \dfrac{2.25}{0.75} = 3$ tosses, a clean integer. Note $a = b = 3$ too, as symmetry demands.</li>
+<li><b>Range.</b> The product $pq = p(1-p)$ ranges over $[0, 1/4]$, maximized at $p = 1/2$. The map $u \mapsto (2+u)/(1-u)$ is increasing on $[0,1/4]$, so
+$$\mathbb{E}[X] \in \left[\frac{2+0}{1-0},\; \frac{2+1/4}{1-1/4}\right] = [2, 3],$$
+so $2 \le \mathbb{E}[X] \le 3$ for every $p$ — a strikingly narrow range. The lower end is approached as $p\to0$ or $p\to1$: a nearly deterministic coin repeats itself on toss 2 almost surely, so the game almost always ends at exactly 2 tosses. Numerically, computes/g2_s3.py scanning 200 001 values of $p$ finds minimum $2.000003$ and maximum $3.000000$ at $p = 0.5$ (keys <code>E_min_EX_over_p</code>, <code>E_max_EX_over_p</code>, <code>E_argmax_p</code>).</li>
+<li><b>Independent numerical check.</b> Enumerating the exact PMF of $X$ (alternating-run probabilities, 200 terms) reproduces the closed form to 8+ digits:
+<table>
+<tr><th class="l">$p$</th><th>$a = \mathbb{E}[X\mid H_1]$</th><th>$b = \mathbb{E}[X\mid T_1]$</th><th>$\mathbb{E}[X]$ closed form</th><th>$\mathbb{E}[X]$ by enumeration</th></tr>
+<tr><th class="l">$1/2$</th><td>$3$</td><td>$3$</td><td>$3$</td><td>3.000000</td></tr>
+<tr><th class="l">$2/5$</th><td>$59/19 \approx 3.105263$</td><td>$54/19 \approx 2.842105$</td><td>$56/19 \approx 2.947368$</td><td>2.947368</td></tr>
+<tr><th class="l">$1/10$</th><td>$281/91 \approx 3.087912$</td><td>$201/91 \approx 2.208791$</td><td>$209/91 \approx 2.296703$</td><td>2.296703</td></tr>
+</table>
+(computes/g2_s3.py keys <code>E_p=*</code>; the enumerated PMFs also sum to $1.0$ to 12 decimals.)</li>
+<li><b>Asymmetry check.</b> At $p = 1/10$ the coin is tail-heavy, and indeed $b \approx 2.21 &lt; a \approx 3.09$: starting with a tail is good news because a second tail (probability $0.9$) is likely to follow immediately.</li>
+</ul>
+</div></details>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s3_states}}" alt="Two state diagrams. Panel (a): a start node with an arrow labeled p to a node last equals H and an arrow labeled q to a node last equals T. Arrows labeled q and p run between the two nodes, and arrows labeled p (HH) and q (TT) run from each to a STOP node. Below are the two equations a = 2p + q(1+b) and b = 2q + p(1+a) and the answer E[X] = pa + qb = (2+pq)/(1-pq). Panel (b): nodes S0 no H, S1 one H and STOP, with an arrow p from S0 to S1, an arrow p (HH) from S1 to STOP, a curved arrow q from S1 back to S0, and a self-loop q on S0; below, A = 1 + pB + qA, B = 1 + p times 0 + qA, and A = E[N] = (1+p)/p squared, equal to 6 when p is one half." style="max-width:900px">
+<div class="figcap">Fig. 3.6 — State diagrams for the two waiting-time recursions. (a) rec07 P3: stop at HH or TT. (b) The companion problem: stop at HH only. In both, each state carries one unknown expectation and each outgoing arrow contributes one term to that state's equation.</div>
+
+<div class="recipe"><b>Recipe — solving "expected time until pattern" problems by states.</b>
+<ol>
+<li><b>Define the state</b> = the minimum information about the past you need to predict the future. For "two in a row", the state is the identity of the most recent toss (plus a "nothing yet" start state). For "$k$ heads in a row", the state is how many trailing heads you already have, $0,1,\dots,k-1$.</li>
+<li><b>Draw the diagram.</b> One node per state, plus an absorbing STOP. Label each arrow with its one-step probability.</li>
+<li><b>Assign one unknown per state:</b> $E_s = $ expected number of <em>remaining</em> tosses starting from state $s$ (or expected <em>total</em>, if you prefer — just be consistent; the two conventions differ by the tosses already spent).</li>
+<li><b>Write one equation per state</b> by conditioning on the very next toss:
+$$E_s \;=\; 1 \;+\; \sum_{s'} \mathbf{P}(s \to s')\,E_{s'}, \qquad E_{\text{STOP}} = 0,$$
+where the leading $1$ is the toss you are about to make. (Total expectation theorem, §3.6, with the partition "next toss is a head" / "next toss is a tail".)</li>
+<li><b>Solve the linear system</b> — usually by substitution, since these systems are tiny.</li>
+<li><b>Check</b> at $p=1/2$ (where symmetry often gives a clean integer) and at the extremes $p\to0$, $p\to1$.</li>
+</ol></div>
+
+<div class="ex"><b>Example 3.8 (companion problem — expected tosses until two <em>heads</em> in a row).</b> The same coin, $\mathbf{P}(\text{heads}) = p$, $q = 1-p$, is tossed until <b>HH</b> appears (a TT does <em>not</em> stop the game). Let $N$ be the number of tosses. Find $\mathbb{E}[N]$.
+
+<details class="sol"><summary>Solution — the recursion, solved completely</summary><div class="body">
+<p><b>Step 1 — states.</b> Only the length of the current run of trailing heads matters, and it can be $0$ or $1$ (at $2$ the game is over):</p>
+<ul>
+<li>$S_0$: the last toss was a tail, or no toss has been made — no head banked.</li>
+<li>$S_1$: exactly one head banked (the last toss was a head, the one before was not a head).</li>
+</ul>
+<p>Define $A = \mathbb{E}[\text{remaining tosses} \mid \text{now in } S_0]$ and $B = \mathbb{E}[\text{remaining tosses}\mid \text{now in }S_1]$. Since we start in $S_0$ with no tosses spent, $\mathbb{E}[N] = A$.</p>
+
+<p><b>Step 2 — the equation at $S_0$.</b> Make one toss (that is the $+1$). With probability $p$ it is a head and we move to $S_1$; with probability $q$ it is a tail and we are back in $S_0$ (a tail banks nothing). By total expectation over these two disjoint, exhaustive cases:
+$$A = 1 + p\,B + q\,A. \tag{iii}$$</p>
+
+<p><b>Step 3 — the equation at $S_1$.</b> Make one toss. With probability $p$ it is a head, completing HH — zero further tosses needed. With probability $q$ it is a tail, which <em>wipes out</em> the banked head and returns us to $S_0$:
+$$B = 1 + p\cdot 0 + q\,A = 1 + q\,A. \tag{iv}$$</p>
+
+<p><b>Step 4 — solve.</b> Substitute (iv) into (iii):
+$$A = 1 + p\,(1 + qA) + qA = 1 + p + pq\,A + q\,A.$$
+Collect the $A$ terms on the left:
+$$A - pq\,A - q\,A = 1 + p \quad\Longrightarrow\quad A\big(1 - q - pq\big) = 1+p.$$
+Simplify the bracket using $1 - q = p$:
+$$1 - q - pq = p - pq = p(1-q) = p\cdot p = p^2.$$
+Therefore
+$$A\,p^{2} = 1 + p \quad\Longrightarrow\quad \boxed{\;\mathbb{E}[N] = A = \frac{1+p}{p^{2}}\;}$$
+and, from (iv), $B = 1 + q\dfrac{1+p}{p^2} = \dfrac{p^2 + (1-p)(1+p)}{p^2} = \dfrac{p^2 + 1 - p^2}{p^2} = \dfrac{1}{p^{2}}$ — a pleasingly clean by-product. $\blacksquare$</p>
+
+<p><b>Step 5 — checks.</b> At $p = 1/2$: $\mathbb{E}[N] = (1.5)/(0.25) = 6$ tosses, and $B = 4$. At $p = 1/3$: $\mathbb{E}[N] = (4/3)/(1/9) = 12$; at $p = 2/3$: $(5/3)/(4/9) = 15/4 = 3.75$. All three match an independent dynamic-programming enumeration of the PMF of $N$ (computes/g2_s3.py keys <code>F_p=*</code>, agreement to $10^{-6}$, PMFs summing to $1.0$). Sanity: $\mathbb{E}[N] = (1+p)/p^2 &gt; 1/p = $ the wait for a <em>single</em> head, as it must be, and it blows up like $1/p^2$ for rare heads — you need two <em>consecutive</em> rare events.</p>
+
+<p><b>Contrast with Example 3.7.</b> Waiting for HH-or-TT takes at most 3 tosses on average <em>for any $p$</em>, because a lopsided coin repeats itself quickly. Waiting for HH alone is unbounded as $p\to0$, because a lopsided tail-heavy coin destroys your progress on almost every toss. Same technique, opposite behavior — which is exactly why you draw the state diagram instead of guessing.</p>
+</div></details>
+</div>
+
+<div class="warn"><b>Gotcha — the "$+1$" and the wiped-out progress.</b> Two errors dominate these problems. (i) Forgetting the leading $1$ in $E_s = 1 + \sum_{s'}\mathbf{P}(s\to s')E_{s'}$: every equation must charge for the toss you are about to make, otherwise the whole system collapses to $0$. (ii) Assuming a failure returns you to the <em>start</em> when it may return you somewhere better. In Example 3.8 a tail really does send you to $S_0$; but if the target pattern were <b>HT</b>, a tail after a head would <em>finish</em> the game, and if the target were <b>HTH</b>, a failure could leave you partway through. Always ask "after this toss, what is the longest suffix of what I've seen that is a prefix of the target?" — that is the state.</div>
+
+<div class="ex"><b>Practice 3.15.</b> For the rec07 P3 game (stop at HH or TT) with $p = 1/3$, compute $\mathbb{E}[X\mid H_1]$, $\mathbb{E}[X\mid T_1]$ and $\mathbb{E}[X]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$p = 1/3$, $q = 2/3$, so $pq = 2/9$ and $1 - pq = 7/9$.</p>
+<p>$\displaystyle a = \frac{2+q^2}{1-pq} = \frac{2 + 4/9}{7/9} = \frac{22/9}{7/9} = \frac{22}{7} \approx 3.142857$.</p>
+<p>$\displaystyle b = \frac{2+p^2}{1-pq} = \frac{2 + 1/9}{7/9} = \frac{19/9}{7/9} = \frac{19}{7} \approx 2.714286$.</p>
+<p>$\displaystyle \mathbb{E}[X] = \frac{2+pq}{1-pq} = \frac{2+2/9}{7/9} = \frac{20/9}{7/9} = \frac{20}{7} \approx 2.857143$. Cross-check via Step 1: $pa + qb = \frac13\cdot\frac{22}{7} + \frac23\cdot\frac{19}{7} = \frac{22}{21} + \frac{38}{21} = \frac{60}{21} = \frac{20}{7}$. ✓ And $2 \le 20/7 \le 3$. ✓ (computes/g2_s3.py keys <code>I7_*</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.16.</b> Generalize Example 3.8: find the expected number of tosses until <b>three</b> heads in a row, and evaluate it for a fair coin.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>States $S_0, S_1, S_2$ = number of trailing heads banked (0, 1, or 2); the game stops on reaching 3. Let $A, B, C$ be the expected remaining tosses from $S_0, S_1, S_2$. Conditioning on the next toss:
+$$A = 1 + pB + qA, \qquad B = 1 + pC + qA, \qquad C = 1 + p\cdot 0 + qA.$$
+Substitute $C$ into $B$: $B = 1 + p(1+qA) + qA = 1 + p + pqA + qA$. Substitute that into $A$:
+$$A = 1 + p\big(1 + p + pqA + qA\big) + qA = 1 + p + p^2 + p^2qA + pqA + qA.$$
+Collect: $A\big(1 - q - pq - p^2q\big) = 1 + p + p^2$. For the bracket, use $1 - q = p$:
+$$1 - q - pq - p^2 q = p - pq - p^2q = p(1 - q - pq) = p\big(p - pq\big) = p\cdot p(1-q) = p^2\cdot p = p^3,$$
+reusing the simplification from Example 3.8 one level up. Hence
+$$\mathbb{E}[N_3] = A = \frac{1 + p + p^2}{p^{3}},$$
+and the pattern for $k$ in a row is $\mathbb{E}[N_k] = \dfrac{1 + p + \cdots + p^{k-1}}{p^{k}}$.</p>
+<p>Fair coin, $k=3$: $\mathbb{E}[N_3] = \dfrac{1 + 1/2 + 1/4}{1/8} = \dfrac{7/4}{1/8} = 14$ tosses. (Compare 6 for HH and 2 for a single head: each extra required head roughly doubles-plus the wait.) Verified by dynamic programming for $k = 2, 3$ at $p = 1/2$ and $p = 1/3$ — computes/g2_s3.py keys <code>I8_*</code>: $k=3$, $p=1/3$ gives $39.0$ both ways.</p>
+</div></details></div>
+
+<div class="summary"><b>§3 cheatsheet.</b>
+<ul>
+<li><b>Centered variable</b> (L06 slide 2): $\mathbb{E}\big[X-\mathbb{E}[X]\big] = 0$ always — useless as a spread measure, which is why we square.</li>
+<li><b>Variance</b>: $\operatorname{var}(X) = \mathbb{E}[(X-\mathbb{E}[X])^2] = \sum_x (x-\mu)^2p_X(x) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$. Standard deviation $\sigma_X = \sqrt{\operatorname{var}(X)}$.</li>
+<li><b>Linear change of variable</b>: $\mathbb{E}[aX+b] = a\mathbb{E}[X]+b$, but $\operatorname{var}(aX+b) = a^2\operatorname{var}(X)$ and $\sigma_{aX+b} = |a|\sigma_X$. The shift $b$ never affects spread.</li>
+<li><b>Expected-value rule</b>: $\mathbb{E}[g(X)] = \sum_x g(x)p_X(x)$, and $\mathbb{E}[g(X)] \neq g(\mathbb{E}[X])$ unless $g$ is affine. Random speed (L06 slides 3–4): $\mathbb{E}[V] = 100.5$ mph, $\sigma_V = 99.5$, $\mathbb{E}[T] = 100.5$ h, but $200/\mathbb{E}[V] \approx 1.990$ h — wrong by a factor of $50.5$. Effective speed over a fixed distance is the harmonic mean.</li>
+<li><b>Conditional PMF</b> (L06 slide 5): $p_{X|A}(x) = \mathbf{P}(\{X=x\}\cap A)/\mathbf{P}(A)$ — delete the mass outside $A$, rescale the rest by $1/\mathbf{P}(A)$. Then $\mathbb{E}[X\mid A] = \sum_x x\,p_{X|A}(x)$. Uniform on $\{1,2,3,4\}$ with $A=\{X\ge2\}$: $p_{X|A} = 1/3$ on $\{2,3,4\}$, $\mathbb{E}[X\mid A]=3$, $\operatorname{var}(X\mid A)=2/3$.</li>
+<li><b>Geometric</b> (L06 slide 6): $p_X(k) = (1-p)^{k-1}p$, $k\ge1$; tail $\mathbf{P}(X&gt;k) = (1-p)^k$.</li>
+<li><b>Memorylessness</b>: $\mathbf{P}(X-k = n\mid X&gt;k) = p_X(n)$; equivalently $\mathbb{E}[X\mid X&gt;k] = k + 1/p$ while the <em>remaining</em> wait still averages $1/p$.</li>
+<li><b>Total expectation</b> (L06 slide 7): for a partition $A_1,\dots,A_n$, $\;\mathbb{E}[X] = \sum_i \mathbf{P}(A_i)\mathbb{E}[X\mid A_i]$ (and the same for $p_X$ and for $\mathbb{E}[g(X)]$). Weights must sum to 1.</li>
+<li><b>Geometric mean and variance</b> (L06 slide 7; rec06 P3 = B&amp;T Ex. 2.17): $\mathbb{E}[X] = 1 + (1-p)\mathbb{E}[X] \Rightarrow \mathbb{E}[X] = 1/p$; $\;\mathbb{E}[X^2] = (2-p)/p^2$; $\;\operatorname{var}(X) = (1-p)/p^2$; $\;\sigma_X/\mathbb{E}[X] = \sqrt{1-p}$.</li>
+<li><b>State recursions</b>: $E_s = 1 + \sum_{s'}\mathbf{P}(s\to s')E_{s'}$, $E_{\text{STOP}} = 0$. rec07 P3 (stop at HH or TT): $\mathbb{E}[X] = (2+pq)/(1-pq) \in [2,3]$, equal to $3$ for a fair coin. Companion (stop at HH only): $\mathbb{E}[N] = (1+p)/p^2$, equal to $6$ for a fair coin; $k$ in a row costs $(1+p+\cdots+p^{k-1})/p^k$.</li>
+</ul>
+All numbers in this section are produced and cross-checked by <code>computes/g2_s3.py</code> (JSON: <code>computes/g2_s3.json</code>); all figures by <code>computes/g2_s3_figs.py</code>.</div>

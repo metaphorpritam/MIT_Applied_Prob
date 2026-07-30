@@ -1,0 +1,111 @@
+{
+  "wheel_cells": [
+    10,
+    100,
+    1000000
+  ],
+  "wheel_cell_prob": [
+    "1/10",
+    "1/100",
+    "1/1000000"
+  ],
+  "wheel_cell_prob_dec": [
+    0.1,
+    0.01,
+    1e-06
+  ],
+  "wheel_interval_a": 0.25,
+  "wheel_interval_b": 0.5,
+  "wheel_interval_prob": 0.25,
+  "deltas": [
+    0.1,
+    0.01,
+    0.001
+  ],
+  "uniform_delta_probs": [
+    0.1,
+    0.01,
+    0.001
+  ],
+  "narrow_uniform_b": 0.25,
+  "narrow_uniform_height": 4.0,
+  "narrow_uniform_total_area": 1.0,
+  "discrete_uniform_midpoints": {
+    "4": {
+      "mean_exact": "1/2",
+      "mean": 0.5,
+      "var_exact": "5/64",
+      "var": 0.078125,
+      "var_closed_form": 0.078125,
+      "mass_each": "1/4"
+    },
+    "10": {
+      "mean_exact": "1/2",
+      "mean": 0.5,
+      "var_exact": "33/400",
+      "var": 0.0825,
+      "var_closed_form": 0.0825,
+      "mass_each": "1/10"
+    },
+    "100": {
+      "mean_exact": "1/2",
+      "mean": 0.5,
+      "var_exact": "3333/40000",
+      "var": 0.083325,
+      "var_closed_form": 0.083325,
+      "mass_each": "1/100"
+    },
+    "1000": {
+      "mean_exact": "1/2",
+      "mean": 0.5,
+      "var_exact": "333333/4000000",
+      "var": 0.08333325,
+      "var_closed_form": 0.08333325,
+      "mass_each": "1/1000"
+    }
+  },
+  "cont_uniform_mean": 0.5,
+  "cont_uniform_var": 0.08333333333333333,
+  "cont_uniform_var_str": "1/12",
+  "clt_binomial": {
+    "5": {
+      "sd": 1.118033988749895,
+      "spacing_delta": 0.8944271909999159,
+      "pmf_sum": 0.9999999999999996,
+      "max_pmf": 0.31249999999999983,
+      "max_pmf_at_k": 2,
+      "peak_density": 0.349385621484342,
+      "max_abs_dev_from_normal": 0.0124949835432219
+    },
+    "20": {
+      "sd": 2.23606797749979,
+      "spacing_delta": 0.4472135954999579,
+      "pmf_sum": 0.9999999999999999,
+      "max_pmf": 0.17619705200195296,
+      "max_pmf_at_k": 10,
+      "peak_density": 0.39398858571143225,
+      "max_abs_dev_from_normal": 0.004953694690000454
+    },
+    "80": {
+      "sd": 4.47213595499958,
+      "spacing_delta": 0.22360679774997896,
+      "pmf_sum": 0.9999999999999997,
+      "max_pmf": 0.08892787877390716,
+      "max_pmf_at_k": 40,
+      "peak_density": 0.39769756406663415,
+      "max_abs_dev_from_normal": 0.0012447163347985568
+    },
+    "320": {
+      "sd": 8.94427190999916,
+      "spacing_delta": 0.11180339887498948,
+      "pmf_sum": 1.0,
+      "max_pmf": 0.044568270394589195,
+      "max_pmf_at_k": 160,
+      "peak_density": 0.3986307289675713,
+      "max_abs_dev_from_normal": 0.00031155143386141226
+    }
+  },
+  "normal_peak": 0.3989422804014327,
+  "binom80_P_absZ_le_1": 0.6856934201360626,
+  "normal_P_absZ_le_1": 0.6826894921370859
+}

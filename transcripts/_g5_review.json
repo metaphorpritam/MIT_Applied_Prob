@@ -1,0 +1,252 @@
+[
+ {
+  "section": 1,
+  "severity": "critical",
+  "description": "\u00a71.2, Example 1.4, Step 4 (boundary state i=m): the derived value contradicts the model as stated in the same example. The problem statement says \"an arrival that finds the counter full is turned away\", and Step 4 repeats \"an arrival is turned away and cannot change the state\". Under that rule the blocked arrival is lost, so the count at the end of the slot is m - D, giving p_{m,m-1} = q and p_{mm} = 1 - q. The note instead boxes p_{m,m-1} = q(1-p), p_{mm} = 1 - q(1-p), and then justifies it as \"a departure and no (accepted) arrival\" \u2014 but the factor (1-p) can only appear if an arrival IS accepted when a departure frees a slot in the same slot, i.e. exactly the opposite of \"turned away\". The wrong value propagates: Example 1.5 quotes p_{10,9}=0.32, p_{10,10}=0.68 (should be 0.40 / 0.60 under the stated rule), computes/g5_s1.py key B_pmm=0.68, the \u00a71 cheatsheet bullet \"p_{m,m-1}=q(1-p), p_{mm}=1-q(1-p)\", the Fig. 1.4 caption and alt-text, and the widget line `P[m][m-1] = q*(1-p); P[m][m] = 1 - q*(1-p)`. Fix: either state the admission rule as \"an arrival is accepted if a departure frees a slot in the same slot\" (keeping q(1-p)), or keep \"turned away\" and change the boundary row to p_{m,m-1}=q, p_{mm}=1-q, rerunning the compute and the widget."
+ },
+ {
+  "section": 1,
+  "severity": "major",
+  "description": "\u00a71.2, Example 1.4, Step 3: the stated reason why p_{01}=p rather than p(1-q) is wrong. The text says \"the interior formula charges the arriving customer with the possibility of being served away in the same slot\". In the Step-2 derivation D_{n+1} is defined as the departure of \"the customer in service\", i.e. a pre-existing customer \u2014 the arriving customer is never served in its own slot in any interior state either. The correct reason is that at state 0 nobody is in service, so D_{n+1} \u2261 0 and the (1-q) factor simply is not there. As written it also directly contradicts Practice 1.9, which concludes the model already forbids same-slot service of an arrival."
+ },
+ {
+  "section": 1,
+  "severity": "major",
+  "description": "\u00a71.2, Gotcha \"the within-slot convention is part of the model\" vs. Practice 1.9: mutually contradictory. The Gotcha asserts that \"an arriving customer cannot be served in the slot in which it arrives, or an arrival is only accepted after the departure is processed\" is \"a different but equally defensible convention\" that \"changes p_ii and the boundary rows\". Practice 1.9 then works that very convention out and correctly concludes nothing changes (\"the interior row is again p_{i,i+1}=p(1-q), p_{i,i-1}=q(1-p), p_{ii}=pq+(1-p)(1-q)\") because it is the convention already adopted. One of the two must be rewritten: the genuinely alternative convention is the opposite one \u2014 an arriving customer CAN be served in its own slot (giving p_{01}=p(1-q)) \u2014 which is what Practice 1.9's last sentences describe."
+ },
+ {
+  "section": 1,
+  "severity": "major",
+  "description": "\u00a71.4, Interpretation box, item 1: \"by n=10 they agree with the limit in six decimals\" is numerically false. computes/g5_s1.json A_r_n10 = 0.2857185035 vs \u03c0\u2081 = 0.2857142857; the gap is 4.22e-6 (computes/g5_s0.json two_state_convergence_gap[\"10\"] = 4.2178e-06), so the values agree to five decimals, not six. The same paragraph then says \"about log(10\u207b\u2076)/log(0.3) \u2248 11.5 steps buy six decimals\", which contradicts the claim. Fix to \"five decimals by n=10\" (or \"by n\u224812 for six\"). Note the identical phrasing in Practice 1.1 (\"by n=10 both rows have become (0.75,0.25) to six decimals\") IS correct there, since \u03bb=0.2 gives an error of 2.6e-8."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "\u00a71.2, Practice 1.4, final sentence: \"with no self-transitions the fortune has the same parity as n until absorption\" is backwards for this chain. X_n \u2261 X_0 + n (mod 2), and X_0 = 1, so X_n has the parity of n+1 (after 1 round the fortune is 0 or 2, both even, while n=1 is odd). Say \"X_n has the parity of X_0 + n\", which is what actually forces r_{11}(2)=0."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "\u00a71.2, Example 1.5, \"Long run\" paragraph: \"Reverse the parameters to p=0.5, q=0.3\" is inaccurate \u2014 reversing p=0.2, q=0.4 would give p=0.4, q=0.2. The numbers 0.5/0.3 are a new pair (they match computes keys B2_p_up=0.35, B2_p_down=0.15, so the arithmetic is right). Reword to \"Now take p=0.5, q=0.3, so that arrivals outrun service\"."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "\u00a71.3, Theorem (Chapman\u2013Kolmogorov): stated \"For all n>1\". The recursion is equally valid at n=1 (r_{ij}(1)=\u03a3_k r_{ik}(0)p_{kj}=\u03a3_k \u03b4_{ik}p_{kj}=p_{ij}), and the note itself supplies r_{ij}(0)=\u03b4_{ij} two paragraphs earlier. State it for n\u22651 with initial condition R(0)=I, which is also what the matrix form R(n)=R(n-1)P, R(0)=I, in the very next box assumes."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "\u00a70.3, Question C, last sentence: \"by the geometric mean of G2 \u00a73 it lingers 1/0.6 = 1.666667 steps\". \"Geometric mean\" is a different, unrelated quantity; the intended reference is the mean of a geometric random variable. Reword to \"by the mean 1/p of a geometric random variable (G2 \u00a73)\"."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "Fig. 0.1, right panel (notes/img/g5_s0_memory.png): the two-state diagram is drawn with the 1\u21922 and 2\u21921 arcs crossing into a lens/bowtie whose arrowheads sit immediately beside the source nodes, so the arc directions are not readable \u2014 and the alt-text describes something else (\"an upper arc from 1 to 2 and a lower arc from 2 back to 1\"). This is the same chain that Fig. 1.1 (g5_s1_twostate.png) draws cleanly with well-separated bowed arcs and end-placed arrowheads; regenerate the panel in that style. Style contract: \"clean boxes+arrows, NO overlapping\"."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "\u00a72.3, Recipe item 4 (positive-matrix test): \"For the two classes of Fig. 2.2 the smallest such n is 2 for both\" does not match the criterion as stated immediately before it (\"there exists n\u22651 and a state i from which all states of the class are reachable in exactly n steps\"). For class {3,4,5}, state 3 reaches 3, 4 and 5 in exactly one step (p_33, p_34, p_35 all > 0), so the smallest such n is 1; likewise state 6 reaches 6 and 7 in one step. The value 2 in the compute keys warmup_class1_first_all_pos_n / warmup_class2_first_all_pos_n is the smallest n for the all-pairs condition (r_ij(n)>0 for every i,j in the class). Attach the sentence explicitly to the all-pairs form."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "\u00a72.1, derivation of \"transient states are visited finitely often\": the final step equates two differently-conditioned quantities. N is defined as the number of visits to i given the chain is currently at i (that is what justifies P(N\u2265k) \u2264 \u03c1^{k-1}), but the conclusion uses E[N] = \u03a3_{n\u22650} P(X_n=i), which is the expected number of visits from an arbitrary/unconditional start. Add the missing line: from any start the number of visits is at most 1 + N (0 if i is never reached), so the expected visit count is finite from every start, and hence \u03a3_n P(X_n=i) < \u221e and P(X_n=i) \u2192 0."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "Book-figure citation convention violated. g5_s3.html line 524 (Fig. 3.5 caption) reads \"...which draws the same dashed cut; compare B&T's Figure 7.14\". Every other book-figure reference in the note uses the form attached to the section/example citation: \"B&T Example 7.2, its Figure 7.2\" (g5_s1:77), \"B&T \u00a77.2 p. 350, its Figure 7.9\" (g5_s2:226), \"B&T Example 7.11, its Figure 7.18\" (g5_s4:361), \"B&T \u00a76.2 and its Figure 6.7\" (g5_s5:801). Correct form: \"compare its Figure 7.14\" \u2014 the srcref at g5_s3.html line 2 already establishes \"B&T \u00a77.3 ... its Figure 7.14\" as the antecedent. The defect is also live in the assembled deliverable notes/05_markov_chains.html."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "Expectation-symbol convention broken in \u00a73 only. g5_s3.html uses \\mathbf{E} at 10 sites \u2014 lines 659 (load-table header), 679, 719 (load table row), 723 (Fig. 3.7 caption), 747, 752, 754, 818 (Practice 3.8 solution), 825 (Practice 3.9 statement), 1007 (\u00a73 cheatsheet) \u2014 while all other expectation symbols across g5_s1/s2/s3/s4/s5 are \\mathbb{E}, including 3 inside g5_s3.html itself. MathJax renders these as visibly different glyphs (bold upright E vs blackboard-bold E), and the clash is worst inside \u00a73.5, where the same quantity E[X]=rho/(1-rho) appears as \\mathbf{E} in the table and Fig. 3.7 caption but as \\mathbb{E} in the corresponding Practice 5.3 solution in g5_s5.html. Replace all 10 with \\mathbb{E}."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "\u00a75 is almost entirely missing the required Interpretation/Intuition box. g5_s5.html contains exactly one <div class=\"note\"> (line 179, in \u00a75.1) plus one inline <b>Reading the numbers</b> paragraph (line 791, inside Example 5.7). \u00a75.3 \"Checkpoint I \u2014 continuous random variables (rec16)\" spans lines 329-578 with two full recitation problems and two practices and has zero \"what this means\" box; \u00a75.2, \u00a75.4 and \u00a75.5 likewise have none. This is the weakest section on the contract's \"interpret results, don't just derive them\" clause \u2014 compare \u00a73 (7 note boxes) and \u00a72 (5). At minimum \u00a75.3 needs an Interpretation box tying the rec16 tools (normalize-by-area, CDF method for nonlinear maps, iterated expectations for random sums) back to why they are re-drilled here, and \u00a75.4 needs one on merging/splitting/random-incidence as the three reusable Poisson moves."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Interpretation boxes also thin in \u00a71, \u00a72 and \u00a74. Subsections with no <div class=\"note\"> and no inline <b>Interpretation</b>/<b>Intuition</b> paragraph: \u00a71.3 (Chapman-Kolmogorov), \u00a71.5 (rec18), \u00a72.3 (Periodicity), \u00a74.4 (mean first passage / mean recurrence), \u00a74.5 (conditioning on which absorbing state is reached). \u00a74.4 is the costliest omission: it introduces pi_s = 1/t_s* \u2014 the most reusable bridge in the note \u2014 inside a <div class=\"thm\"> with a \"Why\" paragraph, but never gives a standalone interpretation box, so the result reads as a formula rather than as the frequency/mean-gap reciprocal it is. \u00a72.3 similarly gives two definitions, an example, a recipe and a gotcha with no box on why periodicity matters (it is the hypothesis that fails in Fig. 2.6(a))."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Example 3.4's .ex box closes before its solution. In g5_s3.html the box opens at line 434 with the statement and closes with </div> at line 437, so parts (a) and (b) \u2014 the entire filling-in of L18 slide 3's two blanks, lines 439-475 \u2014 sit in bare <p> and $$ blocks outside any box. Every other solved slide example keeps statement and solution inside one .ex box (Example 2.1 at g5_s2:87, Example 4.1 at g5_s4:95, Example 4.2 at g5_s4:214, Example 5.2 at g5_s5:138). The reader loses the box tint exactly where the two headline answers (1/7 and 1/7) land, and the following Gotcha at line 479 reads as if it attaches to loose prose. Move the </div> to after line 475."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Figure legibility defect in Fig. 4.4 (notes/img/g5_s4_recipe.png, the \"choosing the right linear system\" flowchart). The bottom summary box is drawn too narrow for its text: the line \"In every case: one unknown per state, one equation per state.\" overflows the rounded rectangle horizontally, so the box border passes straight through the words \"In every case:\" on the left and \"per state.\" on the right. The style contract requires clean boxes and arrows with NO overlapping text. Fix in computes/g5_s4_figs.py by widening that patch (or shortening the line) and re-rendering. Lesser instance of the same crowding in notes/img/g5_s3_recipe.png (Fig. 3.3): in the two bottom blue boxes the summation subscripts of \\sum_k \\pi_k p_{kj} and \\sum_j \\pi_j = 1 descend to touch the following line and the box border."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "rec18 Problem 2 is silently absent. \u00a71.5 works rec18 P1 (Example 1.9) and rec18 P3 (Example 1.10), and the srcref at g5_s1.html line 2 lists rec18 P1 and P3, but nothing tells the reader that P2 was removed from the OCW PDFs for copyright (Drake, Fundamentals of Applied Probability Theory, Problem 5.02) and that the numbering therefore jumps 1 -> 3. A student cross-checking the note against the source PDF will read the gap as a skipped problem. One parenthetical in the \u00a71.5 opening prose or in the srcref fixes it \u2014 the same treatment the note already gives to source anomalies elsewhere (the [SOURCE TYPO?] callouts at g5_s1:462 and g5_s4:814)."
+ },
+ {
+  "section": 4,
+  "severity": "critical",
+  "description": "BROKEN WIDGET \u2014 blank canvas. In s4_p13.png the \"Gambler's ruin explorer\" widget renders only an empty frame: the axes, gridlines, tick labels (x 0\u201320, y 0\u20131), and axis titles (\"starting fortune i\", \"P(reach target m before ruin)\") are drawn, but the plot area is entirely white \u2014 no a_i curve, no fair-game dashed line, no vline, no marker dot, and no legend. Decisively, the `out.textContent` readout line is also missing (every other widget in the note prints one, e.g. \"r_11(2) = 0.350000, ...\" under the \u00a71 widget), which means draw() threw after P.frame() and before P.line(). Source is 05_markov_chains.html line 3486ff (`Widget.create({el:'#w-g5s4-ruin'...})`); the first call after P.frame() is `P.line(xs, xs.map(k=>k/m), {label:'fair game i/m', color:2, dash:true})` \u2014 the `dash:true` argument (the Plot API expects a dash pattern, and every working widget elsewhere in the note omits it) is the prime suspect. Correct looks like: two curves (dashed straight fair-game line i/m plus the solid p=0.45 convex curve), a vertical line at i=10 with a dot on it, a legend, and a readout line beginning \"p = 0.450,  m = 20,  i = 10 | rho = ...\"."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "Garbled math text in a problem statement. In s5_p03.png, Example 5.2 reads \"\u03bc_i = E[steps toabsorption | X_0 = i]\" \u2014 the words \"to\" and \"absorption\" are fused. Cause: 05_markov_chains.html line 4275 has a hard newline inside the \\text{} group (`\\mathbb{E}[\\text{steps to` / `absorption}]`), and MathJax collapses the newline to nothing rather than a space. Fix: put the whole \\text{steps to absorption} on one source line (or write `\\text{steps to}\\ \\text{absorption}`). Correct looks like \"E[steps to absorption | X_0 = i]\"."
+ },
+ {
+  "section": 0,
+  "severity": "major",
+  "description": "Overlapping text inside Fig. 0.2 (the note-map flowchart), visible in s0_p04.png and s0_live.png. In the green \"\u00a73 STEADY STATE\" box the balance line \"balance: \u03c0_j = \u03a3_k \u03c0_k p_kj,  \u03a3_j \u03c0_j = 1\" is set with full-size summation signs whose glyph height exceeds the line leading: the tops of both \u03a3 symbols cut into the heading line above (the \u03a3 collides with the \"A\" of \"STEADY STATE\"), and the subscripts k and j hang down into the third line, colliding with \"plus birth\u2013death cut equations\". The style contract requires \"clean boxes+arrows, NO overlapping text\". Fix in computes/g5_s0_figs.py: use inline-style small sums (\\textstyle / sum-with-side-subscript, as Fig. 3.3's boxes do) or increase the box line spacing so the three lines clear each other."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "Book-figure convention violation, still present in the built page and visible on screen. 05_markov_chains.html line 2549, the Fig. 3.5 caption rendered in s3_p09.png, reads \"...(redrawn from L17 slide 8, which draws the same dashed cut; compare B&T's Figure 7.14)\". Per the convention used everywhere else in the note (e.g. \"B&T \u00a77.3 p. 358 and its Figure 7.14\" in the Definition box just above it on the same page), this must be \"compare its Figure 7.14\"."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "Meaningless rendered exponent. In s4_p11.png (gambler's-ruin derivation) the sentence renders as \"each sum is (1 \u2212 \u03c1\u02d9)/(1 \u2212 \u03c1)\" \u2014 \u03c1 carries a tiny raised dot where an exponent should be. Source line 3434 is `$(1-\\rho^{\\,\\cdot})/(1-\\rho)$`; the \\cdot was presumably meant as a generic-exponent placeholder but renders as a typo. Correct looks like naming the two exponents explicitly, e.g. \"(1\u2212\u03c1^i)/(1\u2212\u03c1) and (1\u2212\u03c1^m)/(1\u2212\u03c1)\", or \"(1\u2212\u03c1^N)/(1\u2212\u03c1) with N the number of terms\"."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "Text overflows its container box in Fig. 4.4 (\"Which system do I write?\"), s4_p08.png. The bottom grey caption box holds \"In every case: one unknown per state, one equation per state.\" but is drawn too narrow: the left border falls between \"every\" and \"case\", and the right border cuts through the final word \"state\", so the box outline strikes through the text at both ends. Additionally the connector arrow from the middle (\"Solve \u03bc_i = 0 ...\") box terminates inside the text line rather than at the box edge. Fix the box width/padding in computes/g5_s4_figs.py so the border encloses the full string."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Fig. 2.2 (the L17 warm-up chain), s2_p03.png: the self-loops on states 3 and 5 are drawn as near-flat stub arcs anchored to the left of each node, with their tails and their labels (0.2 and 0.4) sitting OUTSIDE the dashed green class box. They read as incoming arcs from off-diagram rather than self-transitions \u2014 every other self-loop in the note (Figs 1.1, 1.2, 2.3, 4.2, 4.5) is drawn as a clear loop above the node. Redraw these two as proper loops with the label placed alongside the loop and inside the class rectangle."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "Fig. 5.3 (s5_p04.png) is by far the smallest figure in the 42-figure set: three panels are crammed into one wide strip, so the state circles are roughly half the diameter used in every other chain diagram and the arc labels (0.3, 0.4, 0.5, 0.6) are set at a noticeably smaller point size than Figs 5.1/5.2 on the facing pages. In panel (c) the two \"0.5\" labels on the 3\u21944 arcs are drawn directly on top of the arc curves (the curve passes through the digits), and in panel (b) the 0.6/0.5 pair between states 2 and 3 is cramped. There is also a large band of dead white space under each panel. Regenerate at the same node scale as Fig. 5.2, either stacked vertically or with per-panel label offsets."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Widget label struck through by a plot element. In s3_p13.png (\"Birth\u2013death queue: how the load factor reshapes the steady state\") the dashed vertical mean line is drawn on top of its own annotation: the line passes exactly through the \"=\" of \"E[X] = 1.483\", splitting the equals sign. Offset the text ~8px to the right of the vline (or draw the annotation after the line with a white halo)."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Widget label struck through by a plot element. In s1_p13.png (\"n-step evolution: pick a chain, a starting state, and a horizon n\") the red dashed \"start\" vline is drawn on top of both the word \"start\" (through the 'a') and the bar value label \"0.350\" (through the '3'). Same fix: offset the vline text and the bar labels so they clear the dashed line."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Widget annotation buried under the data. In s2_p10.png (\"Periodic vs aperiodic: P(X_n = 1) for the two-state chain\") the in-plot label \"pi_1 = 0.5000\" sits at y\u22480.55 in the middle of the 30-period zigzag, and the blue and orange lines run straight through the digits, making the number hard to read. Move it into the empty margin (below y=0.25 near x=0) or drop it \u2014 the readout line beneath the canvas already reports pi_1."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Half a page of empty box in the print layout. In s4_p03.png the Example 4.1 .ex box opens near the bottom of the page with only its statement, then the green box continues empty for roughly the bottom 45% of the page because Fig. 4.2 could not break and was pushed to s4_p04. Add a page-break-inside/break-before hint (or allow the .ex box to break) so the figure follows its statement without leaving a large blank colored panel."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Inconsistent step-header formatting inside worked examples. In \u00a73.2 (s3_p05.png) \"Step 4 \u2014 sanity-check the dropped equation.\" is glued into the middle of the preceding paragraph, immediately after \"...5.6 \u00d7 10\u207b\u00b9\u2077.\", while Steps 0\u20133 each begin their own paragraph. The identical defect occurs in \u00a73.6 (s3_p14.png), where \"Step 4 \u2014 normalize:\" is run into the end of the sentence \"...is what produces the factorial).\" while Steps 1, 2, 3 and 5 start paragraphs. Break both onto their own <p>."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Orphaned period on its own line in the \u00a71 cheatsheet, s1_p15.png. The Chapman\u2013Kolmogorov bullet ends \"...In matrix form R(n) = P \u207f\" and the sentence-final \".\" wraps alone onto the next line (source line 1300: `$R(n)=P^{\\,n}$.`). Bind the period to the math (e.g. `$R(n)=P^{\\,n}.$`) or wrap the tail in a nowrap span. Note also that the same bullet renders the third form as a bare continuation of the equality chain, \"= \u03a3_k r_ik(n) r_kj(s) for n+s steps\", which as displayed asserts r_ij(n) equals that sum; it should read r_ij(n+s) = \u03a3_k r_ik(n) r_kj(s)."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "The same chain is labeled two different ways in two figures. Fig. 1.2(b) (s1_p04.png) draws the rec18 painting-fish chain with reduced fractions \u2014 self-loops 3/4, 1/2, 1/4 and arcs 1/4, 1/2, 3/4, 1 \u2014 while Fig. 2.3(a) (s2_p05.png) draws the identical chain unreduced: self-loops 3/4, 2/4, 1/4 and arcs 1/4, 2/4, 3/4, 4/4. A reader comparing the two has to stop and check they are the same model. Pick one convention (the reduced one matches the p_{i,i-1}=i/n text) and regenerate."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Forward reference points at a figure the reader cannot see. The \u00a74.5 Gotcha (s4_p16.png, source line 3680) ends \"Both are visible in Figure 4.9 below\", but Fig. 4.9 (source line 3883) lives inside the collapsed <details class=\"sol\"> for rec19 P1(e) and therefore appears nowhere in the printed pages s4_p17\u2013s4_p19. Either say \"visible in Figure 4.9, inside the part-(e) solution below\" or hoist the figure out of the collapsed block."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Bad line break in the Fig. 4.7 caption, s4_p12.png: the caption breaks between the number and its hyphenated unit, rendering as \"...is the straight line i/m; a 5\" / \"-point swing in p bends it into an exponential.\" The orphaned \"5\" at the line end reads as a typo. Wrap \"$5$-point\" in a nowrap span (source line 3462)."
+ },
+ {
+  "section": 5,
+  "severity": "critical",
+  "description": "\u00a75.4 Example 5.6(e), last sentence of the solution (fragment g5_s5.html line 751): the prose reports \"simulation over a 4000-hour record gives an ordinary mean gap of $0.3346$ and an observed (containing) gap of $0.6683$\". These are NOT the values the compute script produces. I re-ran `uv run computes/g5_s5.py` (single seeded rng, `default_rng(20101102)`, horizon 4000 h, 500 000 observers) and it prints `E_e_MC_mean_ordinary_gap = 0.3363` and `E_e_MC_meanW = 0.6756`; g5_s5.json holds the same two values. Both printed numbers are stale/hand-typed and contradict the JSON of record. Correct to 0.3363 and 0.6756 (which still bracket the theory values 1/mu = 0.3333 and 2/mu = 0.6667)."
+ },
+ {
+  "section": 5,
+  "severity": "critical",
+  "description": "\u00a75.4 Example 5.7 (\"Reading the numbers\"), fragment g5_s5.html lines 793-795: \"A simulation that drops 500 000 observers into a long Erlang-2 record measures a containing-interval mean of $3.0068$ and variance $3.029$, against an ordinary interval mean of $2.0023$.\" All three disagree with the compute script/JSON: `E3_MC_observed_mean = 3.0019`, `E3_MC_observed_var = 3.0037`, `E3_MC_ordinary_mean = 1.9995` (confirmed by re-running g5_s5.py). Replace the three numbers with 3.0019, 3.0037 and 1.9995."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "\u00a73.3, the \"Interpretation (link forward to \u00a74)\" note (g5_s3.html lines 428-432) attributes the relation t_j* = 1/pi_j to L18 slide 7: \"(L18 slide 7; the relation is stated there without proof and is developed in \u00a74)\". The transcript transcripts/L18.md, Slide 7, records the opposite in its derivation-gap tag: \"The slide does not derive the mean-recurrence-time formula ... nor does it state or prove the relation pi_s = 1/t_s^*\". L18 slide 7 prints only t_s = 0, t_i = 1 + sum_j p_ij t_j and t_s* = 1 + sum_j p_sj t_j. \u00a74 gets this right (it cites B&T Problem 7.34). Fix: cite the definition of t_s* to L18 slide 7 but attribute pi_s = 1/t_s* to B&T Problem 7.34 / \u00a74.4, and drop \"stated there\"."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "Notation contract violation and internal inconsistency: STYLE_CONTRACT.md mandates `\\mathbb{E}` for expectation, and g5_s4.html (24 uses) and g5_s5.html (67 uses) comply 100%. g5_s3.html uses `\\mathbf{E}` in 10 places (lines 659 table header, 679, 719 table row, 723 Fig. 3.7 caption, 747 table row, 752, 754, 818, 825 Practice 3.9 statement, 1007 cheatsheet) while using `\\mathbb{E}` in the very derivation those tables support (lines 696, 698, 709, 710) \u2014 so E[X] is typeset two different ways inside \u00a73.5 alone. The generated figure notes/img/g5_s3_loadblow.png also renders the axis label and annotations as bold-roman E[X]. Normalize to \\mathbb{E} in the HTML and regenerate the figure."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "Book-figure citation convention violated in the Fig. 3.5 caption (g5_s3.html line 524): \"...redrawn from L17 slide 8, which draws the same dashed cut; compare B&T's Figure 7.14\". The possessive form is used nowhere else for a book figure \u2014 the same fragment's srcref (line 2) writes \"its Figure 7.14 and its Figure 7.16\" and the \u00a73.4 definition (line 513) writes \"B&T \u00a77.3 p. 358 and its Figure 7.14\". Change to \"compare its Figure 7.14\"."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "Broken LaTeX delimiter in the expected-time derivation (g5_s4.html line 196). The display reads `...\\;\\mathbb{E}[T'\\mid X_0=i,\\,X_1=j).` \u2014 the expectation opens with `[` and closes with `)`. MathJax renders it literally as E[T' | X_0=i, X_1=j) , which is visibly wrong and inconsistent with the very next line (line 201) that writes `\\mathbb{E}[T'\\mid X_0=i,X_1=j]=\\mu_j` correctly. Change the trailing `)` to `]`."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "Example 5.2 is titled \"(absorption on the L18 chain \u2014 L18 s5\u2013s6, solved)\" but the expected-time system it solves is built on the L18 *slide-5* chain (5 states, both 4 and 5 absorbing, p_13 = 0.3), yielding mu = (465/56, 265/28, 60/7) = (8.3036, 9.4643, 8.5714). L18 slide 6 is a different chain \u2014 state 4 deleted and its 0.2 folded into p_13 = 0.5 (see transcripts/L18.md Slide 6: \"the two exits from the upper-left transient node merged into a single 0.5 arc\") \u2014 whose mu \u00a74 Example 4.2 correctly computes as (111/8, 55/4, 12) = (13.875, 13.75, 12). As written, \u00a75 cites slide 6 for numbers that are not slide 6's and never cross-references \u00a74 Example 4.2, so the two sections appear to contradict each other on \"the L18 chain\". Fix: cite L18 s5 only for the mu system and add an explicit pointer noting \u00a74 Example 4.2 solves the modified slide-6 chain and gets different numbers."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Practice 3.9 solution (g5_s3.html line 838): \"At $\\rho=0.9$ the same tail would be $0.9^5=0.59049$ ... so nudging the load up by a ninth nearly doubles the chance of a deep backlog.\" Going from rho = 0.8 to rho = 0.9 is an increase of one *eighth* (0.8 x 9/8 = 0.9), not one ninth. Change \"a ninth\" to \"an eighth\"."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Fig. 3.9 caption (g5_s3.html line 957): \"Doubling the load from 3 to 8 erlangs does not double the lines needed for 1% blocking \u2014 it takes about $15$ instead of $8$.\" 3 -> 8 erlangs is a factor of 2.67, not a doubling. (The line counts themselves are right: I recomputed the Erlang-B 1% thresholds as B = 8 for a = 3, B = 11 for a = 5, B = 15 for a = 8.) Reword to \"Raising the load from 3 to 8 erlangs (a factor of 2.7)...\"."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Fig. 3.7 alt text (g5_s3.html line 722) says the finite-buffer curves \"track it and then flatten off at their buffer ceilings\". They flatten at m/2, not at m \u2014 which is exactly what the caption on the next line says (\"saturates at $m/2$ and beyond\") and what the rendered PNG shows (the m = 10 dashed curve levels off near 5 as rho -> 1, not near 10). Fix the alt text to \"flatten off near half their buffer size\"."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Example 3.3 tail (g5_s3.html lines 317-319): \"by $n=20$ every row of $P^{20}$ equals $(0.357149,0.357140,0.285711)$ to five decimals\". Two problems. (a) The value is not in computes/g5_s3.json \u2014 the JSON stores only `C_r_n40_row1` (n = 40); per STYLE_CONTRACT \"NEVER hand-compute a numeric value\", this n = 20 row must be emitted by g5_s3.py. (b) The agreement claim is overstated: recomputing gives row 1 of P^20 = (0.35714941, 0.35713990, 0.28571069) against pi = (0.35714286, 0.35714286, 0.28571429), i.e. agreement to four decimals, not five. Either add an `C_r_n20_rows` key and say \"to four decimals\", or quote the n = 40 row already in the JSON."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "srcref citation defects (g5_s3.html line 2). (a) It lists \"its Figure 7.16\" among the sources, but Figure 7.16 is never referenced anywhere in the fragment body (only Figure 7.14 is, at lines 513 and 524) \u2014 either use it or drop it. (b) Problem numbering is inconsistent across the note: \u00a73 writes \"B&T end-of-chapter Problems 20, 24, 25\" (and \"this is B&T Problem 24\" at line 138, \"B&T Problem 25\" at line 579) while \u00a74's srcref writes \"B&T Problem 7.33\"/\"Problem 7.34\" and \u00a75's writes \"Problem 6.27 (p. 337)\" \u2014 the last matching the book's own chapter.number form quoted verbatim in transcripts/rec17.md. Normalize \u00a73 to 7.20 / 7.24 / 7.25."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "Example 5.5(a) (g5_s5.html lines 606-607): \"The mode is at $k=6$, as expected for a Poisson with integer mean.\" A Poisson with integer mean mu is doubly maximized at mu-1 and mu \u2014 here p_K(5) = p_K(6) = 0.160623 exactly (5^... check: 6^5/5! = 6^6/6! = 64.8). The claim asserts a unique mode and gives an incorrect reason for it. Reword to \"the PMF is maximized at k = 5 and k = 6 together, the tie that always occurs when a Poisson mean is an integer\"."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "Slide-citation style diverges from \u00a73, \u00a74 and the contract. \u00a75 uses the abbreviated form throughout (~20 occurrences: \"L16 s4\", \"L16 s5\", \"L16 s6\", \"L17 s3\u2013s4\", \"L17 s5\u2013s6\", \"L17 s8\", \"L18 s5\u2013s6\", \"L18 s7\" \u2014 in the \u00a75.1 table Source column, Fig. 5.1/5.2/5.3 captions, the Example 5.1/5.2 headers and both recipes), whereas STYLE_CONTRACT's example and \u00a73/\u00a74 spell it out (\"L17 slide 5\", \"L18 slide 6\"). \"s5\" is also ambiguous against the \u00a7-numbering used everywhere else in the note. Spell out \"slide\"."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "Gotcha 5 and Practice 5.5 (g5_s5.html lines 281-289, 316-325) state the {3,4} sub-chain of L16 slide 6 as fact: \"the sub-chain is symmetric with $p_{33}=p_{34}=p_{43}=p_{44}=0.5$\". transcripts/L16.md, Slide 6, records those arcs as unprinted: \"Node 3 carries an unlabelled self-loop ... Nodes 3 and 4 are joined by two long unlabelled arcs ... Node 4 carries a small unlabelled self-loop ... No other probabilities are printed.\" The 0.5s are an adopted convention (the same one the g5_s0 computes use), and the stated answer lim_n r_23(n) = 0.25 depends on it. Flag it as an assumed convention in a note or the figcap, as \u00a71 does for the checkout-counter within-slot collision term, rather than presenting it as read off the slide."
+ }
+]

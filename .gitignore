@@ -1,0 +1,20 @@
+# --- not for the public repo: licensing ---
+# Textbook PDF (not redistributable) + source PDFs and skill tooling
+recitations/
+lecture_notes/
+skills/
+_tools/
+
+# --- heavy derived artifacts (rebuildable from sources) ---
+raster/
+corpus/
+index/
+dist/
+
+# --- local state ---
+__pycache__/
+*.pyc
+.venv/
+.claude/
+_tmp_*
+notes/_darktest.html

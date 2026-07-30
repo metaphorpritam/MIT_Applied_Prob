@@ -1,0 +1,948 @@
+<h2 id="g5-s5">§5 &nbsp; Synthesis: the three Markov questions, and a G3/G4 checkpoint</h2>
+<p class="srcref">Sources: L16 slides 4–7 · L17 slides 2–8 · L18 slides 2–7 (headers, for the master table) · rec16 Problems 1–2 (complete) · rec17 Problems 1–3 (complete) · B&amp;T §6.2–6.3, §7.1–7.4, and B&amp;T Problem 6.27 (p. 337). Every number on this page is recomputed in <code>computes/g5_s5.py</code> — exact <code>Fraction</code> arithmetic for the rational answers, <code>numpy</code> matrix powers and linear solves for the chains, quadrature and Monte-Carlo runs as independent cross-checks — and the eight figures by <code>computes/g5_s5_figs.py</code>.</p>
+
+<p>Three lectures on Markov chains ask, in the end, only three questions: <em>where am I after
+exactly $n$ steps?</em>, <em>where am I in the long run?</em>, and <em>where do I end up, and how
+long does it take?</em> Each question has its own linear system, each system comes from the same
+single move — condition on one transition — and almost every lost exam point comes from solving
+the wrong system for the question asked. §5.1 puts the three systems side by side; §5.2 collects
+the five mistakes that cost the most.</p>
+
+<p>The rest of the section is a checkpoint on the two groups <em>before</em> this one. Recitations
+16 and 17 are review sets: rec16 is a continuous-random-variable quiz (G3 material — piecewise
+PDFs, moments, derived distributions, joint densities, continuous Bayes, the normal table) and
+rec17 is a Poisson-process problem set (G4 material — counting over an interval, merging,
+splitting, random incidence). Both are solved here in full, with a pointer from every step to the
+G3/G4 section that built the tool. Treat them as a self-test: read the statement, close the page,
+solve, then open the solution.</p>
+
+<h3>5.1 The three question types on one page</h3>
+
+<p>Fix the notation once. The chain is $X_0,X_1,X_2,\dots$ taking values in the finite state space
+$\{1,\dots,m\}$; $p_{ij}=\mathbf{P}(X_{n+1}=j\mid X_n=i)$ is the one-step transition probability
+(the same for every $n$ — time homogeneity); $r_{ij}(n)=\mathbf{P}(X_n=j\mid X_0=i)$ is the
+$n$-step transition probability; $\pi_j$ is the steady-state probability of state $j$; $a_i$ is the
+probability of eventually being absorbed in a designated absorbing state given $X_0=i$; and
+$\mu_i$ is the expected number of transitions until absorption given $X_0=i$. The matrix $P$ has
+entries $p_{ij}$, and $R(n)$ has entries $r_{ij}(n)$.</p>
+
+<table>
+<thead>
+<tr><th class="l">You are asked for…</th><th class="l">Equation system</th><th class="l">Boundary / side condition</th><th class="l">Unknowns</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td class="l">the distribution at a <b>named finite time</b>: $\mathbf{P}(X_n=j\mid X_0=i)$</td>
+  <td class="l">$r_{ij}(n)=\sum_{k=1}^{m} r_{ik}(n-1)\,p_{kj}$ &nbsp;(equivalently $R(n)=P^{\,n}$)</td>
+  <td class="l">$r_{ij}(0)=1$ if $i=j$, else $0$</td>
+  <td class="l">$m^2$ numbers per time step; iterate $n$ times</td>
+  <td class="l">L16 slide 4; §1; B&amp;T §7.1</td>
+</tr>
+<tr>
+  <td class="l">the <b>long-run</b> fraction of time in $j$, or $\lim_n r_{ij}(n)$</td>
+  <td class="l">$\pi_j=\sum_{k=1}^{m}\pi_k p_{kj}$ for every $j$ (balance)</td>
+  <td class="l">$\sum_{j=1}^m \pi_j=1$ (normalization) — <b>never</b> optional</td>
+  <td class="l">$m$ numbers $\pi_1,\dots,\pi_m$</td>
+  <td class="l">L17 slides 5–6; §3; B&amp;T §7.3</td>
+</tr>
+<tr>
+  <td class="l">the <b>probability of ending</b> in a particular absorbing state</td>
+  <td class="l">$a_i=\sum_{j} p_{ij}a_j$ for every transient $i$</td>
+  <td class="l">$a_i=1$ at the target absorbing state, $a_i=0$ at every other absorbing state</td>
+  <td class="l">one $a_i$ per transient state</td>
+  <td class="l">L18 slide 5; §4; B&amp;T §7.4</td>
+</tr>
+<tr>
+  <td class="l">the <b>expected time</b> until absorption / until first reaching $s$</td>
+  <td class="l">$\mu_i=1+\sum_{j}p_{ij}\mu_j$ for every non-absorbing $i$</td>
+  <td class="l">$\mu_i=0$ at every absorbing state (or $t_s=0$ for first passage to $s$)</td>
+  <td class="l">one $\mu_i$ per transient state</td>
+  <td class="l">L18 slides 6–7; §4; B&amp;T §7.4</td>
+</tr>
+<tr>
+  <td class="l">the <b>mean recurrence time</b> of a recurrent state $s$</td>
+  <td class="l">$t^*_s=1+\sum_j p_{sj}t_j$, with $t_j$ the mean first passage times to $s$</td>
+  <td class="l">$t_s=0$; and $t^*_s=1/\pi_s$ when the chain has one aperiodic recurrent class</td>
+  <td class="l">$t_1,\dots,t_m$, then $t^*_s$</td>
+  <td class="l">L18 slide 7; §4; B&amp;T §7.4</td>
+</tr>
+</tbody>
+</table>
+
+<p>Two structural facts explain the whole table. First, all five systems are the total probability
+theorem applied to <em>one</em> transition — forward for $n$-step ("what was the state at time
+$n-1$?"), backward for absorption and time ("what happened on the first step?"). Second, the
+$n$-step system is a <em>recursion</em> you run, while the other four are <em>simultaneous linear
+equations</em> you solve; that is why "after 3 steps" is arithmetic and "in the long run" is
+algebra.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g5_s5_qtypes}}" alt="Decision flowchart choosing between the n-step recursion, the absorption systems, the steady-state balance equations, and the no-limit case" style="max-width:820px">
+<div class="figcap">Fig. 5.1 — Which equation system? The one decision you make before writing anything down (L16 slide 4, L17 slide 5, L18 slides 5–6).</div>
+
+<div class="recipe"><b>Recipe — answering any Markov question (L16–L18).</b>
+<ol>
+<li><b>Draw the transition diagram</b> and check that every row of $P$ sums to 1. A row that does
+not sum to 1 is a modeling error, and it will silently corrupt every later answer.</li>
+<li><b>Classify the states</b> (Fig. 5.2): which are transient, which recurrent classes exist, is
+each recurrent class aperiodic? This is what decides whether a steady state exists at all.</li>
+<li><b>Read the question for a time scale.</b> A named finite $n$ $\Rightarrow$ run the $n$-step
+recursion. "In the long run", "eventually", "the fraction of time" $\Rightarrow$ steady state.
+"Ends up in", "before it reaches", "how many steps until" $\Rightarrow$ absorption/first passage.</li>
+<li><b>Write the system with its boundary condition</b>, from the table above. Balance equations
+without $\sum_j\pi_j=1$ are singular; absorption equations without $a_{\text{target}}=1$ have the
+useless solution $a\equiv 0$.</li>
+<li><b>Solve, then sanity-check.</b> Probabilities in $[0,1]$; $\pi_j=0$ on transient states;
+absorption probabilities over all absorbing states summing to 1; expected times positive and larger
+for states further from the absorbing set.</li>
+</ol></div>
+
+<div class="ex"><b>Example 5.1 (the same chain, two questions — L16 slide 5, L17 slide 7, L18 slide 3).</b>
+The course's running two-state chain has
+$$P=\begin{pmatrix} p_{11} &amp; p_{12}\\ p_{21} &amp; p_{22}\end{pmatrix}
+   =\begin{pmatrix} 0.5 &amp; 0.5\\ 0.2 &amp; 0.8\end{pmatrix},$$
+where state 1 might be "the store is quiet" and state 2 "the store is busy". Answer both:
+(i) $r_{11}(2)$, the chance of being back in state 1 two steps after starting there; and
+(ii) the long-run fraction of time in each state.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(i) Finite time — run the recursion.</b> Condition on the state at time 1 (total probability
+theorem plus the Markov property, L16 slide 4):
+$$r_{11}(2)=\sum_{k=1}^{2}r_{1k}(1)\,p_{k1}=p_{11}p_{11}+p_{12}p_{21}
+=(0.5)(0.5)+(0.5)(0.2)=0.25+0.10=0.35 .$$
+The same number is the $(1,1)$ entry of $P^2$; <code>numpy</code> gives
+$P^2=\begin{pmatrix}0.35 &amp; 0.65\\ 0.26 &amp; 0.74\end{pmatrix}$ and
+$P^3=\begin{pmatrix}0.305 &amp; 0.695\\ 0.278 &amp; 0.722\end{pmatrix}$: the two rows are already
+converging toward each other, which is the visible signature of a single aperiodic recurrent class.</p>
+<p><b>(ii) Long run — solve the linear system.</b> The balance equations are
+$$\pi_1=\pi_1 p_{11}+\pi_2 p_{21}=0.5\pi_1+0.2\pi_2,\qquad
+  \pi_2=\pi_1 p_{12}+\pi_2 p_{22}=0.5\pi_1+0.8\pi_2 .$$
+The first gives $0.5\pi_1=0.2\pi_2$, i.e. $\pi_1=0.4\pi_2$; the second gives $0.5\pi_1=0.2\pi_2$
+again — the two equations are the <em>same</em> equation, which is exactly why normalization is
+needed. Substituting into $\pi_1+\pi_2=1$: $0.4\pi_2+\pi_2=1.4\pi_2=1$, so
+$$\pi_2=\frac{1}{1.4}=\frac{5}{7}=0.714286,\qquad \pi_1=\frac{2}{7}=0.285714 .$$
+Cross-check by matrix power: $P^{100}$ has both rows equal to $(0.2857142857,\,0.7142857143)$, and
+so does $P^{101}$ — the limit exists and does not depend on the starting state, and it does not
+oscillate with the parity of $n$.</p>
+<p><b>Reading the two answers together.</b> $r_{11}(2)=0.35$ is a statement about one specific
+early time; $\pi_1=2/7=0.285714$ is a statement about the average over all time. The mean
+recurrence time of state 1 is $t_1^*=1/\pi_1=3.5$ steps and of state 2 is $t_2^*=1/\pi_2=1.4$
+steps: the chain returns to the busy state more than twice as often.</p>
+<p><b>The two blank fill-ins on L18 slide 3</b> follow immediately. With $X_0=1$,
+$$\mathbf{P}(X_1=1\text{ and }X_{100}=1\mid X_0=1)=p_{11}\,r_{11}(99)=(0.5)(0.28571429)=0.14285714,$$
+using the Markov property to restart the chain at time 1, and
+$$\mathbf{P}(X_{100}=1\text{ and }X_{101}=2\mid X_0=1)=r_{11}(100)\,p_{12}=(0.28571429)(0.5)=0.14285714 .$$
+Both equal $\tfrac17$, and for the same reason: by $n\approx 100$ the chain has forgotten where it
+started, so each is $\pi_1$ times one transition probability.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Example 5.2 (absorption and expected time on the L18 slide-5 chain — L18 slide 5, solved).</b>
+Relabel the five-state chain of L18 slide 5 as states $1,2,3$ (transient), $4$ and $5$ (absorbing),
+with
+$$P=\begin{pmatrix}
+0 &amp; 0.5 &amp; 0.3 &amp; 0.2 &amp; 0\\
+0.4 &amp; 0 &amp; 0.6 &amp; 0 &amp; 0\\
+0 &amp; 0.8 &amp; 0 &amp; 0 &amp; 0.2\\
+0 &amp; 0 &amp; 0 &amp; 1 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 1
+\end{pmatrix}.$$
+Find $a_i=\mathbf{P}(\text{absorbed in }4\mid X_0=i)$ and $\mu_i=\mathbb{E}[\text{steps to absorption}\mid X_0=i]$ for the transient states, and confirm that the balance equations cannot
+answer either question. (Section §4 derives these systems; this box shows the contrast with §5.1's
+other two rows. <b>Note the chain:</b> everything below is the <em>slide-5</em> chain, with
+$p_{13}=0.3$ and two absorbing states. L18 slide 6 draws a <em>different</em> chain — state 4 is
+deleted and its $0.2$ folded into the arc $1\to3$, so $p_{13}=0.5$ and $5$ is the only absorbing
+state — and its expected times are larger: §4 Example 4.2 solves that one and gets
+$\mu=(111/8,\,55/4,\,12)=(13.875,\,13.75,\,12)$. The two sets of numbers are not in conflict; they
+belong to two different chains.)
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Absorption.</b> With boundary conditions $a_4=1$, $a_5=0$, first-step analysis gives one
+equation per transient state:
+$$a_1=0.5a_2+0.3a_3+0.2(1),\qquad a_2=0.4a_1+0.6a_3,\qquad a_3=0.8a_2+0.2(0).$$
+In matrix form this is $(I-T)a=c$ where $T$ is the $3\times3$ transient block of $P$ and
+$c=(0.2,0,0)^{\mathsf T}$ collects the one-step probabilities of hitting state 4. The
+<code>numpy</code> solve gives
+$$a_1=\tfrac{13}{28}=0.46428571,\qquad a_2=\tfrac{5}{14}=0.35714286,\qquad a_3=\tfrac27=0.28571429 .$$
+Check the first equation by hand: $0.5(0.35714286)+0.3(0.28571429)+0.2
+=0.17857143+0.08571429+0.2=0.46428571$. ✓</p>
+<p><b>Expected time.</b> With $\mu_4=\mu_5=0$,
+$$\mu_1=1+0.5\mu_2+0.3\mu_3,\qquad \mu_2=1+0.4\mu_1+0.6\mu_3,\qquad \mu_3=1+0.8\mu_2,$$
+i.e. $(I-T)\mu=\mathbf{1}$, giving
+$$\mu_1=\tfrac{465}{56}=8.30357143,\qquad \mu_2=\tfrac{265}{28}=9.46428571,\qquad
+\mu_3=\tfrac{60}{7}=8.57142857 .$$
+State 2 is the slowest to leave, which is right: it is the only transient state with no direct
+arrow into an absorbing state. (Cross-check the bookkeeping: §4 Example 4.2 runs the identical
+system on L18 slide 6's modified chain — the $0.2$ escape at state 1 removed and folded into
+$p_{13}$ — and gets $\mu=(13.875,13.75,12)$. Closing off one of the two exits to absorption makes
+every expected time roughly $50\%$ longer, exactly as it should.)</p>
+<p><b>Why balance equations are useless here.</b> This chain has <em>two</em> recurrent classes,
+$\{4\}$ and $\{5\}$, so the matrix $P^{\mathsf T}$ has eigenvalue 1 with multiplicity 2 (verified
+numerically) and the balance equations plus normalization have infinitely many solutions — every
+vector $(0,0,0,\alpha,1-\alpha)$ works. Correspondingly $P^{200}$ has first row
+$(0,0,0,0.46428571,0.53571429)$: the long-run answer <em>is</em> the absorption answer, and it
+depends on the starting state. Steady state has not failed by accident; the question "what fraction
+of time in state 1?" simply has the answer 0 and carries no information.</p>
+</div></details>
+</div>
+
+<div class="note"><b>Interpretation — the three questions are three time scales.</b> $r_{ij}(n)$
+resolves individual steps; absorption probabilities resolve the eventual outcome but ignore how
+long it took; $\mu_i$ restores the clock but not the destination; $\pi_j$ throws away both the
+start and the clock and keeps only the average. Ask which of those four objects the exam question
+names, and the equation system is determined.</div>
+
+<div class="ex"><b>Practice 5.1.</b> For the chain
+$P=\begin{pmatrix}0.4&amp;0.6&amp;0\\0.2&amp;0.5&amp;0.3\\0&amp;0.4&amp;0.6\end{pmatrix}$ on states
+$\{1,2,3\}$, compute $r_{13}(2)$ and the steady-state vector, and say which of the two you would
+use to estimate "the fraction of days the system spends in state 3 over a year".
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$r_{13}(2)=\sum_k p_{1k}p_{k3}=(0.4)(0)+(0.6)(0.3)+(0)(0.6)=0.18$.</p>
+<p>Balance: $\pi_1=0.4\pi_1+0.2\pi_2$ gives $0.6\pi_1=0.2\pi_2$, so $\pi_2=3\pi_1$.
+$\pi_3=0.3\pi_2+0.6\pi_3$ gives $0.4\pi_3=0.3\pi_2$, so $\pi_3=0.75\pi_2=2.25\pi_1$.
+Normalizing, $\pi_1(1+3+2.25)=6.25\pi_1=1$, hence
+$$\pi_1=\tfrac{4}{25}=0.16,\qquad \pi_2=\tfrac{12}{25}=0.48,\qquad \pi_3=\tfrac{9}{25}=0.36,$$
+confirmed by the linear solve and by $P^{100}$, whose every row is $(0.16,0.48,0.36)$.
+A year is "long run", so use $\pi_3=0.36$; $r_{13}(2)=0.18$ describes only day 2. The mean
+recurrence time of state 3 is $1/\pi_3=2.777778$ days.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 5.2.</b> A gambler holds $1$ or $2$ dollars, wins a dollar with
+probability $0.6$ and loses one with probability $0.4$ each round, and stops at $0$ or $3$.
+Which system answers "what is the chance he reaches \$3?" and which answers "how many rounds will
+he play?" Solve both starting from \$1.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>States $0$ and $3$ are absorbing. <b>Absorption</b> answers the first question, with $a_3=1$,
+$a_0=0$ and
+$$a_1=0.4a_0+0.6a_2=0.6a_2,\qquad a_2=0.4a_1+0.6a_3=0.4a_1+0.6 .$$
+Substituting the first into the second: $a_2=0.4(0.6a_2)+0.6=0.24a_2+0.6$, so
+$0.76a_2=0.6$ and $a_2=\tfrac{15}{19}=0.789474$; then $a_1=0.6(15/19)=\tfrac{9}{19}=0.473684$.</p>
+<p><b>Expected time</b> answers the second, with $\mu_0=\mu_3=0$:
+$$\mu_1=1+0.6\mu_2,\qquad \mu_2=1+0.4\mu_1 .$$
+Substituting: $\mu_1=1+0.6(1+0.4\mu_1)=1.6+0.24\mu_1$, so $0.76\mu_1=1.6$ and
+$\mu_1=\tfrac{40}{19}=2.105263$ rounds; then $\mu_2=1+0.4(40/19)=\tfrac{35}{19}=1.842105$.
+Note $\mu_2&lt;\mu_1$: from \$2 he is one step from stopping either way.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 5.3.</b> A birth–death chain on $\{0,1,2,\dots\}$ has $p_i=p=0.2$
+(up) and $q_i=q=0.3$ (down) for all $i$. Find $\pi_0$ and $\mathbb{E}[X_n]$ in steady state, and
+state the one condition that makes the answer valid.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The cut (detailed balance) equation across the boundary between $i$ and $i+1$ is
+$\pi_i p=\pi_{i+1}q$ (L17 slide 8), so with the load factor $\rho=p/q=0.2/0.3=0.666667$ we get
+$\pi_{i+1}=\rho\pi_i$ and hence $\pi_i=\pi_0\rho^{\,i}$. Normalization over the infinite state
+space needs the geometric series to converge, i.e. $\rho&lt;1$ ($p&lt;q$ — the queue must drain
+faster than it fills):
+$$\sum_{i=0}^{\infty}\pi_0\rho^{\,i}=\frac{\pi_0}{1-\rho}=1\ \Longrightarrow\ \pi_0=1-\rho=0.333333 .$$
+Then $\pi_i=(1-\rho)\rho^{\,i}$ is a geometric PMF on $\{0,1,2,\dots\}$ (G2 §3), whose mean is
+$$\mathbb{E}[X_n]=\frac{\rho}{1-\rho}=\frac{0.666667}{0.333333}=2 .$$
+Sanity: $\pi_3=(1-\rho)\rho^3=0.098765$. If $\rho\ge 1$ no steady state exists — the chain drifts
+to infinity and every state is transient.</p>
+</div></details>
+</div>
+
+<h3>5.2 Classification first, then the five gotchas</h3>
+
+<p>Every convergence statement in G5 is conditional on the structure of the chain, so classify
+before you compute. The test is purely graphical: follow the arrows.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g5_s5_classify}}" alt="Flowchart for classifying a state as transient or recurrent and a recurrent class as periodic or aperiodic" style="max-width:760px">
+<div class="figcap">Fig. 5.2 — Classify this state. Transience is about escaping and not returning; periodicity is about the gcd of cycle lengths (L16 slide 7, L17 slides 3–4; B&amp;T §7.2).</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g5_s5_gotchas}}" alt="Three small state-transition diagrams: a periodic three-state chain, a chain with one transient state, and a chain with two recurrent classes" style="max-width:620px">
+<div class="figcap">Fig. 5.3 — The three structures that break naive convergence answers: (a) the periodic chain of L16 slide 6, (b) a transient state, (c) two recurrent classes with a transient state between them (L16 slide 6). All numbers verified in <code>computes/g5_s5.py</code>.
+<b>Convention:</b> on L16 slide 6 the arcs inside the recurrent class $\{3,4\}$ of panel (c) — the two
+self-loops and the two arcs between 3 and 4 — are drawn <em>unlabelled</em>; only node 2's three
+outgoing probabilities ($0.4$, $0.3$, $0.3$) are printed. Following §1, this note adopts the
+symmetric reading $p_{33}=p_{34}=p_{43}=p_{44}=0.5$ throughout; those four numbers carry an
+asterisk in the panel. Nothing about the classification
+depends on it, but the numerical split $\lim_n r_{23}(n)=0.25$ in Practice 5.5 does.</div>
+
+<div class="warn"><b>Gotcha 1 — the Markov property is about the <em>state</em>, not about the
+sequence.</b> $\mathbf{P}(X_{n+1}=j\mid X_n=i, X_{n-1},\dots,X_0)=p_{ij}$ holds only if the state
+variable already carries everything the future depends on. If tomorrow's behavior depends on how
+long you have been in today's state, or on the previous state, the process is <em>not</em> Markov
+in that state space — enlarge the state (e.g. state $=$ (current value, previous value)) until it
+is. A related slip: writing
+$\mathbf{P}(X_1=2, X_2=6, X_3=7\mid X_0=1)=p_{12}+p_{26}+p_{67}$. The Markov property makes the
+path probability a <em>product</em>, $p_{12}p_{26}p_{67}$ (the L17 slide 3 warmup).</div>
+
+<div class="warn"><b>Gotcha 2 — periodic chains do not converge.</b> In Fig. 5.3(a)
+($p_{12}=1$, $p_{21}=p_{23}=0.5$, $p_{32}=1$) the chain alternates between $\{2\}$ and $\{1,3\}$,
+so $r_{22}(n)=1$ for $n$ even and $r_{22}(n)=0$ for $n$ odd — computed at $n=100$ and $n=101$
+exactly those values. The limit $\lim_n r_{22}(n)$ <em>does not exist</em>. And yet the balance
+equations still have the unique normalized solution $(\pi_1,\pi_2,\pi_3)=(0.25,0.5,0.25)$: solving
+them is not proof of convergence. What survives is the frequency interpretation — the time-average
+$\frac1N\sum_{n=1}^{N}r_{22}(n)$ equals $0.5$ to six decimals at $N=20000$, matching $\pi_2$. So
+"the chain is in state 2 half the time" is true; "after many steps it is in state 2 with
+probability $1/2$" is false.</div>
+
+<div class="warn"><b>Gotcha 3 — balance equations need normalization, and they are one equation
+short on purpose.</b> The $m$ balance equations $\pi_j=\sum_k\pi_k p_{kj}$ are linearly dependent
+(summing them over $j$ gives $\sum_j\pi_j=\sum_j\pi_j$, an identity), so they determine $\pi$ only
+up to a scale factor — in Example 5.1 the two equations turned out to be the same equation. Always
+discard one balance equation and add $\sum_j\pi_j=1$. Symptom of forgetting: your solver returns
+the all-zeros vector.</div>
+
+<div class="warn"><b>Gotcha 4 — transient states have $\pi_j=0$, so never "interpret" a positive
+steady-state probability for them.</b> In Fig. 5.3(b) state 1 has a self-loop of $0.5$ and sends
+$0.5$ into the recurrent class $\{2,3\}$, from which no arrow returns. The balance equations give
+$$\pi=(0,\ \tfrac{5}{11},\ \tfrac{6}{11})=(0,\,0.45454545,\,0.54545455),$$
+and $P^{50}$ has first row exactly $(0,0.45454545,0.54545455)$ — starting in the transient state
+makes no difference after enough steps. The number of visits to a transient state is finite (it is
+geometric), so its long-run frequency is 0 even though it may be visited many times early on.</div>
+
+<div class="warn"><b>Gotcha 5 — with several recurrent classes, "steady state" is the wrong tool;
+use absorption.</b> Fig. 5.3(c) has recurrent classes $\{1\}$ and $\{3,4\}$ with state 2 transient
+and symmetric escape probabilities $0.3$ each way (the only probabilities L16 slide 6 actually
+prints; the arcs inside $\{3,4\}$ are unlabelled there, and we take them to be $0.5$ each — see the
+Fig. 5.3 caption). Then $r_{11}(n)=1$ for all $n$, $r_{31}(n)=0$
+for all $n$, and $r_{21}(n)\to 1/2$: the limit exists but <em>depends on the starting state</em>,
+so no single vector $\pi$ describes it. Computing $P^{200}$ gives row 2 equal to
+$(0.5,0,0.25,0.25)$ — first solve the absorption problem "which class?", then apply the steady
+state <em>within</em> the chosen class. The same warning applies to time questions: use
+$\mu_i=1+\sum_j p_{ij}\mu_j$, not balance equations, whenever the question is about reaching
+something.</div>
+
+<div class="note"><b>Interpretation — the five gotchas are one gotcha.</b> Each failure above is the
+same mistake wearing a different hat: <em>a solution to the balance equations is not a promise that
+$r_{ij}(n)$ converges to it.</em> Balance says only "if the distribution ever stops changing, it
+must look like this". Periodicity (Gotcha 2) means the distribution never stops changing, though its
+time-average does settle; several recurrent classes (Gotcha 5) mean it settles to different things
+from different starts, so no single $\pi$ can be right; missing normalization (Gotcha 3) means you
+never pinned down which multiple of the solution you meant; and transient states (Gotcha 4) are the
+harmless case where balance quietly tells you the truth, $\pi_j=0$, and people over-read it. The
+practical drill is short: before trusting a $\pi$, confirm one recurrent class and check
+aperiodicity. If that check fails, the honest answer is a long-run <em>frequency</em>, not a
+long-run probability — and if the question really is about probabilities, it is an absorption
+question in disguise.</div>
+
+<div class="recipe"><b>Recipe — balance or absorption? (L17 slide 5, L18 slide 5).</b> Ask two questions.
+<b>(1) Is the target reachable-and-final?</b> If the question names a state you never leave (or a
+set you stop at) and asks "which one" or "how long", it is absorption/first passage — first-step
+analysis, boundary conditions at the absorbing states. <b>(2) Does every state communicate with
+every other?</b> If yes and the class is aperiodic, "long-run" questions are balance equations. If
+the chain has transient states <em>and</em> one recurrent class, balance equations still work: they
+automatically return $\pi=0$ on the transient states (Gotcha 4). Only when there are two or more
+recurrent classes must you do absorption <em>first</em>.</div>
+
+<div class="ex"><b>Practice 5.4.</b> A chain on $\{1,2,3,4\}$ has $p_{12}=1$, $p_{23}=1$,
+$p_{34}=1$, $p_{41}=1$ and no other transitions. Classify the states, decide whether
+$\lim_n r_{11}(n)$ exists, and give the long-run fraction of time in state 1.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Every state reaches every other and returns, so all four are recurrent and form a single class.
+The only cycle has length 4, so $d=\gcd\{4\}=4&gt;1$: the class is periodic with period 4. Hence
+$r_{11}(n)=1$ when $n$ is a multiple of 4 and $0$ otherwise — the limit does not exist (Gotcha 2).
+The balance equations $\pi_1=\pi_4,\ \pi_2=\pi_1,\ \pi_3=\pi_2,\ \pi_4=\pi_3$ with
+$\sum\pi_j=1$ give $\pi_j=1/4$ for all $j$, which is the correct answer to the <em>frequency</em>
+question: the chain spends a quarter of its steps in state 1.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 5.5.</b> In Fig. 5.3(c), what is $\lim_n r_{23}(n)$, and what would go
+wrong if you tried to get it from balance equations?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>From state 2 the chain escapes with probability $0.3$ to state 1 and $0.3$ to state 3 on each
+attempt (staying with probability $0.4$), so by symmetry it is absorbed into class $\{1\}$ with
+probability $1/2$ and into class $\{3,4\}$ with probability $1/2$. Formally, $a_1$ (absorption into
+$\{1\}$ from state 2) satisfies $a=0.3(1)+0.3(0)+0.4a$, so $0.6a=0.3$ and $a=1/2$. Inside
+$\{3,4\}$ we use the adopted convention $p_{33}=p_{34}=p_{43}=p_{44}=0.5$ — those four arcs are
+unlabelled on L16 slide 6, so any symmetric pair would do here — and the sub-chain's steady state is
+$(1/2,1/2)$; therefore
+$$\lim_n r_{23}(n)=\tfrac12\cdot\tfrac12=0.25,$$
+matching row 2 of $P^{200}=(0.5,0,0.25,0.25)$. Balance equations fail because with two recurrent
+classes the solution set is a whole line: any $(\alpha,0,\tfrac{1-\alpha}{2},\tfrac{1-\alpha}{2})$
+satisfies balance and normalization, and nothing in that system knows you started at state 2.</p>
+</div></details>
+</div>
+
+<h3>5.3 Checkpoint I — continuous random variables (rec16)</h3>
+
+<p>Recitation 16 is a Quiz-2 review sheet on G3 material. Solve it before reading the solutions;
+each part is tagged with the G3 (or G4) section that built the tool it needs.</p>
+
+<div class="note"><b>Interpretation — why these three tools, and why here.</b> The recitation looks
+like five unrelated parts, but it drills exactly the three moves that continuous random variables
+add to the discrete picture, and each one reappears in G5 and G6. <b>(1) Normalize by area.</b> A
+density is not a probability; only $f\times(\text{width})$ is. That is why $c=1/3$ comes from
+$3c=1$ and why $\mathbf{P}(X\le W)$ in part (b) is a sum of areas weighted by densities rather than
+a count of outcomes — the continuous analogue of the normalization $\sum_j\pi_j=1$ that §5.1 calls
+never optional. <b>(2) The CDF method for nonlinear maps.</b> Linear maps just rescale
+($f_Y(y)=\frac1{|a|}f_X(\frac{y-b}{a})$), but $S=24/W$ and $V=W^2$ bend the axis, so you must go
+through $F_S(s)=\mathbf{P}(S\le s)$ and differentiate; skipping to "substitute and divide" is the
+single most common lost-point on Quiz 2. The pay-off is visible in part (e): $\mathbb{E}[24/W]=8.32
+\ne 24/\mathbb{E}[W]=8$ — nonlinear maps move the mean, and knowing by how much is what Jensen and
+later the delta-method are about. <b>(3) Iterated expectations for random sums.</b> When the
+<em>number</em> of terms is itself random, condition on it first: $\mathbb{E}[A]=\mathbb{E}[N]
+\mathbb{E}[A_i]$, and the total-variance law splits the spread into "noise inside a fixed count"
+plus "noise in the count". That decomposition is the whole content of Example 5.4's punchline —
+$A$ and $B$ share no terms yet correlate at $0.6$, and every bit of that covariance is
+$\operatorname{var}(N)$. Conditioning on the right hidden variable is the same instinct as
+first-step analysis in §5.1: find the one quantity that, once known, makes everything else
+routine.</div>
+
+<div class="ex"><b>Example 5.3 (rec16 P1 — the 6.041 marathon).</b>
+Xavier's and Wasima's race times $X$ and $W$ (in hours) are independent. Xavier's density is
+$$f_X(x)=\begin{cases}2c, &amp; 2\le x&lt;3,\\ c, &amp; 3\le x\le 4,\\ 0, &amp;\text{otherwise,}\end{cases}$$
+with $c$ an unknown constant; $W$ is uniform on $[2,4]$, i.e. $f_W(w)=1/2$ for $2\le w\le 4$.
+<b>(a)</b> Find $c$; compute $\mathbb{E}[X]$ and $\mathbb{E}[X^2]$; sketch the PDF of $2X+1$.
+<b>(b)</b> Compute $\mathbf{P}(X\le W)$.
+<b>(c)</b> A faulty stopwatch reads $T$ with
+$f_{T|W}(t|w)=10$ for $w\le t\le w+\tfrac1{10}$ (and $2\le w\le 4$), $0$ otherwise; find
+$f_{W|T}(w|t)$ at $t=3$.
+<b>(d)</b> A new watch adds noise $N\sim\text{Normal}(\mu=\tfrac1{60},\ \sigma^2=\tfrac{4}{3600})$;
+find $\mathbf{P}(N&gt;\tfrac5{60})$ as a number.
+<b>(e)</b> With $S=24/W$ (thousands of dollars of sponsorship), find $f_S(s)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+
+<p><b>(a)(i) Normalization (G3 §1; B&amp;T §3.1).</b> A PDF integrates to 1, and the density is
+piecewise constant, so each piece contributes height $\times$ width:
+$$\int_{2}^{4}f_X(x)\,dx=\int_2^3 2c\,dx+\int_3^4 c\,dx=2c(3-2)+c(4-3)=2c+c=3c=1,$$
+hence $c=\tfrac13=0.333333$. The two rectangles then have heights $2c=2/3$ and $c=1/3$
+(Fig. 5.4, left).</p>
+
+<p><b>(a)(ii) The mean (G3 §1).</b> Split the expectation integral at the jump and use
+$\int x\,dx=x^2/2$:
+$$\mathbb{E}[X]=\int_2^3 x\cdot\tfrac23\,dx+\int_3^4 x\cdot\tfrac13\,dx
+=\tfrac23\cdot\frac{x^2}{2}\Big|_2^3+\tfrac13\cdot\frac{x^2}{2}\Big|_3^4
+=\tfrac13(3^2-2^2)+\tfrac16(4^2-3^2).$$
+Now $\tfrac13(9-4)=\tfrac53$ and $\tfrac16(16-9)=\tfrac76$, so
+$$\mathbb{E}[X]=\tfrac53+\tfrac76=\tfrac{10}{6}+\tfrac76=\tfrac{17}{6}=2.833333 .$$
+<em>(The printed solution writes "$=5/3+17/6$" in the middle line; $\tfrac16(4^2-3^2)=\tfrac76$,
+not $\tfrac{17}{6}$ — a typo, since $\tfrac53+\tfrac76$ does give the stated $\tfrac{17}{6}$.)</em>
+Numerical quadrature over the same density returns $2.833333$. ✓</p>
+
+<p><b>(a)(iii) The second moment.</b> Same split with $\int x^2dx=x^3/3$:
+$$\mathbb{E}[X^2]=\tfrac23\cdot\frac{x^3}{3}\Big|_2^3+\tfrac13\cdot\frac{x^3}{3}\Big|_3^4
+=\tfrac29(27-8)+\tfrac19(64-27)=\tfrac{38}{9}+\tfrac{37}{9}=\tfrac{75}{9}=\tfrac{25}{3}=8.333333 .$$
+Although not asked, the variance follows from $\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$
+(G3 §1):
+$$\operatorname{var}(X)=\tfrac{25}{3}-\Big(\tfrac{17}{6}\Big)^2=\tfrac{300}{36}-\tfrac{289}{36}
+=\tfrac{11}{36}=0.305556,\qquad \sigma_X=0.552771 .$$</p>
+
+<p><b>(a)(iv) The derived distribution of $Y=2X+1$ (G3 §4).</b> For a linear map $Y=aX+b$ with
+$a\ne0$ the density transforms as $f_Y(y)=\frac{1}{|a|}f_X\!\big(\frac{y-b}{a}\big)$. Here $a=2$,
+$b=1$, so $f_Y(y)=\tfrac12 f_X\!\big(\tfrac{y-1}{2}\big)$. The range maps as $x=2\mapsto y=5$ and
+$x=4\mapsto y=9$; the interior breakpoint $x=3$ maps to $y=7$. Therefore
+$$f_Y(y)=\begin{cases}\tfrac12(2c)=c=\tfrac13, &amp; 5\le y&lt;7,\\[2pt]
+\tfrac12 c=\tfrac16, &amp; 7\le y\le 9,\\[2pt] 0,&amp;\text{otherwise,}\end{cases}$$
+which integrates to $\tfrac13(2)+\tfrac16(2)=\tfrac23+\tfrac13=1$ ✓ — twice as wide, half as tall.
+Consistency of moments: $\mathbb{E}[Y]=2\mathbb{E}[X]+1=\tfrac{17}{3}+1=\tfrac{20}{3}=6.666667$ and
+$\operatorname{var}(Y)=2^2\operatorname{var}(X)=\tfrac{11}{9}=1.222222$.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g5_s5_rec16_pdf}}" alt="Left: piecewise constant PDF of X with heights 2/3 and 1/3. Right: PDF of Y = 2X+1 with heights 1/3 and 1/6 on [5,9]" style="max-width:860px">
+<div class="figcap">Fig. 5.4 — rec16 P1(a): the PDF of $X$ and of the linear map $Y=2X+1$ (rec16 solution Figures 1–2, redrawn).</div>
+
+<p><b>(b) $\mathbf{P}(X\le W)$ (G3 §2).</b> Independence makes the joint density the product of the
+marginals, $f_{X,W}(x,w)=f_X(x)f_W(w)$, which is piecewise constant on the square
+$[2,4]\times[2,4]$ with two slabs:
+$$c_1=\tfrac23\cdot\tfrac12=\tfrac13\ \ (2\le x\le 3),\qquad
+  c_2=\tfrac13\cdot\tfrac12=\tfrac16\ \ (3\le x\le 4).$$
+Check: $c_1\cdot(1\times2)+c_2\cdot(1\times2)=\tfrac23+\tfrac13=1$ ✓. The event $\{X\le W\}$ is the
+part of the square above the line $x=w$, which the divider $x=3$ splits into a trapezoid inside the
+$c_1$ slab and a triangle inside the $c_2$ slab (Fig. 5.5). Their areas — the step the official
+solution states without evaluating — are
+$$\text{trapezoid}=\int_2^3(4-x)\,dx=\Big[4x-\tfrac{x^2}{2}\Big]_2^3=(12-4.5)-(8-2)=7.5-6=\tfrac32,$$
+$$\text{triangle}=\int_3^4(4-x)\,dx=\Big[4x-\tfrac{x^2}{2}\Big]_3^4=(16-8)-(12-4.5)=8-7.5=\tfrac12 .$$
+Weighting each area by its density,
+$$\mathbf{P}(X\le W)=c_1\cdot\tfrac32+c_2\cdot\tfrac12=\tfrac13\cdot\tfrac32+\tfrac16\cdot\tfrac12
+=\tfrac12+\tfrac1{12}=\tfrac{7}{12}=0.583333 .$$
+A 4-million-sample Monte-Carlo run gives $0.58337$. ✓ <em>(The printed solution writes the two
+products in the order "$1/2\cdot1/6+3/2\cdot1/3$", i.e. with the areas and densities paired
+correctly but listed in the opposite order from the labels $c_1,c_2$ in the sentence above it.)</em></p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g5_s5_rec16_joint}}" alt="Left: the unit square split into two slabs of joint density 1/3 and 1/6. Right: the region X <= W shaded, split into a trapezoid of area 3/2 and a triangle of area 1/2" style="max-width:800px">
+<div class="figcap">Fig. 5.5 — rec16 P1(b): the joint density and the event $X\le W$ (rec16 solution Figures 3–4, redrawn).</div>
+
+<p><b>(c) The posterior of $W$ given $T=3$ (G3 §3, continuous Bayes).</b> Bayes for densities reads
+$$f_{W|T}(w\mid t)=\frac{f_W(w)f_{T|W}(t\mid w)}{f_T(t)},\qquad
+f_T(t)=\int f_W(w)f_{T|W}(t\mid w)\,dw .$$
+First the numerator at $t=3$. The conditional density is $10$ exactly when
+$w\le t\le w+\tfrac1{10}$; with $t=3$ this pair of inequalities says $w\le 3$ and $3\le w+0.1$,
+i.e.
+$$2.9\le w\le 3,$$
+and this window sits inside $[2,4]$ where $f_W=1/2$, so the joint density is
+$$f_{W,T}(w,3)=f_W(w)f_{T|W}(3\mid w)=\tfrac12\cdot 10=5,\qquad 2.9\le w\le 3,$$
+and 0 elsewhere. <em>(Two slips in the printed solution: it says "$T$ and $W$ are independent",
+which is false — $T=W+\text{noise}$; the independence is between $W$ and the added noise. And it
+writes $f_{W,T}(w,3)=f_W(w)f_T(3)$, where the second factor should be the conditional
+$f_{T|W}(3|w)$. The numbers 10 and 1/2 are also swapped relative to which density supplies them.)</em>
+Then the normalizing constant — the step whose limits the source uses without deriving:
+$$f_T(3)=\int_{2.9}^{3}5\,dw=5(3-2.9)=5(0.1)=\tfrac12 .$$
+Dividing,
+$$f_{W|T}(w\mid 3)=\frac{5}{1/2}=10,\qquad 2.9\le w\le 3,$$
+and 0 otherwise: given a reading of exactly 3 hours, her true time is <em>uniform</em> on
+$[2.9,\,3]$, with conditional mean $2.95$. That is intuitive — the watch adds a uniform
+$[0,0.1]$ overshoot, and the prior $f_W$ is flat over the relevant window, so it contributes
+nothing to the shape.</p>
+
+<p><b>(d) The normal tail (G3 §1, §3).</b> Standardize: if $N\sim\text{Normal}(\mu,\sigma^2)$ then
+$Z=(N-\mu)/\sigma$ is standard normal, with mean <b>0</b> and standard deviation 1 <em>(the printed
+solution says "mean 1", a slip)</em>. Here
+$$\sigma=\sqrt{\tfrac{4}{3600}}=\tfrac{2}{60}=0.03333333,\qquad
+z=\frac{5/60-1/60}{2/60}=\frac{4/60}{2/60}=2 .$$
+Therefore
+$$\mathbf{P}\!\Big(N&gt;\tfrac5{60}\Big)=1-\mathbf{P}(Z\le 2)=1-\Phi(2)=1-0.9772=0.0228 .$$
+The exact value from the error function is $1-0.9772499=0.0227501$; the table's four digits give
+$0.0228$. <em>(The solutions PDF prints "$1-0.9772=0.0028$" — an arithmetic slip. Use
+$0.0228$.)</em> In words: about a $2.3\%$ chance the new watch overstates her time by more than
+5 minutes.</p>
+
+<p><b>(e) The derived distribution of $S=24/W$ (G3 §4, CDF method).</b> The map $w\mapsto 24/w$ is
+decreasing on $[2,4]$, so the range of $S$ runs from $24/4=6$ to $24/2=12$. Work with the CDF,
+because the transformation is nonlinear:
+$$F_S(s)=\mathbf{P}(S\le s)=\mathbf{P}\!\Big(\frac{24}{W}\le s\Big)=\mathbf{P}\!\Big(W\ge\frac{24}{s}\Big)
+=1-F_W\!\Big(\frac{24}{s}\Big),$$
+where the inequality flips because dividing by a positive $W$ and multiplying by $s&gt;0$ reverses
+the comparison. For $6\le s\le 12$ the argument $24/s$ lies in $[2,4]$, so — writing the step the
+source compresses —
+$$F_W\!\Big(\frac{24}{s}\Big)=\int_2^{24/s}\tfrac12\,dw=\tfrac12\Big(\frac{24}{s}-2\Big)
+=\frac{12}{s}-1,$$
+hence
+$$F_S(s)=1-\Big(\frac{12}{s}-1\Big)=2-\frac{12}{s},\qquad 6\le s\le 12 .$$
+Check the endpoints: $F_S(6)=2-2=0$ and $F_S(12)=2-1=1$ ✓ (and $F_S(8)=0.5$, so the median
+sponsorship is \$8000). Differentiating,
+$$f_S(s)=\frac{d}{ds}\Big(2-\frac{12}{s}\Big)=\frac{12}{s^2},\qquad 6\le s\le 12,$$
+and 0 otherwise; numerically $\int_6^{12}12/s^2\,ds=1.0$ ✓. Its mean is
+$$\mathbb{E}[S]=\int_6^{12}s\cdot\frac{12}{s^2}\,ds=12\ln\frac{12}{6}=12\ln 2=8.317766
+\ \ (\text{thousand dollars}),$$
+which agrees with computing $\mathbb{E}[24/W]$ directly from $f_W$ by the expected-value rule
+(G3 §1) — as it must, and note it is <em>not</em> $24/\mathbb{E}[W]=24/3=8$: the two differ because
+$1/w$ is convex (Jensen's inequality, and $8.317766&gt;8$).</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Example 5.4 (rec16 P2 — random sums of normals).</b>
+Let $N,A_1,B_1,A_2,B_2,\dots$ be independent, $N$ a nonnegative integer random variable and every
+$A_i,B_i\sim\text{Normal}(1,1)$. Put $A=\sum_{i=1}^N A_i$ and $B=\sum_{i=1}^N B_i$.
+<b>(a)</b> With $N$ geometric of mean $1/p$: find $\mu_a=\mathbb{E}[A]$,
+$\sigma_a^2=\operatorname{var}(A)$, and $c_{ab}=\mathbb{E}[AB]$.
+<b>(b)</b> With $\mathbf{P}(N=1)=1/3$, $\mathbf{P}(N=2)=2/3$: give $f_A(a)$ and
+$\mathbf{P}(N=1\mid A=a)$.
+<b>(c)</b> Is $\mathbb{E}[A\mid N]=\mathbb{E}[A\mid B,N]$?
+<details class="sol"><summary>Solution</summary><div class="body">
+
+<p><b>(a)(i) Mean and variance of a random sum (G4 §2; B&amp;T §4.5).</b> Given $N=n$, $A$ is a sum
+of $n$ i.i.d. terms, so $\mathbb{E}[A\mid N]=N\,\mathbb{E}[A_i]=N$ and
+$\operatorname{var}(A\mid N)=N\operatorname{var}(A_i)=N$ — both random variables, functions of $N$.
+The law of iterated expectations gives
+$$\mu_a=\mathbb{E}\big[\mathbb{E}[A\mid N]\big]=\mathbb{E}[N]\,\mathbb{E}[A_i]
+=\mathbb{E}[N]=\frac1p,$$
+and the law of total variance gives
+$$\sigma_a^2=\mathbb{E}\big[\operatorname{var}(A\mid N)\big]+\operatorname{var}\big(\mathbb{E}[A\mid N]\big)
+=\operatorname{var}(A_i)\mathbb{E}[N]+\big(\mathbb{E}[A_i]\big)^2\operatorname{var}(N)
+=\frac1p+\frac{1-p}{p^2}.$$
+Combining over the common denominator, $\frac{p}{p^2}+\frac{1-p}{p^2}=\frac{1}{p^2}$, so
+$\sigma_a^2=1/p^2$. <em>(The printed middle expression reads "$1/p+p/(1-p)$"; the geometric
+variance is $(1-p)/p^2$, and only with that value does the stated answer $1/p^2$ come out.)</em>
+Numerically at $p=0.4$: $\mathbb{E}[N]=2.5$, $\operatorname{var}(N)=3.75$, so $\mu_a=2.5$ and
+$\sigma_a^2=2.5+3.75=6.25=1/0.4^2$ ✓ (a one-million-run simulation gives $2.5011$ and $6.2383$).</p>
+
+<p><b>(a)(ii) The cross moment.</b> Condition on $N$ again:
+$$c_{ab}=\mathbb{E}[AB]=\mathbb{E}\big[\mathbb{E}[AB\mid N]\big].$$
+Given $N=n$, the two sums involve <em>disjoint</em> families $\{A_i\}$ and $\{B_i\}$, and the whole
+family is independent, so $A$ and $B$ are conditionally independent given $N$ — this is the step
+the source uses silently. Hence
+$$\mathbb{E}[AB\mid N=n]=\mathbb{E}[A\mid N=n]\,\mathbb{E}[B\mid N=n]
+=\big(n\mathbb{E}[A_i]\big)\big(n\mathbb{E}[B_i]\big)=n^2 .$$
+Averaging over $N$ and using $\mathbb{E}[N^2]=\operatorname{var}(N)+(\mathbb{E}[N])^2$ (G2 §3):
+$$c_{ab}=\mathbb{E}[N^2]\,\mathbb{E}[A_i]\mathbb{E}[B_i]=\mathbb{E}[N^2]
+=\frac{1-p}{p^2}+\frac{1}{p^2}=\frac{2-p}{p^2}.$$
+At $p=0.4$ this is $10.0$ (simulation: $9.9867$). The covariance is then
+$$\operatorname{cov}(A,B)=c_{ab}-\mu_a^2=\frac{2-p}{p^2}-\frac{1}{p^2}=\frac{1-p}{p^2}
+=\operatorname{var}(N)=3.75,$$
+so the correlation coefficient is $\operatorname{cov}/(\sigma_a\sigma_b)=3.75/6.25=0.6$. <b>Reading
+it:</b> $A$ and $B$ share no individual terms, yet they are positively correlated <em>solely</em>
+because they share the count $N$ — all of the covariance is $\operatorname{var}(N)$.</p>
+
+<p><b>(b)(i) The mixture PDF (G4 §1; G3 §3).</b> Given $N=1$, $A=A_1\sim\text{Normal}(1,1)$. Given
+$N=2$, $A=A_1+A_2$ is a sum of two independent normals, hence normal with mean $1+1=2$ and
+variance $1+1=2$. The total probability theorem for densities then gives
+$$f_A(a)=f_{A|N=1}(a)\,p_N(1)+f_{A|N=2}(a)\,p_N(2)
+=\frac13\cdot\frac{1}{\sqrt{2\pi}}e^{-(a-1)^2/2}
++\frac23\cdot\frac{1}{\sqrt{4\pi}}e^{-(a-2)^2/4},$$
+using $\frac{1}{\sqrt{2\pi\sigma^2}}e^{-(a-\mu)^2/(2\sigma^2)}$ with $(\mu,\sigma^2)=(1,1)$ and
+$(2,2)$. This is a <em>mixture</em>, not a normal: numerically it integrates to $1.0$, its mean is
+$\tfrac13(1)+\tfrac23(2)=1.666667$ and its variance is
+$\tfrac13(1+1^2)+\tfrac23(2+2^2)-(5/3)^2=4.666667-2.777778=1.888889$.</p>
+
+<p><b>(b)(ii) The posterior on the count (G3 §3, Bayes with a discrete unknown).</b> Use the
+$\delta$-window argument: for small $\delta&gt;0$,
+$$\mathbf{P}(N=1\mid a\le A\le a+\delta)
+=\frac{\mathbf{P}(N=1)\,\mathbf{P}(a\le A\le a+\delta\mid N=1)}{\mathbf{P}(a\le A\le a+\delta)}
+\approx\frac{p_N(1)f_{A|N=1}(a)\,\delta}{f_A(a)\,\delta},$$
+and the $\delta$'s cancel as $\delta\to0$, leaving
+$$\mathbf{P}(N=1\mid A=a)=\frac{p_N(1)f_{A|N=1}(a)}{f_A(a)}
+=\frac{\frac{1}{3\sqrt{2\pi}}e^{-(a-1)^2/2}}
+{\frac{1}{3\sqrt{2\pi}}e^{-(a-1)^2/2}+\frac{2}{3\sqrt{4\pi}}e^{-(a-2)^2/4}} .$$
+<em>(The printed intermediate line "the joint is $P(A=a)P(N=1)\delta=f_A(a)p_N(1)$" is loose: the
+joint is $f_{A|N=1}(a)p_N(1)\delta$, which is what actually appears in the final numerator. Its
+reference to "part (a)" should read "part (b)(i)".)</em> Evaluating: at $a=0$ the posterior is
+$0.538282$, at $a=2$ it is $0.300152$, at $a=4$ it is $0.020906$, against a prior of
+$1/3=0.333333$. A small observed sum is evidence for one term; a large one is strong evidence for
+two.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g5_s5_rec16_mix}}" alt="Left: the mixture density of A as the sum of a scaled Normal(1,1) and a scaled Normal(2,2). Right: the posterior probability that N=1 as a function of a" style="max-width:860px">
+<div class="figcap">Fig. 5.6 — rec16 P2(b): the mixture PDF of $A$ and the posterior $\mathbf{P}(N=1\mid A=a)$, crossing the prior $1/3$ at $a=1.8402$.</div>
+
+<p><b>(c) Conditional independence (G4 §1; G1 §3).</b> Yes, the two are equal. Both sides are
+random variables. $A$ and $B$ are <em>not</em> independent — they share $N$ — but given $N$ they
+are built from disjoint independent families, so
+$$f_{A,B|N}(a,b\mid n)=f_{A|N}(a\mid n)\,f_{B|N}(b\mid n).$$
+Therefore
+$$f_{A|B,N}(a\mid b,n)=\frac{f_{A,B,N}(a,b,n)}{f_{B,N}(b,n)}
+=\frac{f_{A,B|N}(a,b\mid n)\,p_N(n)}{f_{B|N}(b\mid n)\,p_N(n)}
+=\frac{f_{A|N}(a\mid n)f_{B|N}(b\mid n)}{f_{B|N}(b\mid n)}=f_{A|N}(a\mid n).$$
+Equal conditional densities give equal conditional means,
+$\int a\,f_{A|B,N}(a\mid b,n)\,da=\int a\,f_{A|N}(a\mid n)\,da$, so
+$\mathbb{E}[A\mid B,N]=\mathbb{E}[A\mid N]$. In words: once you know how many terms there are,
+seeing $B$ tells you nothing more about $A$.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 5.6.</b> Let $f_X(x)=3k$ for $0\le x&lt;1$, $f_X(x)=k$ for
+$1\le x\le 3$, and 0 elsewhere. Find $k$, $\mathbb{E}[X]$ and $\operatorname{var}(X)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Normalization: $3k(1)+k(2)=5k=1$, so $k=\tfrac15$. Then
+$$\mathbb{E}[X]=\tfrac35\cdot\frac{x^2}{2}\Big|_0^1+\tfrac15\cdot\frac{x^2}{2}\Big|_1^3
+=\tfrac35\cdot\tfrac12+\tfrac1{10}(9-1)=\tfrac3{10}+\tfrac8{10}=\tfrac{11}{10}=1.1,$$
+$$\mathbb{E}[X^2]=\tfrac35\cdot\frac{x^3}{3}\Big|_0^1+\tfrac15\cdot\frac{x^3}{3}\Big|_1^3
+=\tfrac15+\tfrac1{15}(27-1)=\tfrac{3}{15}+\tfrac{26}{15}=\tfrac{29}{15},$$
+$$\operatorname{var}(X)=\tfrac{29}{15}-\Big(\tfrac{11}{10}\Big)^2=\tfrac{217}{300}=0.723333 .$$</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 5.7.</b> With $W$ uniform on $[2,4]$ as in rec16 P1, let $V=W^2$.
+Find $f_V(v)$ by the CDF method and check that it integrates to 1.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$w\mapsto w^2$ is increasing on $[2,4]$, so $V$ ranges over $[4,16]$ and for $4\le v\le 16$
+$$F_V(v)=\mathbf{P}(W^2\le v)=\mathbf{P}(W\le\sqrt v)=\int_2^{\sqrt v}\tfrac12\,dw
+=\tfrac12(\sqrt v-2)=\tfrac{\sqrt v}{2}-1 .$$
+Differentiating, $f_V(v)=\frac{d}{dv}\big(\tfrac12 v^{1/2}-1\big)=\frac{1}{4\sqrt v}$ for
+$4\le v\le 16$, and 0 otherwise. Check:
+$\int_4^{16}\frac{dv}{4\sqrt v}=\big[\tfrac12\sqrt v\big]_4^{16}=\tfrac12(4-2)=1$ ✓. Endpoints:
+$F_V(4)=0$, $F_V(16)=1$ ✓. And $\mathbb{E}[V]=\int_4^{16}\frac{\sqrt v}{4}\,dv=9.333333$, which is
+$\mathbb{E}[W^2]=\tfrac{28}{3}$ computed the other way ✓.</p>
+</div></details>
+</div>
+
+<h3>5.4 Checkpoint II — the Poisson process (rec17)</h3>
+
+<p>Recitation 17 reviews G4: counting arrivals over an interval, exponential interarrivals and
+memorylessness, merging, splitting, and random incidence. The three problems below are solved in
+full; Problem 3's solution is missing from the handout entirely (it is delegated to the textbook),
+so it is derived here from scratch.</p>
+
+<div class="note"><b>Interpretation — merging, splitting and random incidence are the three reusable
+moves.</b> Every part of rec17 is one of three operations on a Poisson process, and each one is a
+statement about <em>rates</em>, which is why they compose so freely. <b>Merging</b> (Example 5.5(b),
+5.6(d)): superpose independent streams and you get a Poisson process of rate
+$\lambda_1+\lambda_2$, in which each arrival independently belongs to stream 1 with probability
+$\lambda_1/(\lambda_1+\lambda_2)$. That single ratio answers every "which one came first / which one
+was this" question — no integration needed once you recognize the pattern. <b>Splitting</b>
+(Example 5.6(b),(c); Practice 5.8): keep each arrival independently with probability $p$ and the
+survivors are Poisson at rate $p\lambda$ — the process type is preserved, so the thinned stream can
+immediately be merged, counted, or raced again. Merging and splitting are inverses, and together
+they mean you almost never have to work with the arrival times themselves. <b>Random incidence</b>
+(Example 5.6(e), 5.7, Practice 5.9) is the one that surprises people, because it is not about the
+process but about <em>how you sample it</em>: an observer dropped at a fixed clock time lands in an
+interval with probability proportional to its length, so the interval they see is length-biased,
+$\ell f(\ell)/\mathbb{E}[L]$, and its mean exceeds the ordinary mean by the factor
+$1+\operatorname{var}(L)/\mathbb{E}[L]^2$. The lesson generalizes far past Poisson processes: any
+time your sampling scheme favors big items — surveying passengers about bus waits, students about
+class sizes — the sample distribution is not the population distribution.</div>
+
+<div class="ex"><b>Example 5.5 (rec17 P1 — Iwana Passe's two answer streams).</b>
+Iwana's conscious and subconscious faculties generate answers as independent Poisson processes with
+rates $\lambda_c$ and $\lambda_s$ per minute ($\lambda_c\ne\lambda_s$); each conscious answer is
+correct with probability $p_c$, each subconscious one with probability $p_s$, independently.
+<b>(a)</b> Find $p_K(k)$, the PMF of the number of conscious responses in $T$ minutes.
+<b>(b)</b> For a question she has answered: (i) the probability it was a conscious response;
+(ii) the probability it was a conscious <em>and correct</em> response.
+<b>(c)</b> The probability of exactly $r$ conscious and $s$ subconscious responses in $T$ minutes.
+<b>(d)</b> The PDF of $X$, the time until her first conscious response that is preceded by at least
+one subconscious response.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Throughout, the numerical illustration uses $\lambda_c=1.5$/min, $\lambda_s=0.5$/min, $T=4$ min,
+$p_c=0.6$, $p_s=0.3$.</p>
+
+<p><b>(a) Counting over an interval (G4 §3; B&amp;T §6.2).</b> The number of arrivals of a Poisson
+process of rate $\lambda_c$ in an interval of length $T$ is Poisson with parameter (mean
+<em>number</em>, not a time — the handout misnames it "average arrival time")
+$\mu=\lambda_c T$:
+$$p_K(k)=\frac{(\lambda_c T)^k e^{-\lambda_c T}}{k!},\qquad k=0,1,2,\dots$$
+With $\lambda_c T=(1.5)(4)=6$: $p_K(0)=0.002479$, $p_K(1)=0.014873$, $p_K(2)=0.044618$,
+$p_K(3)=0.089235$, $p_K(6)=0.160623$, $p_K(10)=0.041303$; the terms sum to $1.0$ ✓. The PMF is
+maximized at $k=5$ and $k=6$ together — $p_K(5)=p_K(6)=0.160623$ — the tie that always occurs when
+a Poisson mean is an integer, since $p_K(k)/p_K(k-1)=\mu/k$ equals 1 exactly at $k=\mu$.</p>
+
+<p><b>(b)(i) Which stream produced this answer? (G4 §4, merging/splitting.)</b> The handout states
+$\lambda_c/(\lambda_c+\lambda_s)$ with no derivation; here are two. <em>Competing exponentials:</em>
+let $X_c\sim\text{Exp}(\lambda_c)$ and $X_s\sim\text{Exp}(\lambda_s)$ be the times to the next
+conscious and subconscious response, independent. Then
+$$\mathbf{P}(X_c&lt;X_s)=\int_0^\infty \mathbf{P}(X_s&gt;t)\,f_{X_c}(t)\,dt
+=\int_0^\infty e^{-\lambda_s t}\lambda_c e^{-\lambda_c t}\,dt
+=\lambda_c\int_0^\infty e^{-(\lambda_c+\lambda_s)t}\,dt
+=\frac{\lambda_c}{\lambda_c+\lambda_s},$$
+where the first equality conditions on the value $t$ of $X_c$ and the last evaluates
+$\int_0^\infty e^{-at}dt=1/a$. <em>Merging:</em> the superposition of the two independent Poisson
+processes is Poisson of rate $\lambda_c+\lambda_s$, and each arrival of the merged process comes
+from the conscious stream independently with probability $\lambda_c/(\lambda_c+\lambda_s)$ —
+which is also why "pick any question she answered" is well defined. Numerically
+$1.5/2.0=0.75$.</p>
+
+<p><b>(b)(ii)</b> Multiply by the conditional probability of correctness, using the multiplication
+rule (G1 §2):
+$$\mathbf{P}(\text{conscious and correct})=\frac{\lambda_c}{\lambda_c+\lambda_s}\,p_c
+=(0.75)(0.6)=0.45 .$$
+(For contrast, her overall correctness rate is
+$\frac{\lambda_c}{\lambda_c+\lambda_s}p_c+\frac{\lambda_s}{\lambda_c+\lambda_s}p_s
+=0.45+0.25\cdot0.3=0.525$.)</p>
+
+<p><b>(c) Two counts at once.</b> The two processes are independent, so the counts in the same
+interval are independent random variables and the joint PMF factors:
+$$\mathbf{P}(r\text{ conscious},\,s\text{ subconscious in }T)
+=\frac{(\lambda_c T)^r e^{-\lambda_c T}}{r!}\cdot\frac{(\lambda_s T)^s e^{-\lambda_s T}}{s!}.$$
+With $r=3$, $s=2$: $(0.089235)(0.270671)=0.024153$. Note this is <em>not</em> the same as
+splitting a single merged process — here the two streams are given separately, so no binomial
+factor appears.</p>
+
+<p><b>(d) Time to the first conscious response preceded by a subconscious one (G3 §4 convolution;
+G4 §3 memorylessness).</b> Decompose the wait into two legs:
+$$X=X_s+X_c,$$
+where $X_s$ is the time from the start to the first subconscious response, and $X_c$ is the time
+from <em>that instant</em> to the next conscious response. $X_s\sim\text{Exp}(\lambda_s)$ by
+definition of the subconscious process. For $X_c$ the source gives no justification, and one is
+needed: at the (random) instant of the first subconscious response, the conscious process — being
+independent of the subconscious one — starts afresh, so the remaining time to its next arrival is
+$\text{Exp}(\lambda_c)$ and independent of $X_s$. That is the fresh-start/memoryless property, and
+it is exactly what makes the two legs independent.</p>
+<p>The density of a sum of independent random variables is the convolution (G3 §4):
+$$f_X(x)=\int_{-\infty}^{\infty}f_{X_s}(x-x_c)f_{X_c}(x_c)\,dx_c .$$
+The integrand is nonzero only where <em>both</em> densities are: $x_c\ge0$ and $x-x_c\ge0$, i.e.
+$0\le x_c\le x$ — the limits the source only gestures at. So for $x\ge 0$
+$$f_X(x)=\int_0^{x}\lambda_s e^{-\lambda_s(x-x_c)}\,\lambda_c e^{-\lambda_c x_c}\,dx_c
+=\lambda_s\lambda_c e^{-\lambda_s x}\int_0^x e^{(\lambda_s-\lambda_c)x_c}\,dx_c .$$
+Since $\lambda_s\ne\lambda_c$ the inner integral is a plain exponential integral,
+$$\int_0^x e^{(\lambda_s-\lambda_c)x_c}\,dx_c
+=\left[\frac{e^{(\lambda_s-\lambda_c)x_c}}{\lambda_s-\lambda_c}\right]_0^x
+=\frac{e^{(\lambda_s-\lambda_c)x}-1}{\lambda_s-\lambda_c},$$
+so
+$$f_X(x)=\frac{\lambda_s\lambda_c}{\lambda_s-\lambda_c}e^{-\lambda_s x}
+\Big(e^{(\lambda_s-\lambda_c)x}-1\Big)
+=\frac{\lambda_s\lambda_c}{\lambda_s-\lambda_c}\Big(e^{-\lambda_c x}-e^{-\lambda_s x}\Big),
+\qquad x\ge0,$$
+distributing $e^{-\lambda_s x}$ over the bracket in the last step. This is the hypoexponential
+density; it integrates to $1.0$ numerically, and its mean is
+$\mathbb{E}[X]=\frac{1}{\lambda_s}+\frac{1}{\lambda_c}=2+0.666667=2.666667$ minutes (simulation:
+$2.6671$), by linearity, with
+$\operatorname{var}(X)=\frac1{\lambda_s^2}+\frac1{\lambda_c^2}=4.444444$ by independence. Unlike an
+exponential it is 0 at $x=0$ and peaks at
+$x=\ln(\lambda_s/\lambda_c)/(\lambda_s-\lambda_c)=1.098612$: you must wait for two things, so an
+instant response is impossible. As a check, $\mathbf{P}(X\le2)$ from the closed-form CDF is
+$0.47307$ against $0.47311$ from an 8-million-sample simulation.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g5_s5_rec17_hypo}}" alt="Density of the sum of two exponentials with rates 0.5 and 1.5, shown against the two component exponential densities" style="max-width:700px">
+<div class="figcap">Fig. 5.7 — rec17 P1(d): the convolution of $\text{Exp}(\lambda_s)$ and $\text{Exp}(\lambda_c)$, with $\lambda_s=0.5$, $\lambda_c=1.5$.</div>
+</div></details>
+</div>
+
+<div class="ex"><b>Example 5.6 (rec17 P2 — Shem the policeman).</b>
+Shem drives between intersections in i.i.d. $\text{Exp}(\lambda)$ times, and at each intersection
+reports an accident with probability $p$, independently. Independently of everything, radio calls
+arrive as a Poisson process of rate $\mu$ per hour.
+<b>(a)</b> The PMF of $N$, the number of intersections up to and including the first reported
+accident. <b>(b)</b> The PDF of $Q$, the time between accident reports. <b>(c)</b> The PMF of $M$,
+the number of accidents reported in two hours. <b>(d)</b> The PMF of $K$, the number of accidents
+reported between two successive radio calls. <b>(e)</b> Observing at a random instant long after
+the shift starts, the PDF of $W$, the total time from the last radio call to the next.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Numerical illustration: $\lambda=6$ intersections/hour, $p=0.2$, $\mu=3$ calls/hour, so the
+accident-report rate is $p\lambda=1.2$/hour.</p>
+
+<p><b>(a) Geometric (G2 §3).</b> Each intersection is an independent Bernoulli trial with success
+probability $p$, and $N$ counts trials up to and including the first success:
+$$p_N(n)=(1-p)^{n-1}p,\qquad n=1,2,\dots$$
+so $p_N(1)=0.2$, $p_N(2)=0.16$, $p_N(5)=0.08192$, with $\mathbb{E}[N]=1/p=5$ intersections and
+$\operatorname{var}(N)=(1-p)/p^2=20$.</p>
+
+<p><b>(b) Thinning, derived rather than asserted (G4 §4; B&amp;T §6.3).</b> Intersections arrive as
+a Poisson process of rate $\lambda$ (i.i.d. exponential gaps <em>is</em> the definition of a Poisson
+process), and each is independently kept with probability $p$. Claim: the kept arrivals form a
+Poisson process of rate $p\lambda$. Proof for the count $M_\tau$ in an interval of length $\tau$:
+condition on the number $N_\tau$ of intersections in the interval, which is Poisson$(\lambda\tau)$,
+and note that given $N_\tau=n$ the number reported is Binomial$(n,p)$:
+$$\mathbf{P}(M_\tau=k)=\sum_{n\ge k}e^{-\lambda\tau}\frac{(\lambda\tau)^n}{n!}\binom{n}{k}p^k(1-p)^{n-k}
+=e^{-\lambda\tau}\frac{(p\lambda\tau)^k}{k!}\sum_{n\ge k}\frac{\big((1-p)\lambda\tau\big)^{n-k}}{(n-k)!},$$
+where we split $\frac{(\lambda\tau)^n}{n!}\binom{n}{k}=\frac{(\lambda\tau)^n}{k!(n-k)!}$ and pulled
+out $k$ factors of $p\lambda\tau$. The remaining sum is $e^{(1-p)\lambda\tau}$, so
+$$\mathbf{P}(M_\tau=k)=e^{-\lambda\tau}e^{(1-p)\lambda\tau}\frac{(p\lambda\tau)^k}{k!}
+=e^{-p\lambda\tau}\frac{(p\lambda\tau)^k}{k!},$$
+i.e. Poisson$(p\lambda\tau)$. Consequently the gaps between reports are exponential with parameter
+$p\lambda$:
+$$f_Q(q)=p\lambda\,e^{-p\lambda q},\qquad q\ge0,$$
+with $f_Q(0)=1.2$, mean $1/(p\lambda)=0.833333$ hours ($50$ minutes) and
+$\mathbf{P}(Q&gt;1)=e^{-1.2}=0.301194$.</p>
+
+<p><b>(c) Counting the thinned process.</b> By part (b) the reports are Poisson at rate
+$p\lambda$, so over $\tau=2$ hours the mean is $2p\lambda=2.4$ and
+$$p_M(m)=e^{-2p\lambda}\frac{(2p\lambda)^m}{m!},\qquad m=0,1,2,\dots$$
+giving $p_M(0)=0.090718$, $p_M(1)=0.217723$, $p_M(2)=0.261268$, $p_M(3)=0.209014$.</p>
+
+<p><b>(d) A race between two Poisson streams (G4 §4).</b> Merge the radio calls (rate $\mu$) and
+the accident reports (rate $p\lambda$) into one Poisson process of rate $\mu+p\lambda=4.2$/hour.
+Each arrival of the merged process is a radio call independently with probability
+$$q=\frac{\mu}{\mu+p\lambda}=\frac{3}{4.2}=0.714286 .$$
+Reading the merged arrivals in order after a radio call, $K$ is the number of "accident" outcomes
+before the next "radio call" outcome — a shifted geometric random variable (G2 §3):
+$$p_K(k)=\Big(\frac{p\lambda}{\mu+p\lambda}\Big)^{k}\Big(\frac{\mu}{\mu+p\lambda}\Big),
+\qquad k=0,1,2,\dots$$
+so $p_K(0)=0.714286$, $p_K(1)=0.204082$, $p_K(2)=0.058309$, $p_K(3)=0.01666$, and
+$\mathbb{E}[K]=(1-q)/q=p\lambda/\mu=0.4$ accidents per radio-call gap — which is just
+(rate ratio) $\times$ (mean gap), as it must be.</p>
+
+<p><b>(e) Random incidence in the radio-call process (G4 §4; B&amp;T §6.2).</b> Fix an observation
+instant $t$ far into the shift. Looking <em>forward</em>, the time to the next call is
+$\text{Exp}(\mu)$ by memorylessness: the elapsed time since the last call carries no information
+about the remaining wait. Looking <em>backward</em>, the time since the last call is also
+$\text{Exp}(\mu)$ — the source asserts this, so here is the one-line proof. Writing $U$ for the
+time of the last call before $t$, the event $\{t-U&gt;x\}$ is exactly the event that no call arrived
+in the interval $[t-x,\,t]$, whose probability is the Poisson probability of zero arrivals in an
+interval of length $x$:
+$$\mathbf{P}(t-U&gt;x)=e^{-\mu x}\frac{(\mu x)^0}{0!}=e^{-\mu x},\qquad x\ge0,$$
+which is the exponential tail with parameter $\mu$. (This needs $t$ far enough into the shift that
+a previous call is essentially certain — the "long after" in the problem statement.) The two pieces are independent (disjoint intervals), so
+$$W=X_1+X_2,\qquad X_1,X_2\ \text{i.i.d. } \text{Exp}(\mu),$$
+which is Erlang of order 2:
+$$f_W(w)=\mu^2 w\,e^{-\mu w},\qquad w\ge 0$$
+(the source omits the range). Its mean is $2/\mu=0.666667$ hours and its variance
+$2/\mu^2=0.222222$; the mode is at $1/\mu=0.333333$. The paradox worth naming: an <em>ordinary</em>
+gap between calls averages $1/\mu=0.333333$ hours, but the gap you land in averages twice that —
+simulation over a 4000-hour record gives an ordinary mean gap of $0.3363$ and an observed
+(containing) gap of $0.6756$. Longer intervals are easier to land in.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Example 5.7 (rec17 P3 = B&amp;T Problem 6.27, p. 337 — random incidence in an
+Erlang arrival process).</b> Interarrival times are independent Erlang random variables of order 2
+with mean $2/\lambda$. The process has been running a very long time; an observer arrives at time
+$t$. Find the PDF of the length of the interarrival interval containing $t$. <em>(The recitation
+handout gives no solution at all — it points to the book. Both standard arguments are given here.)</em>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> An Erlang random variable of order 2 with parameter $\lambda$ is the sum of two
+independent $\text{Exp}(\lambda)$ variables, with density $f(\ell)=\lambda^2\ell e^{-\lambda\ell}$
+for $\ell\ge0$ and mean $2/\lambda$ (G4 §4). So the arrival process here is exactly a Poisson
+process of rate $\lambda$ in which we keep only <em>every second</em> arrival.</p>
+
+<p><b>Argument 1 — the book's (B&amp;T Problem 6.27).</b> Let $Y_k$ be the $k$th arrival of the
+underlying Poisson process and let the Erlang arrivals be the even-numbered ones. Let $K$ be the
+index with $Y_K\le t&lt;Y_{K+1}$. By random incidence in a Poisson process (Example 5.6(e) above),
+the Poisson interval containing $t$, namely $Y_{K+1}-Y_K$, is Erlang of order 2.
+Now there are two cases. If $K$ is even, the Erlang interarrival interval containing $t$ is
+$[Y_K,Y_{K+2}]$, so its length is $(Y_{K+1}-Y_K)+(Y_{K+2}-Y_{K+1})$; at time $Y_{K+1}$ the Poisson
+process starts afresh, so $Y_{K+2}-Y_{K+1}\sim\text{Exp}(\lambda)$ independently of the first piece.
+Hence, conditioned on $K$ even, the containing interval is Erlang(2) $+$ Exp $=$ Erlang of order 3.
+If $K$ is odd the interval is $[Y_{K-1},Y_{K+1}]$ and the symmetric argument (looking backward,
+where the process is again Poisson) gives the same conditional law. Since the conditional density
+is Erlang of order 3 in both cases, the unconditional density is Erlang of order 3:
+$$f_L(\ell)=\frac{\lambda^3\ell^2 e^{-\lambda\ell}}{2},\qquad \ell\ge0 .$$</p>
+
+<p><b>Argument 2 — length-biasing, which explains <em>why</em>.</b> Random incidence samples
+intervals in proportion to their length: an interval of length $\ell$ covers a fraction
+$\ell/\mathbb{E}[L]$ of the time axis, so
+$$f_{L}(\ell)=\frac{\ell\,f(\ell)}{\mathbb{E}[\text{interarrival}]}
+=\frac{\ell\cdot\lambda^2\ell e^{-\lambda\ell}}{2/\lambda}
+=\frac{\lambda^3\ell^2e^{-\lambda\ell}}{2},$$
+the same answer. (Numerically, $\int_0^\infty|f_L(\ell)-\ell f(\ell)/(2/\lambda)|\,d\ell=0$ to
+machine precision, and both densities integrate to $1.0$.) This also reproduces Example 5.6(e):
+length-biasing an $\text{Exp}(\mu)$ interarrival gives
+$\mu\,\ell\cdot\mu e^{-\mu\ell}=\mu^2\ell e^{-\mu\ell}$, Erlang of order 2. ✓</p>
+
+<p><b>Reading the numbers ($\lambda=1$).</b> A typical interval has mean $2/\lambda=2$ and variance
+$2/\lambda^2=2$; the interval you land in has mean $3/\lambda=3$ and variance $3/\lambda^2=3$ — a
+$50\%$ inflation, mode moved from $1/\lambda$ to $2/\lambda$. A simulation that drops 500 000
+observers into a long Erlang-2 record measures a containing-interval mean of $3.0019$ and variance
+$3.0037$, against an ordinary interval mean of $1.9995$. ✓ The general pattern: length-biasing adds
+one "stage" to an Erlang, and the inflation factor
+$\mathbb{E}[L^2]/\mathbb{E}[L]^2=1+\operatorname{var}/\mathbb{E}[L]^2$ shrinks as the interarrival
+distribution becomes more regular — for deterministic gaps there is no paradox at all.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g5_s5_rec17_incid}}" alt="Erlang order 2 density compared with the Erlang order 3 density of the interval containing a random observation instant" style="max-width:720px">
+<div class="figcap">Fig. 5.8 — rec17 P3: length-biasing turns the Erlang(2) interarrival law into the Erlang(3) law of the interval containing $t$ (B&amp;T Problem 6.27, p. 337; the underlying Poisson result is B&amp;T §6.2 and its Figure 6.7).</div>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 5.8.</b> Emails arrive as a Poisson process at $10$ per hour; a
+fraction $0.25$ are urgent, independently. What is the rate of urgent emails, the probability of
+exactly 2 urgent emails in half an hour, the probability that the first email of the day is urgent,
+and the mean gap between urgent emails?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Splitting (G4 §4): urgent emails are Poisson at rate $(0.25)(10)=2.5$/hour. Over $\tau=0.5$
+hours the mean is $1.25$, so
+$$\mathbf{P}(2)=e^{-1.25}\frac{1.25^2}{2!}=0.223832 .$$
+Each arrival is urgent independently with probability $0.25$, so the first one is urgent with
+probability $0.25$. Mean gap $=1/2.5=0.4$ hours $=24$ minutes.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 5.9.</b> Buses arrive with i.i.d. interarrival times equal to
+$\text{Exp}(\mu)$. You show up at a random time. Explain in one line why your expected total wait
+plus elapsed time is $2/\mu$ rather than $1/\mu$, and say what changes if buses instead run exactly
+every $1/\mu$ minutes.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>You land in an interval chosen with probability proportional to its length, so the interval you
+observe has the length-biased density $\ell f(\ell)/\mathbb{E}[L]=\mu^2\ell e^{-\mu\ell}$, an
+Erlang of order 2 with mean $2/\mu$ — long gaps are over-represented exactly in proportion to how
+long they are (rec17 P2(e)). With deterministic gaps of length $1/\mu$ every interval has the same
+length, length-biasing does nothing, and the containing interval has mean $1/\mu$; your expected
+wait is then $1/(2\mu)$, half a gap. Randomness in the gaps, not their mean, creates the paradox.</p>
+</div></details>
+</div>
+
+<h3>5.5 Where this goes next: the bridge to G6</h3>
+
+<p>Every G5 answer of the "long run" kind — $\pi_j$, the frequency interpretation
+$\pi_kp_{kj}$ for transitions, $t_s^*=1/\pi_s$ — is a statement about an <em>average over time</em>
+of a dependent sequence. The same is true of the checkpoint results in this section read the other
+way: $\mathbb{E}[X]=17/6$ and $\operatorname{var}(X)=11/36$ describe one draw, but what you actually
+observe in a data set is the sample mean of many draws.</p>
+
+<p>G6 (limit theorems) answers what happens to those averages as $n$ grows: the weak law of large
+numbers says the sample mean of i.i.d. variables concentrates at $\mathbb{E}[X]$, with Chebyshev's
+inequality giving the crude rate $\operatorname{var}(X)/n$; the central limit theorem says the
+fluctuation around the mean, rescaled by $\sqrt n$, is normal — which is why the normal table used
+in rec16 P1(d) turns up in problems that mention no normal random variable at all. Two connections
+to keep in view. First, the steady-state vector $\pi$ is exactly the long-run <em>average</em>
+occupancy, so the law of large numbers is the theorem hiding behind the frequency interpretation of
+L17 slide 6 (this is why $\pi$ still has meaning for periodic chains, where the limit of
+$r_{ij}(n)$ does not exist). Second, the Poisson process of G4 and this checkpoint is the
+canonical setting where "many small independent contributions" produces a clean limit law — the
+same mechanism the central limit theorem formalizes.</p>
+
+<div class="summary">
+<b>§5 cheatsheet.</b>
+<ul>
+<li><b>Finite time:</b> $r_{ij}(n)=\sum_k r_{ik}(n-1)p_{kj}$, $r_{ij}(0)=\delta_{ij}$; matrix form
+$R(n)=P^n$. Path probabilities <em>multiply</em>: $\mathbf{P}(X_1=a,X_2=b\mid X_0=i)=p_{ia}p_{ab}$.</li>
+<li><b>Long run:</b> $\pi_j=\sum_k\pi_kp_{kj}$ <em>with</em> $\sum_j\pi_j=1$; valid limit
+$\lim_n r_{ij}(n)=\pi_j$ only for a single aperiodic recurrent class. $\pi_j=0$ on transient
+states; $t^*_j=1/\pi_j$. Two-state example: $\pi=(2/7,5/7)=(0.285714,0.714286)$.</li>
+<li><b>Absorption:</b> $a_i=\sum_j p_{ij}a_j$ with $a=1$ at the target and $0$ at other absorbing
+states; <b>time:</b> $\mu_i=1+\sum_jp_{ij}\mu_j$ with $\mu=0$ at absorbing states. Example 5.2:
+$a=(0.46428571,0.35714286,0.28571429)$, $\mu=(8.30357143,9.46428571,8.57142857)$.</li>
+<li><b>Five gotchas:</b> Markov means the state carries the past; periodic $\Rightarrow$ no limit
+(but balance still solvable); balance needs normalization; transient $\Rightarrow \pi=0$; several
+recurrent classes $\Rightarrow$ absorption first.</li>
+<li><b>rec16 (G3 tools):</b> normalize a piecewise PDF by area ($c=1/3$); moments by splitting the
+integral ($\mathbb{E}[X]=17/6$, $\mathbb{E}[X^2]=25/3$, $\operatorname{var}=11/36$); linear map
+$f_Y(y)=\frac1{|a|}f_X(\frac{y-b}{a})$; joint = product under independence, so probabilities are
+weighted areas ($\mathbf{P}(X\le W)=7/12$); continuous Bayes gives a uniform posterior on
+$[2.9,3]$; standardize for the normal table ($1-\Phi(2)=0.0228$); CDF method for nonlinear maps
+($f_S(s)=12/s^2$ on $[6,12]$); random sums via iterated expectations ($\mathbb{E}[A]=1/p$,
+$\operatorname{var}(A)=1/p^2$, $\mathbb{E}[AB]=(2-p)/p^2$).</li>
+<li><b>rec17 (G4 tools):</b> Poisson count over $T$ has parameter $\lambda T$; merging gives rate
+$\lambda_c+\lambda_s$ with attribution probability $\lambda_c/(\lambda_c+\lambda_s)$; splitting with
+probability $p$ gives rate $p\lambda$ (derived, not asserted); a race between merged streams gives a
+shifted geometric count; random incidence length-biases, turning Exp into Erlang(2) and Erlang(2)
+into Erlang(3) — means $1/\mu\to2/\mu$ and $2/\lambda\to3/\lambda$.</li>
+</ul>
+</div>

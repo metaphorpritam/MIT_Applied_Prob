@@ -1,0 +1,711 @@
+<h2 id="g3-s3">§3 &nbsp; The four faces of Bayes' rule</h2>
+<p class="srcref">Sources: L10 slides 1–8 (raster p01–p02; slides 1–3 are the Bayes material, slides 4, 7 and 8 the derived-distribution examples discharged in §3.6) · rec11 P1 (discrete signal in Laplacian noise), rec11 P2 (beta posterior for a Bernoulli success probability) · B&amp;T §3.6 "The Continuous Bayes' Rule", B&amp;T Examples 3.19 (light bulb) and 3.20 (signal detection) · G1 §2.4 (Bayes' rule for events, radar model) · §§1–2 of this note (PDFs, conditional densities). All numbers: <code>computes/g3_s3.py</code>; figures: <code>computes/g3_s3_figs.py</code>.</p>
+
+<p>Everything in §§1–2 was descriptive: here is a density, here is its mean, here is how two densities sit together. This section is the first that is genuinely <b>useful</b>. The setting is <b>inference</b>: some quantity $X$ is hidden from you — a signal that was transmitted, the bias of a coin, the failure rate of a component, whether a plane is out there — and you observe a second quantity $Y$ that depends on it, usually a corrupted or partial view. Your prior beliefs about $X$ are encoded in $p_X$ or $f_X$; the measurement mechanism is encoded in $p_{Y|X}$ or $f_{Y|X}$; and the question is always the same: <em>having seen $Y=y$, what should I now believe about $X$?</em> The answer is always the same too — Bayes' rule — but it wears four different costumes depending on which of $X$ and $Y$ is discrete and which is continuous.</p>
+
+<p>L10 slides 2–3 lay those four costumes side by side and give the formula for each without deriving any of them. That derivation gap is the first thing this section closes (§3.2), with the limiting "thin strip" argument that makes conditioning on a probability-zero event $\{Y=y\}$ legitimate. After that: one fully worked example per cell of the grid — the radar recap from G1 (§3.2), the light bulb and the Gaussian channel (§3.3), the rec11 P1 Laplacian detector with its decision threshold and error probability (§3.4), and the rec11 P2 coin-bias problem with the beta family and an interactive Bayes updater (§3.5). §3.6 is a short appendix that clears the three unsolved <em>derived-distribution</em> examples on the back half of the L10 handout; the general machinery for those is §4's job.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s3_bayesmap}}" alt="A two by two grid of boxes. Columns are labeled evidence Y is discrete and evidence Y is continuous. Rows are labeled unknown X is discrete with PMF prior, and unknown X is continuous with PDF prior. Top left box, discrete unknown and discrete evidence: p of X given Y equals p of X times p of Y given X over p of Y, denominator is a sum over x, example G1 section 2.4 radar plane blip. Top right, discrete unknown and continuous evidence: p of X given Y equals p of X times f of Y given X over f of Y, denominator is a sum over x, example rec11 P1 X equals plus or minus one plus Laplacian noise. Bottom left, continuous unknown and discrete evidence: f of X given Y equals f of X times p of Y given X over p of Y, denominator is an integral over x, example rec11 P2 coin bias giving a Beta distribution and photon count. Bottom right, continuous unknown and continuous evidence: f of X given Y equals f of X times f of Y given X over f of Y, denominator is an integral, example B and T Example 3.19 bulb lifetime giving the rate lambda. A footer box reads: one rule, posterior is proportional to prior times likelihood, the denominator is whatever makes it integrate or sum to one; sum where the variable is discrete, integrate where it is continuous, use p for PMFs and f for PDFs." style="max-width:840px">
+<div class="figcap">Fig. 3.1 — The Bayes map of L10 slides 2–3, with the worked example of this section attached to each cell. The four formulas differ only in the letters $p$ and $f$ and in whether the denominator is a sum or an integral.</div>
+
+<h3>3.1 The inference problem, and one rule with four faces</h3>
+
+<p>Fix the vocabulary once, because every example below reuses it verbatim.</p>
+
+<div class="defn"><b>Definition (the inference set-up — L10 slide 2; B&amp;T §3.6).</b> Two random variables are in play.
+<ul>
+<li>$X$ is the <b>unknown</b> (also called the <em>state</em>, the <em>parameter</em>, or the <em>signal</em>): the thing you want to learn and cannot see.</li>
+<li>$Y$ is the <b>observation</b> (the <em>measurement</em>, the <em>evidence</em>, or the <em>data</em>): the thing you can see.</li>
+<li>The <b>prior</b> $p_X(x)$ (if $X$ is discrete) or $f_X(x)$ (if $X$ is continuous) is your description of $X$ <em>before</em> the measurement.</li>
+<li>The <b>likelihood</b>, or <b>measurement model</b>, $p_{Y|X}(y\mid x)$ or $f_{Y|X}(y\mid x)$, says how the observation is generated once the unknown is fixed at $X=x$. It is a function of two arguments, but for inference you hold $y$ fixed at the observed value and read it as a function of $x$.</li>
+<li>The <b>posterior</b> $p_{X|Y}(x\mid y)$ or $f_{X|Y}(x\mid y)$ is your description of $X$ <em>after</em> the measurement. It is the answer.</li>
+<li>The <b>marginal</b> (or <em>evidence</em>) $p_Y(y)$ or $f_Y(y)$ is the normalizing denominator: the total probability (density) of seeing what you saw, averaged over all possible values of the unknown.</li>
+</ul>
+</div>
+
+<div class="thm"><b>Theorem (Bayes' rule, all four cases — L10 slides 2–3; B&amp;T §3.6 box "Bayes' Rule for Continuous Random Variables"; derived in §3.2).</b>
+$$
+\begin{array}{llll}
+\text{(D}\,|\,\text{D)} & p_{X|Y}(x\mid y) = \dfrac{p_X(x)\,p_{Y|X}(y\mid x)}{p_Y(y)}, & p_Y(y) = \displaystyle\sum_{x'} p_X(x')\,p_{Y|X}(y\mid x'),\\[4mm]
+\text{(D}\,|\,\text{C)} & p_{X|Y}(x\mid y) = \dfrac{p_X(x)\,f_{Y|X}(y\mid x)}{f_Y(y)}, & f_Y(y) = \displaystyle\sum_{x'} p_X(x')\,f_{Y|X}(y\mid x'),\\[4mm]
+\text{(C}\,|\,\text{D)} & f_{X|Y}(x\mid y) = \dfrac{f_X(x)\,p_{Y|X}(y\mid x)}{p_Y(y)}, & p_Y(y) = \displaystyle\int_{-\infty}^{\infty} f_X(x')\,p_{Y|X}(y\mid x')\,dx',\\[4mm]
+\text{(C}\,|\,\text{C)} & f_{X|Y}(x\mid y) = \dfrac{f_X(x)\,f_{Y|X}(y\mid x)}{f_Y(y)}, & f_Y(y) = \displaystyle\int_{-\infty}^{\infty} f_X(x')\,f_{Y|X}(y\mid x')\,dx'.
+\end{array}
+$$
+The label "(A$\,|\,$B)" reads "unknown of type A, evidence of type B", D = discrete, C = continuous. The dummy variable $x'$ in the denominators ranges over all values the unknown can take; it is a bound variable and has nothing to do with the $x$ in the numerator.</div>
+
+<table>
+<caption style="caption-side:top;font-size:12.5px;font-style:italic;color:#52514e;padding-bottom:4px">The 2×2 grid of L10 slides 2–3, one row per cell.</caption>
+<tr><th class="l">cell</th><th class="l">prior</th><th class="l">likelihood</th><th class="l">posterior</th><th class="l">denominator</th><th class="l">worked here</th></tr>
+<tr><td class="l">(D$\,|\,$D)</td><td class="l">$p_X(x)$</td><td class="l">$p_{Y|X}(y\mid x)$</td><td class="l">$p_{X|Y}(x\mid y)$</td><td class="l">$\sum_{x'}$ (a probability)</td><td class="l">§3.2 radar</td></tr>
+<tr><td class="l">(D$\,|\,$C)</td><td class="l">$p_X(x)$</td><td class="l">$f_{Y|X}(y\mid x)$</td><td class="l">$p_{X|Y}(x\mid y)$</td><td class="l">$\sum_{x'}$ (a density)</td><td class="l">§3.4 rec11 P1</td></tr>
+<tr><td class="l">(C$\,|\,$D)</td><td class="l">$f_X(x)$</td><td class="l">$p_{Y|X}(y\mid x)$</td><td class="l">$f_{X|Y}(x\mid y)$</td><td class="l">$\int dx'$ (a probability)</td><td class="l">§3.5 rec11 P2</td></tr>
+<tr><td class="l">(C$\,|\,$C)</td><td class="l">$f_X(x)$</td><td class="l">$f_{Y|X}(y\mid x)$</td><td class="l">$f_{X|Y}(x\mid y)$</td><td class="l">$\int dx'$ (a density)</td><td class="l">§3.3 B&amp;T Example 3.19</td></tr>
+</table>
+
+<div class="recipe"><b>Recipe — which face of Bayes' rule do I need, and how do I use it? (decision guide for Fig. 3.1).</b>
+<ol>
+<li><b>Name the unknown and the observation.</b> The unknown is what the question asks you to report a belief about; the observation is what the problem says you saw. "Find $\mathbf{P}(X=1\mid Z=z)$" makes $X$ the unknown and $Z$ the observation, even though the problem <em>built</em> $Z$ out of $X$.</li>
+<li><b>Classify each as D or C.</b> Discrete unknown $\Rightarrow$ the answer is a PMF (a number in $[0,1]$ for each value). Continuous unknown $\Rightarrow$ the answer is a PDF (a nonnegative function that integrates to 1). This alone tells you which row of the table you are in, and hence what shape the answer must have.</li>
+<li><b>Write the numerator: prior $\times$ likelihood,</b> using $p$ for whichever variable is discrete and $f$ for whichever is continuous. Do not attempt the denominator yet.</li>
+<li><b>Get the likelihood right.</b> If the model is "$Y = $ (something involving $X$) $+$ independent noise $W$", then conditioning on $X=x$ freezes the $X$ part and leaves only the noise: $f_{Y|X}(y\mid x) = f_W\big(y - g(x)\big)$ (proved in §3.4, Step 1).</li>
+<li><b>Normalize.</b> The denominator does not depend on $x$, so it is nothing but the constant that makes the numerator a legitimate PMF/PDF <em>in $x$</em>. Either evaluate $\sum_{x'}$ / $\int dx'$ of the numerator, or — often faster — recognize the shape of the numerator as a known distribution and read its normalizing constant off a table (that is exactly the beta trick of §3.5).</li>
+<li><b>Sanity-check.</b> Does the posterior sum/integrate to 1? Does it move the right way (more evidence for $x$ $\Rightarrow$ more posterior mass at $x$)? Does it collapse to the prior when the observation is uninformative, and to a point when the noise vanishes? Every example below runs these three checks.</li>
+</ol></div>
+
+<div class="note"><b>Interpretation — there is only one formula.</b> The reason the four cases look alike is that they <em>are</em> alike: all four say
+$$\text{posterior}(x) \;\propto\; \text{prior}(x)\times\text{likelihood}(x),$$
+with $\propto$ hiding a constant that does not involve $x$. The prior says what you believed; the likelihood says how well each candidate $x$ explains the data you actually got; their product is your updated belief, up to scale. The only thing the D/C classification changes is bookkeeping — whether you write $p$ or $f$, and whether the normalizer is a sum or an integral. Memorize the proportionality, not the four boxes.</div>
+
+<div class="warn"><b>Gotcha — the denominator is a density when the observation is continuous, and it is <em>not</em> a probability.</b> In cell (D$\,|\,$C) the denominator $f_Y(y)$ can be any nonnegative number, including numbers larger than 1 (a density is not a probability — §1). The ratio is still a probability, because the same density units appear upstairs and downstairs and cancel. Beginners often "fix" a denominator like $f_Y(y) = 3.7$ by dividing by something; there is nothing to fix. The one check that <em>does</em> apply is on the answer: $\sum_x p_{X|Y}(x\mid y) = 1$ for a discrete unknown, $\int f_{X|Y}(x\mid y)\,dx = 1$ for a continuous one.</div>
+
+<div class="warn"><b>Gotcha — $f_{X|Y}(x\mid y)$ and $f_{Y|X}(y\mid x)$ are different functions of different things.</b> This is the continuous version of the base-rate fallacy from G1 §2.4. The likelihood $f_{Y|X}(y\mid x)$ is a density <em>in $y$</em> — it integrates to 1 over $y$ for each fixed $x$. The posterior $f_{X|Y}(x\mid y)$ is a density <em>in $x$</em> — it integrates to 1 over $x$ for each fixed $y$. Neither integrates to 1 in its conditioning argument, so if you find yourself integrating a likelihood over $x$ and expecting 1, stop: that integral is the Bayes denominator (weighted by the prior), and it is generally not 1.</div>
+
+<div class="ex"><b>Practice 3.1.</b> For each situation, say which cell of the grid it lands in and write the formula for the posterior (do not evaluate anything).
+<br>(a) A thermometer with continuous-valued reading $Y$ is used to decide whether a patient has one of three diseases $X\in\{1,2,3\}$.
+<br>(b) A production line's defect rate $Q\in[0,1]$ is unknown; you count $K$ defects in 200 items.
+<br>(c) An unknown voltage $V$ (any real number) is measured by an instrument that adds Gaussian noise.
+<br>(d) A fair-or-biased coin ($X\in\{\text{fair},\text{biased}\}$) is tossed 10 times and you record the number of heads.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) Unknown discrete, evidence continuous — cell (D$\,|\,$C): $\;p_{X|Y}(x\mid y) = \dfrac{p_X(x) f_{Y|X}(y\mid x)}{\sum_{x'=1}^{3} p_X(x')f_{Y|X}(y\mid x')}$.</p>
+<p>(b) Unknown continuous, evidence discrete — cell (C$\,|\,$D): $\;f_{Q|K}(q\mid k) = \dfrac{f_Q(q)p_{K|Q}(k\mid q)}{\int_0^1 f_Q(t)p_{K|Q}(k\mid t)\,dt}$.</p>
+<p>(c) Both continuous — cell (C$\,|\,$C): $\;f_{V|Y}(v\mid y) = \dfrac{f_V(v)f_{Y|V}(y\mid v)}{\int_{-\infty}^{\infty} f_V(t)f_{Y|V}(y\mid t)\,dt}$.</p>
+<p>(d) Both discrete — cell (D$\,|\,$D), the G1 case: $\;p_{X|K}(x\mid k) = \dfrac{p_X(x)p_{K|X}(k\mid x)}{\sum_{x'} p_X(x')p_{K|X}(k\mid x')}$.</p>
+<p>Note that (a) and (d) have the same <em>shape</em> of answer (a PMF over a handful of values) even though the evidence type differs; that is the point of the row labels in Fig. 3.1.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.2.</b> A student writes "$f_{X|Y}(x\mid y) = f_X(x)f_{Y|X}(y\mid x)$" and, when asked why there is no denominator, answers "because the denominator is 1 here — I checked, $\int f_{Y|X}(y\mid x)\,dy = 1$." What is wrong?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The check performed is the wrong integral. $\int f_{Y|X}(y\mid x)\,dy = 1$ is true for every $x$ — it just says the likelihood is a legitimate density in its <em>first</em> argument. The Bayes denominator is $f_Y(y) = \int f_X(x')f_{Y|X}(y\mid x')\,dx'$, an integral over the <em>unknown</em> $x'$ with the prior as a weight, evaluated at the fixed observed $y$. There is no reason for that to equal 1; e.g. in §3.3 the light-bulb denominator at $y=2$ is $0.103429$. Dropping it leaves an unnormalized function whose integral over $x$ is $0.103429$, not 1.</p>
+<p>The proportionality statement <em>is</em> correct — $f_{X|Y}(x\mid y)\propto f_X(x)f_{Y|X}(y\mid x)$ — and is often all you need, as long as you restore the constant at the end.</p>
+</div></details></div>
+
+<h3>3.2 Filling L10's derivation gap: the thin-strip argument</h3>
+
+<p>L10 slide 3 states the two "mixed" formulas with no justification, and the transcript flags this explicitly as a <b>[DERIVATION GAP]</b>. The difficulty is real and worth naming: for a continuous $Y$, the event $\{Y=y\}$ has probability <em>zero</em>, so the G1 definition
+$$\mathbf{P}(A\mid B) = \frac{\mathbf{P}(A\cap B)}{\mathbf{P}(B)}$$
+is $0/0$ and says nothing. The repair, which B&amp;T §3.6 carries out for one of the four cases and which we do for all four, is to condition on a <b>thin strip</b> $\{y \le Y \le y+\delta\}$ — an event of genuinely positive probability — and then let $\delta \to 0$.</p>
+
+<div class="thm"><b>Lemma (strip probability).</b> If $f_Y$ is continuous at $y$, then for small $\delta &gt; 0$
+$$\mathbf{P}(y \le Y \le y+\delta) \;=\; \int_y^{y+\delta} f_Y(t)\,dt \;\approx\; f_Y(y)\,\delta,$$
+with the approximation exact in the limit in the sense that the ratio of the two sides tends to 1 as $\delta \to 0^+$ (assuming $f_Y(y) &gt; 0$).</div>
+
+<details class="sol"><summary>Proof of the lemma — every step</summary><div class="body">
+<p><b>Step 1.</b> The first equality is the defining property of a PDF (§1): the probability that $Y$ falls in an interval is the integral of its density over that interval.</p>
+<p><b>Step 2.</b> By the mean value theorem for integrals, applied to the continuous function $f_Y$ on the closed interval $[y, y+\delta]$, there exists a point $\xi_\delta \in [y,y+\delta]$ with
+$$\int_y^{y+\delta} f_Y(t)\,dt \;=\; f_Y(\xi_\delta)\cdot\big((y+\delta)-y\big) \;=\; f_Y(\xi_\delta)\,\delta.$$
+Here $\xi_\delta$ is some interior height-matching point; we never need to know where it is.</p>
+<p><b>Step 3.</b> As $\delta \to 0^+$ we have $\xi_\delta \to y$ (it is trapped in a shrinking interval), so by continuity $f_Y(\xi_\delta)\to f_Y(y)$. Hence
+$$\frac{\mathbf{P}(y\le Y\le y+\delta)}{f_Y(y)\,\delta} = \frac{f_Y(\xi_\delta)}{f_Y(y)} \longrightarrow 1. \qquad\blacksquare$$</p>
+<p>The same statement for the unknown: $\mathbf{P}(x \le X \le x+\varepsilon)\approx f_X(x)\varepsilon$. This is the "density $\times$ width $=$ probability" slogan of §1, and it is the only analytic input the whole section needs.</p>
+</div></details>
+
+<div class="thm"><b>Derivation of the four Bayes formulas.</b> Below, $\delta$ is the width of a strip around the observed $y$ and $\varepsilon$ the width of a strip around a candidate value $x$ of the unknown. In each case the widths cancel, which is <em>why</em> the final formulas contain no $\delta$ or $\varepsilon$ and look identical.</div>
+
+<details class="sol"><summary>Case (D | D) — both discrete: nothing new</summary><div class="body">
+<p>Both $\{X=x\}$ and $\{Y=y\}$ have positive probability, so G1 §2.4 applies unchanged:
+$$p_{X|Y}(x\mid y) = \mathbf{P}(X=x\mid Y=y) = \frac{\mathbf{P}(X=x,\,Y=y)}{\mathbf{P}(Y=y)} = \frac{\mathbf{P}(X=x)\,\mathbf{P}(Y=y\mid X=x)}{\mathbf{P}(Y=y)} = \frac{p_X(x)p_{Y|X}(y\mid x)}{p_Y(y)},$$
+the third equality being the multiplication rule $\mathbf{P}(A\cap B) = \mathbf{P}(A)\mathbf{P}(B\mid A)$. The denominator comes from the total probability theorem over the partition $\{X=x'\}$: $\;p_Y(y) = \sum_{x'}p_X(x')p_{Y|X}(y\mid x')$. This is G2 §4 material and L10 slide 2 quotes it purely as the pattern to imitate.</p>
+</div></details>
+
+<details class="sol"><summary>Case (D | C) — discrete unknown, continuous evidence (the first formula on L10 slide 3)</summary><div class="body">
+<p><b>Step 1 — replace the impossible conditioning event by a strip.</b> Define
+$$p_{X|Y}(x\mid y) \;:=\; \lim_{\delta\to0^+}\mathbf{P}\big(X=x \;\big|\; y \le Y \le y+\delta\big).$$
+Every quantity inside the limit is a legitimate conditional probability, because $\mathbf{P}(y\le Y\le y+\delta) &gt; 0$ whenever $f_Y(y)&gt;0$ and $\delta$ is small.</p>
+<p><b>Step 2 — apply Bayes' rule for events (G1 §2.4)</b> with $A = \{X=x\}$ and $B = \{y\le Y\le y+\delta\}$:
+$$\mathbf{P}(A\mid B) = \frac{\mathbf{P}(A)\,\mathbf{P}(B\mid A)}{\mathbf{P}(B)} = \frac{p_X(x)\,\mathbf{P}(y\le Y\le y+\delta \mid X = x)}{\mathbf{P}(y\le Y\le y+\delta)}.$$</p>
+<p><b>Step 3 — apply the lemma twice.</b> In the numerator the conditional law of $Y$ given $X=x$ has density $f_{Y|X}(\cdot\mid x)$, so the strip probability is $\approx f_{Y|X}(y\mid x)\,\delta$. In the denominator the unconditional law of $Y$ has density $f_Y$, so the strip probability is $\approx f_Y(y)\,\delta$. Therefore
+$$\mathbf{P}(A\mid B) \;\approx\; \frac{p_X(x)\,f_{Y|X}(y\mid x)\,\delta}{f_Y(y)\,\delta}.$$</p>
+<p><b>Step 4 — the widths cancel.</b> The single factor $\delta$ appears once upstairs and once downstairs and divides out <em>before</em> the limit is taken, so the limit is trivial:
+$$p_{X|Y}(x\mid y) \;=\; \frac{p_X(x)\,f_{Y|X}(y\mid x)}{f_Y(y)}.$$
+This is exactly the red formula on L10 slide 3. $\blacksquare$</p>
+<p><b>Step 5 — the denominator.</b> Condition the strip probability on the values of $X$ (total probability theorem over the partition $\{X = x'\}$):
+$$\mathbf{P}(y\le Y\le y+\delta) = \sum_{x'} p_X(x')\,\mathbf{P}(y\le Y\le y+\delta\mid X=x') \approx \sum_{x'}p_X(x')f_{Y|X}(y\mid x')\,\delta.$$
+Compare with $\mathbf{P}(y\le Y\le y+\delta)\approx f_Y(y)\delta$ and divide both sides by $\delta$:
+$$f_Y(y) = \sum_{x'} p_X(x')\,f_{Y|X}(y\mid x'),$$
+the second formula on the slide. Notice what it says: the observation's density is a <b>mixture</b> of the conditional densities, weighted by the prior PMF.</p>
+</div></details>
+
+<details class="sol"><summary>Case (C | D) — continuous unknown, discrete evidence (the second formula on L10 slide 3)</summary><div class="body">
+<p>Now the roles reverse: the conditioning event $\{Y=y\}$ is perfectly ordinary (positive probability), but the <em>answer</em> is a density, so a strip is needed around the unknown instead.</p>
+<p><b>Step 1 — a density is a limit of probability over width.</b> By definition of a conditional PDF,
+$$f_{X|Y}(x\mid y) \;=\; \lim_{\varepsilon\to0^+}\frac{1}{\varepsilon}\,\mathbf{P}\big(x\le X\le x+\varepsilon \;\big|\; Y=y\big).$$</p>
+<p><b>Step 2 — Bayes' rule for events</b> with $A = \{x\le X\le x+\varepsilon\}$ and $B = \{Y=y\}$:
+$$\mathbf{P}(A\mid B) = \frac{\mathbf{P}(A)\,\mathbf{P}(B\mid A)}{\mathbf{P}(B)} = \frac{\mathbf{P}(x\le X\le x+\varepsilon)\;\mathbf{P}(Y=y\mid x\le X\le x+\varepsilon)}{p_Y(y)}.$$</p>
+<p><b>Step 3 — evaluate the two numerator factors for small $\varepsilon$.</b> The first is $\approx f_X(x)\varepsilon$ by the lemma. The second is a conditional PMF given that $X$ lies in a tiny interval around $x$; by continuity of the model in $x$ it tends to $p_{Y|X}(y\mid x)$ as $\varepsilon\to0$. Hence
+$$\mathbf{P}(A\mid B)\;\approx\; \frac{f_X(x)\,\varepsilon\,p_{Y|X}(y\mid x)}{p_Y(y)}.$$</p>
+<p><b>Step 4 — divide by $\varepsilon$ and let $\varepsilon\to0$:</b>
+$$f_{X|Y}(x\mid y) \;=\; \frac{f_X(x)\,p_{Y|X}(y\mid x)}{p_Y(y)}. \qquad\blacksquare$$</p>
+<p><b>Step 5 — the denominator</b>, by the continuous total probability theorem (§2):
+$$p_Y(y) = \mathbf{P}(Y=y) = \int_{-\infty}^{\infty} f_X(x')\,p_{Y|X}(y\mid x')\,dx',$$
+i.e. average the conditional probability of the observed value over the prior. Again a mixture, this time of PMFs weighted by a density.</p>
+</div></details>
+
+<details class="sol"><summary>Case (C | C) — both continuous (L10 slide 2, "Continuous counterpart")</summary><div class="body">
+<p>Both strips are needed at once.</p>
+<p><b>Step 1.</b> $\displaystyle f_{X|Y}(x\mid y) = \lim_{\varepsilon\to0^+}\lim_{\delta\to0^+}\frac{1}{\varepsilon}\mathbf{P}\big(x\le X\le x+\varepsilon\;\big|\;y\le Y\le y+\delta\big)$.</p>
+<p><b>Step 2 — Bayes for events</b>, with $A$ the $x$-strip and $B$ the $y$-strip:
+$$\mathbf{P}(A\mid B) = \frac{\mathbf{P}(A)\mathbf{P}(B\mid A)}{\mathbf{P}(B)}\;\approx\;\frac{\big(f_X(x)\varepsilon\big)\big(f_{Y|X}(y\mid x)\delta\big)}{f_Y(y)\,\delta},$$
+using the lemma three times: on the $x$-strip under the prior, on the $y$-strip under the conditional law given $X\approx x$, and on the $y$-strip under the marginal law of $Y$.</p>
+<p><b>Step 3 — cancel $\delta$, divide by $\varepsilon$:</b>
+$$f_{X|Y}(x\mid y) = \frac{f_X(x)f_{Y|X}(y\mid x)}{f_Y(y)},\qquad f_Y(y) = \int_{-\infty}^{\infty} f_X(x')f_{Y|X}(y\mid x')\,dx'. \qquad\blacksquare$$</p>
+<p><b>Consistency check with §2.</b> Multiplying up gives $f_Y(y)f_{X|Y}(x\mid y) = f_X(x)f_{Y|X}(y\mid x)$, and both sides equal the joint density $f_{X,Y}(x,y)$ — the first is the §2 definition of a conditional density read one way, the second read the other way. So (C$\,|\,$C) Bayes is nothing but "compute the joint two ways and equate", exactly as in the discrete case.</p>
+</div></details>
+
+<div class="ex"><b>Example 3.1 ((D$\,|\,$D) recap — the radar model, L10 slide 2; worked in full in G1 §2.4, Example 2.5).</b> $X=1$ if an airplane is present, $X=0$ if not; $Y=1$ if something registers on the radar, $Y=0$ if not. The model is $p_X(1) = 0.05$ (planes are rare), $p_{Y|X}(1\mid 1) = 0.99$ (sensitivity), $p_{Y|X}(1\mid 0) = 0.10$ (false-alarm rate).
+
+<p><b>Denominator.</b> $p_Y(1) = p_X(1)p_{Y|X}(1\mid1) + p_X(0)p_{Y|X}(1\mid0) = (0.05)(0.99) + (0.95)(0.10) = 0.0495 + 0.0950 = 0.1445$.</p>
+<p><b>Posterior.</b> $\displaystyle p_{X|Y}(1\mid 1) = \frac{0.0495}{0.1445} = 0.342561$.</p>
+<p>A blip leaves a plane the <em>less</em> likely explanation, because the false alarms generated by the 95% empty skies ($0.0950$) outnumber the true detections ($0.0495$). In odds form the prior odds $0.05/0.95 = 0.052632$ are multiplied by the likelihood ratio $0.99/0.10 = 9.9$ to give posterior odds $0.521053$; a factor of $9.9$ is a lot of evidence and still lands below even money. (computes/g3_s3.py keys <code>A_*</code>; all values reproduce G1 §2.4 exactly.) This cell is here only to anchor the grid — everything new is in the other three.</p>
+</div>
+
+<div class="note"><b>Interpretation — why the $\delta$'s cancel, and why that matters.</b> Conditioning on $\{Y=y\}$ for a continuous $Y$ is, strictly, conditioning on an event that never happens. The strip argument shows that the answer nevertheless has a well-defined limit, and — crucially — that the limit does not depend on <em>how</em> you shrink the strip, because the width appears identically in numerator and denominator. This is what licenses the everyday practice of writing $\mathbf{P}(A\mid Y=y)$ at all. It also explains a formal curiosity: the same $\delta$-cancellation means you may substitute an unnormalized likelihood, or drop any factor of the likelihood that does not involve $x$, without changing the posterior. Constants that do not depend on the unknown are invisible to Bayes' rule.</div>
+
+<div class="warn"><b>Gotcha — "conditioning on a measure-zero event" is only safe along a specified family.</b> The strip argument fixes a particular way of shrinking to $\{Y=y\}$: intervals in $y$. Different shrinking families can give different limits (this is the Borel–Kolmogorov paradox, well beyond 6.041). In this course $Y$ is always a scalar observation and the interval family is always the intended one, so $f_{X|Y}(x\mid y)$ is unambiguous — but be aware that "condition on the event that the point lies on this curve" is not automatically meaningful.</div>
+
+<div class="ex"><b>Practice 3.3.</b> Rerun the strip argument to show that if $A$ is an <em>event</em> (not necessarily of the form $\{X=x\}$) and $Y$ is continuous, then
+$$\mathbf{P}(A\mid Y=y) = \frac{\mathbf{P}(A)\,f_{Y|A}(y)}{\mathbf{P}(A)f_{Y|A}(y) + \mathbf{P}(A^c)f_{Y|A^c}(y)}.$$
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Condition on the strip $B_\delta = \{y\le Y\le y+\delta\}$ and use Bayes for events:
+$$\mathbf{P}(A\mid B_\delta) = \frac{\mathbf{P}(A)\mathbf{P}(B_\delta\mid A)}{\mathbf{P}(B_\delta)} \approx \frac{\mathbf{P}(A)f_{Y|A}(y)\delta}{f_Y(y)\delta} = \frac{\mathbf{P}(A)f_{Y|A}(y)}{f_Y(y)},$$
+where $f_{Y|A}$ is the conditional density of $Y$ given $A$ (the lemma applies to it because it is an honest density). For the denominator, split the strip event over the partition $\{A, A^c\}$:
+$$\mathbf{P}(B_\delta) = \mathbf{P}(A)\mathbf{P}(B_\delta\mid A) + \mathbf{P}(A^c)\mathbf{P}(B_\delta\mid A^c) \approx \big[\mathbf{P}(A)f_{Y|A}(y) + \mathbf{P}(A^c)f_{Y|A^c}(y)\big]\delta,$$
+so $f_Y(y) = \mathbf{P}(A)f_{Y|A}(y)+\mathbf{P}(A^c)f_{Y|A^c}(y)$ after dividing by $\delta$. Substituting gives the claim. (This is the exact form B&amp;T §3.6 derives before specializing to $A = \{N=n\}$.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.4.</b> Turn the (D$\,|\,$C) formula around: derive B&amp;T's "inference based on discrete observations" identity
+$$f_{Y|A}(y) = \frac{f_Y(y)\,\mathbf{P}(A\mid Y=y)}{\mathbf{P}(A)}$$
+from Practice 3.3, and explain in one sentence what it is for.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Practice 3.3 gives $\mathbf{P}(A\mid Y=y)\,f_Y(y) = \mathbf{P}(A)f_{Y|A}(y)$ after clearing the denominator. Divide both sides by $\mathbf{P}(A)$ (positive by assumption):
+$$f_{Y|A}(y) = \frac{f_Y(y)\mathbf{P}(A\mid Y=y)}{\mathbf{P}(A)}.$$
+It is used when the <em>continuous</em> variable is the unknown and the <em>event</em> is the observation: you know the unconditional density of $Y$ and how the chance of $A$ varies with $y$, and you want the updated density of $Y$ having learned that $A$ occurred. Equivalently, by the normalization $\int f_{Y|A} = 1$, $\;f_{Y|A}(y) = f_Y(y)\mathbf{P}(A\mid Y=y)\big/\int f_Y(t)\mathbf{P}(A\mid Y=t)\,dt$ — cell (C$\,|\,$D) again, with the discrete observation being the indicator of $A$.</p>
+</div></details></div>
+
+<h3>3.3 (C$\,|\,$C) Continuous unknown, continuous evidence</h3>
+
+<p>This is the cell L10 slide 2 calls the "continuous counterpart", with the generic story: $X$ is a signal with prior $f_X$, $Y$ is a noisy version of it, and $f_{Y|X}$ is the noise model. Two examples make it concrete: one where the prior is a bounded uniform and the arithmetic is a visible integral (B&amp;T Example 3.19), and one where prior and noise are both normal and the posterior turns out to be normal too — the single most important calculation in applied inference.</p>
+
+<div class="ex"><b>Example 3.2 (light-bulb quality control — B&amp;T §3.6, Example 3.19; the book states the answer and leaves the integral unevaluated).</b>
+<p><b>Statement.</b> A light bulb's lifetime $Y$ is exponential with parameter $\lambda$, but the manufacturer's process drifts, so on any given day $\lambda$ is itself random: model it as $\Lambda \sim \mathrm{Uniform}[1, 3/2]$. You test one bulb and it lasts $y$. What can you say about $\Lambda$?</p>
+
+<p><b>Step 0 — identify the cell.</b> The unknown $\Lambda$ is continuous; the observation $Y$ is continuous. Cell (C$\,|\,$C). The answer must be a density in $\lambda$ supported on $[1,3/2]$.</p>
+
+<p><b>Step 1 — the prior.</b> A uniform density on an interval of length $3/2 - 1 = 1/2$ has constant height equal to the reciprocal of that length:
+$$f_\Lambda(\lambda) \;=\; \frac{1}{3/2 - 1} \;=\; 2, \qquad 1 \le \lambda \le \tfrac32,$$
+and $0$ elsewhere. Its mean is the midpoint, $\mathbb{E}[\Lambda] = (1 + 1.5)/2 = 1.25$.</p>
+
+<p><b>Step 2 — the likelihood.</b> Given $\Lambda = \lambda$, the lifetime is exponential with that parameter (§1):
+$$f_{Y|\Lambda}(y\mid\lambda) \;=\; \lambda e^{-\lambda y}, \qquad y \ge 0.$$
+Read as a function of $\lambda$ for fixed observed $y$, this is the quantity that will do the updating: it rewards small $\lambda$ when $y$ is large (a low failure rate explains a long life) and large $\lambda$ when $y$ is small.</p>
+
+<p><b>Step 3 — the numerator.</b> Prior times likelihood:
+$$f_\Lambda(\lambda)f_{Y|\Lambda}(y\mid\lambda) \;=\; 2\lambda e^{-\lambda y}, \qquad 1\le\lambda\le\tfrac32.$$</p>
+
+<p><b>Step 4 — the denominator, integral and all.</b> By the (C$\,|\,$C) total probability formula,
+$$f_Y(y) \;=\; \int_{-\infty}^{\infty} f_\Lambda(t)f_{Y|\Lambda}(y\mid t)\,dt \;=\; \int_{1}^{3/2} 2t\,e^{-ty}\,dt,$$
+the limits collapsing to $[1,3/2]$ because $f_\Lambda$ vanishes outside. Integrate by parts in $t$ (with $y$ a fixed positive constant): take $u = t$, $dv = e^{-ty}dt$, so $du = dt$ and $v = -e^{-ty}/y$. Then
+$$\int t\,e^{-ty}\,dt \;=\; -\frac{t\,e^{-ty}}{y} \;+\; \frac{1}{y}\int e^{-ty}\,dt \;=\; -\frac{t\,e^{-ty}}{y} \;-\; \frac{e^{-ty}}{y^2} \;=\; -\frac{e^{-ty}}{y^{2}}\,(ty+1),$$
+which is the antiderivative; differentiate it back if you want to check ($\frac{d}{dt}$ of the right side is $\frac{y e^{-ty}}{y^2}(ty+1) - \frac{e^{-ty}}{y^2}\cdot y = e^{-ty}\,t$ ✓). Now substitute the limits $t = 1$ and $t = 3/2$:
+$$f_Y(y) \;=\; 2\left[-\frac{e^{-ty}}{y^2}(ty+1)\right]_{t=1}^{t=3/2} \;=\; \frac{2}{y^{2}}\Big[(y+1)e^{-y} \;-\; \big(\tfrac32 y + 1\big)e^{-3y/2}\Big].$$
+(The overall minus sign flipped the order of the two terms.)</p>
+
+<p><b>Step 5 — the posterior.</b> Divide Step 3 by Step 4; the factor $2$ cancels:
+$$\boxed{\;f_{\Lambda|Y}(\lambda\mid y) \;=\; \frac{\lambda\,y^{2}\,e^{-\lambda y}}{(y+1)e^{-y} - \big(\tfrac32 y+1\big)e^{-3y/2}}, \qquad 1\le\lambda\le\tfrac32,\;}$$
+and $0$ outside $[1,3/2]$ — a restriction the book's displayed formula keeps, and which you must keep too: no amount of evidence can move belief outside the support of the prior.</p>
+
+<p><b>Step 6 — numbers at $y = 2$</b> (a bulb that lasted 2 time units, i.e. longer than the reciprocal of the prior mean rate, $1/\mathbb{E}[\Lambda] = 1/1.25 = 0.8$ — and longer, too, than the actual prior mean lifetime $\mathbb{E}[Y] = \mathbb{E}[1/\Lambda] = \int_1^{3/2} 2/\lambda\,d\lambda = 2\ln(3/2) = 0.810930$, which is <em>not</em> the same number: see the $\mathbb{E}[g(X)]\ne g(\mathbb{E}[X])$ warnings in §3.6 and §4.3). The bracket is
+$$(2+1)e^{-2} - (3+1)e^{-3} = 3(0.135335) - 4(0.049787) = 0.406006 - 0.199148 = 0.206858,$$
+so $f_Y(2) = \frac{2}{4}(0.206858) = 0.103429$. The posterior density is then
+$$f_{\Lambda|Y}(\lambda\mid 2) = \frac{4\lambda e^{-2\lambda}}{0.206858},$$
+giving $f_{\Lambda|Y}(1\mid2) = 2.616975$ and $f_{\Lambda|Y}(1.5\mid2) = 1.444097$ — a ratio of $0.551819$, so after this one observation the smallest admissible failure rate is nearly twice as plausible as the largest. Numerical integration confirms the posterior integrates to $1.000000$ and has mean $\mathbb{E}[\Lambda\mid Y=2] = 1.225415$, below the prior mean $1.25$. (computes/g3_s3.py keys <code>B_*</code>; the closed-form denominator agrees with <code>scipy.integrate.quad</code> to $10^{-12}$ at $y=0.5, 2, 5$.)</p>
+
+<p><b>Step 7 — the direction check.</b> At $y = 0.5$ (a short-lived bulb) the posterior <em>rises</em> with $\lambda$: $f(1\mid 0.5) = 1.823505 &lt; f(1.5\mid 0.5) = 2.130220$, and the posterior mean $1.256348$ sits <em>above</em> the prior mean. At $y = 5$ the tilt is dramatic the other way: $f(1\mid5) = 4.714955$ versus $f(1.5\mid5) = 0.580541$, a ratio of $0.123127$, with posterior mean $1.168829$. Long life ⟹ low failure rate. ✓</p>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s3_lightbulb}}" alt="Two panels. Panel a: densities on the interval from 1 to 1.5 for the parameter lambda. A flat dashed grey line at height 2 is the uniform prior. A blue curve, the posterior after observing y equals 0.5, tilts gently upward from 1.82 to 2.13. An orange curve, y equals 2, tilts downward from 2.62 to 1.44. A green curve, y equals 5, falls steeply from 4.71 to 0.58. Panel b: the posterior mean of lambda plotted against the observed lifetime y from 0 to 12, a smooth decreasing pink curve starting near 1.265 and falling to about 1.09, crossing the dashed horizontal prior mean 1.25 near y equals 1. Three dots mark y equals 0.5 with value 1.2563, y equals 2 with 1.2254, and y equals 5 with 1.1688." style="max-width:900px">
+<div class="figcap">Fig. 3.2 — The (C$\,|\,$C) light-bulb posterior of B&amp;T Example 3.19. Panel (a): one observation tilts the flat prior; the tilt direction is set by whether $y$ is short or long. Panel (b): the posterior mean as a function of the data, always inside $[1, 3/2]$ — a bounded prior is a hard constraint.</div>
+
+<div class="ex"><b>Example 3.3 (the Gaussian channel — the archetype of L10 slide 2's "signal $+$ noise" story; B&amp;T §3.6 in spirit).</b>
+<p><b>Statement.</b> A signal $X$ has prior $X \sim N(0,1)$ — best guess $0$, uncertainty $1$. It is measured through additive noise: $Y = X + W$, where $W \sim N(0,\sigma^2)$ is independent of $X$ and $\sigma^2$ is the noise power. Find $f_{X|Y}(x\mid y)$.</p>
+
+<p><b>Step 1 — the likelihood.</b> Given $X=x$, $Y = x + W$ is a constant plus a $N(0,\sigma^2)$ variable, hence $N(x,\sigma^2)$ (shifting a normal shifts its mean — §1):
+$$f_{Y|X}(y\mid x) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(y-x)^2}{2\sigma^2}\right).$$</p>
+
+<p><b>Step 2 — numerator, keeping only what depends on $x$.</b> By the "constants are invisible" remark of §3.2,
+$$f_{X|Y}(x\mid y) \;\propto\; f_X(x)f_{Y|X}(y\mid x) \;\propto\; \exp\!\left(-\frac{x^2}{2}\right)\exp\!\left(-\frac{(y-x)^2}{2\sigma^2}\right) = \exp\!\left(-\frac{1}{2}\left[x^2 + \frac{(y-x)^2}{\sigma^2}\right]\right),$$
+where the two $1/\sqrt{2\pi\cdot}$ factors were dropped because they contain no $x$.</p>
+
+<p><b>Step 3 — expand and collect powers of $x$.</b> Put the bracket over the common denominator $\sigma^2$:
+$$x^2 + \frac{(y-x)^2}{\sigma^2} = \frac{\sigma^2x^2 + (y-x)^2}{\sigma^2} = \frac{\sigma^2x^2 + y^2 - 2xy + x^2}{\sigma^2} = \frac{(1+\sigma^2)x^2 - 2xy + y^2}{\sigma^2}.$$</p>
+
+<p><b>Step 4 — complete the square in $x$.</b> Factor $(1+\sigma^2)$ out of the $x$-terms and add-and-subtract the square:
+$$(1+\sigma^2)x^2 - 2xy = (1+\sigma^2)\left[x^2 - \frac{2xy}{1+\sigma^2}\right] = (1+\sigma^2)\left[\left(x - \frac{y}{1+\sigma^2}\right)^{2} - \frac{y^2}{(1+\sigma^2)^2}\right].$$
+So the whole bracket is
+$$\frac{1}{\sigma^2}\left[(1+\sigma^2)\left(x-\frac{y}{1+\sigma^2}\right)^2 - \frac{y^2}{1+\sigma^2} + y^2\right],$$
+and the last two terms contain no $x$, so they join the invisible constant.</p>
+
+<p><b>Step 5 — read off the answer.</b> What survives is
+$$f_{X|Y}(x\mid y) \;\propto\; \exp\!\left(-\frac{1}{2}\cdot\frac{1+\sigma^2}{\sigma^2}\left(x - \frac{y}{1+\sigma^2}\right)^{2}\right),$$
+which is the shape $\exp\!\big(-(x-\mu)^2/(2\tau^2)\big)$ of a normal density with
+$$\mu = \frac{y}{1+\sigma^2}, \qquad \tau^2 = \frac{\sigma^2}{1+\sigma^2}.$$
+A density is determined by its shape (the normalizing constant is forced), so
+$$\boxed{\;X \mid \{Y=y\} \;\sim\; N\!\left(\frac{y}{1+\sigma^2},\;\frac{\sigma^2}{1+\sigma^2}\right).\;}$$
+<b>Check</b> ($\sigma^2 = 0.5$, $y = 1.5$): posterior mean $1.5/1.5 = 1.000000$ and variance $0.5/1.5 = 0.333333$; numerical integration of the joint gives mean $1.000000$ and variance $0.333333$, and the marginal $f_Y(1.5) = 0.153866$ matches the $N(0, 1+\sigma^2)$ density exactly (computes/g3_s3.py keys <code>C_*</code>).</p>
+</div>
+
+<div class="note"><b>Interpretation — the posterior mean is a weighted average, and the posterior variance beats both inputs.</b> Write the posterior mean as
+$$\mathbb{E}[X\mid Y=y] = \underbrace{\frac{1}{1+\sigma^2}}_{w}\cdot y \;+\; \Big(1 - \frac{1}{1+\sigma^2}\Big)\cdot \underbrace{0}_{\text{prior mean}},$$
+a convex combination of the measurement and the prior mean, with the weight on the measurement equal to $w = 1/(1+\sigma^2)$. Clean measurement ($\sigma^2\to0$): $w\to1$, believe the data. Useless measurement ($\sigma^2\to\infty$): $w\to0$, keep the prior. And the posterior variance $\sigma^2/(1+\sigma^2)$ is smaller than the prior variance $1$ <em>and</em> smaller than the noise variance $\sigma^2$ — combining two noisy sources of information beats either alone. In precision language ($1/\text{variance}$): posterior precision $= (1+\sigma^2)/\sigma^2 = 1 + 1/\sigma^2 = $ prior precision $+$ measurement precision. Precisions add.</div>
+
+<div class="warn"><b>Gotcha — the support of the prior is absolute.</b> In Example 3.2 the posterior is zero outside $[1,3/2]$ no matter how extreme the data. This is not a defect of the arithmetic; it is Bayes' rule saying that multiplying a prior of $0$ by <em>any</em> likelihood gives $0$. "Cromwell's rule": if you assign prior probability zero to a possibility, no evidence will ever resurrect it. In Example 3.3 the prior is positive everywhere, so the posterior can be centered anywhere — but it is always pulled toward $0$ relative to $y$, never past it.</div>
+
+<div class="ex"><b>Practice 3.5.</b> In Example 3.2, by what factor is $\lambda = 3/2$ less plausible than $\lambda = 1$ after observing $y = 5$? Answer without computing the denominator.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The denominator is a constant in $\lambda$, so it cancels in a ratio:
+$$\frac{f_{\Lambda|Y}(1.5\mid5)}{f_{\Lambda|Y}(1\mid5)} = \frac{2(1.5)e^{-1.5\cdot5}}{2(1)e^{-1\cdot5}} = 1.5\,e^{-7.5+5} = 1.5\,e^{-2.5} = 1.5(0.082085) = 0.123127.$$
+So $\lambda = 3/2$ is about $8.1$ times <em>less</em> plausible. This ratio-of-posteriors trick — the <b>Bayes factor</b> — is the fastest way to compare two candidate values and never needs the normalizer. (computes/g3_s3.py key <code>H2_ratio_y5</code>, cross-checked against <code>B_post_ratio_hi_lo_y=5.0</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.6.</b> Repeat Example 3.3 with a general prior $X\sim N(\mu_0,\sigma_0^2)$. Show the posterior is normal with
+$$\mathbb{E}[X\mid Y=y] = \frac{\sigma^2\mu_0 + \sigma_0^2 y}{\sigma_0^2+\sigma^2},\qquad \operatorname{var}(X\mid Y=y) = \frac{\sigma_0^2\sigma^2}{\sigma_0^2+\sigma^2}.$$
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The exponent, up to $x$-free constants, is
+$$-\frac12\left[\frac{(x-\mu_0)^2}{\sigma_0^2} + \frac{(y-x)^2}{\sigma^2}\right] = -\frac12\left[x^2\left(\frac{1}{\sigma_0^2}+\frac{1}{\sigma^2}\right) - 2x\left(\frac{\mu_0}{\sigma_0^2}+\frac{y}{\sigma^2}\right)\right] + \text{const}.$$
+Write $A = \frac{1}{\sigma_0^2}+\frac{1}{\sigma^2}$ (the total precision) and $B = \frac{\mu_0}{\sigma_0^2}+\frac{y}{\sigma^2}$. Completing the square, $Ax^2 - 2Bx = A\big(x - B/A\big)^2 - B^2/A$, so
+$$f_{X|Y}(x\mid y)\propto \exp\!\left(-\frac{A}{2}\left(x - \frac{B}{A}\right)^2\right),$$
+a normal with mean $B/A$ and variance $1/A$. Substituting,
+$$\frac1A = \frac{1}{\frac{1}{\sigma_0^2}+\frac{1}{\sigma^2}} = \frac{\sigma_0^2\sigma^2}{\sigma^2+\sigma_0^2},\qquad \frac{B}{A} = \frac{\frac{\mu_0}{\sigma_0^2}+\frac{y}{\sigma^2}}{\frac{1}{\sigma_0^2}+\frac{1}{\sigma^2}} = \frac{\sigma^2\mu_0+\sigma_0^2y}{\sigma_0^2+\sigma^2}.$$
+Setting $\mu_0=0$, $\sigma_0^2=1$ recovers Example 3.3. The pattern to remember: <b>precisions add, and the posterior mean is the precision-weighted average of the two "opinions" $\mu_0$ and $y$.</b></p>
+</div></details></div>
+
+<h3>3.4 (D$\,|\,$C) Discrete unknown, continuous evidence: detection</h3>
+
+<p>This is the engineering workhorse — L10 slide 3's "discrete signal, continuous noise". A finite alphabet is transmitted, a real number is received, and you must decide which symbol was sent. rec11 P1 is the version with two-sided exponential (Laplacian) noise; B&amp;T Example 3.20 is the same problem with Gaussian noise. Working both is worth the effort, because the comparison exposes something surprising about heavy-tailed noise.</p>
+
+<div class="ex"><b>Example 3.4 (rec11 P1 — discrete signal in Laplacian noise).</b>
+<p><b>Statement.</b> Let $X$ be a discrete random variable taking the value $1$ with probability $p$ and $-1$ with probability $1-p$. Let $Y$ be a continuous random variable independent of $X$ with the <b>Laplacian</b> (two-sided exponential) density
+$$f_Y(y) \;=\; \tfrac12\lambda e^{-\lambda|y|}, \qquad -\infty &lt; y &lt; \infty,$$
+where $\lambda &gt; 0$ controls how concentrated the noise is. Let $Z = X + Y$. Find $\mathbf{P}(X=1\mid Z=z)$, and check that the expression makes sense as $p\to0^+$, $p\to1^-$, $\lambda\to0^+$ and $\lambda\to\infty$.</p>
+
+<details class="sol"><summary>Solution — every step, with the recitation's gaps filled</summary><div class="body">
+
+<p><b>Step 0 — the cell.</b> The unknown $X$ is discrete (two values); the observation $Z$ is continuous. Cell (D$\,|\,$C):
+$$p_{X|Z}(x\mid z) \;=\; \frac{p_X(x)\,f_{Z|X}(z\mid x)}{f_Z(z)}, \qquad f_Z(z) = \sum_{x'\in\{-1,+1\}} p_X(x')\,f_{Z|X}(z\mid x').$$
+<em>[Note on the source: the official solution writes the sum as $\sum_{k=0}^{1}$, but $X$ takes the values $-1$ and $+1$, not $0$ and $1$; the algebra that follows in the solution does correctly use $\pm1$. We write $\sum_{x'\in\{-1,+1\}}$ throughout.]</em></p>
+
+<p><b>Step 1 — the likelihood $f_{Z|X}$ (the recitation's first [SOLUTION GAP]).</b> The official solution jumps straight to $f_{Z|X}(z\mid x)=\tfrac12\lambda e^{-\lambda|z-x|}$. Here is why. Fix $x\in\{-1,+1\}$ and compute the conditional CDF:
+$$\mathbf{P}(Z\le z\mid X=x) = \mathbf{P}(X+Y\le z\mid X=x) = \mathbf{P}(x+Y\le z\mid X=x) = \mathbf{P}(Y \le z-x\mid X=x) = \mathbf{P}(Y\le z-x) = F_Y(z-x).$$
+The third equality substitutes the known value $X=x$ inside the event; the fourth drops the conditioning because $Y$ is <b>independent</b> of $X$ (this is where independence is used, and it is essential). Differentiating in $z$ and applying the chain rule (the inner derivative $\frac{d}{dz}(z-x) = 1$):
+$$f_{Z|X}(z\mid x) = \frac{d}{dz}F_Y(z-x) = f_Y(z-x) = \tfrac12\lambda e^{-\lambda|z-x|}.$$
+In words: conditioned on $X=x$, the observation is the noise density <b>shifted so that it is centered at $x$</b>. So $f_{Z|X}(z\mid 1) = \tfrac12\lambda e^{-\lambda|z-1|}$ and $f_{Z|X}(z\mid -1) = \tfrac12\lambda e^{-\lambda|z+1|}$.</p>
+
+<p><b>Step 2 — assemble Bayes' rule.</b>
+$$\mathbf{P}(X=1\mid Z=z) = p_{X|Z}(1\mid z) = \frac{p\cdot\tfrac12\lambda e^{-\lambda|z-1|}}{(1-p)\cdot\tfrac12\lambda e^{-\lambda|z+1|} \;+\; p\cdot\tfrac12\lambda e^{-\lambda|z-1|}}.$$</p>
+
+<p><b>Step 3 — cancel $\tfrac12\lambda$.</b> The factor $\tfrac12\lambda$ appears in every term of numerator and denominator, so it divides out:
+$$= \frac{p\,e^{-\lambda|z-1|}}{(1-p)e^{-\lambda|z+1|} + p\,e^{-\lambda|z-1|}}.$$
+(This is the "constants are invisible" principle of §3.2 in action.)</p>
+
+<p><b>Step 4 — divide top and bottom by $e^{-\lambda|z-1|}$,</b> equivalently multiply both by $e^{+\lambda|z-1|}$:
+$$= \frac{p}{(1-p)\,e^{-\lambda|z+1|}\,e^{\lambda|z-1|} + p} \;=\; \frac{p}{(1-p)e^{-\lambda\left(|z+1| - |z-1|\right)} + p}.$$
+This is the recitation's final form. Every dependence on the data is now packed into the single quantity $|z+1|-|z-1|$.</p>
+
+<p><b>Step 5 — simplify that quantity (not done in the recitation, and it is the interesting part).</b> Write $d(z) = |z+1| - |z-1|$ and split by cases:
+<br>• If $z \ge 1$: both $z+1&gt;0$ and $z-1\ge0$, so $d(z) = (z+1)-(z-1) = 2$.
+<br>• If $z \le -1$: both are $\le 0$, so $|z+1| = -(z+1)$ and $|z-1| = -(z-1)$, giving $d(z) = -(z+1)+(z-1) = -2$.
+<br>• If $-1 \le z \le 1$: $z+1\ge0$ and $z-1\le0$, so $d(z) = (z+1) + (z-1) = 2z$.
+<br>Compactly, $d(z) = 2\max(-1,\min(z,1))$: it grows linearly on $[-1,1]$ and then <b>saturates at $\pm2$</b>. Hence
+$$\boxed{\;\mathbf{P}(X=1\mid Z=z) \;=\; \frac{p}{p + (1-p)e^{-\lambda d(z)}},\qquad d(z)=\begin{cases}-2,& z\le-1,\\ 2z,& -1\le z\le 1,\\ +2,& z\ge 1.\end{cases}\;}$$</p>
+
+<p><b>Step 6 — numerical checks</b> (computes/g3_s3.py keys <code>D_*</code>; the simplified formula agrees with the unsimplified Step 2 ratio to $2.2\times10^{-16}$ over a grid of $z$, $p$, $\lambda$). For $p = 1/2$, $\lambda = 1$: the posterior is $0.500000$ at $z=0$, $0.731059$ at $z=0.5$, and $0.880797$ at every $z\ge1$ — at $z=1$, $z=2$, $z=5$ alike. For $p=0.3$, $\lambda=2$: $0.300000$ at $z=0$ (the observation $z=0$ is exactly neutral, so the posterior equals the prior), $0.760004$ at $z=0.5$, and the plateau value $0.959015$ for all $z\ge1$, versus $0.007788$ for all $z\le-1$.</p>
+
+<p><b>Step 7 — the four limits (the recitation's second [SOLUTION GAP], filled).</b></p>
+<p><em>(i) $p\to0^+$.</em> The numerator $p\to0$ while the denominator $\to (1-p)e^{-\lambda d(z)} \to e^{-\lambda d(z)} &gt; 0$, a fixed positive number, so the ratio $\to 0$. Interpretation: if you are certain in advance that $X=-1$, no observation changes that.</p>
+<p><em>(ii) $p\to1^-$.</em> Then $1-p\to0$, the denominator $\to 0 + p \to 1$, and the ratio $\to 1$. Same interpretation, mirrored.</p>
+<p><em>(iii) $\lambda\to0^+$.</em> Then $\lambda d(z)\to 0$ for each fixed $z$, so $e^{-\lambda d(z)}\to e^0 = 1$ and
+$$\mathbf{P}(X=1\mid Z=z) \to \frac{p}{p + (1-p)} = \frac{p}{1} = p.$$
+The posterior collapses to the prior. Interpretation: as $\lambda\to0$ the Laplacian density $\tfrac12\lambda e^{-\lambda|y|}$ flattens out (its height $\lambda/2$ at the origin goes to $0$ and its variance $2/\lambda^2$ blows up), so the noise swamps the $\pm1$ signal and the observation carries no information. Numerically at $\lambda = 10^{-9}$, $p=0.3$, $z=0.7$: posterior $= 0.300000$.</p>
+<p><em>(iv) $\lambda\to\infty$.</em> Everything hinges on the sign of $d(z)$, i.e. on whether $|z+1|&gt;|z-1|$:
+<br>• If $d(z)&gt;0$ then $-\lambda d(z)\to-\infty$, so $e^{-\lambda d(z)}\to0$ and the ratio $\to p/(p+0) = 1$.
+<br>• If $d(z)&lt;0$ then $-\lambda d(z)\to+\infty$, so $e^{-\lambda d(z)}\to\infty$, the denominator $\to\infty$ and the ratio $\to 0$.
+<br>And the sign condition simplifies: since both sides are nonnegative and $u\mapsto u^2$ is increasing on $[0,\infty)$,
+$$|z+1| &gt; |z-1| \iff (z+1)^2 &gt; (z-1)^2 \iff z^2+2z+1 &gt; z^2-2z+1 \iff 4z &gt; 0 \iff z &gt; 0.$$
+So the limit is $1$ for $z&gt;0$ and $0$ for $z&lt;0$ — the noise becomes negligible ($\operatorname{var}(Y) = 2/\lambda^2 \to 0$), $Z$ is essentially $X$ itself, and the sign of $z$ reveals it. Numerically at $\lambda = 400$: posterior $= 1.000000$ at $z = 0.7$ and $0.000000$ at $z=-0.7$. ✓</p>
+</div></details>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s3_laplace}}" alt="Two panels showing sharp-peaked two-sided exponential densities. Panel a, p equals one half and lambda equals 1: an orange curve peaked at z equals minus 1 is the conditional density of Z given X equals minus 1, a blue curve peaked at z equals plus 1 is the conditional density given X equals plus 1, both with height 0.5 at their peaks and cusped tips. A dotted vertical line at z equals 0 is the threshold. The blue curve's area to the left of zero is shaded and labeled miss, the orange curve's area to the right of zero is shaded and labeled false alarm. A box reads P of error equals e to the minus lambda times the square root of p times one minus p, equals 0.183940. Panel b, p equals 0.3 and lambda equals 2: the same picture with the two densities weighted by their prior probabilities, so the orange minus one curve peaks at 0.70 and the blue plus one curve peaks at 0.30; the dotted threshold has moved right to z equals 0.211824, and the labeled error probability is 0.062018." style="max-width:920px">
+<div class="figcap">Fig. 3.3 — The rec11 P1 detector. The MAP rule compares the two <em>prior-weighted</em> conditional densities and picks the larger; the threshold is where they cross, and the shaded areas are the two ways to be wrong.</div>
+
+<div class="thm"><b>Property (MAP decision rule and its error probability — an extension of rec11 P1).</b> Decide $\hat X = +1$ when $\mathbf{P}(X=1\mid Z=z) &gt; 1/2$. For the Laplacian model this is a threshold test $z &gt; z^*$ with
+$$z^{*} \;=\; \frac{1}{2\lambda}\ln\frac{1-p}{p},$$
+valid as long as $|z^*| \le 1$; and then the resulting error probability is
+$$\mathbf{P}(\text{error}) \;=\; e^{-\lambda}\sqrt{p(1-p)}.$$
+</div>
+
+<details class="sol"><summary>Derivation — threshold, then error probability, every step</summary><div class="body">
+<p><b>Step 1 — where the posterior crosses $1/2$.</b> Using the boxed formula,
+$$\frac{p}{p+(1-p)e^{-\lambda d(z)}} &gt; \frac12 \iff 2p &gt; p + (1-p)e^{-\lambda d(z)} \iff p &gt; (1-p)e^{-\lambda d(z)},$$
+(multiplying by the strictly positive denominator preserves the inequality). Rearranging and taking logs — legal since both sides are positive and $\ln$ is increasing:
+$$e^{\lambda d(z)} &gt; \frac{1-p}{p} \iff \lambda\,d(z) &gt; \ln\frac{1-p}{p} \iff d(z) &gt; \frac1\lambda\ln\frac{1-p}{p}.$$
+On the linear stretch $d(z) = 2z$ this is $z &gt; \frac{1}{2\lambda}\ln\frac{1-p}{p} =: z^*$. For $p = 1/2$ the log is $\ln 1 = 0$ and $z^* = 0$ — decide by the sign of $z$, as symmetry demands. For $p = 0.3$, $\lambda = 2$: $z^* = \frac{1}{4}\ln(7/3) = 0.211824$, shifted <em>toward</em> the less likely symbol, as it should be.</p>
+<p><b>Step 2 — the two ways to be wrong.</b> With the rule "$\hat X = +1$ iff $z &gt; t$",
+$$\mathbf{P}(\text{error}) = \mathbf{P}(X=+1)\,\mathbf{P}(Z\le t\mid X=+1) \;+\; \mathbf{P}(X=-1)\,\mathbf{P}(Z&gt;t\mid X=-1),$$
+by the total probability theorem over the partition $\{X=+1\},\{X=-1\}$. The first term is a <em>miss</em>, the second a <em>false alarm</em>.</p>
+<p><b>Step 3 — evaluate the two conditional probabilities.</b> Given $X=+1$, $Z = 1+Y$, so $\{Z\le t\} = \{Y \le t-1\}$; given $X=-1$, $\{Z&gt;t\} = \{Y &gt; t+1\}$. Assume $-1&lt;t&lt;1$ so that $t-1&lt;0&lt;t+1$. The Laplacian CDF on the negative half-line is
+$$F_Y(u) = \int_{-\infty}^{u}\tfrac12\lambda e^{\lambda v}\,dv = \left[\tfrac12 e^{\lambda v}\right]_{-\infty}^{u} = \tfrac12 e^{\lambda u}, \qquad u \le 0,$$
+(on $v\le0$ we have $|v| = -v$, so $e^{-\lambda|v|} = e^{\lambda v}$; the antiderivative of $\tfrac12\lambda e^{\lambda v}$ is $\tfrac12 e^{\lambda v}$, which vanishes at $-\infty$). By the symmetry $f_Y(-u) = f_Y(u)$, the upper tail is $\mathbf{P}(Y&gt;u) = \tfrac12 e^{-\lambda u}$ for $u\ge0$. Hence
+$$\mathbf{P}(Y\le t-1) = \tfrac12 e^{\lambda(t-1)}, \qquad \mathbf{P}(Y&gt;t+1) = \tfrac12 e^{-\lambda(t+1)},$$
+and
+$$\mathbf{P}(\text{error})(t) = \frac{p}{2}e^{\lambda(t-1)} + \frac{1-p}{2}e^{-\lambda(t+1)}.$$</p>
+<p><b>Step 4 — minimize over $t$</b> (confirming that the MAP threshold is also the minimum-error threshold). Differentiate:
+$$\frac{d}{dt}\mathbf{P}(\text{error})(t) = \frac{p\lambda}{2}e^{\lambda(t-1)} - \frac{(1-p)\lambda}{2}e^{-\lambda(t+1)}.$$
+Setting this to zero and cancelling $\lambda/2$: $\;p\,e^{\lambda t}e^{-\lambda} = (1-p)e^{-\lambda t}e^{-\lambda}$, so $e^{2\lambda t} = (1-p)/p$ and $t = \frac{1}{2\lambda}\ln\frac{1-p}{p} = z^*$ — the same threshold. (The second derivative is a sum of two positive exponentials, so this is a minimum.)</p>
+<p><b>Step 5 — the optimal value.</b> Write $r = (1-p)/p$, so $e^{\lambda z^*} = \sqrt r$ and $e^{-\lambda z^*} = 1/\sqrt r$. Then
+$$\text{miss term} = \frac p2 e^{-\lambda}\sqrt r = \frac p2 e^{-\lambda}\sqrt{\frac{1-p}{p}} = \frac12 e^{-\lambda}\sqrt{p(1-p)},$$
+$$\text{false-alarm term} = \frac{1-p}{2}e^{-\lambda}\frac{1}{\sqrt r} = \frac{1-p}{2}e^{-\lambda}\sqrt{\frac{p}{1-p}} = \frac12 e^{-\lambda}\sqrt{p(1-p)}.$$
+The two are <em>equal</em> — at the optimum you split the risk evenly between the two error types — and their sum is
+$$\mathbf{P}(\text{error}) = e^{-\lambda}\sqrt{p(1-p)}. \qquad\blacksquare$$
+<b>Checks</b> (computes/g3_s3.py keys <code>D_*_perr_*</code>): for $p=1/2,\lambda=1$ the formula gives $0.183940$ and direct numerical integration of the two shaded tails gives $0.183940$ (each term $0.091970$); for $p=0.3,\lambda=2$, $0.062018$ both ways (each term $0.031009$). The error decays like $e^{-\lambda}$: doubling $\lambda$ from 1 to 2 with $p=1/2$ drops the error from $0.183940$ to $0.067668$.</p>
+</div></details>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s3_posterior}}" alt="Two panels of the posterior probability that X equals 1 plotted against the observation z. Panel a, Laplacian noise with p equal one half: three S-shaped curves for lambda equal 0.3, 1.0 and 3.0. Each is exactly flat for z less than minus 1, rises through the point z equals 0, posterior one half, and is exactly flat again for z greater than 1. The lambda equals 0.3 curve plateaus at about 0.35 and 0.65; lambda equals 1 at 0.12 and 0.88; lambda equals 3 at essentially 0 and 1. A note reads plateau, no further evidence. Panel b compares the Laplacian lambda equals 1 curve with the Gaussian sigma equals 1 curve from B and T Example 3.20. The two coincide exactly on the interval from minus 1 to 1, then the Laplacian curve freezes at 0.880797 while the dashed Gaussian curve keeps rising toward 1." style="max-width:920px">
+<div class="figcap">Fig. 3.4 — Posterior versus observation (rec11 P1, and B&amp;T Example 3.20 for comparison). The Laplacian posterior is <em>constant</em> outside $[-1,1]$; the Gaussian one is not. Both are the same logistic curve in between.</div>
+
+<div class="ex"><b>Example 3.5 (the Gaussian counterpart — B&amp;T §3.6, Example 3.20, signal detection; the book compresses the algebra to "which simplifies to").</b>
+<p><b>Statement.</b> A binary signal $S$ is transmitted with $\mathbf{P}(S=1)=p$, $\mathbf{P}(S=-1)=1-p$. The received signal is $Y = S + N$ with $N\sim N(0,1)$ independent of $S$. Find $\mathbf{P}(S=1\mid Y=y)$.</p>
+<p><b>Step 1.</b> Exactly as in Example 3.4, Step 1: given $S=s$, $Y$ is normal with mean $s$ and variance 1, so $f_{Y|S}(y\mid s) = \frac{1}{\sqrt{2\pi}}e^{-(y-s)^2/2}$.</p>
+<p><b>Step 2 — Bayes (cell (D$\,|\,$C)).</b>
+$$\mathbf{P}(S=1\mid Y=y) = \frac{p\,\frac{1}{\sqrt{2\pi}}e^{-(y-1)^2/2}}{p\,\frac{1}{\sqrt{2\pi}}e^{-(y-1)^2/2} + (1-p)\frac{1}{\sqrt{2\pi}}e^{-(y+1)^2/2}}.$$</p>
+<p><b>Step 3 — the simplification the book skips.</b> Expand the two exponents:
+$$-\frac{(y-1)^2}{2} = -\frac{y^2 - 2y + 1}{2} = -\frac{y^2+1}{2} + y, \qquad -\frac{(y+1)^2}{2} = -\frac{y^2+1}{2} - y.$$
+Both share the factor $e^{-(y^2+1)/2}$, which together with $1/\sqrt{2\pi}$ is common to all three terms and therefore cancels:
+$$\mathbf{P}(S=1\mid Y=y) = \frac{p\,e^{y}}{p\,e^{y} + (1-p)e^{-y}},$$
+the book's stated answer. (Verified against the raw normal densities to $2.2\times10^{-16}$ across a grid — computes/g3_s3.py key <code>D_gauss_algebra_max_mismatch</code>.)</p>
+<p><b>Step 4 — reading it.</b> Dividing top and bottom by $p e^y$ gives $1/\big(1 + \frac{1-p}{p}e^{-2y}\big)$: a logistic function of $2y$. It is strictly increasing in $y$, tends to $0$ as $y\to-\infty$ and to $1$ as $y\to+\infty$ — "consistent with intuition", as the book puts it. For $p=1/2$: $0.731059$ at $y=0.5$, $0.880797$ at $y=1$, $0.982014$ at $y=2$, $0.999955$ at $y=5$. The MAP threshold is again $y^* = \frac12\ln\frac{1-p}{p}$, equal to $0$ for $p=1/2$, and the error probability there is $\mathbf{P}(N &gt; 1) = 1-\Phi(1) = 0.158655$.</p>
+</div>
+
+<div class="note"><b>Interpretation — heavy tails saturate, light tails do not (Fig. 3.4).</b> Compare the two boxed answers with $p=1/2$:
+$$\text{Laplacian: } \frac{1}{1+e^{-\lambda d(z)}}, \qquad \text{Gaussian: } \frac{1}{1+e^{-2y}}.$$
+With $\lambda=1$ they are <em>identical</em> for $|z|\le1$, since $d(z)=2z$ there. Outside that window they part company completely: $d$ saturates, so the Laplacian posterior freezes at $0.880797$ — an observation of $z=5$ is exactly as convincing as $z=1$ — while the Gaussian posterior marches on to $0.999955$. The reason is the tail shape. Under Laplacian noise, once $z$ is beyond both signal values, moving $z$ further out multiplies <em>both</em> likelihoods by the same factor $e^{-\lambda\,\Delta z}$, so their ratio is unchanged: an extreme reading is equally (im)plausible under either hypothesis, because heavy tails make outliers cheap. Under Gaussian noise the quadratic exponent means the ratio keeps growing. This is the density-level statement of the robustness folklore: heavy-tailed noise models automatically <b>discount outliers</b> instead of being dragged around by them.</div>
+
+<div class="warn"><b>Gotcha — the threshold formula has a range of validity.</b> $z^* = \frac{1}{2\lambda}\ln\frac{1-p}{p}$ solves $d(z)=\frac1\lambda\ln\frac{1-p}{p}$ only on the stretch where $d(z)=2z$, i.e. only if $|z^*|\le1$, equivalently $\big|\ln\frac{1-p}{p}\big| \le 2\lambda$. If the prior is lopsided relative to the noise — e.g. $p = 0.3$, $\lambda = 0.2$, giving a nominal $z^* = 2.118245 &gt; 1$ — then the posterior <em>never</em> reaches $1/2$: its maximum over all $z$ is the plateau $p/(p+(1-p)e^{-2\lambda}) = 0.390003$. The MAP rule then degenerates to "always declare $\hat X = -1$, whatever you see", with error probability $\min(p,1-p) = 0.3$. This can never happen in the Gaussian case, where the posterior sweeps all of $(0,1)$. Always check that a threshold you solved for actually lies in the region whose formula you used.</div>
+
+<div class="warn"><b>Gotcha — $\mathbf{P}(X=1\mid Z=z)$ is a probability; $f_{Z|X}(z\mid x)$ is a density.</b> Both live on the same picture (Fig. 3.3 vs. Fig. 3.4) and both are functions of $z$, but the first is bounded by 1 and does not integrate to anything meaningful in $z$, while the second is unbounded above and integrates to 1 in $z$. Mixing them up is the most common error in detection problems: the decision rule compares <em>weighted densities</em> $p\,f_{Z|X}(z\mid1)$ vs. $(1-p)f_{Z|X}(z\mid-1)$ (Fig. 3.3(b)), which is equivalent to comparing the posterior to $1/2$ — but only because the common denominator $f_Z(z)$ is positive and cancels.</div>
+
+<div class="ex"><b>Practice 3.7.</b> In Example 3.5 with $p = 0.3$, what is $\mathbf{P}(S=1\mid Y=0.4)$? Compare with the answer for $p = 0.5$, and say in one sentence what the comparison shows.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mathbf{P}(S=1\mid Y=y) = \dfrac{p e^{y}}{pe^{y}+(1-p)e^{-y}}$. With $y=0.4$: $e^{0.4}=1.491825$, $e^{-0.4}=0.670320$.</p>
+<p>For $p = 0.3$: numerator $0.3(1.491825) = 0.447547$; denominator $0.447547 + 0.7(0.670320) = 0.447547+0.469224 = 0.916771$; ratio $= 0.488178$.</p>
+<p>For $p = 0.5$: numerator $0.745912$; denominator $0.745912+0.335160 = 1.081072$; ratio $= 0.689974$.</p>
+<p>Same data, different conclusions: with the skeptical prior the posterior is still (just) below $1/2$, so the MAP decision is $\hat S = -1$; with the neutral prior it is comfortably above and the decision flips. The evidence contributed a fixed likelihood ratio $e^{2y} = e^{0.8} = 2.225541$ in both cases — it is the prior odds that decided the outcome. (computes/g3_s3.py keys <code>H1_*</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.8.</b> For the rec11 P1 model with $p=1/2$, how large must $\lambda$ be for the MAP error probability to fall below $1\%$? What does that mean physically?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>With $p=1/2$, $\sqrt{p(1-p)} = 1/2$, so $\mathbf{P}(\text{error}) = \tfrac12 e^{-\lambda} &lt; 0.01 \iff e^{-\lambda} &lt; 0.02 \iff \lambda &gt; \ln 50 = 3.912023$.</p>
+<p>Physically: the Laplacian noise has variance $2/\lambda^2$, so $\lambda = 3.912$ means noise standard deviation $\sqrt2/\lambda = 0.361504$, roughly a third of the distance from the origin to either signal value (the two hypotheses sit at $\pm1$, so that distance is $1$; the full separation between them is $2$, of which $0.361504$ is about $18\%$). Sanity: at $\lambda=1$ the error is $0.183940$ and at $\lambda=2$ it is $0.067668$, both above $1\%$, consistent with the threshold $3.912$. (computes/g3_s3.py keys <code>H5_*</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.9.</b> Same model, $p = 1/2$, $\lambda = 1$. You observe $z = 3$. A classmate says "that is way out past $+1$, so I'm nearly certain $X = +1$". Correct them with a number.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$d(3) = 2$ (saturated), so $\mathbf{P}(X=1\mid Z=3) = \dfrac{0.5}{0.5+0.5e^{-2}} = \dfrac{1}{1+e^{-2}} = \dfrac{1}{1.135335} = 0.880797$ — exactly the same as for $z=1$, and there is a $11.92\%$ chance the signal was $-1$ and the noise was a $+4$ excursion. Laplacian noise makes big excursions cheap ($e^{-\lambda\cdot4}$ falls off far slower than $e^{-4^2/2}$), so distance past the signal buys no extra confidence. Under Gaussian noise the same $z=3$ would give $1/(1+e^{-6}) = 0.997527$.</p>
+</div></details></div>
+
+<h3>3.5 (C$\,|\,$D) Continuous unknown, discrete evidence: learning a probability</h3>
+
+<p>The last cell is the one L10 slide 3 illustrates with a light beam of unknown intensity $X$ observed through a photon count $Y$, and the one rec11 P2 turns into the cleanest example in the course: <b>the unknown is itself a probability</b>. If you do not know how biased a coin is, your belief about its bias is a density on $[0,1]$; each toss is a discrete observation; and Bayes' rule tells you how the density moves.</p>
+
+<div class="ex"><b>Example 3.6 (rec11 P2 — posterior PDF of a Bernoulli success probability).</b>
+<p><b>Statement.</b> Let $Q$ be a continuous random variable with PDF
+$$f_Q(q) = \begin{cases} 6q(1-q), & 0\le q\le 1,\\ 0,&\text{otherwise,}\end{cases}$$
+representing the (unknown) success probability of a Bernoulli random variable $X$, i.e. $\mathbf{P}(X=1\mid Q=q) = q$. Find $f_{Q|X}(q\mid x)$ for $x\in\{0,1\}$ and all $q$.</p>
+
+<details class="sol"><summary>Solution — every step, with the recitation's gaps filled</summary><div class="body">
+<p><b>Step 0 — the cell and the form of the answer.</b> The unknown $Q$ is continuous; the observation $X$ is discrete (one Bernoulli trial). Cell (C$\,|\,$D):
+$$f_{Q|X}(q\mid x) = \frac{f_Q(q)\,p_{X|Q}(x\mid q)}{p_X(x)} = \frac{f_Q(q)p_{X|Q}(x\mid q)}{\int_0^1 f_Q(t)p_{X|Q}(x\mid t)\,dt}.$$
+The integral runs over $[0,1]$ only, because $f_Q$ vanishes elsewhere.</p>
+
+<p><b>Step 1 — sanity-check the prior.</b> $\int_0^1 6q(1-q)\,dq = 6\int_0^1 (q - q^2)dq = 6\left[\frac{q^2}{2}-\frac{q^3}{3}\right]_0^1 = 6\left(\frac12-\frac13\right) = 6\cdot\frac16 = 1$ ✓. Its mean is $\int_0^1 q\cdot6q(1-q)dq = 6\left[\frac{q^3}{3}-\frac{q^4}{4}\right]_0^1 = 6\left(\frac13-\frac14\right) = 6\cdot\frac{1}{12} = \frac12$. So before any toss the coin is believed fair on average, but with real uncertainty — the prior is a hump peaking at $q=1/2$ and vanishing at the two extremes.</p>
+
+<p><b>Step 2 — the likelihood.</b> The model $\mathbf{P}(X=1\mid Q=q) = q$ means
+$$p_{X|Q}(1\mid q) = q, \qquad p_{X|Q}(0\mid q) = 1-q,$$
+the second by the complement rule inside the conditional universe $\{Q=q\}$.</p>
+
+<p><b>Step 3 — the case $x=1$ (a head).</b> Numerator: $f_Q(q)p_{X|Q}(1\mid q) = 6q(1-q)\cdot q = 6q^2(1-q)$. Denominator:
+$$p_X(1) = \int_0^1 6q^2(1-q)\,dq = 6\int_0^1 (q^2 - q^3)\,dq = 6\left[\frac{q^3}{3} - \frac{q^4}{4}\right]_0^1 = 6\left(\frac13 - \frac14\right) = 6\cdot\frac{1}{12} = \frac12.$$
+<em>(The recitation asserts the value $1/2$ without this evaluation — [SOLUTION GAP] filled.)</em> Therefore
+$$f_{Q|X}(q\mid 1) = \frac{6q^2(1-q)}{1/2} = 12q^2(1-q), \qquad 0\le q\le 1.$$</p>
+
+<p><b>Step 4 — the case $x=0$ (a tail).</b> Numerator: $6q(1-q)\cdot(1-q) = 6q(1-q)^2$. Denominator: expand $q(1-q)^2 = q(1-2q+q^2) = q - 2q^2 + q^3$, so
+$$p_X(0) = \int_0^1 6\big(q - 2q^2 + q^3\big)dq = 6\left[\frac{q^2}{2} - \frac{2q^3}{3} + \frac{q^4}{4}\right]_0^1 = 6\left(\frac12 - \frac23 + \frac14\right) = 6\cdot\frac{6-8+3}{12} = 6\cdot\frac{1}{12} = \frac12.$$
+Therefore
+$$f_{Q|X}(q\mid 0) = \frac{6q(1-q)^2}{1/2} = 12q(1-q)^2, \qquad 0\le q\le 1.$$</p>
+
+<p><b>Step 5 — "for all $q$" (the recitation's second [SOLUTION GAP]).</b> The question asks for all $q$, so state the complete answer:
+$$f_{Q|X}(q\mid 1) = \begin{cases}12q^2(1-q), & 0\le q\le1,\\ 0, &\text{otherwise,}\end{cases} \qquad f_{Q|X}(q\mid 0) = \begin{cases}12q(1-q)^2, & 0\le q\le1,\\ 0,&\text{otherwise.}\end{cases}$$
+Outside $[0,1]$ the prior is $0$, so the numerator is $0$ and so is the posterior — a probability cannot be negative or exceed 1, whatever the data.</p>
+
+<p><b>Step 6 — checks.</b> Both integrate to 1 (verified symbolically with sympy, computes/g3_s3.py keys <code>E_post_x*_check_norm</code>). Their means are
+$$\mathbb{E}[Q\mid X=1] = \int_0^1 q\cdot 12q^2(1-q)dq = 12\left(\frac14-\frac15\right) = 12\cdot\frac{1}{20} = \frac35 = 0.6,$$
+$$\mathbb{E}[Q\mid X=0] = \int_0^1 q\cdot 12q(1-q)^2dq = \frac25 = 0.4,$$
+symmetric about the prior mean $1/2$: one head raises the estimated bias by $0.1$, one tail lowers it by $0.1$. Also $p_X(1) = p_X(0) = 1/2$, which is exactly the prior mean $\mathbb{E}[Q] = 1/2$ — as it must be, since $p_X(1) = \int_0^1 q f_Q(q)dq = \mathbb{E}[Q]$ by the total probability theorem.</p>
+
+<p><b>Step 7 — the name.</b> The recitation notes that $f_Q$, $f_{Q|X}(\cdot\mid0)$ and $f_{Q|X}(\cdot\mid1)$ are all in the family of <b>beta distributions</b>, which return in Chapter 8. The next box says precisely what that means.</p>
+</div></details>
+</div>
+
+<div class="defn"><b>Definition (beta distribution).</b> For parameters $\alpha&gt;0$, $\beta&gt;0$, the <b>Beta$(\alpha,\beta)$</b> density is
+$$f(q) \;=\; \frac{q^{\alpha-1}(1-q)^{\beta-1}}{B(\alpha,\beta)}, \qquad 0\le q\le1,$$
+where the normalizing constant is the <b>beta function</b>
+$$B(\alpha,\beta) \;=\; \int_0^1 q^{\alpha-1}(1-q)^{\beta-1}\,dq \;=\; \frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)} \;\stackrel{\text{integer }\alpha,\beta}{=}\; \frac{(\alpha-1)!\,(\beta-1)!}{(\alpha+\beta-1)!}.$$
+Its mean, mode and variance are
+$$\mathbb{E}[Q] = \frac{\alpha}{\alpha+\beta}, \qquad \text{mode} = \frac{\alpha-1}{\alpha+\beta-2}\;(\alpha,\beta&gt;1), \qquad \operatorname{var}(Q) = \frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}.$$
+Beta$(1,1)$ is the uniform density on $[0,1]$.</div>
+
+<p>Identify the three rec11 P2 densities: $B(2,2) = \frac{1!\,1!}{3!} = \frac16$, so Beta$(2,2)$ has density $q(1-q)/(1/6) = 6q(1-q)$ — the prior. $B(3,2) = \frac{2!\,1!}{4!} = \frac{2}{24} = \frac{1}{12}$, so Beta$(3,2)$ is $12q^2(1-q)$ — the posterior after a head. Symmetrically Beta$(2,3)$ is $12q(1-q)^2$ — the posterior after a tail. Means: $\frac{2}{4}=0.5$, $\frac{3}{5}=0.6$, $\frac{2}{5}=0.4$, matching Step 6 exactly.</p>
+
+<div class="thm"><b>Property (the beta family is conjugate to Bernoulli/binomial sampling).</b> Let the prior be $Q\sim$ Beta$(a,b)$ and let $K$ be the number of heads in $n$ tosses that are independent <em>given</em> $Q=q$, so $p_{K|Q}(k\mid q) = \binom nk q^k(1-q)^{n-k}$. Then
+$$Q \mid \{K = k\} \;\sim\; \text{Beta}(a+k,\; b+n-k).$$
+In words: <b>add the heads to the first parameter and the tails to the second.</b></div>
+
+<details class="sol"><summary>Derivation, plus the marginal $p_K(k)$</summary><div class="body">
+<p><b>Step 1 — write the numerator and throw away everything free of $q$.</b> By cell (C$\,|\,$D),
+$$f_{Q|K}(q\mid k) \;\propto\; f_Q(q)\,p_{K|Q}(k\mid q) \;=\; \frac{q^{a-1}(1-q)^{b-1}}{B(a,b)}\binom nk q^{k}(1-q)^{n-k}.$$
+The factors $1/B(a,b)$ and $\binom nk$ do not involve $q$, so they belong to the invisible constant.</p>
+<p><b>Step 2 — combine the powers.</b> $q^{a-1}q^k = q^{a+k-1}$ and $(1-q)^{b-1}(1-q)^{n-k} = (1-q)^{b+n-k-1}$, so
+$$f_{Q|K}(q\mid k) \;\propto\; q^{(a+k)-1}(1-q)^{(b+n-k)-1}, \qquad 0\le q\le1.$$</p>
+<p><b>Step 3 — recognize the shape.</b> That is exactly the unnormalized Beta$(a+k, b+n-k)$ density. Since a density is determined by its shape (the constant is whatever makes the integral 1), the normalizer must be $B(a+k,b+n-k)$ and
+$$f_{Q|K}(q\mid k) = \frac{q^{a+k-1}(1-q)^{b+n-k-1}}{B(a+k,\,b+n-k)}. \qquad\blacksquare$$
+No integration was needed — this is the payoff of Recipe step 5.</p>
+<p><b>Step 4 — the marginal, for free.</b> Comparing the exact numerator of Step 1 with the exact posterior of Step 3,
+$$p_K(k) = \frac{\text{numerator}}{\text{posterior}} = \binom nk\,\frac{B(a+k,\,b+n-k)}{B(a,b)},$$
+the <b>beta-binomial</b> PMF. For $a=b=2$, $n=10$, $k=7$: $p_K(7) = 0.111888$, confirmed by direct numerical integration of $\int_0^1\binom{10}{7}q^7(1-q)^3\,6q(1-q)\,dq = 0.111888$ (computes/g3_s3.py keys <code>E_gen_pK</code>, <code>E_gen_pK_quad</code>).</p>
+<p><b>Step 5 — one toss at a time gives the same answer.</b> Setting $n=1$ recovers rec11 P2: $k=1$ gives Beta$(2+1,2+0) = $ Beta$(3,2)$ ✓ and $k=0$ gives Beta$(2,3)$ ✓. And applying the rule $n$ times in sequence adds $1$ to $a$ on each head and $1$ to $b$ on each tail, ending at Beta$(a+k, b+n-k)$ — <b>identical to processing the whole batch at once</b> (computes key <code>H7_seq_equals_batch</code>). Bayesian updating does not care about the order of the data, nor whether you update in one gulp or one toss at a time.</p>
+</div></details>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s3_beta}}" alt="Two panels of densities on the interval zero to one. Panel a, rec11 P2: a dashed grey symmetric hump peaking at 1.5 at q equals 0.5 is the prior 6q(1-q), Beta(2,2). A blue curve, the posterior after a head, is 12 q squared times (1-q), peaking near q equals two thirds at height 1.78. An orange curve, the posterior after a tail, is its mirror image peaking near q equals one third. Three triangles on the axis mark the posterior means 0.4, 0.5 and 0.6. Panel b: the same dashed Beta(2,2) prior with three increasingly narrow and tall posteriors, for 3 heads in 4 tosses giving Beta(5,3), 7 in 10 giving Beta(9,5), and 28 in 40 giving Beta(30,14) which is a sharp spike of height 5.7. A dotted vertical line marks the sample frequency 0.7, and the posterior peaks approach it as the sample grows." style="max-width:920px">
+<div class="figcap">Fig. 3.5 — Beta prior to beta posterior (rec11 P2, generalized). One observation nudges; forty observations nearly determine. The posterior mode approaches the sample frequency $k/n$ from the prior side.</div>
+
+<div class="note"><b>Interpretation — the prior is worth a few imaginary tosses.</b> The posterior mean after $k$ heads in $n$ tosses is
+$$\mathbb{E}[Q\mid K=k] = \frac{a+k}{a+b+n} = \underbrace{\frac{n}{n+a+b}}_{w}\cdot\frac kn \;+\; \Big(1-\frac{n}{n+a+b}\Big)\cdot\underbrace{\frac{a}{a+b}}_{\text{prior mean}},$$
+a weighted average of the observed frequency and the prior mean — the same shrinkage structure as the Gaussian channel in §3.3. The prior behaves exactly as if you had already seen $a$ heads and $b$ tails: it carries the weight of $a+b$ pseudo-observations. For the rec11 prior Beta$(2,2)$ that is $4$ pseudo-tosses. With $n=10$, $k=7$: $w = 10/14 = 0.714286$ and
+$$\mathbb{E}[Q\mid K=7] = 0.714286(0.7) + 0.285714(0.5) = 0.500000 + 0.142857 = 0.642857 = \tfrac{9}{14},$$
+matching $\frac{a+k}{a+b+n} = \frac{9}{14}$ directly. The posterior mode is $\frac{9-1}{14-2} = \frac{8}{12} = 0.666667$ and the posterior standard deviation is $0.123718$ — so "roughly $0.64\pm0.12$", noticeably pulled back from the raw frequency $0.7$. As $n\to\infty$ with $k/n$ fixed, $w\to1$: the data eventually drown the prior, which is the Bayesian version of the law of large numbers.</div>
+
+<div class="ex"><b>Example 3.7 (L10 slide 3's own (C$\,|\,$D) example: light-beam intensity from a photon count).</b>
+<p><b>Statement.</b> The slide proposes: $X$ is a continuous signal with prior $f_X$ — say the intensity of a light beam — and $Y$ is a discrete random variable affected by $X$ — say the number of photons counted in a fixed interval — with $p_{Y|X}$ the model of the count. Concretely, take the prior $f_X(x) = e^{-x}$ for $x\ge0$ (exponential with parameter 1: dim beams are more common than bright ones, mean intensity $1$), and the standard photon model $Y\mid\{X=x\}\sim\text{Poisson}(x)$, i.e. $p_{Y|X}(y\mid x) = e^{-x}x^{y}/y!$ for $y=0,1,2,\dots$. Find $f_{X|Y}(x\mid y)$.</p>
+
+<p><b>Step 1 — numerator.</b>
+$$f_X(x)\,p_{Y|X}(y\mid x) = e^{-x}\cdot\frac{e^{-x}x^{y}}{y!} = \frac{x^{y}e^{-2x}}{y!}, \qquad x\ge0.$$
+The two exponentials combined: the prior's $e^{-x}$ and the Poisson's $e^{-x}$ give $e^{-2x}$.</p>
+
+<p><b>Step 2 — denominator, with the substitution shown.</b>
+$$p_Y(y) = \int_0^\infty \frac{x^{y}e^{-2x}}{y!}\,dx.$$
+Substitute $u = 2x$, so $x = u/2$ and $dx = du/2$; the limits $x=0,\infty$ become $u=0,\infty$:
+$$\int_0^\infty x^y e^{-2x}dx = \int_0^\infty \Big(\frac u2\Big)^{y}e^{-u}\,\frac{du}{2} = \frac{1}{2^{y+1}}\int_0^\infty u^{y}e^{-u}\,du = \frac{y!}{2^{y+1}},$$
+using the gamma integral $\int_0^\infty u^y e^{-u}du = \Gamma(y+1) = y!$ for a nonnegative integer $y$ (integrate by parts $y$ times). Hence
+$$p_Y(y) = \frac{1}{y!}\cdot\frac{y!}{2^{y+1}} = \Big(\frac12\Big)^{y+1}, \qquad y = 0,1,2,\dots$$</p>
+
+<p><b>Step 3 — the posterior.</b>
+$$f_{X|Y}(x\mid y) = \frac{x^{y}e^{-2x}/y!}{2^{-(y+1)}} = \frac{2^{\,y+1}\,x^{y}\,e^{-2x}}{y!}, \qquad x\ge0,$$
+which is the <b>Gamma$(y+1, 2)$</b> density (shape $y+1$, rate 2). Its mean is $(y+1)/2$ and its mode is $y/2$.</p>
+
+<p><b>Step 4 — reading the answer.</b> Two things are worth noticing. (i) The marginal photon count is <em>geometric</em> with parameter $1/2$ on $\{0,1,2,\dots\}$: $p_Y(y) = (1/2)^{y+1}$, and $\sum_{y\ge0}(1/2)^{y+1} = 1$ ✓ (computes key <code>F_marginal_is_geometric_sum</code> $= 1.000000$). A Poisson count whose rate is exponentially random comes out geometric — a small miracle that falls out of the algebra. (ii) The posterior mean $(y+1)/2$ shrinks the naive estimate $y$ (the maximum-likelihood count-equals-rate answer) by roughly a factor of two, because the prior insists that bright beams are rare. Seeing $y=3$ photons gives posterior mean $2.0$, not $3$; $y=8$ gives $4.5$, not $8$. Numerical checks: posterior normalizes to $1.000000$ and has the predicted mean for $y = 0,1,3,8$ (computes keys <code>F_*</code>).</p>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s3_photon}}" alt="Two panels. Panel a: densities in the beam intensity x from 0 to 9. A dashed grey exponential decay from height 1 is the prior. Four solid curves are the posteriors after observing 0, 1, 3 and 8 photons: y equals 0 is a steep decay from height 2, y equals 1 peaks at 0.75 near x equals 0.5, y equals 3 peaks at 0.45 near x equals 1.5, and y equals 8 is a broad hump peaking at 0.28 near x equals 4. Panel b: a stem plot of the marginal photon count PMF, spikes of height 0.5, 0.25, 0.125, 0.0625 and so on at y equals 0, 1, 2, 3, decaying geometrically; a note reads denominator of Bayes rule, and it sums to 1." style="max-width:920px">
+<div class="figcap">Fig. 3.6 — L10 slide 3's light-beam example carried out. Panel (a): each extra photon slides the posterior right and widens it. Panel (b): the Bayes denominator, which here is a geometric PMF.</div>
+
+<p>The widget below is the coin-bias inference of Example 3.6 made interactive. Set the prior's two parameters, then feed it data. Sliding $n$ with $k/n$ roughly fixed shows the shrinkage weight $w = n/(n+a+b)$ climbing toward 1; sliding $a$ and $b$ up with data fixed shows a stubborn prior refusing to move. The beta density is evaluated in JavaScript through a Lanczos log-gamma; that implementation was ported line for line into <code>computes/g3_s3.py</code> and agrees with <code>scipy.stats.beta.pdf</code> to $5.3\times10^{-13}$ over a grid of parameters (key <code>G_beta_pdf_max_abs_err</code>).</p>
+
+<div id="w-g3s3-bayesupdater"></div>
+<script>
+Widget.create({ el: '#w-g3s3-bayesupdater', height: 340,
+  title: 'Bayes updater: learning a coin’s bias (rec11 P2, generalized)',
+  note: 'Prior Beta(a,b) is the dashed pink curve; posterior Beta(a+k, b+n−k) is the solid blue one; the dotted vertical line is the raw sample frequency k/n. Defaults a=b=2, n=10, k=7 reproduce computes/g3_s3.py key G_widget_default_readout: posterior Beta(9,5), mean 0.642857, mode 0.666667. Set a=b=1 for a uniform prior and the posterior mean becomes Laplace’s rule (k+1)/(n+2). k is clamped to n.',
+  controls: [
+    {type:'range', id:'a', label:'prior a (pseudo-heads)', min:0.5, max:20, step:0.5, value:2},
+    {type:'range', id:'b', label:'prior b (pseudo-tails)', min:0.5, max:20, step:0.5, value:2},
+    {type:'range', id:'n', label:'n = tosses observed',    min:0,   max:60, step:1,   value:10},
+    {type:'range', id:'k', label:'k = heads observed',     min:0,   max:60, step:1,   value:7}
+  ],
+  draw(s, canvas, out) {
+    const LZ = [0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+                771.32342877765313, -176.61502916214059, 12.507343278686905,
+                -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+    function lgamma(x) {
+      if (x < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * x)) - lgamma(1 - x);
+      x -= 1; let a = LZ[0]; const t = x + 7 + 0.5;
+      for (let i = 1; i < 9; i++) a += LZ[i] / (x + i);
+      return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+    }
+    const lbeta = (p, q) => lgamma(p) + lgamma(q) - lgamma(p + q);
+    function betapdf(x, p, q) {
+      if (x <= 0 || x >= 1) return 0;
+      return Math.exp((p - 1) * Math.log(x) + (q - 1) * Math.log(1 - x) - lbeta(p, q));
+    }
+    const a = s.a, b = s.b;
+    const n = Math.round(s.n), k = Math.min(Math.round(s.k), n);
+    const A = a + k, B = b + (n - k);
+    let ymax = 0;
+    for (let i = 1; i < 400; i++) {
+      const x = i / 400;
+      ymax = Math.max(ymax, betapdf(x, a, b), betapdf(x, A, B));
+    }
+    ymax = Math.min(ymax, 40);
+    const P = new Plot(canvas, { xlim: [0, 1], ylim: [0, ymax * 1.15], height: 340,
+      xlabel: 'q = success probability (the coin’s bias)', ylabel: 'density' });
+    P.frame();
+    P.func(x => betapdf(x, a, b), { label: 'prior Beta(a,b)', color: 4, dash: [6, 4], width: 2 });
+    P.func(x => betapdf(x, A, B), { label: 'posterior Beta(a+k, b+n−k)', color: 0, width: 2.6 });
+    const pmean = A / (A + B);
+    const pmode = (A > 1 && B > 1) ? (A - 1) / (A + B - 2) : NaN;
+    const psd = Math.sqrt(A * B / ((A + B) * (A + B) * (A + B + 1)));
+    if (n > 0) P.vline(k / n, { dash: [2, 3], width: 1.6 });
+    P.vline(pmean, { color: '#2a78d6', dash: [7, 3], width: 1.4 });
+    P.legend();
+    out.textContent =
+      'prior Beta(' + a + ',' + b + ')  →  posterior Beta(' + A + ',' + B + ')' +
+      '     posterior mean = ' + pmean.toFixed(6) +
+      '     mode = ' + (isNaN(pmode) ? 'n/a' : pmode.toFixed(6)) +
+      '     sd = ' + psd.toFixed(6) +
+      '     sample frequency k/n = ' + (n > 0 ? (k / n).toFixed(6) : 'no data') +
+      '     data weight w = n/(n+a+b) = ' + (n / (n + a + b)).toFixed(6);
+  }});
+</script>
+
+<p>Three experiments worth running. (1) Defaults $a=b=2$, $n=10$, $k=7$: the readout should say posterior Beta$(9,5)$, mean $0.642857$, mode $0.666667$, sd $0.123718$, $w = 0.714286$ — every number checked in computes/g3_s3.py. (2) Set $n=0$: the posterior curve lands exactly on the prior, since no data means no update. (3) Set $a=b=1$ (uniform prior) with $n=4$, $k=3$: the posterior is Beta$(4,2)$ with mean $4/6 = 0.666667$ — Laplace's rule of succession $(k+1)/(n+2)$ — while the mode is $3/4 = 0.75$, the raw frequency. Mode and mean disagree because the beta density is skewed; which one you report depends on whether you want the most likely value or the best least-squares guess.</p>
+
+<div class="warn"><b>Gotcha — the posterior mode is not the posterior mean, and neither is $k/n$.</b> Three different "estimates" come out of the same posterior: the <b>MAP</b> estimate (the mode, $\frac{a+k-1}{a+b+n-2}$), the <b>posterior mean</b> ($\frac{a+k}{a+b+n}$, which minimizes expected squared error — G4), and the <b>maximum-likelihood</b> estimate ($k/n$, which ignores the prior entirely). For Beta$(2,2)$ with $7$ of $10$ heads they are $0.666667$, $0.642857$ and $0.700000$ — close but not equal, and they separate further for small $n$. Quote which one you mean.</div>
+
+<div class="warn"><b>Gotcha — the tosses are independent <em>given</em> $Q$, not independent.</b> The binomial likelihood $\binom nk q^k(1-q)^{n-k}$ is only valid inside the conditional universe $\{Q=q\}$. Unconditionally the tosses are strongly <em>dependent</em>: seeing a head makes the next head more likely, because it raises your belief about $q$. Concretely, with the rec11 prior, $\mathbf{P}(X_1=1) = \mathbb{E}[Q] = 1/2$ but $\mathbf{P}(X_2=1\mid X_1=1) = \mathbb{E}[Q\mid X_1=1] = 3/5$. That is why the marginal count is beta-binomial rather than binomial, and why "i.i.d." must always be qualified by "given the parameter".</div>
+
+<div class="ex"><b>Practice 3.10.</b> Starting from the uniform prior Beta$(1,1)$ on $[0,1]$, you observe 3 heads in 4 tosses. Give the posterior, its mean and its mode, and state the general rule this illustrates.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Posterior Beta$(1+3,\,1+1) = $ Beta$(4,2)$, i.e. $f(q) = q^3(1-q)/B(4,2)$ with $B(4,2) = \frac{3!\,1!}{5!} = \frac{6}{120} = \frac{1}{20}$, so $f(q) = 20q^3(1-q)$ on $[0,1]$.</p>
+<p>Mean $= \frac{4}{4+2} = \frac23 = 0.666667$. Mode $= \frac{4-1}{4+2-2} = \frac34 = 0.75$, which equals the sample frequency.</p>
+<p>General rule: with a uniform prior the posterior mean is $\frac{k+1}{n+2}$ — <b>Laplace's rule of succession</b>. It never returns exactly $0$ or $1$, which is the point: having seen 4 heads in 4 tosses, it predicts $5/6$ for the next toss, not certainty. (computes/g3_s3.py keys <code>H4_*</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.11.</b> In Example 3.7, you count $y = 8$ photons. What is the posterior density of the beam intensity, its mean and its mode, and how likely was that count in advance?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Posterior: $f_{X|Y}(x\mid8) = \frac{2^{9}x^{8}e^{-2x}}{8!} = \frac{512\,x^8 e^{-2x}}{40320}$ for $x\ge0$, i.e. Gamma$(9,2)$. Mean $= 9/2 = 4.5$; mode $= 8/2 = 4$ (set the derivative of $x^8e^{-2x}$ to zero: $8x^7e^{-2x} - 2x^8e^{-2x} = 0 \Rightarrow x = 4$).</p>
+<p>Prior probability of that count: $p_Y(8) = (1/2)^{9} = 0.001953$, about 1 in 512. (computes/g3_s3.py keys <code>H6_*</code>, <code>F_*_y=8</code>.) Note the estimate $4.5$ is far below the naive $8$ — with an $\mathrm{Exp}(1)$ prior a count of 8 is far more likely to be a moderately bright beam that fluctuated high than a genuinely very bright one.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.12.</b> With the rec11 P2 prior $6q(1-q)$, you toss the coin twice and see head then tail. Compute the posterior two ways — one toss at a time, and both at once — and check they agree.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Sequentially.</b> After the head: Beta$(2+1,2) = $ Beta$(3,2)$, density $12q^2(1-q)$. Treat that as the new prior; after the tail: Beta$(3,\,2+1) = $ Beta$(3,3)$.</p>
+<p><b>In one batch.</b> $n=2$, $k=1$, so Beta$(2+1,\,2+2-1) = $ Beta$(3,3)$ ✓.</p>
+<p>Explicitly, $B(3,3) = \frac{2!\,2!}{5!} = \frac{4}{120} = \frac{1}{30}$, so $f_{Q|K}(q\mid 1) = 30q^2(1-q)^2$ on $[0,1]$, with mean $\frac{3}{6} = 0.5$ (back to the prior mean, as symmetry demands — one head and one tail is neutral evidence) but standard deviation $\sqrt{\frac{9}{36\cdot7}} = \sqrt{1/28} = 0.188982$, smaller than the prior's $\sqrt{\frac{4}{16\cdot5}} = \sqrt{1/20} = 0.223607$. Neutral evidence does not move the center but it does sharpen the belief.</p>
+</div></details></div>
+
+<h3>3.6 Appendix: the three unsolved derived-distribution examples on L10</h3>
+
+<p>The back half of the L10 handout (slides 4–8) switches topic from inference to <b>derived distributions</b> — the PDF of a function of random variables — and leaves three examples unworked. The general machinery (the two-step CDF method, the linear-transformation formula, convolution) is developed in §4; this appendix simply discharges the three <b>[UNSOLVED EXAMPLE]</b> markers so nothing on the handout is left open. Each uses the same two-step recipe stated on L10 slide 6: <em>get the CDF $F_Y(y) = \mathbf{P}(Y\le y)$, then differentiate.</em></p>
+
+<div class="ex"><b>Example 3.8 (L10 slide 4 — the PDF of $g(X,Y) = Y/X$ on the unit square).</b>
+<p><b>Statement.</b> $X,Y$ have the uniform joint density $f_{X,Y}(x,y) = 1$ on the unit square $0\le x\le1$, $0\le y\le1$. Find the PDF of $R = Y/X$.</p>
+<p><b>Step 1 — the CDF as an area.</b> Because the density is $1$ on the square, $\mathbf{P}(\text{region}) = \text{area of the region} \cap \text{square}$. For $r&gt;0$,
+$$F_R(r) = \mathbf{P}\big(Y/X \le r\big) = \mathbf{P}(Y \le rX),$$
+the region below the line $y = rx$. (Dividing by $X$ is safe: $\mathbf{P}(X=0) = 0$, and $X&gt;0$ so the inequality direction is preserved.)</p>
+<p><b>Step 2 — two cases, because the line exits the square through different sides.</b>
+<br>• <em>$0 &lt; r \le 1$:</em> the line $y=rx$ meets the right edge $x=1$ at height $r\le1$, so the region below it inside the square is the triangle with vertices $(0,0), (1,0), (1,r)$, of area $\tfrac12\cdot\text{base}\cdot\text{height} = \tfrac12(1)(r) = r/2$. Hence $F_R(r) = r/2$.
+<br>• <em>$r &gt; 1$:</em> easier to take the complement. $\{Y &gt; rX\}$ is the region above the line; for each height $y\in[0,1]$ it consists of $x &lt; y/r$, and $y/r \le 1/r &lt; 1$, so its width is exactly $y/r$. Its area is $\int_0^1 \frac{y}{r}dy = \frac{1}{r}\left[\frac{y^2}{2}\right]_0^1 = \frac{1}{2r}$. Hence $F_R(r) = 1 - \frac{1}{2r}$.</p>
+<p><b>Step 3 — differentiate.</b>
+$$f_R(r) = \frac{dF_R}{dr}(r) = \begin{cases} \tfrac12, & 0 &lt; r &lt; 1,\\[1mm] \dfrac{1}{2r^{2}}, & r &gt; 1,\\[1mm] 0,&r\le0.\end{cases}$$
+<b>Check:</b> $\int_0^1\tfrac12 dr + \int_1^\infty \frac{dr}{2r^2} = \tfrac12 + \left[-\frac{1}{2r}\right]_1^\infty = \tfrac12 + \tfrac12 = 1$ ✓. Monte Carlo with $4\times10^6$ samples gives $F_R(0.5) = 0.249677$ vs. $0.25$, $F_R(2) = 0.749857$ vs. $0.75$, $F_R(4) = 0.874867$ vs. $0.875$ (computes/g3_s3.py keys <code>I1_*</code>).</p>
+</div>
+
+<div class="warn"><b>Gotcha — a bounded, perfectly tame pair can have a ratio with <em>infinite</em> mean.</b> For the $R = Y/X$ of Example 3.8,
+$$\mathbb{E}[R] = \int_0^1 \frac r2\,dr \;+\; \int_1^\infty \frac{dr}{2r} = \frac14 + \Big[\tfrac12\ln r\Big]_1^\infty = \frac14 + \infty = \infty,$$
+because the $1/(2r^2)$ tail decays just too slowly for $r\cdot f_R(r)$ to be integrable — the culprit being that $X$ gets arbitrarily close to $0$. Two consequences. (i) "Both variables are bounded" is <em>not</em> a licence to assume the mean of a function of them exists; only the tail of the derived density decides. (ii) The slide's companion advice — "don't find the PDF if you only want $\mathbb{E}[g(X,Y)]$, just use $\mathbb{E}[g(X,Y)] = \iint g\,f_{X,Y}$" — is sound in general, but here it does not rescue you: $\int_0^1\!\!\int_0^1 (y/x)\,dy\,dx$ diverges too. When an expectation comes back infinite, quote a quantile instead (the median of $R$ is $1$, since $F_R(1) = 1/2$).</div>
+
+<div class="ex"><b>Example 3.9 (L10 slide 7 — Joan's trip from Boston to New York).</b>
+<p><b>Statement.</b> The trip is $200$ miles and Joan's speed $V$ is uniform on $[30,60]$ mph. The duration is $T = 200/V$. Find $f_T(t)$.</p>
+<p><b>Step 1 — the prior on speed.</b> $f_V(v) = \frac{1}{60-30} = \frac{1}{30}$ for $30\le v\le 60$ — the flat-topped rectangle of height $1/30$ drawn on the slide.</p>
+<p><b>Step 2 — the range of $T$.</b> $t(v) = 200/v$ is decreasing, so the fastest speed gives the shortest time and vice versa: $T$ ranges over $\left[\frac{200}{60},\frac{200}{30}\right] = \left[\frac{10}{3},\frac{20}{3}\right] = [3.333333, 6.666667]$ hours.</p>
+<p><b>Step 3 — the CDF, watching the inequality flip.</b> For $t$ in that range,
+$$F_T(t) = \mathbf{P}(T\le t) = \mathbf{P}\!\left(\frac{200}{V}\le t\right) = \mathbf{P}\!\left(V \ge \frac{200}{t}\right),$$
+the inequality reversing because both sides were multiplied by $V&gt;0$ and divided by $t&gt;0$ — a step it is very easy to get wrong. Since $V$ is uniform on $[30,60]$,
+$$\mathbf{P}\!\left(V\ge\frac{200}{t}\right) = \frac{60 - 200/t}{30}.$$</p>
+<p><b>Step 4 — differentiate.</b> Using $\frac{d}{dt}\big(200 t^{-1}\big) = -200t^{-2}$,
+$$f_T(t) = \frac{d}{dt}\left[2 - \frac{200}{30t}\right] = \frac{200}{30t^{2}} = \frac{20}{3t^{2}}, \qquad \frac{10}{3}\le t\le\frac{20}{3},$$
+and $0$ elsewhere.</p>
+<p><b>Step 5 — checks.</b> Normalization: $\int_{10/3}^{20/3}\frac{20}{3t^2}dt = \frac{20}{3}\left[-\frac1t\right]_{10/3}^{20/3} = \frac{20}{3}\left(\frac{3}{10}-\frac{3}{20}\right) = \frac{20}{3}\cdot\frac{3}{20} = 1$ ✓ (numerically $1.000000$). The mean is
+$$\mathbb{E}[T] = \int_{10/3}^{20/3} t\cdot\frac{20}{3t^2}\,dt = \frac{20}{3}\int_{10/3}^{20/3}\frac{dt}{t} = \frac{20}{3}\big[\ln t\big]_{10/3}^{20/3} = \frac{20}{3}\ln 2 = 4.620981 \text{ hours},$$
+which agrees with the shortcut $\mathbb{E}[200/V] = \int_{30}^{60}\frac{200}{v}\cdot\frac{dv}{30} = 4.620981$ — no derived distribution needed if the mean is all you want. Note $\mathbb{E}[T] = 4.620981 &gt; 200/\mathbb{E}[V] = 200/45 = 4.444444$: the same Jensen gap as the random-speed example of G2 §3.3, now in continuous dress. (computes/g3_s3.py keys <code>I2_*</code>.)</p>
+</div>
+
+<div class="ex"><b>Example 3.10 (L10 slide 8 — check that $Y=aX+b$ is normal when $X$ is, and derive the formula the slide asserts).</b>
+<p><b>Part 1 — derive $f_Y(y) = \frac{1}{|a|}f_X\!\left(\frac{y-b}{a}\right)$</b> (the slide's [DERIVATION GAP]; it reads the formula off a picture). Let $a\neq0$ and $Y = aX+b$.</p>
+<p><em>Case $a&gt;0$.</em> $\{Y\le y\} = \{aX+b\le y\} = \{X \le \frac{y-b}{a}\}$, dividing by the positive $a$. So $F_Y(y) = F_X\!\left(\frac{y-b}{a}\right)$, and differentiating with the chain rule (inner derivative $1/a$):
+$$f_Y(y) = f_X\!\left(\frac{y-b}{a}\right)\cdot\frac1a.$$
+<em>Case $a&lt;0$.</em> Dividing by a negative number flips the inequality: $\{Y\le y\} = \{X \ge \frac{y-b}{a}\}$, so $F_Y(y) = 1 - F_X\!\left(\frac{y-b}{a}\right)$ (the endpoint has probability zero for a continuous $X$). Differentiating:
+$$f_Y(y) = -f_X\!\left(\frac{y-b}{a}\right)\cdot\frac1a = f_X\!\left(\frac{y-b}{a}\right)\cdot\frac{1}{-a}.$$
+Since $1/a$ in the first case and $1/(-a)$ in the second are both $1/|a|$, the two cases combine into the single formula
+$$f_Y(y) = \frac{1}{|a|}f_X\!\left(\frac{y-b}{a}\right). \qquad\blacksquare$$
+The $1/|a|$ is a bookkeeping factor, not an afterthought: stretching the horizontal axis by $|a|$ must squash the height by $|a|$ so the total area stays 1 — exactly what the three curves on the slide (supported on $[-1,2]$, $[-2,4]$ and $[3,9]$ for $a=2$, $b=5$) show.</p>
+<p><b>Part 2 — apply it to a normal $X$</b> (the [UNSOLVED EXAMPLE]). Let $X\sim N(\mu,\sigma^2)$, i.e. $f_X(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/(2\sigma^2)}$. Substitute $x = \frac{y-b}{a}$:
+$$f_Y(y) = \frac{1}{|a|}\cdot\frac{1}{\sigma\sqrt{2\pi}}\exp\!\left(-\frac{\left(\frac{y-b}{a}-\mu\right)^{2}}{2\sigma^{2}}\right).$$
+Clean the exponent by putting the inner expression over $a$:
+$$\frac{y-b}{a}-\mu = \frac{y - b - a\mu}{a} \quad\Longrightarrow\quad \left(\frac{y-b}{a}-\mu\right)^2 = \frac{\big(y-(a\mu+b)\big)^2}{a^2}.$$
+Therefore
+$$f_Y(y) = \frac{1}{|a|\sigma\sqrt{2\pi}}\exp\!\left(-\frac{\big(y-(a\mu+b)\big)^{2}}{2a^{2}\sigma^{2}}\right),$$
+which is precisely the $N\big(a\mu+b,\;a^2\sigma^2\big)$ density (mean $a\mu+b$, standard deviation $|a|\sigma$). So a linear function of a normal is normal, with the mean and variance the linearity rules of G2 already predicted. <b>Check:</b> $\mu=1$, $\sigma=2$, $a=-3$, $b=5$ gives $N(2,36)$, and the two densities agree pointwise to $2.1\times10^{-17}$ over a grid of $200{,}001$ points (computes/g3_s3.py keys <code>I3_*</code>). Note that a <em>negative</em> $a$ still gives a normal — the reflection is invisible because the normal density is symmetric about its mean.</p>
+</div>
+
+<div class="note"><b>Interpretation — all three examples are the same two lines, and the reciprocal is where the surprises live.</b> Every one of Examples 3.8–3.10 runs the L10 slide 6 recipe unchanged: write $\{g(\cdot)\le t\}$ as an event about the <em>original</em> variables, evaluate its probability with what you already know (an area, a uniform CDF, any CDF), then differentiate in $t$. The only skill involved is rewriting the event correctly, and the only place it is delicate is when $g$ is <b>decreasing</b> — dividing by a negative number or inverting a positive one flips $\le$ into $\ge$ (Example 3.9 Step 3, Example 3.10 case $a&lt;0$). Two of the three examples take a reciprocal ($R = Y/X$, $T = 200/V$), and both illustrate the same moral from opposite sides: reciprocals turn a bounded, flat input into a heavy-tailed output, so the derived density inherits a $1/t^2$ tail. When the input can approach $0$ (Example 3.8) that tail reaches to infinity and the mean dies; when it is bounded away from $0$ (Example 3.9, $V\ge30$) the tail is truncated, the mean is finite, but Jensen's inequality still bites: $\mathbb{E}[200/V] = 4.620981 &gt; 200/\mathbb{E}[V] = 4.444444$. The linear case (Example 3.10) is the tame exception — $g(x) = ax+b$ is the one function for which the shape is preserved and $\mathbb{E}[g(X)] = g(\mathbb{E}[X])$ exactly.</div>
+
+<div class="ex"><b>Practice 3.13.</b> Joan's colleague drives a $300$-mile trip at a speed $V$ uniform on $[40,80]$ mph. Find the density of the duration $T = 300/V$, check that it normalizes, and compute $\mathbb{E}[T]$. Compare with $300/\mathbb{E}[V]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 — the prior and the range.</b> $f_V(v) = \frac{1}{80-40} = \frac{1}{40}$ on $[40,80]$. Since $t(v) = 300/v$ is decreasing, $T$ ranges over $\left[\frac{300}{80},\frac{300}{40}\right] = [3.75,\,7.5]$ hours.</p>
+<p><b>Step 2 — the CDF, with the flip.</b> For $3.75\le t\le 7.5$,
+$$F_T(t) = \mathbf{P}\!\left(\frac{300}{V}\le t\right) = \mathbf{P}\!\left(V\ge\frac{300}{t}\right) = \frac{80 - 300/t}{40} = 2 - \frac{300}{40\,t},$$
+the inequality reversing because both sides were multiplied by $V&gt;0$ and divided by $t&gt;0$.</p>
+<p><b>Step 3 — differentiate.</b> Using $\frac{d}{dt}(300t^{-1}) = -300t^{-2}$,
+$$f_T(t) = \frac{300}{40\,t^{2}} = \frac{7.5}{t^{2}}, \qquad 3.75\le t\le 7.5,$$
+and $0$ elsewhere. <b>Check:</b> $\int_{3.75}^{7.5}\frac{7.5}{t^2}dt = 7.5\left(\frac{1}{3.75}-\frac{1}{7.5}\right) = 7.5\cdot\frac{1}{7.5} = 1$ ✓ (numerically $1.000000$).</p>
+<p><b>Step 4 — the mean.</b>
+$$\mathbb{E}[T] = \int_{3.75}^{7.5} t\cdot\frac{7.5}{t^{2}}\,dt = 7.5\big[\ln t\big]_{3.75}^{7.5} = 7.5\ln 2 = 5.198604 \text{ hours},$$
+matching the shortcut $\mathbb{E}[300/V] = \int_{40}^{80}\frac{300}{v}\cdot\frac{dv}{40} = 5.198604$. Meanwhile $300/\mathbb{E}[V] = 300/60 = 5.000000$, so the Jensen gap is $0.198604$ hours — about twelve minutes of driving that the naive "distance over average speed" calculation silently loses. The structure is identical to Example 3.9 (same $\frac{d}{3t^2}$-type density, same $\ln 2$, because both trips double the speed from bottom to top of the range). (computes/g3_s3.py keys <code>I4_*</code>.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.14.</b> Let $X\sim\mathrm{Uniform}[0,2]$ and $Y = 1/X$. Find $f_Y$, verify it integrates to 1, and then try to compute $\mathbb{E}[Y]$. What goes wrong, and what would you report instead?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 — range.</b> $f_X(x) = 1/2$ on $[0,2]$. As $x$ runs over $(0,2]$, $y = 1/x$ runs over $[1/2,\infty)$; the smallest $y$ comes from the largest $x$. So $f_Y$ is supported on $[1/2,\infty)$. (The event $X=0$ has probability $0$ and is discarded.)</p>
+<p><b>Step 2 — CDF, watching the flip.</b> For $y\ge 1/2$,
+$$F_Y(y) = \mathbf{P}\!\left(\frac1X\le y\right) = \mathbf{P}\!\left(X\ge\frac1y\right) = \frac{2 - 1/y}{2} = 1 - \frac{1}{2y},$$
+using the uniform CDF and the fact that $1/y\le2$ exactly when $y\ge1/2$.</p>
+<p><b>Step 3 — differentiate.</b>
+$$f_Y(y) = \frac{d}{dy}\left(1 - \frac{1}{2y}\right) = \frac{1}{2y^{2}}, \qquad y\ge\tfrac12,$$
+and $0$ for $y&lt;1/2$. <b>Check:</b> $\int_{1/2}^{\infty}\frac{dy}{2y^2} = \left[-\frac{1}{2y}\right]_{1/2}^{\infty} = 0 + 1 = 1$ ✓ (numerically $1.000000$).</p>
+<p><b>Step 4 — the mean does not exist.</b>
+$$\mathbb{E}[Y] = \int_{1/2}^{\infty} y\cdot\frac{1}{2y^{2}}\,dy = \int_{1/2}^{\infty}\frac{dy}{2y} = \Big[\tfrac12\ln y\Big]_{1/2}^{\infty} = \infty.$$
+Truncating at $M$ gives $\tfrac12\ln(2M)$, which crawls upward without limit: $1.497866$ at $M=10$, $2.649159$ at $M=100$, $3.800451$ at $M=1000$ — the tell-tale logarithmic creep of a divergent mean. The cause is exactly Example 3.8's: $X$ can be arbitrarily close to $0$, so $1/X$ has a $1/y^2$ tail, and $y\cdot y^{-2} = y^{-1}$ is not integrable at infinity.</p>
+<p><b>What to report instead.</b> A quantile. $F_Y(y) = 1/2$ at $1 - \frac{1}{2y} = \frac12$, i.e. $y = 1.000000$: the median of $Y$ is $1$, a perfectly informative summary that exists whether or not the mean does. Note also that $\mathbb{E}[X] = 1$ here, so "$\mathbb{E}[1/X] = 1/\mathbb{E}[X]$" would have given the finite answer $1$ — a spectacular illustration of why $\mathbb{E}[g(X)]\ne g(\mathbb{E}[X])$: the left side is not merely different, it does not exist. (computes/g3_s3.py keys <code>I5_*</code>.)</p>
+</div></details></div>
+
+<div class="summary"><b>§3 cheatsheet.</b>
+<ul>
+<li><b>One rule:</b> posterior $\propto$ prior $\times$ likelihood. Constants free of the unknown are invisible; the denominator is whatever restores normalization.</li>
+<li><b>The 2×2 grid</b> (L10 slides 2–3): use $p$ for discrete, $f$ for continuous; sum over a discrete unknown, integrate over a continuous one.
+$$p_{X|Y} = \frac{p_X p_{Y|X}}{p_Y},\quad p_{X|Y}=\frac{p_X f_{Y|X}}{f_Y},\quad f_{X|Y} = \frac{f_X p_{Y|X}}{p_Y},\quad f_{X|Y}=\frac{f_X f_{Y|X}}{f_Y}.$$</li>
+<li><b>Why they are legal</b> (§3.2): condition on the strip $\{y\le Y\le y+\delta\}$, use $\mathbf{P}(y\le Y\le y+\delta)\approx f_Y(y)\delta$, and the $\delta$ (and $\varepsilon$) cancel between numerator and denominator.</li>
+<li><b>Shifted-noise likelihood:</b> if $Z = x + W$ given $X=x$ with $W$ independent, then $f_{Z|X}(z\mid x) = f_W(z-x)$ — the noise density recentered at $x$.</li>
+<li><b>(D$\,|\,$D) radar</b> (G1 §2.4): $p_Y(1) = 0.1445$, $\mathbf{P}(\text{plane}\mid\text{blip}) = 0.342561$ from a $0.05$ prior.</li>
+<li><b>(C$\,|\,$C) light bulb</b> (B&amp;T Example 3.19): $\Lambda\sim U[1,3/2]$, $Y\mid\lambda\sim\mathrm{Exp}(\lambda)$ $\Rightarrow$ $f_{\Lambda|Y}(\lambda\mid y) = \dfrac{\lambda y^2 e^{-\lambda y}}{(y+1)e^{-y} - (\frac32y+1)e^{-3y/2}}$ on $[1,3/2]$; at $y=2$ the denominator is $0.103429$ and the posterior mean is $1.225415$ (prior mean $1.25$).</li>
+<li><b>(C$\,|\,$C) Gaussian channel:</b> $X\sim N(0,1)$, $Y=X+W$, $W\sim N(0,\sigma^2)$ $\Rightarrow$ $X\mid\{Y=y\}\sim N\!\left(\frac{y}{1+\sigma^2},\frac{\sigma^2}{1+\sigma^2}\right)$. <b>Precisions add</b>; the posterior mean is a precision-weighted average of the data and the prior mean.</li>
+<li><b>(D$\,|\,$C) rec11 P1:</b> $X=\pm1$ w.p. $p,1-p$; Laplacian noise $\tfrac12\lambda e^{-\lambda|y|}$; $Z=X+Y$. Then
+$$\mathbf{P}(X=1\mid Z=z) = \frac{p}{p+(1-p)e^{-\lambda d(z)}},\qquad d(z) = |z+1|-|z-1| = 2\max(-1,\min(z,1)).$$
+Limits: $\to0$ as $p\to0$; $\to1$ as $p\to1$; $\to p$ as $\lambda\to0$ (flat noise, no information); $\to \mathbf 1\{z&gt;0\}$ as $\lambda\to\infty$.</li>
+<li><b>Detection:</b> MAP threshold $z^* = \frac{1}{2\lambda}\ln\frac{1-p}{p}$ (valid only if $|z^*|\le1$), minimum error probability $e^{-\lambda}\sqrt{p(1-p)}$ — $0.183940$ at $p=1/2,\lambda=1$; $0.062018$ at $p=0.3,\lambda=2$. At the optimum the miss and false-alarm terms are equal.</li>
+<li><b>Heavy vs. light tails</b> (Fig. 3.4): the Laplacian posterior <em>saturates</em> at $p/(p+(1-p)e^{-2\lambda}) = 0.880797$ for $p=1/2,\lambda=1$; the Gaussian posterior $\frac{pe^y}{pe^y+(1-p)e^{-y}}$ (B&amp;T Example 3.20) tends to 1. Heavy tails discount outliers.</li>
+<li><b>(C$\,|\,$D) rec11 P2:</b> prior $6q(1-q) = $ Beta$(2,2)$; one head $\Rightarrow 12q^2(1-q) = $ Beta$(3,2)$ (mean $0.6$); one tail $\Rightarrow 12q(1-q)^2 = $ Beta$(2,3)$ (mean $0.4$); zero outside $[0,1]$. Both normalizers are $p_X(x) = 1/2 = \mathbb{E}[Q]$.</li>
+<li><b>Beta conjugacy:</b> Beta$(a,b)$ prior $+$ $k$ heads in $n$ tosses $\Rightarrow$ Beta$(a+k,\,b+n-k)$. Posterior mean $\frac{a+k}{a+b+n} = w\frac kn + (1-w)\frac{a}{a+b}$ with $w = \frac{n}{n+a+b}$; the prior is worth $a+b$ pseudo-tosses. $n=10,k=7$ from Beta$(2,2)$: Beta$(9,5)$, mean $0.642857$, mode $0.666667$, sd $0.123718$.</li>
+<li><b>(C$\,|\,$D) photon count</b> (L10 slide 3): $X\sim\mathrm{Exp}(1)$, $Y\mid x\sim\mathrm{Poisson}(x)$ $\Rightarrow$ posterior Gamma$(y+1,2)$ with mean $(y+1)/2$, and marginal $p_Y(y) = (1/2)^{y+1}$ — geometric.</li>
+<li><b>Appendix (§3.6, previewing §4):</b> $R=Y/X$ on the unit square has $f_R(r) = 1/2$ on $(0,1)$ and $1/(2r^2)$ on $(1,\infty)$, with $\mathbb{E}[R]=\infty$. Joan: $f_T(t) = \frac{20}{3t^2}$ on $[10/3, 20/3]$, $\mathbb{E}[T] = \frac{20}{3}\ln2 = 4.620981$ h $&gt; 200/\mathbb{E}[V] = 4.444444$ h. Linear map: $f_Y(y) = \frac{1}{|a|}f_X\!\big(\frac{y-b}{a}\big)$, so $aX+b \sim N(a\mu+b, a^2\sigma^2)$ when $X\sim N(\mu,\sigma^2)$.</li>
+</ul>
+All numbers in this section are produced and cross-checked by <code>computes/g3_s3.py</code> (JSON: <code>computes/g3_s3.json</code>); all figures by <code>computes/g3_s3_figs.py</code>. §4 takes up derived distributions and convolution in general.</div>

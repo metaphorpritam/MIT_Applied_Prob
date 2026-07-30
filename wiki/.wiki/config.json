@@ -1,0 +1,12 @@
+{
+  "name": "MIT 6.041 Applied Probability KB",
+  "source_roots": [
+    "../corpus",
+    "../notes",
+    "../transcripts"
+  ],
+  "code_globs": [
+    "**/*.py"
+  ],
+  "created": "2026-07-28T10:43:41+00:00"
+}

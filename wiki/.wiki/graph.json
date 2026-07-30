@@ -1,0 +1,1055 @@
+{
+  "generated": "2026-07-30T11:20:24+00:00",
+  "wiki_dir": "wiki",
+  "pages": 11,
+  "nodes": [
+    {
+      "id": "build-pipeline",
+      "path": "pages/build-pipeline.md",
+      "title": "Build Pipeline",
+      "type": "module",
+      "tags": [
+        "infra"
+      ],
+      "aliases": [
+        "pipeline",
+        "infrastructure",
+        "tooling"
+      ],
+      "status": "active",
+      "sources": [
+        "../transcripts/_manifest.json"
+      ],
+      "code": [
+        "../notes/_build/build_note.py",
+        "../notes/_shared/plot.js",
+        "../notes/_shared/widgets.js",
+        "../notes/_shared/toc.js"
+      ],
+      "headings": [
+        {
+          "line": 18,
+          "text": "Build Pipeline"
+        },
+        {
+          "line": 22,
+          "text": "Layers (all inside `d:\\Python-UV\\MIT_Applied_Prob`)"
+        },
+        {
+          "line": 35,
+          "text": "Assembler contract (`build_note.py`)"
+        },
+        {
+          "line": 44,
+          "text": "Visual verification loop"
+        },
+        {
+          "line": 50,
+          "text": "Book policy (user decision, session 1)"
+        }
+      ],
+      "in_degree": 11,
+      "out_degree": 2
+    },
+    {
+      "id": "course-6041",
+      "path": "pages/course-6041.md",
+      "title": "MIT 6.041 Course",
+      "type": "source",
+      "tags": [
+        "course",
+        "overview"
+      ],
+      "aliases": [
+        "6.041",
+        "6.431",
+        "course",
+        "probabilistic systems analysis"
+      ],
+      "status": "active",
+      "sources": [
+        "../transcripts/_manifest.json"
+      ],
+      "code": [],
+      "headings": [
+        {
+          "line": 13,
+          "text": "MIT 6.041 Course"
+        },
+        {
+          "line": 19,
+          "text": "Materials"
+        },
+        {
+          "line": 26,
+          "text": "Verified lecture topics (from slide 1 of each deck)"
+        },
+        {
+          "line": 37,
+          "text": "Extraction hazards (why we vision-transcribe)"
+        }
+      ],
+      "in_degree": 17,
+      "out_degree": 3
+    },
+    {
+      "id": "index",
+      "path": "index.md",
+      "title": "MIT 6.041 Applied Probability KB Index",
+      "type": "concept",
+      "tags": [
+        "index"
+      ],
+      "aliases": [],
+      "status": "active",
+      "sources": [],
+      "code": [],
+      "headings": [
+        {
+          "line": 8,
+          "text": "MIT 6.041 Applied Probability KB — wiki index"
+        },
+        {
+          "line": 16,
+          "text": "Sources & plans"
+        },
+        {
+          "line": 21,
+          "text": "Modules"
+        },
+        {
+          "line": 25,
+          "text": "Notes (complete)"
+        },
+        {
+          "line": 38,
+          "text": "Conventions"
+        },
+        {
+          "line": 48,
+          "text": "Decisions & open questions"
+        }
+      ],
+      "in_degree": 0,
+      "out_degree": 10
+    },
+    {
+      "id": "note-g1",
+      "path": "pages/note-g1.md",
+      "title": "Note G1 Probability Fundamentals",
+      "type": "concept",
+      "tags": [
+        "notes",
+        "g1"
+      ],
+      "aliases": [
+        "G1"
+      ],
+      "status": "active",
+      "sources": [
+        "../notes/01_probability_basics.html",
+        "../notes/src/fragments/g1_s0.html",
+        "../notes/src/fragments/g1_s1.html",
+        "../notes/src/fragments/g1_s2.html",
+        "../notes/src/fragments/g1_s3.html",
+        "../notes/src/fragments/g1_s4.html",
+        "../notes/src/fragments/g1_s5.html",
+        "../transcripts/_g1_review.json"
+      ],
+      "code": [],
+      "headings": [
+        {
+          "line": 20,
+          "text": "Note G1 Probability Fundamentals"
+        },
+        {
+          "line": 28,
+          "text": "Section map"
+        },
+        {
+          "line": 50,
+          "text": "Widgets"
+        },
+        {
+          "line": 59,
+          "text": "Flagship worked problems"
+        },
+        {
+          "line": 67,
+          "text": "Review stats"
+        },
+        {
+          "line": 75,
+          "text": "Special notes"
+        }
+      ],
+      "in_degree": 5,
+      "out_degree": 7
+    },
+    {
+      "id": "note-g2",
+      "path": "pages/note-g2.md",
+      "title": "Note G2 Discrete Random Variables",
+      "type": "concept",
+      "tags": [
+        "notes",
+        "g2"
+      ],
+      "aliases": [
+        "G2"
+      ],
+      "status": "active",
+      "sources": [
+        "../notes/02_discrete_rvs.html",
+        "../notes/src/fragments/g2_s0.html",
+        "../notes/src/fragments/g2_s1.html",
+        "../notes/src/fragments/g2_s2.html",
+        "../notes/src/fragments/g2_s3.html",
+        "../notes/src/fragments/g2_s4.html",
+        "../notes/src/fragments/g2_s5.html",
+        "../transcripts/_g2_review.json"
+      ],
+      "code": [],
+      "headings": [
+        {
+          "line": 20,
+          "text": "Note G2 Discrete Random Variables"
+        },
+        {
+          "line": 26,
+          "text": "Section map"
+        },
+        {
+          "line": 51,
+          "text": "Widgets"
+        },
+        {
+          "line": 58,
+          "text": "Flagship worked problems"
+        },
+        {
+          "line": 65,
+          "text": "Review stats"
+        },
+        {
+          "line": 72,
+          "text": "Special notes"
+        }
+      ],
+      "in_degree": 5,
+      "out_degree": 9
+    },
+    {
+      "id": "note-g3",
+      "path": "pages/note-g3.md",
+      "title": "Note G3 Continuous Random Variables",
+      "type": "concept",
+      "tags": [
+        "notes",
+        "g3"
+      ],
+      "aliases": [
+        "G3"
+      ],
+      "status": "active",
+      "sources": [
+        "../notes/03_continuous_rvs.html",
+        "../notes/src/fragments/g3_s0.html",
+        "../notes/src/fragments/g3_s1.html",
+        "../notes/src/fragments/g3_s2.html",
+        "../notes/src/fragments/g3_s3.html",
+        "../notes/src/fragments/g3_s4.html",
+        "../notes/src/fragments/g3_s5.html",
+        "../transcripts/_g3_review.json"
+      ],
+      "code": [],
+      "headings": [
+        {
+          "line": 20,
+          "text": "Note G3 Continuous Random Variables"
+        },
+        {
+          "line": 26,
+          "text": "Section map"
+        },
+        {
+          "line": 51,
+          "text": "Widgets"
+        },
+        {
+          "line": 59,
+          "text": "Flagship worked problems"
+        },
+        {
+          "line": 67,
+          "text": "Review stats"
+        },
+        {
+          "line": 75,
+          "text": "Special notes"
+        }
+      ],
+      "in_degree": 5,
+      "out_degree": 9
+    },
+    {
+      "id": "note-g4",
+      "path": "pages/note-g4.md",
+      "title": "Note G4 Iterated Expectations and Arrival Processes",
+      "type": "concept",
+      "tags": [
+        "notes",
+        "g4"
+      ],
+      "aliases": [
+        "G4"
+      ],
+      "status": "active",
+      "sources": [
+        "../notes/04_expectation_processes.html",
+        "../notes/src/fragments/g4_s0.html",
+        "../notes/src/fragments/g4_s1.html",
+        "../notes/src/fragments/g4_s2.html",
+        "../notes/src/fragments/g4_s3.html",
+        "../notes/src/fragments/g4_s4.html",
+        "../notes/src/fragments/g4_s5.html",
+        "../transcripts/_g4_review.json"
+      ],
+      "code": [],
+      "headings": [
+        {
+          "line": 20,
+          "text": "Note G4 Iterated Expectations and Arrival Processes"
+        },
+        {
+          "line": 27,
+          "text": "Section map"
+        },
+        {
+          "line": 48,
+          "text": "Widgets"
+        },
+        {
+          "line": 57,
+          "text": "Flagship worked problems"
+        },
+        {
+          "line": 64,
+          "text": "Review stats"
+        },
+        {
+          "line": 72,
+          "text": "Special notes — the recitation offset"
+        }
+      ],
+      "in_degree": 5,
+      "out_degree": 9
+    },
+    {
+      "id": "note-g5",
+      "path": "pages/note-g5.md",
+      "title": "Note G5 Markov Chains",
+      "type": "concept",
+      "tags": [
+        "notes",
+        "g5"
+      ],
+      "aliases": [
+        "G5"
+      ],
+      "status": "active",
+      "sources": [
+        "../notes/05_markov_chains.html",
+        "../notes/src/fragments/g5_s0.html",
+        "../notes/src/fragments/g5_s1.html",
+        "../notes/src/fragments/g5_s2.html",
+        "../notes/src/fragments/g5_s3.html",
+        "../notes/src/fragments/g5_s4.html",
+        "../notes/src/fragments/g5_s5.html",
+        "../transcripts/_g5_review.json"
+      ],
+      "code": [],
+      "headings": [
+        {
+          "line": 20,
+          "text": "Note G5 Markov Chains"
+        },
+        {
+          "line": 27,
+          "text": "Section map"
+        },
+        {
+          "line": 52,
+          "text": "Widgets"
+        },
+        {
+          "line": 59,
+          "text": "Flagship worked problems"
+        },
+        {
+          "line": 66,
+          "text": "Review stats"
+        },
+        {
+          "line": 76,
+          "text": "Special notes — the rec16/17 checkpoint"
+        }
+      ],
+      "in_degree": 5,
+      "out_degree": 9
+    },
+    {
+      "id": "note-g6",
+      "path": "pages/note-g6.md",
+      "title": "Note G6 Limit Theorems and Bayesian Inference",
+      "type": "concept",
+      "tags": [
+        "notes",
+        "g6"
+      ],
+      "aliases": [
+        "G6"
+      ],
+      "status": "active",
+      "sources": [
+        "../notes/06_limits_bayesian.html",
+        "../notes/src/fragments/g6_s0.html",
+        "../notes/src/fragments/g6_s1.html",
+        "../notes/src/fragments/g6_s2.html",
+        "../notes/src/fragments/g6_s3.html",
+        "../notes/src/fragments/g6_s4.html",
+        "../notes/src/fragments/g6_s5.html"
+      ],
+      "code": [],
+      "headings": [
+        {
+          "line": 19,
+          "text": "Note G6 Limit Theorems and Bayesian Inference"
+        },
+        {
+          "line": 26,
+          "text": "Section map"
+        },
+        {
+          "line": 50,
+          "text": "Widgets"
+        },
+        {
+          "line": 57,
+          "text": "Flagship worked problems"
+        },
+        {
+          "line": 64,
+          "text": "Review stats"
+        },
+        {
+          "line": 74,
+          "text": "Special notes"
+        }
+      ],
+      "in_degree": 5,
+      "out_degree": 9
+    },
+    {
+      "id": "note-g7",
+      "path": "pages/note-g7.md",
+      "title": "Note G7 Classical Statistical Inference",
+      "type": "concept",
+      "tags": [
+        "notes",
+        "g7"
+      ],
+      "aliases": [
+        "G7"
+      ],
+      "status": "active",
+      "sources": [
+        "../notes/07_classical_inference.html",
+        "../notes/src/fragments/g7_s0.html",
+        "../notes/src/fragments/g7_s1.html",
+        "../notes/src/fragments/g7_s2.html",
+        "../notes/src/fragments/g7_s3.html",
+        "../notes/src/fragments/g7_s4.html",
+        "../notes/src/fragments/g7_s5.html",
+        "../transcripts/_g7_review.json"
+      ],
+      "code": [],
+      "headings": [
+        {
+          "line": 20,
+          "text": "Note G7 Classical Statistical Inference"
+        },
+        {
+          "line": 26,
+          "text": "Section map"
+        },
+        {
+          "line": 55,
+          "text": "Widgets"
+        },
+        {
+          "line": 62,
+          "text": "Flagship worked problems"
+        },
+        {
+          "line": 71,
+          "text": "Review stats"
+        },
+        {
+          "line": 87,
+          "text": "Special notes — OCR-mangled sources"
+        }
+      ],
+      "in_degree": 3,
+      "out_degree": 9
+    },
+    {
+      "id": "notes-plan",
+      "path": "pages/notes-plan.md",
+      "title": "Notes Plan",
+      "type": "decision",
+      "tags": [
+        "plan",
+        "tracking"
+      ],
+      "aliases": [
+        "topic groups",
+        "group plan",
+        "html notes plan"
+      ],
+      "status": "active",
+      "sources": [],
+      "code": [],
+      "headings": [
+        {
+          "line": 11,
+          "text": "Notes Plan"
+        },
+        {
+          "line": 27,
+          "text": "Per-note quality contract (user requirements)"
+        },
+        {
+          "line": 38,
+          "text": "Pipeline per note (settled in session 1)"
+        }
+      ],
+      "in_degree": 17,
+      "out_degree": 2
+    }
+  ],
+  "edges": [
+    {
+      "src": "build-pipeline",
+      "dst": "course-6041",
+      "type": "relates",
+      "line": 15
+    },
+    {
+      "src": "build-pipeline",
+      "dst": "notes-plan",
+      "type": "relates",
+      "line": 15
+    },
+    {
+      "src": "course-6041",
+      "dst": "build-pipeline",
+      "type": "mentions",
+      "line": 43
+    },
+    {
+      "src": "course-6041",
+      "dst": "build-pipeline",
+      "type": "relates",
+      "line": 10
+    },
+    {
+      "src": "course-6041",
+      "dst": "notes-plan",
+      "type": "relates",
+      "line": 10
+    },
+    {
+      "src": "index",
+      "dst": "build-pipeline",
+      "type": "mentions",
+      "line": 23
+    },
+    {
+      "src": "index",
+      "dst": "course-6041",
+      "type": "mentions",
+      "line": 18
+    },
+    {
+      "src": "index",
+      "dst": "note-g1",
+      "type": "mentions",
+      "line": 30
+    },
+    {
+      "src": "index",
+      "dst": "note-g2",
+      "type": "mentions",
+      "line": 31
+    },
+    {
+      "src": "index",
+      "dst": "note-g3",
+      "type": "mentions",
+      "line": 32
+    },
+    {
+      "src": "index",
+      "dst": "note-g4",
+      "type": "mentions",
+      "line": 33
+    },
+    {
+      "src": "index",
+      "dst": "note-g5",
+      "type": "mentions",
+      "line": 34
+    },
+    {
+      "src": "index",
+      "dst": "note-g6",
+      "type": "mentions",
+      "line": 35
+    },
+    {
+      "src": "index",
+      "dst": "note-g7",
+      "type": "mentions",
+      "line": 36
+    },
+    {
+      "src": "index",
+      "dst": "notes-plan",
+      "type": "mentions",
+      "line": 19
+    },
+    {
+      "src": "note-g1",
+      "dst": "build-pipeline",
+      "type": "mentions",
+      "line": 26
+    },
+    {
+      "src": "note-g1",
+      "dst": "course-6041",
+      "type": "mentions",
+      "line": 23
+    },
+    {
+      "src": "note-g1",
+      "dst": "course-6041",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g1",
+      "dst": "note-g2",
+      "type": "mentions",
+      "line": 80
+    },
+    {
+      "src": "note-g1",
+      "dst": "note-g2",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g1",
+      "dst": "notes-plan",
+      "type": "mentions",
+      "line": 25
+    },
+    {
+      "src": "note-g1",
+      "dst": "notes-plan",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g2",
+      "dst": "build-pipeline",
+      "type": "mentions",
+      "line": 24
+    },
+    {
+      "src": "note-g2",
+      "dst": "course-6041",
+      "type": "mentions",
+      "line": 23
+    },
+    {
+      "src": "note-g2",
+      "dst": "course-6041",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g2",
+      "dst": "note-g1",
+      "type": "mentions",
+      "line": 70
+    },
+    {
+      "src": "note-g2",
+      "dst": "note-g1",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g2",
+      "dst": "note-g3",
+      "type": "mentions",
+      "line": 81
+    },
+    {
+      "src": "note-g2",
+      "dst": "note-g3",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g2",
+      "dst": "notes-plan",
+      "type": "mentions",
+      "line": 24
+    },
+    {
+      "src": "note-g2",
+      "dst": "notes-plan",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g3",
+      "dst": "build-pipeline",
+      "type": "mentions",
+      "line": 24
+    },
+    {
+      "src": "note-g3",
+      "dst": "course-6041",
+      "type": "mentions",
+      "line": 23
+    },
+    {
+      "src": "note-g3",
+      "dst": "course-6041",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g3",
+      "dst": "note-g2",
+      "type": "mentions",
+      "line": 82
+    },
+    {
+      "src": "note-g3",
+      "dst": "note-g2",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g3",
+      "dst": "note-g4",
+      "type": "mentions",
+      "line": 83
+    },
+    {
+      "src": "note-g3",
+      "dst": "note-g4",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g3",
+      "dst": "notes-plan",
+      "type": "mentions",
+      "line": 24
+    },
+    {
+      "src": "note-g3",
+      "dst": "notes-plan",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g4",
+      "dst": "build-pipeline",
+      "type": "mentions",
+      "line": 25
+    },
+    {
+      "src": "note-g4",
+      "dst": "course-6041",
+      "type": "mentions",
+      "line": 24
+    },
+    {
+      "src": "note-g4",
+      "dst": "course-6041",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g4",
+      "dst": "note-g3",
+      "type": "mentions",
+      "line": 82
+    },
+    {
+      "src": "note-g4",
+      "dst": "note-g3",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g4",
+      "dst": "note-g5",
+      "type": "mentions",
+      "line": 82
+    },
+    {
+      "src": "note-g4",
+      "dst": "note-g5",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g4",
+      "dst": "notes-plan",
+      "type": "mentions",
+      "line": 25
+    },
+    {
+      "src": "note-g4",
+      "dst": "notes-plan",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g5",
+      "dst": "build-pipeline",
+      "type": "mentions",
+      "line": 25
+    },
+    {
+      "src": "note-g5",
+      "dst": "course-6041",
+      "type": "mentions",
+      "line": 23
+    },
+    {
+      "src": "note-g5",
+      "dst": "course-6041",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g5",
+      "dst": "note-g4",
+      "type": "mentions",
+      "line": 79
+    },
+    {
+      "src": "note-g5",
+      "dst": "note-g4",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g5",
+      "dst": "note-g6",
+      "type": "mentions",
+      "line": 86
+    },
+    {
+      "src": "note-g5",
+      "dst": "note-g6",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g5",
+      "dst": "notes-plan",
+      "type": "mentions",
+      "line": 24
+    },
+    {
+      "src": "note-g5",
+      "dst": "notes-plan",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g6",
+      "dst": "build-pipeline",
+      "type": "mentions",
+      "line": 24
+    },
+    {
+      "src": "note-g6",
+      "dst": "course-6041",
+      "type": "mentions",
+      "line": 22
+    },
+    {
+      "src": "note-g6",
+      "dst": "course-6041",
+      "type": "relates",
+      "line": 16
+    },
+    {
+      "src": "note-g6",
+      "dst": "note-g5",
+      "type": "mentions",
+      "line": 81
+    },
+    {
+      "src": "note-g6",
+      "dst": "note-g5",
+      "type": "relates",
+      "line": 16
+    },
+    {
+      "src": "note-g6",
+      "dst": "note-g7",
+      "type": "mentions",
+      "line": 82
+    },
+    {
+      "src": "note-g6",
+      "dst": "note-g7",
+      "type": "relates",
+      "line": 16
+    },
+    {
+      "src": "note-g6",
+      "dst": "notes-plan",
+      "type": "mentions",
+      "line": 24
+    },
+    {
+      "src": "note-g6",
+      "dst": "notes-plan",
+      "type": "relates",
+      "line": 16
+    },
+    {
+      "src": "note-g7",
+      "dst": "build-pipeline",
+      "type": "mentions",
+      "line": 24
+    },
+    {
+      "src": "note-g7",
+      "dst": "course-6041",
+      "type": "mentions",
+      "line": 23
+    },
+    {
+      "src": "note-g7",
+      "dst": "course-6041",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g7",
+      "dst": "note-g1",
+      "type": "mentions",
+      "line": 102
+    },
+    {
+      "src": "note-g7",
+      "dst": "note-g1",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g7",
+      "dst": "note-g6",
+      "type": "mentions",
+      "line": 101
+    },
+    {
+      "src": "note-g7",
+      "dst": "note-g6",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "note-g7",
+      "dst": "notes-plan",
+      "type": "mentions",
+      "line": 24
+    },
+    {
+      "src": "note-g7",
+      "dst": "notes-plan",
+      "type": "relates",
+      "line": 17
+    },
+    {
+      "src": "notes-plan",
+      "dst": "build-pipeline",
+      "type": "relates",
+      "line": 8
+    },
+    {
+      "src": "notes-plan",
+      "dst": "course-6041",
+      "type": "relates",
+      "line": 8
+    }
+  ],
+  "unresolved": [],
+  "duplicates": [],
+  "title_index": {
+    "mit 6.041 applied probability kb index": "index",
+    "index": "index",
+    "build pipeline": "build-pipeline",
+    "build-pipeline": "build-pipeline",
+    "pipeline": "build-pipeline",
+    "infrastructure": "build-pipeline",
+    "tooling": "build-pipeline",
+    "mit 6.041 course": "course-6041",
+    "course-6041": "course-6041",
+    "6.041": "course-6041",
+    "6.431": "course-6041",
+    "course": "course-6041",
+    "probabilistic systems analysis": "course-6041",
+    "note g1 probability fundamentals": "note-g1",
+    "note-g1": "note-g1",
+    "g1": "note-g1",
+    "note g2 discrete random variables": "note-g2",
+    "note-g2": "note-g2",
+    "g2": "note-g2",
+    "note g3 continuous random variables": "note-g3",
+    "note-g3": "note-g3",
+    "g3": "note-g3",
+    "note g4 iterated expectations and arrival processes": "note-g4",
+    "note-g4": "note-g4",
+    "g4": "note-g4",
+    "note g5 markov chains": "note-g5",
+    "note-g5": "note-g5",
+    "g5": "note-g5",
+    "note g6 limit theorems and bayesian inference": "note-g6",
+    "note-g6": "note-g6",
+    "g6": "note-g6",
+    "note g7 classical statistical inference": "note-g7",
+    "note-g7": "note-g7",
+    "g7": "note-g7",
+    "notes plan": "notes-plan",
+    "notes-plan": "notes-plan",
+    "topic groups": "notes-plan",
+    "group plan": "notes-plan",
+    "html notes plan": "notes-plan"
+  },
+  "warnings": []
+}

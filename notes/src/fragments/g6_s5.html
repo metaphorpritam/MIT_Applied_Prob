@@ -1,0 +1,672 @@
+<h2 id="g6-s5">§5 &nbsp; Synthesis: one page of tools, five gotchas, and the bridge to classical inference</h2>
+<p class="srcref">Sources: L19 slides 2, 4–6, 8 · L20 slides 2, 4, 6–7 · L21 slides 2–5 · L22 slides 1, 4–6, 8–9 (the slides the two master tables summarize) · B&amp;T §5.1–5.4 and §8.1–8.4, with the bridge pointing at §9.1. Every number on this page is recomputed in <code>computes/g6_s5.py</code> (exact <code>Fraction</code> arithmetic where the answer is rational, <code>scipy.stats</code> for the exact binomial and Beta quantities, a four-million-draw Monte-Carlo cross-check on the estimation example) and the three figures by <code>computes/g6_s5_figs.py</code>.</p>
+
+<p>G6 covered two apparently unrelated stories. §1–§2 asked what happens to a sum or an average of
+many independent pieces, and answered with a ladder of tools — Markov, Chebyshev, the weak law,
+the central limit theorem — each buying a sharper statement with a stronger hypothesis. §3–§4
+asked how to turn an observation into a statement about an unknown quantity, and answered with the
+posterior distribution and three ways to collapse it to a single number. This section puts each
+story on one page, then says what the two have in common: both are machinery for converting <em>what
+you know</em> into <em>what you may claim</em>, and in both the fatal error is claiming more than
+your hypotheses bought.</p>
+
+<h3>5.1 The inequality-and-limit table</h3>
+
+<p>Fix the notation once, since all four rows share it. $X$ is a random variable with mean
+$\mu=\mathbb{E}[X]$ and variance $\sigma^2=\operatorname{var}(X)$, both assumed finite;
+$X_1,X_2,\dots$ are i.i.d. copies of $X$; $S_n=X_1+\cdots+X_n$ is their sum, with
+$\mathbb{E}[S_n]=n\mu$ and $\operatorname{var}(S_n)=n\sigma^2$ (independence, so variances add);
+$M_n=S_n/n$ is the sample mean, with $\mathbb{E}[M_n]=\mu$ and $\operatorname{var}(M_n)=\sigma^2/n$;
+$Z_n=(S_n-n\mu)/(\sigma\sqrt n)$ is the standardized sum, with mean $0$ and variance $1$ for every
+$n$; $\Phi$ is the standard normal CDF; $a$, $c$ and $\epsilon$ are positive constants chosen by
+you.</p>
+
+<table>
+<thead>
+<tr><th class="l">Tool</th><th class="l">Statement</th><th class="l">What it needs</th><th class="l">What it gives</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td class="l"><b>Markov</b></td>
+  <td class="l">$\mathbf{P}(X\ge a)\le \dfrac{\mathbb{E}[X]}{a}$ for $a&gt;0$</td>
+  <td class="l">$X\ge 0$ and the mean. Nothing else — no variance, no shape.</td>
+  <td class="l">A bound, true for every distribution meeting the hypothesis. Usually very loose.</td>
+  <td class="l">§1; B&amp;T §5.1 (Markov is on no L19 slide)</td>
+</tr>
+<tr>
+  <td class="l"><b>Chebyshev</b></td>
+  <td class="l">$\mathbf{P}(|X-\mu|\ge c)\le \dfrac{\sigma^2}{c^2}$; with $c=k\sigma$, $\le 1/k^2$</td>
+  <td class="l">Mean and variance. $X$ may take either sign.</td>
+  <td class="l">A two-sided bound. Beats Markov once you are several $\sigma$ out, still loose.</td>
+  <td class="l">L19 slide 2; §1; B&amp;T §5.1</td>
+</tr>
+<tr>
+  <td class="l"><b>Weak law (WLLN)</b></td>
+  <td class="l">$\mathbf{P}(|M_n-\mu|\ge\epsilon)\le\dfrac{\sigma^2}{n\epsilon^2}\to 0$ for every fixed $\epsilon&gt;0$</td>
+  <td class="l">I.i.d. terms, finite mean and variance. (Finite mean alone suffices, but then you lose the rate.)</td>
+  <td class="l">Convergence in probability of the sample mean, <em>plus</em> an explicit $n$ that meets a stated tolerance.</td>
+  <td class="l">L19 slide 5; §1; B&amp;T §5.2–5.3</td>
+</tr>
+<tr>
+  <td class="l"><b>Central limit theorem</b></td>
+  <td class="l">$\mathbf{P}(Z_n\le c)\to\Phi(c)$ for every $c$; in practice $\mathbf{P}(S_n\le s)\approx\Phi\!\big(\tfrac{s-n\mu}{\sigma\sqrt n}\big)$</td>
+  <td class="l">I.i.d. terms, finite variance, $n$ large. Only $\mu$ and $\sigma$ of the summands matter.</td>
+  <td class="l">A <em>number</em>, not a bound — an approximation to a CDF, with no error guarantee attached.</td>
+  <td class="l">L19 slide 8, L20 slide 2; §2; B&amp;T §5.4</td>
+</tr>
+</tbody>
+</table>
+
+<p>Read the table down the "what it needs" column and the ladder is obvious: each row assumes
+strictly more than the row above and returns a strictly sharper statement. Markov knows only the
+mean; Chebyshev adds the variance; the weak law adds independence and identical distribution; the
+CLT adds a large $n$ and, in exchange for giving up the guarantee, hands back an actual number.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g6_s5_whichbound}}" alt="Decision flowchart: a guarantee valid for every n leads to Markov, Chebyshev or the weak law; a number for large n leads to the central limit theorem" style="max-width:900px">
+<div class="figcap">Fig. 5.1 — Which inequality or limit theorem? The single question that decides it is whether you owe a guarantee or a number (L19 slides 2, 5; L20 slide 2; B&amp;T §5.1–5.4).</div>
+
+<div class="recipe"><b>Recipe — picking a tool for a tail probability (L19 slides 2, 5; L20 slide 2).</b>
+<ol>
+<li><b>Ask what the answer is for.</b> A promise to a client ("the error will not exceed…") must be
+a bound; a design number ("how many samples do I buy?") can be either; a reported probability is
+almost always the CLT.</li>
+<li><b>Check the hypotheses you actually have.</b> Only a mean, and $X\ge0$? Markov is the only legal
+move. Mean and variance? Chebyshev. Also i.i.d. and a sample mean? Weak law. Also $n$ large?
+CLT.</li>
+<li><b>If the quantity is a sample mean, write $\operatorname{var}(M_n)=\sigma^2/n$ first.</b> Every
+WLLN computation is Chebyshev applied to $M_n$ with that variance; there is no second idea.</li>
+<li><b>Bound the unknown variance if you must.</b> For a Bernoulli$(f)$ poll, $\sigma^2=f(1-f)\le
+1/4$, attained at $f=1/2$; using $1/4$ keeps the bound valid whatever $f$ turns out to be
+(L19 slide 6).</li>
+<li><b>Standardize before using a table.</b> Subtract the mean, divide by the standard deviation,
+then and only then read $\Phi$. For an integer-valued $S_n$, apply the $\tfrac12$ correction
+(§2; L20 slide 6).</li>
+<li><b>Sanity-check the output.</b> A "probability" above 1 means the bound is vacuous, not wrong —
+report it as "no useful bound" rather than as an answer.</li>
+</ol></div>
+
+<div class="ex"><b>Example 5.1 (the same tail, four ways — L19 slide 2; B&amp;T §5.1).</b>
+Let $X$ be exponential with parameter $\lambda=1$, so $\mu=1$ and $\sigma=1$. Bound and then compute
+$\mathbf{P}(X\ge 4)$ with each tool in the table, and say what the comparison teaches.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Markov.</b> $X\ge 0$ and $\mathbb{E}[X]=1$, so with $a=4$,
+$$\mathbf{P}(X\ge 4)\le\frac{\mathbb{E}[X]}{4}=\frac{1}{4}=0.25 .$$</p>
+<p><b>Chebyshev.</b> The event $\{X\ge4\}$ is contained in $\{|X-\mu|\ge 3\}$, because $X\ge4$ forces
+$X-1\ge3$. Monotonicity of probability then lets us bound the smaller event by the larger one, and
+with $\sigma^2=1$, $c=3$:
+$$\mathbf{P}(X\ge 4)\le\mathbf{P}(|X-1|\ge 3)\le\frac{\sigma^2}{c^2}=\frac{1}{9}=0.111111 .$$</p>
+<p><b>Exact.</b> The exponential survival function gives
+$$\mathbf{P}(X\ge 4)=e^{-4}=0.01831564 .$$</p>
+<p><b>Reading the three.</b> Markov overstates the truth by a factor
+$0.25/0.01831564=13.6$, Chebyshev by $0.111111/0.01831564=6.1$. Push out to $a=10$ and the
+overstatement becomes $2203\times$ and $272\times$ respectively (Figure 5.2, left): <em>bounds
+degrade in the far tail, exactly where you most want them.</em> There is no CLT row here, because
+$X$ is a single random variable and not a sum — the CLT has nothing to say about it. That is the
+point of the flowchart: the CLT is not "a better Chebyshev", it answers a different question.</p>
+<p><b>Why the bounds cannot be improved.</b> Neither inequality is sloppy; both are <em>tight</em>
+over the class of distributions satisfying their hypotheses. For Markov, take $X=a$ with
+probability $\mu/a$ and $X=0$ otherwise: the mean is $a\cdot(\mu/a)+0=\mu$ as required, and
+$\mathbf{P}(X\ge a)=\mu/a$ exactly — at $a=4,\mu=1$ that is $0.25$, the bound. For Chebyshev with
+$k=2$, take $X=\pm 2\sigma$ each with probability $1/(2k^2)=0.125$ and $X=0$ with probability
+$1-1/k^2=0.75$: the mean is $0$ by symmetry, the variance is
+$\mathbb{E}[X^2]=2(0.125)(2\sigma)^2+0.75(0)^2=\sigma^2$ &mdash; verified as $1.0$ in the computes
+for $\sigma=1$ — and $\mathbf{P}(|X|\ge2\sigma)=2(0.125)=0.25=1/k^2$ exactly. The looseness
+you see on the exponential is the price of a statement that must also cover these two adversaries.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Example 5.2 (the pollster, priced twice — L19 slide 6, L20 slide 4; B&amp;T §5.2, §5.4).</b>
+A fraction $f$ of the population answers yes. You poll $n$ people independently, $X_i=1$ for yes and
+$0$ for no, and report $M_n=(X_1+\cdots+X_n)/n$. You want
+$\mathbf{P}(|M_n-f|\ge 0.01)\le 0.05$ — one percentage point of error, ninety-five percent
+confidence. How large must $n$ be, by Chebyshev and by the CLT?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $\mathbb{E}[X_i]=f$ and $\operatorname{var}(X_i)=f(1-f)$, which is at most
+$1/4=0.25$ over $f\in[0,1]$ (the parabola peaks at $f=1/2$). Since $f$ is precisely what you do not
+know, use the worst case $\sigma^2=1/4$; this only makes the requirement more conservative.
+Then $\operatorname{var}(M_n)=\sigma^2/n\le 1/(4n)$.</p>
+<p><b>Chebyshev route.</b> With $\epsilon=0.01$,
+$$\mathbf{P}(|M_n-f|\ge 0.01)\le\frac{\operatorname{var}(M_n)}{\epsilon^2}
+=\frac{1/(4n)}{(0.01)^2}=\frac{1}{4n(0.0001)}=\frac{2500}{n}.$$
+Demanding $2500/n\le 0.05$ gives $n\ge 2500/0.05=50000$. Check at that value: the bound is
+$2500/50000=0.05$ exactly ✓, while at $n=10000$ it is $2500/10000=0.25$ — five times the tolerance,
+so ten thousand respondents provably will not do <em>by this argument</em>.</p>
+<p><b>CLT route.</b> Standardize. $M_n-f$ has standard deviation $\sigma/\sqrt n$, so
+$$\mathbf{P}(|M_n-f|\ge 0.01)=\mathbf{P}\!\left(\frac{|M_n-f|}{\sigma/\sqrt n}\ge
+\frac{0.01\sqrt n}{\sigma}\right)\approx\mathbf{P}\!\left(|Z|\ge\frac{0.01\sqrt n}{\sigma}\right)
+=2\Big(1-\Phi\big(\tfrac{0.01\sqrt n}{\sigma}\big)\Big),$$
+using the symmetry of the normal in the last step. Setting this equal to $0.05$ requires
+$0.01\sqrt n/\sigma=z_{0.975}=1.959964$, the $97.5$th standard normal percentile. With
+$\sigma=1/2$,
+$$\sqrt n=\frac{1.959964\times 0.5}{0.01}=97.998,\qquad n=9603.647\ \Rightarrow\ n=9604 .$$</p>
+<p><b>The gap.</b> $50000/9604=5.21$. Chebyshev charges you five times as many respondents for the
+same promise (Figure 5.2, right). Worse — or better, depending on your budget — a poll of $50000$
+people actually achieves, by the CLT, an error probability of about
+$7.74\times 10^{-6}$, not $0.05$: the Chebyshev-sized poll is roughly six thousand times more
+accurate than its own guarantee claims. <b>Neither number is wrong.</b> Chebyshev's is a theorem
+about all distributions with variance $\le 1/4$; the CLT's is an approximation that exploits the
+extra fact that $M_n$ is a normalized sum and is therefore nearly normal. You pay for certainty
+with sample size.</p>
+</div></details>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g6_s5_tightness}}" alt="Left: log-scale plot of Markov and Chebyshev bounds against the exact exponential tail. Right: bar chart comparing the 50000-respondent Chebyshev poll with the 9604-respondent CLT poll" style="max-width:900px">
+<div class="figcap">Fig. 5.2 — What looseness costs. Left: on $X\sim\text{Exp}(1)$ both bounds sit far above the truth and the gap widens in the tail (Example 5.1). Right: the same $\pm1\%$, $95\%$ promise priced by Chebyshev and by the CLT (Example 5.2; L19 slide 6, L20 slide 4). Numbers from <code>computes/g6_s5.py</code>.</div>
+
+<div class="note"><b>Interpretation — a bound and an approximation are different products.</b> A bound
+is a contract: it is never violated, it holds for the worst distribution consistent with your
+hypotheses, and it is therefore priced for that worst case. An approximation is a forecast: it is
+usually excellent, it comes with no promise, and it can fail badly when its own hypotheses (many
+terms, comparable sizes, finite variance) are strained. Engineering practice uses both — the CLT to
+choose $n$, Chebyshev to state what you can defend if challenged.</div>
+
+<div class="ex"><b>Practice 5.1.</b> A repair time $X$ is nonnegative with mean $\mathbb{E}[X]=10$
+minutes and variance $\operatorname{var}(X)=25$; nothing else about its distribution is known.
+Bound $\mathbf{P}(X\ge 40)$ by Markov and by Chebyshev, and say which hypothesis buys the
+improvement.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Markov.</b> $X\ge0$ and the mean is $10$, so with $a=40$,
+$$\mathbf{P}(X\ge 40)\le\frac{\mathbb{E}[X]}{40}=\frac{10}{40}=0.25 .$$</p>
+<p><b>Chebyshev.</b> Chebyshev bounds a two-sided event, so first embed the one-sided event:
+$X\ge40$ forces $X-10\ge30$, hence $\{X\ge40\}\subseteq\{|X-10|\ge30\}$ and monotonicity of
+probability gives
+$$\mathbf{P}(X\ge 40)\le\mathbf{P}(|X-10|\ge 30)\le\frac{\operatorname{var}(X)}{30^2}
+=\frac{25}{900}=0.027778 .$$</p>
+<p><b>Comparison.</b> Chebyshev is $0.25/0.027778=9.0$ times tighter, and the extra hypothesis
+paying for it is exactly one number — the variance. With the mean alone Markov is the only legal
+move (§1); with mean and variance you should always take Chebyshev. Note that both are still
+"at most" statements: the true probability could be anything from $0$ to $0.027778$.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 5.2.</b> You average $n$ i.i.d. measurements of an unknown constant. Each
+has variance $\sigma^2=4$. You want $\mathbf{P}(|M_n-\mu|\ge 0.5)\le 0.01$. Find $n$ by the weak
+law (Chebyshev) and by the CLT, and then check what Chebyshev says about the CLT's $n$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Chebyshev / WLLN route.</b> $\operatorname{var}(M_n)=\sigma^2/n=4/n$, so
+$$\mathbf{P}(|M_n-\mu|\ge 0.5)\le\frac{\sigma^2}{n\epsilon^2}=\frac{4}{n(0.25)}=\frac{16}{n},$$
+and $16/n\le0.01$ requires $n\ge 16/0.01=1600$.</p>
+<p><b>CLT route.</b> Standardizing, $\mathbf{P}(|M_n-\mu|\ge\epsilon)\approx
+2\big(1-\Phi(\epsilon\sqrt n/\sigma)\big)$; setting this to $0.01$ needs
+$\epsilon\sqrt n/\sigma=z_{0.995}=2.575829$, so
+$$\sqrt n=\frac{2.575829\times 2}{0.5}=10.303,\qquad n=106.158\ \Rightarrow\ n=107 .$$</p>
+<p><b>The check.</b> $1600/107=14.95$: the guarantee costs fifteen times the data. And at
+$n=107$ the Chebyshev bound is $16/107=0.149533$ — fifteen times the tolerance, so Chebyshev
+cannot certify the CLT's sample size even though the CLT's answer is, for any remotely normal-ish
+summand, correct. This is the pollster of Example 5.2 in miniature: the ratio is not a fixed
+$5.21$, it depends on the confidence level demanded (here $99\%$ rather than $95\%$, and the
+Chebyshev penalty grows as the tail requirement tightens, because $1/\delta$ grows faster than
+$z_{1-\delta/2}^2$).</p>
+</div></details>
+</div>
+
+<h3>5.2 The Bayesian-estimation table</h3>
+
+<p>Again fix the notation. $\Theta$ is the unknown, treated as a random variable with prior
+$p_\Theta$ (discrete) or $f_\Theta$ (continuous) — this is what makes the framework Bayesian.
+$X$ is the observation, linked to $\Theta$ by the model $p_{X|\Theta}$ or $f_{X|\Theta}$;
+$x$ is the value actually seen. $\hat\Theta=g(X)$ is an estimator, a rule turning data into a
+guess, and $\hat\theta=g(x)$ is the resulting estimate, a number. $\tilde\Theta=\hat\Theta-\Theta$
+is the estimation error. All four rows below are read off the same posterior, so the row you pick
+is a choice of <em>what to report</em>, not a choice of model.</p>
+
+<table>
+<thead>
+<tr><th class="l">Object</th><th class="l">Formula</th><th class="l">What it needs</th><th class="l">What it optimizes / gives</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td class="l"><b>Posterior</b></td>
+  <td class="l">$f_{\Theta|X}(\theta|x)=\dfrac{f_\Theta(\theta)\,f_{X|\Theta}(x|\theta)}{f_X(x)}$, &nbsp; $f_X(x)=\displaystyle\int f_\Theta(\theta)f_{X|\Theta}(x|\theta)\,d\theta$ (and the three discrete/mixed variants)</td>
+  <td class="l">Prior and observation model; the ability to do the normalizing sum or integral.</td>
+  <td class="l">Everything. It is the complete answer; each row below is a summary of it.</td>
+  <td class="l">L21 slides 3–4; §3; B&amp;T §8.1</td>
+</tr>
+<tr>
+  <td class="l"><b>MAP estimate</b></td>
+  <td class="l">$\hat\theta_{\text{MAP}}=\arg\max_\theta f_{\Theta|X}(\theta|x)$ — equivalently $\arg\max_\theta f_\Theta(\theta)f_{X|\Theta}(x|\theta)$, since $f_X(x)$ does not depend on $\theta$</td>
+  <td class="l">The posterior up to a constant only. No integration needed.</td>
+  <td class="l">Minimizes $\mathbf{P}(\hat\Theta\neq\Theta)$ when $\Theta$ is discrete — the natural choice for hypothesis testing.</td>
+  <td class="l">L21 slide 5, L22 slide 1; §3; B&amp;T §8.2</td>
+</tr>
+<tr>
+  <td class="l"><b>LMS estimate</b></td>
+  <td class="l">$\hat\Theta=\mathbb{E}[\Theta\mid X]$; for each $x$, $\hat\theta=\mathbb{E}[\Theta\mid X=x]$</td>
+  <td class="l">The full posterior, and one integration against it.</td>
+  <td class="l">Minimizes $\mathbb{E}[(\Theta-g(X))^2]$ over <em>all</em> functions $g$. Resulting MSE $=\mathbb{E}[\operatorname{var}(\Theta\mid X)]$.</td>
+  <td class="l">L21 slides 6–7, L22 slide 1; §4; B&amp;T §8.3</td>
+</tr>
+<tr>
+  <td class="l"><b>Linear LMS</b></td>
+  <td class="l">$\hat\Theta_L=\mathbb{E}[\Theta]+\dfrac{\operatorname{cov}(X,\Theta)}{\operatorname{var}(X)}\big(X-\mathbb{E}[X]\big)$</td>
+  <td class="l">Five numbers: $\mathbb{E}[\Theta],\mathbb{E}[X],\operatorname{var}(X),\operatorname{cov}(X,\Theta)$ for the estimator itself, plus $\operatorname{var}(\Theta)$ to report its MSE. No posterior, no integral.</td>
+  <td class="l">Minimizes $\mathbb{E}[(\Theta-aX-b)^2]$ over $a,b$. Resulting MSE $=(1-\rho^2)\operatorname{var}(\Theta)$, where $\rho$ is the correlation coefficient.</td>
+  <td class="l">L22 slides 5–6; §4; B&amp;T §8.4</td>
+</tr>
+</tbody>
+</table>
+
+<p>Two structural remarks tie the rows together. First, the error decomposition
+$\operatorname{var}(\Theta)=\operatorname{var}(\hat\Theta)+\operatorname{var}(\tilde\Theta)$
+(L22 slide 4) says the prior variance splits into the part the data explained and the part left over —
+so the MSE of the LMS estimator can never exceed $\operatorname{var}(\Theta)$, the MSE of ignoring
+the data and reporting $\mathbb{E}[\Theta]$. Second, the linear-LMS MSE formula
+$(1-\rho^2)\operatorname{var}(\Theta)$ makes the same statement quantitatively for the restricted
+class: $\rho^2$ is literally the fraction of the prior variance a straight line can remove.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g6_s5_whichest}}" alt="Decision flowchart: with the posterior available, report the full posterior, the MAP estimate, or the conditional mean; with only means, variances and covariance, use linear LMS" style="max-width:900px">
+<div class="figcap">Fig. 5.3 — Which Bayesian estimator? The left branch is available whenever you can do the Bayes integral; the right branch is what remains when you cannot (L21 slides 3–5; L22 slides 1, 5–6; B&amp;T §8.1–8.4).</div>
+
+<div class="recipe"><b>Recipe — choosing an estimator (L21 slide 5; L22 slides 1, 5–6).</b>
+<ol>
+<li><b>Is $\Theta$ discrete or continuous?</b> Discrete and you must commit to one value:
+MAP, because it minimizes the probability of being wrong. Continuous and errors are graded by size:
+LMS.</li>
+<li><b>Can you normalize the posterior?</b> If the integral $f_X(x)=\int f_\Theta f_{X|\Theta}\,d\theta$
+is doable, you have the whole posterior and every row is open. If not, MAP is still available — it
+needs the numerator only.</li>
+<li><b>Do you only know first and second moments?</b> Then linear LMS is not a compromise, it is
+the whole of what the information supports. Compute the four numbers the estimator needs —
+$\mathbb{E}[\Theta],\mathbb{E}[X],\operatorname{var}(X),\operatorname{cov}(X,\Theta)$ — and
+substitute; add the fifth, $\operatorname{var}(\Theta)$, as soon as you want to quote the
+resulting MSE $(1-\rho^2)\operatorname{var}(\Theta)$. Five numbers in all: two means, two
+variances, one covariance (§4).</li>
+<li><b>Before reporting, quote a spread.</b> $\operatorname{var}(\Theta\mid X=x)$ for LMS,
+$(1-\rho^2)\operatorname{var}(\Theta)$ for linear LMS. An estimate without a spread hides whether
+the data did anything at all.</li>
+<li><b>If everything in sight is normal, stop early.</b> With a normal prior and normal noise the
+posterior is normal, so its mode equals its mean: MAP $=$ LMS $=$ linear LMS, all three the same
+weighted average $\hat\Theta_L=\big(\mu/\sigma_0^2+\sum_i X_i/\sigma_i^2\big)\big/\big(1/\sigma_0^2+\sum_i 1/\sigma_i^2\big)$
+(L22 slide 8, "the cleanest linear LMS example").</li>
+</ol></div>
+
+<div class="ex"><b>Example 5.3 (three summaries of one posterior — L21 slides 4–5, L22 slide 1; B&amp;T §8.2–8.3).</b>
+A coin has unknown bias $\Theta$ with a uniform prior on $[0,1]$. You toss it $5$ times and see
+$5$ heads. Compute the posterior, its MAP estimate, its conditional mean, and the mean squared
+error of each; then say which you would report.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>The posterior.</b> Given $\Theta=\theta$, the number of heads $K$ in $n=5$ independent tosses
+is binomial, so $\mathbf{P}(K=5\mid\Theta=\theta)=\binom{5}{5}\theta^5(1-\theta)^0=\theta^5$.
+The prior is $f_\Theta(\theta)=1$ on $[0,1]$. Bayes for a continuous unknown with discrete data
+(L21 slide 4) gives
+$$f_{\Theta|K}(\theta\mid 5)=\frac{f_\Theta(\theta)\,\mathbf{P}(K=5\mid\Theta=\theta)}
+{\int_0^1 f_\Theta(t)\,\mathbf{P}(K=5\mid\Theta=t)\,dt}
+=\frac{\theta^5}{\int_0^1 t^5\,dt}=\frac{\theta^5}{1/6}=6\theta^5,\qquad 0\le\theta\le1 .$$
+This is the Beta$(6,1)$ density. It is strictly increasing on $[0,1]$ and heavily skewed
+(skewness $-1.283$).</p>
+<p><b>MAP.</b> Maximize $6\theta^5$ over $[0,1]$: the derivative $30\theta^4$ is positive
+throughout, so the maximum is at the right endpoint,
+$$\hat\theta_{\text{MAP}}=1 .$$
+The most probable single value of the bias, after five heads, is "the coin always comes up heads".</p>
+<p><b>Conditional mean.</b> Integrate against the posterior:
+$$\mathbb{E}[\Theta\mid K=5]=\int_0^1\theta\cdot 6\theta^5\,d\theta=6\int_0^1\theta^6\,d\theta
+=6\cdot\frac{1}{7}=\frac{6}{7}=0.857143 .$$
+The posterior median, for comparison, is $0.890899$ (from
+$\int_0^m 6\theta^5 d\theta=m^6=1/2$, i.e. $m=2^{-1/6}$).</p>
+<p><b>Posterior variance and the two MSEs.</b> The second moment is
+$\mathbb{E}[\Theta^2\mid K=5]=6\int_0^1\theta^7d\theta=6/8=0.75$, so
+$$\operatorname{var}(\Theta\mid K=5)=0.75-\Big(\tfrac67\Big)^2=0.75-0.734694=0.015306
+=\frac{6}{392}.$$
+For any fixed report $c$, the conditional MSE is
+$\mathbb{E}[(\Theta-c)^2\mid K=5]=\mathbb{E}[\Theta^2\mid\cdot]-2c\,\mathbb{E}[\Theta\mid\cdot]+c^2$.
+At $c=6/7$ this is the posterior variance $0.015306$ — the minimum, as the theory promises. At
+$c=1$ (the MAP value) it is
+$$0.75-2(1)(0.857143)+1=0.035714=\tfrac{1}{28},$$
+which is $2.33$ times larger. At the median $c=0.890899$ it is $0.016446$.</p>
+<p><b>Which to report.</b> If you must place a bet on a single value and are scored on squared
+error — "how far off is my estimate of the bias?" — report $6/7$. Do <em>not</em> promote the MAP
+value $1$ into an answer to the yes/no question "is this coin two-headed?": here $\Theta$ is
+continuous with a uniform prior, so $\mathbf{P}(\Theta=1)=0$, and therefore
+$\mathbf{P}(\hat\Theta=\Theta)=0$ for <em>every</em> estimator — MAP's error-minimizing property
+(§3; Gotcha 4 below) is vacuous in this model, because there is no rule it could beat. A genuine
+"two-headed?" test needs a different prior, one with an atom at $\theta=1$ — say
+$\mathbf{P}(\Theta=1)=q$ and the remaining mass $1-q$ spread uniformly on $[0,1]$ — and only then
+does the posterior probability of the hypothesis become a number you can compare against $1/2$.
+Under the uniform prior actually assumed here that probability is $0$. If you can report anything
+at all, report the posterior $6\theta^5$: it tells the
+reader both numbers, and it tells them the estimate is skewed, which neither single number does.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Example 5.4 (what linearity costs — L22 slides 5–6; B&amp;T §8.4).</b>
+Let $\Theta$ be uniform on $[0,1]$ and let the observation be $X=\Theta^2$ — noiseless, but a
+nonlinear function of the unknown. Compute the LMS estimator and its MSE, then the linear LMS
+estimator and its MSE, and compare.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>LMS.</b> Given $X=x$, the value of $\Theta$ is determined: since $\Theta\ge0$,
+$\Theta=\sqrt X$. Hence $\mathbb{E}[\Theta\mid X]=\sqrt X$ and the mean squared error is
+$$\mathbb{E}\big[(\Theta-\sqrt X)^2\big]=\mathbb{E}\big[(\Theta-\Theta)^2\big]=0 .$$
+The data determine the unknown exactly, so the optimal estimator is perfect.</p>
+<p><b>Linear LMS — the five ingredients.</b> Moments of a uniform on $[0,1]$ are
+$\mathbb{E}[\Theta^k]=1/(k+1)$, so $\mathbb{E}[\Theta]=1/2$, $\mathbb{E}[\Theta^2]=1/3$,
+$\mathbb{E}[\Theta^3]=1/4$, $\mathbb{E}[\Theta^4]=1/5$. Then
+$$\operatorname{var}(\Theta)=\tfrac13-\tfrac14=\tfrac1{12}=0.083333,$$
+$$\mathbb{E}[X]=\mathbb{E}[\Theta^2]=\tfrac13,\qquad
+\operatorname{var}(X)=\mathbb{E}[\Theta^4]-\big(\mathbb{E}[\Theta^2]\big)^2
+=\tfrac15-\tfrac19=\tfrac{9-5}{45}=\tfrac{4}{45}=0.088889,$$
+$$\operatorname{cov}(X,\Theta)=\mathbb{E}[\Theta^3]-\mathbb{E}[\Theta^2]\mathbb{E}[\Theta]
+=\tfrac14-\tfrac13\cdot\tfrac12=\tfrac14-\tfrac16=\tfrac{1}{12}=0.083333 .$$</p>
+<p><b>The estimator.</b> Substituting into the formula,
+$$a=\frac{\operatorname{cov}(X,\Theta)}{\operatorname{var}(X)}=\frac{1/12}{4/45}
+=\frac{45}{48}=\frac{15}{16}=0.9375,\qquad
+b=\mathbb{E}[\Theta]-a\,\mathbb{E}[X]=\tfrac12-\tfrac{15}{16}\cdot\tfrac13=\tfrac12-\tfrac{5}{16}
+=\tfrac{3}{16}=0.1875,$$
+so $\hat\Theta_L=0.9375\,X+0.1875$. A least-squares fit to four million simulated pairs returns
+$a=0.93736$, $b=0.18757$ ✓.</p>
+<p><b>The MSE.</b> The squared correlation coefficient is
+$$\rho^2=\frac{\operatorname{cov}(X,\Theta)^2}{\operatorname{var}(X)\operatorname{var}(\Theta)}
+=\frac{(1/12)^2}{(4/45)(1/12)}=\frac{1/144}{1/135}=\frac{135}{144}=\frac{15}{16}=0.9375,$$
+so $\rho=0.968246$, and
+$$\mathbb{E}\big[(\Theta-\hat\Theta_L)^2\big]=(1-\rho^2)\operatorname{var}(\Theta)
+=\tfrac{1}{16}\cdot\tfrac{1}{12}=\tfrac{1}{192}=0.005208$$
+(simulation: $0.005200$ ✓).</p>
+<p><b>Comparison.</b> Doing nothing — reporting the prior mean $\mathbb{E}[\Theta]=0.5$ — has MSE
+$\operatorname{var}(\Theta)=0.083333$. The straight line removes $93.75\%$ of that, down to
+$0.005208$. The optimal estimator removes $100\%$, down to $0$. So linear LMS is very good here and
+still infinitely worse than the truth in relative terms. <b>The moral:</b> $\rho$ measures linear
+association only, and a $\rho$ of $0.97$ still leaves a residual that is entirely explainable —
+by a curve. Linear LMS is the right tool when you genuinely lack the posterior, not when you are
+merely avoiding an integral you could do.</p>
+</div></details>
+</div>
+
+<div class="note"><b>Interpretation — the four rows are four levels of surrender.</b> The posterior
+surrenders nothing. The conditional mean surrenders the shape and keeps the best single number
+under squared error. MAP surrenders the shape and keeps the most likely single number. Linear LMS
+surrenders the posterior itself and keeps only what five moments can express. Each step down costs
+accuracy and buys computability; the exam question, or the engineering budget, tells you where to
+stop.</div>
+
+<div class="ex"><b>Practice 5.3.</b> A coin with unknown bias $\Theta$, uniform prior on $[0,1]$,
+is tossed $3$ times and shows $2$ heads. Find the posterior, its MAP estimate, its mean, the
+posterior variance, and the MSE penalty for reporting the MAP instead of the mean.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Posterior.</b> $\mathbf{P}(K=2\mid\Theta=\theta)=\binom32\theta^2(1-\theta)=3\theta^2(1-\theta)$;
+the factor $3$ and the prior density $1$ are constants in $\theta$, so
+$$f_{\Theta|K}(\theta\mid2)=\frac{\theta^2(1-\theta)}{\int_0^1 t^2(1-t)\,dt}
+=\frac{\theta^2(1-\theta)}{\tfrac13-\tfrac14}=\frac{\theta^2(1-\theta)}{1/12}
+=12\,\theta^2(1-\theta),\qquad 0\le\theta\le1,$$
+the Beta$(3,2)$ density.</p>
+<p><b>MAP.</b> Maximize $\theta^2-\theta^3$: the derivative $2\theta-3\theta^2=\theta(2-3\theta)$
+vanishes at $\theta=2/3$ (and at the boundary $\theta=0$, a minimum), so
+$\hat\theta_{\text{MAP}}=2/3=0.666667$. Unlike Example 5.3 the maximum is interior, because the
+one tail keeps the density from rising to the endpoint.</p>
+<p><b>Mean and variance.</b> For Beta$(a,b)$, $\mathbb{E}[\Theta]=a/(a+b)$ and
+$\mathbb{E}[\Theta^2]=a(a+1)/\big((a+b)(a+b+1)\big)$; with $a=3,b=2$,
+$$\mathbb{E}[\Theta\mid K=2]=\tfrac35=0.6,\qquad
+\mathbb{E}[\Theta^2\mid K=2]=\frac{3\cdot4}{5\cdot6}=0.4,$$
+$$\operatorname{var}(\Theta\mid K=2)=0.4-0.36=0.04=\tfrac1{25}.$$
+(The posterior median is $0.614272$, between the two — the posterior is only mildly skewed.)</p>
+<p><b>The penalty.</b> $\mathbb{E}[(\Theta-c)^2\mid K=2]=0.4-2c(0.6)+c^2$; at $c=2/3$ this is
+$0.4-0.8+0.444444=0.044444$ against $0.04$ at the mean, a factor $1.11$. Compare Example 5.3's
+$2.33$: the penalty for reporting the mode tracks the skew of the posterior, and this posterior is
+far less skewed than Beta$(6,1)$.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 5.4.</b> Let $\Theta$ be uniform on $[0,1]$ and $W$ uniform on $[-1,1]$,
+independent, and observe $X=\Theta+W$. Compute the linear LMS estimator and its MSE. Then find
+$\mathbb{E}[\Theta\mid X]$ exactly and say how much the linearity restriction actually cost here.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>The moments.</b> $\mathbb{E}[\Theta]=1/2$ and $\operatorname{var}(\Theta)=1/12=0.083333$;
+$\mathbb{E}[W]=0$ and $\operatorname{var}(W)=2^2/12=1/3$. Hence $\mathbb{E}[X]=1/2$ and, by
+independence (variances add),
+$$\operatorname{var}(X)=\tfrac1{12}+\tfrac13=\tfrac5{12}=0.416667,\qquad
+\operatorname{cov}(X,\Theta)=\operatorname{cov}(\Theta+W,\Theta)=\operatorname{var}(\Theta)
+=\tfrac1{12}=0.083333,$$
+the last step because $\operatorname{cov}(W,\Theta)=0$ under independence.</p>
+<p><b>The estimator.</b>
+$$a=\frac{\operatorname{cov}(X,\Theta)}{\operatorname{var}(X)}=\frac{1/12}{5/12}=\tfrac15=0.2,
+\qquad b=\mathbb{E}[\Theta]-a\,\mathbb{E}[X]=\tfrac12-\tfrac15\cdot\tfrac12=\tfrac25=0.4,$$
+so $\hat\Theta_L=0.2X+0.4$ (least squares on four million simulated pairs: $a=0.20022$,
+$b=0.40003$ ✓). The estimator shrinks hard toward the prior mean $0.5$, correctly: the noise
+variance is four times the prior variance.</p>
+<p><b>Its MSE.</b> $\rho^2=\operatorname{cov}^2/(\operatorname{var}(X)\operatorname{var}(\Theta))
+=(1/144)/\big((5/12)(1/12)\big)=1/5=0.2$, so
+$$\mathbb{E}\big[(\Theta-\hat\Theta_L)^2\big]=(1-\rho^2)\operatorname{var}(\Theta)
+=0.8\times\tfrac1{12}=\tfrac1{15}=0.066667$$
+(simulation $0.066624$ ✓), against $0.083333$ for ignoring the data: the observation removes only
+$20\%$ of the prior variance.</p>
+<p><b>The exact LMS estimator.</b> Given $X=x$, the posterior density is proportional to
+$f_\Theta(\theta)f_W(x-\theta)=1\cdot\tfrac12$ on the set where both factors are nonzero, i.e.
+$\theta\in[\max(0,x-1),\min(1,x+1)]$ — so $\Theta\mid X=x$ is <em>uniform</em> on that overlap and
+$\mathbb{E}[\Theta\mid X=x]$ is its midpoint. Explicitly $\tfrac{x+1}{2}$ for $-1\le x\le0$,
+$\tfrac12$ for $0\le x\le1$, and $\tfrac{x}{2}$ for $1\le x\le2$: piecewise linear with a flat
+middle, not a single straight line. Its MSE is
+$\mathbb{E}[\operatorname{var}(\Theta\mid X)]=\int L(x)^3/24\,dx=1/16=0.0625$, where
+$L(x)$ is the length of the overlap (simulation $0.062470$ ✓).</p>
+<p><b>What linearity cost.</b> $0.066667/0.0625=1.07$ — seven percent. Contrast Example 5.4, where
+the same restriction turned a perfect estimator into one with positive MSE. The moral is that the
+cost of the linear restriction is a property of the model, not a constant; here the best rule is
+nearly linear, so the cheap estimator is nearly optimal.</p>
+</div></details>
+</div>
+
+<h3>5.3 The five gotchas that cost the most</h3>
+
+<div class="warn"><b>Gotcha 1 — Chebyshev is a guarantee, not an estimate, and it is often
+uselessly loose.</b> At $k=2$ the bound $\mathbf{P}(|X-\mu|\ge2\sigma)\le 1/4=0.25$ is honest, but
+the actual tail is $0.045500$ for a normal and $0.049787$ for an exponential — five times smaller.
+At $k=3$ the bound is $0.111111$ against a normal tail of $0.002700$, a factor of $41$. For a
+uniform on $[0,1]$ the true probability at $k=2$ is exactly $0$, since $2\sigma=0.577&gt;0.5$ puts
+the event outside the support entirely. Never quote a Chebyshev bound as "the probability"; quote
+it as "at most". And never conclude from a loose bound that an event is likely — a bound of $0.9$
+is compatible with a true probability of $0$.</div>
+
+<div class="warn"><b>Gotcha 2 — the CLT approximates CDFs, not PMFs or PDFs.</b> The theorem says
+$\mathbf{P}(Z_n\le c)\to\Phi(c)$, a statement about cumulative probabilities only (L20 slide 2, where the slide spells out
+"not a statement about convergence of PDFs or PMFs"). Applied to $S_n\sim$ Binomial$(36,0.5)$, with $\mu=18$ and $\sigma=3$: the exact
+$\mathbf{P}(S_n\le 21)$ is $0.878508$, and $\Phi\big(\tfrac{21-18}{3}\big)=\Phi(1)=0.841345$ — an
+error of $0.037163$, entirely because the discrete CDF jumps at $21$ while the normal one does not.
+The $\tfrac12$ correction repairs it: $\Phi\big(\tfrac{21.5-18}{3}\big)=\Phi(1.166667)=0.878327$,
+now off by $0.000180$, a $206$-fold improvement. For a PMF value there is no theorem at all, only
+the De Moivre–Laplace practice of integrating the normal across a unit window (L20 slide 7):
+$\mathbf{P}(S_n=19)$ is exactly $0.125110$, and
+$\Phi(0.5)-\Phi(0.166667)=0.125279$ recovers it, while naively reading the normal <em>density</em>
+at $19$ gives $0.125794$. <em>(The slide rounds the lower $z$ to $0.17$ and reads
+$0.6915-0.5675=0.1240$ from the four-digit table, printing $0.124$; with the exact
+$z=\tfrac16$ the value is $0.125279$. The discrepancy is table rounding, not a different method.)</em> Rule: with a lattice-valued sum, always spread each integer over
+$[k-\tfrac12,k+\tfrac12]$.</div>
+
+<div class="warn"><b>Gotcha 3 — convergence in probability is not convergence of anything else
+(L19 slide 4).</b>
+Let $Y_n=n$ with probability $1/n$ and $Y_n=0$ otherwise — the example posed on the slide itself. For any $\epsilon\in(0,1)$,
+$\mathbf{P}(|Y_n-0|\ge\epsilon)=1/n\to0$, so $Y_n\to0$ in probability. Yet
+$\mathbb{E}[Y_n]=n\cdot\tfrac1n=1$ for every $n$ — it does not converge to $0$ — and
+$\operatorname{var}(Y_n)=n^2\cdot\tfrac1n-1^2=n-1$, which is $99$ at $n=100$ and diverges. So
+"$M_n\to\mu$ in probability" licenses statements about probabilities of intervals and nothing more;
+it does not license $\mathbb{E}[g(M_n)]\to g(\mu)$, and it is not the pointwise statement
+"$M_n(\omega)\to\mu$ for each outcome $\omega$" (that stronger claim is the <em>strong</em> law,
+B&amp;T §5.5, and it is a different theorem with a different proof). Notice also the asymmetry of
+the WLLN quantifiers: $\epsilon$ is fixed <em>first</em>, then $n\to\infty$. Statements where
+$\epsilon$ shrinks with $n$ — such as $\mathbf{P}(|M_n-\mu|\ge c/\sqrt n)$ — are CLT territory,
+not WLLN territory, and there the probability tends to a nonzero constant.</div>
+
+<div class="warn"><b>Gotcha 4 — MAP is not the posterior mean, and for skewed posteriors the gap is
+large.</b> In Example 5.3 the Beta$(6,1)$ posterior has MAP $=1$ and mean $=6/7=0.857143$, a gap of
+$0.142857$ — and reporting the MAP costs $0.035714$ in mean squared error against $0.015306$ for
+the mean, a $2.33\times$ penalty. The gap shrinks as the posterior becomes symmetric: three heads
+in five tosses gives Beta$(4,3)$ with MAP $0.6$ and mean $0.571429$ (gap $0.028571$), and seventy
+heads in a hundred tosses gives Beta$(71,31)$ with MAP $0.7$ and mean $0.696078$ (gap $0.003922$).
+Two corollaries. First, quoting "the MAP estimate minimizes error" is only correct for
+<em>discrete</em> $\Theta$ and the error criterion $\mathbf{P}(\hat\Theta\ne\Theta)$; under squared
+error the minimizer is always $\mathbb{E}[\Theta\mid X]$. Second, MAP is not invariant under
+reparametrization — the mode of the posterior of $\Theta$ and the mode of the posterior of
+$\Theta^2$ are not related by squaring — whereas the whole posterior is.</div>
+
+<div class="warn"><b>Gotcha 5 — linear LMS needs only five numbers, and that is both the selling
+point and the bill.</b> $\hat\Theta_L$ depends on the joint distribution only through the four
+numbers $\mathbb{E}[\Theta],\mathbb{E}[X],\operatorname{var}(X),\operatorname{cov}(X,\Theta)$
+(the fifth, $\operatorname{var}(\Theta)$, is needed only to state the resulting MSE
+$(1-\rho^2)\operatorname{var}(\Theta)$ — two means, two variances and one covariance in total,
+exactly as in §4), so it is
+computable when nothing else is — and it is therefore <em>blind</em> to every feature those
+numbers miss. Example 5.4 is the extreme case: with $X=\Theta^2$ the data determine $\Theta$
+exactly, yet linear LMS still carries MSE $1/192=0.005208$ because a straight line cannot be
+$\sqrt{x}$. Two associated traps. (i) $\mathbb{E}[\Theta\mid X]=\mathbb{E}[\Theta\mid X^3]$,
+because $X$ and $X^3$ carry the same information, but the linear LMS estimates based on $X$ and on
+$X^3$ are different — so with linear LMS the <em>choice of variable</em> matters, and you are free
+to feed it $X$, $X^3$, or several transforms at once (L22 slide 9). (ii) A large correlation is not a
+licence: $\rho^2=0.9375$ in Example 5.4 sounds like near-perfection, but $\rho$ measures only the
+linear part of the dependence. When prior and noise are all normal the trap disappears, because
+then $\hat\Theta_L=\mathbb{E}[\Theta\mid X]$ exactly (L22 slide 8).</div>
+
+<div class="ex"><b>Practice 5.5 (which gotcha?).</b> Each statement below is wrong or unsupported.
+Name the gotcha it violates and give the corrected statement.
+(a) "Chebyshev at $k=3$ gives $0.111$, so about one experiment in nine lands more than $3\sigma$
+from the mean."
+(b) "$S_{36}\sim$ Binomial$(36,0.5)$, so $\mathbf{P}(S_{36}=19)\approx\varphi(1/3)/3$, the normal
+density at $19$."
+(c) "$Y_n\to 0$ in probability, therefore $\mathbb{E}[Y_n]\to0$."
+(d) "After five heads the posterior peaks at $\theta=1$, so the most probable explanation is that
+the coin is two-headed."
+(e) "$\rho^2=0.9375$ between $X$ and $\Theta$, so a linear rule captures $94\%$ of what is
+knowable."
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Gotcha 1.</b> A bound is not a frequency. $1/k^2=0.111111$ is an upper bound valid for
+<em>every</em> distribution with that variance; for a normal the actual two-sided $3\sigma$ tail is
+$0.002700$, forty-one times smaller, and for a uniform on $[0,1]$ it is exactly $0$. Correct
+statement: "at most one experiment in nine".</p>
+<p><b>(b) Gotcha 2.</b> The CLT is a statement about CDFs; there is no theorem about PMF values.
+Spread the integer over $[18.5,19.5]$ and difference the normal CDF:
+$\Phi(0.5)-\Phi(0.166667)=0.125279$ against the exact $0.125110$. Reading the density instead
+gives $0.125794$ — it happens to be close here, but it is an unlicensed move.</p>
+<p><b>(c) Gotcha 3.</b> Convergence in probability says nothing about expectations. The standard
+counterexample is the one in Gotcha 3 itself: $Y_n=n$ with probability $1/n$, else $0$, has
+$\mathbf{P}(|Y_n|\ge\epsilon)=1/n\to0$ yet $\mathbb{E}[Y_n]=1$ for every $n$. Correct statement:
+"$\mathbf{P}(|Y_n|\ge\epsilon)\to0$ for every fixed $\epsilon&gt;0$", and nothing more.</p>
+<p><b>(d) Gotcha 4 (and Example 5.3).</b> With a continuous prior every single value has
+probability $0$, so "the coin is two-headed" has posterior probability $0$ no matter how the
+density behaves at $\theta=1$; a density value is not a probability. To ask the yes/no question at
+all you must put an atom on $\theta=1$ in the prior. Correct statement: "the posterior density is
+largest near $\theta=1$", which is a statement about where the mass concentrates, not about a
+hypothesis.</p>
+<p><b>(e) Gotcha 5.</b> $\rho$ measures the <em>linear</em> part of the dependence only. In
+Example 5.4, $\rho^2=0.9375$ while the optimal estimator $\sqrt X$ has MSE exactly $0$ — the
+remaining $6.25\%$ of prior variance was not noise, it was curvature. Correct statement: "a linear
+rule removes $93.75\%$ of the prior variance", with no claim about what is knowable.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 5.6 (which tool?).</b> For each task name the single tool from the two
+tables, and the one hypothesis that makes the tools below it unavailable.
+(i) $X\ge0$ is a claim size with known mean only; you must promise a bound on
+$\mathbf{P}(X\ge 5\mathbb{E}[X])$.
+(ii) I.i.d. terms with known mean and variance; you must promise a sample size that makes
+$\mathbf{P}(|M_n-\mu|\ge\epsilon)$ small.
+(iii) $S_n$ is a sum of $200$ i.i.d. integer-valued terms; you must report
+$\mathbf{P}(S_n\le 240)$ as a number.
+(iv) $\Theta\in\{\text{signal present},\text{absent}\}$; you must announce one of the two.
+(v) You know $\mathbb{E}[\Theta],\mathbb{E}[X]$, both variances and $\operatorname{cov}(X,\Theta)$
+and nothing else; you must produce an estimate.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(i) Markov.</b> Only the mean is known, so Chebyshev is unavailable; the bound is
+$\mathbb{E}[X]/(5\mathbb{E}[X])=0.2$, whatever the distribution. The blocking hypothesis is the
+missing variance.</p>
+<p><b>(ii) The weak law, i.e. Chebyshev applied to $M_n$</b> with
+$\operatorname{var}(M_n)=\sigma^2/n$: $n\ge\sigma^2/(\delta\epsilon^2)$. The CLT is unavailable
+<em>as a promise</em> — not because a hypothesis fails but because it returns an approximation, and
+the word in the task is "promise" (Fig. 5.1).</p>
+<p><b>(iii) The CLT, with the $\tfrac12$ correction</b>: $\Phi\big((240.5-n\mu)/(\sigma\sqrt
+n)\big)$. The task asks for a number, not a bound, and the terms are lattice-valued, which is what
+makes the correction mandatory (Gotcha 2).</p>
+<p><b>(iv) MAP.</b> $\Theta$ is discrete and you must commit to one value, which is exactly the
+criterion $\mathbf{P}(\hat\Theta\ne\Theta)$ that MAP minimizes. LMS would return a number between
+the two labels, which is not an admissible announcement.</p>
+<p><b>(v) Linear LMS.</b> Without the prior and the observation model there is no posterior, so the
+top three rows of the §5.2 table are unavailable; $\hat\Theta_L=\mathbb{E}[\Theta]+
+\frac{\operatorname{cov}(X,\Theta)}{\operatorname{var}(X)}(X-\mathbb{E}[X])$ is the whole of what
+the information supports, and $\operatorname{var}(\Theta)$ lets you quote its MSE.</p>
+</div></details>
+</div>
+
+<h3>5.4 Bridge to G7: drop the prior</h3>
+
+<p>Everything in §3 and §4 rested on one modeling decision: $\Theta$ was given a distribution.
+That is what let us write $f_{\Theta|X}$ at all, because Bayes' rule needs a $f_\Theta$ to invert.
+L21 slide 2 puts the alternative on the same slide, deliberately: in <em>classical</em> statistics
+$\theta$ is an unknown <b>constant</b>, not a random variable. The model is written
+$p_X(x;\theta)$ — a whole family of distributions indexed by $\theta$, with a semicolon rather than
+a conditioning bar, because there is nothing to condition on. There is no prior, hence no
+posterior, hence none of the four rows of §5.2 exists in that world.</p>
+
+<table>
+<thead>
+<tr><th class="l">Question</th><th class="l">Bayesian (G6 §3–§4)</th><th class="l">Classical (G7)</th></tr>
+</thead>
+<tbody>
+<tr><td class="l">What is $\theta$?</td><td class="l">A random variable $\Theta$ with a prior you supply.</td><td class="l">An unknown constant. No distribution, ever.</td></tr>
+<tr><td class="l">Notation for the model</td><td class="l">$p_{X|\Theta}(x\mid\theta)$ — a conditional PMF/PDF.</td><td class="l">$p_X(x;\theta)$ — one PMF/PDF per candidate $\theta$.</td></tr>
+<tr><td class="l">The output</td><td class="l">The posterior $f_{\Theta|X}(\theta\mid x)$, then MAP / $\mathbb{E}[\Theta\mid X]$ / linear LMS.</td><td class="l">An estimator $\hat\Theta_n=g(X_1,\dots,X_n)$ judged by its sampling behavior — bias, variance, consistency.</td></tr>
+<tr><td class="l">"$95\%$ confidence" means</td><td class="l">The posterior puts probability $0.95$ on this interval, given the data actually seen.</td><td class="l">If the experiment were repeated, $95\%$ of the intervals produced would cover the fixed $\theta$. The interval is random; $\theta$ is not.</td></tr>
+<tr><td class="l">Where the maximization goes</td><td class="l">$\max_\theta f_\Theta(\theta)f_{X|\Theta}(x\mid\theta)$ — MAP.</td><td class="l">$\max_\theta p_X(x;\theta)$ — maximum likelihood: MAP with the prior deleted.</td></tr>
+<tr><td class="l">Source</td><td class="l">L21 slides 2–5; L22 slides 1, 5–6; B&amp;T §8.1–8.4</td><td class="l">L21 slide 2 (the contrast slide); B&amp;T §9.1</td></tr>
+</tbody>
+</table>
+
+<p>Read the last two rows together and the bridge is short. Maximum likelihood <em>is</em> the MAP
+rule with $f_\Theta$ set to a constant, so every MAP computation in §3 already contains a classical
+one inside it; the Example 5.3 posterior $6\theta^5$ is maximized at $\theta=1$, and so is the
+likelihood $\theta^5$ — with a uniform prior they agree exactly. And confidence intervals, the
+central object of G7, are built out of §1 and §2: the estimator $\hat\Theta_n$ is a sample mean, the
+weak law says it converges to $\theta$, and the CLT converts "converges" into the $\pm
+1.96\,\hat\sigma/\sqrt n$ that appears in every reported poll. That is why limit theorems and
+Bayesian inference sit in the same group: G6 §1–§2 supply the machinery that G7 uses to answer G6
+§3–§4's questions <em>without</em> a prior.</p>
+
+<div class="note"><b>Interpretation — the disagreement is about what is random.</b> Both frameworks
+compute with the same likelihoods and often produce the same arithmetic. They differ on what
+probability is being taken over. The Bayesian averages over the unknown, holding the data fixed at
+what you saw; the classicist averages over hypothetical repeat data, holding the unknown fixed at
+whatever it truly is. Neither is a theorem — the choice is a modeling decision about whether a
+prior for $\theta$ is meaningful and defensible. In G7 you will see the cost of dropping it:
+without a prior there is no single "probability that $\theta$ lies here", and the answers become
+statements about procedures rather than about parameters.</div>
+
+<div class="ex"><b>Practice 5.7.</b> A coin is tossed $100$ times and gives $60$ heads. (a) With a
+uniform prior on the bias $\Theta$, give the MAP estimate, the posterior mean, and a $95\%$
+posterior interval. (b) Classically, give the maximum-likelihood estimate and the $95\%$
+confidence interval $\hat p\pm z_{0.975}\sqrt{\hat p(1-\hat p)/n}$. (c) The two intervals nearly
+coincide; state precisely how their <em>meanings</em> differ.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Bayesian.</b> The likelihood is $\theta^{60}(1-\theta)^{40}$ and the uniform prior is
+constant, so the posterior is proportional to it: Beta$(61,41)$. Its mode is
+$(61-1)/(61+41-2)=60/100=0.6$, so $\hat\theta_{\text{MAP}}=0.6$. Its mean is
+$61/102=0.598039$ — pulled a hair toward the prior mean $0.5$, because the prior adds one
+imaginary head and one imaginary tail. Its standard deviation is $0.048310$, and the central
+$95\%$ posterior interval (the $2.5$th and $97.5$th posterior percentiles) is
+$$[0.501744,\ 0.690691].$$</p>
+<p><b>(b) Classical.</b> Maximizing $\theta^{60}(1-\theta)^{40}$ — the same maximization with the
+prior deleted, which here changes nothing — gives $\hat p=60/100=0.6$. The estimated standard
+error is $\sqrt{0.6(0.4)/100}=0.048990$, so with $z_{0.975}=1.959964$ the half-width is
+$0.096018$ and the interval is
+$$[0.503982,\ 0.696018].$$</p>
+<p><b>(c) The difference.</b> Numerically the intervals differ by less than a quarter of a
+percentage point, and the point estimates agree exactly — with a uniform prior MAP <em>is</em>
+maximum likelihood. The statements are not the same statement. The Bayesian interval says: given
+the $60$ heads I actually saw, the posterior assigns probability $0.95$ to $\Theta$ lying in
+$[0.501744,0.690691]$ — a probability about the unknown, with the data held fixed. The confidence
+interval says: the <em>procedure</em> "take $\hat p\pm1.959964\,\hat\sigma/\sqrt n$" produces, over
+hypothetical repetitions of the experiment, intervals that cover the fixed true $\theta$ $95\%$ of
+the time — a probability about the interval, with the unknown held fixed. Once the data are in,
+$[0.503982,0.696018]$ either contains $\theta$ or it does not, and classically there is no
+probability to attach to which. G7 develops the second story; the arithmetic will look familiar
+because it is built from the WLLN and the CLT of §1–§2 (B&amp;T §9.1).</p>
+</div></details>
+</div>
+
+<div class="summary"><b>G6 in twelve lines.</b>
+<ul>
+<li>$\mathbf{P}(X\ge a)\le\mathbb{E}[X]/a$ for $X\ge0$ — Markov, mean only (B&amp;T §5.1).</li>
+<li>$\mathbf{P}(|X-\mu|\ge c)\le\sigma^2/c^2$ — Chebyshev, mean and variance (B&amp;T §5.1).</li>
+<li>$\operatorname{var}(M_n)=\sigma^2/n$ is the engine of everything about sample means.</li>
+<li>$\mathbf{P}(|M_n-\mu|\ge\epsilon)\le\sigma^2/(n\epsilon^2)\to0$ — WLLN, convergence in probability (B&amp;T §5.2–5.3).</li>
+<li>$Z_n=(S_n-n\mu)/(\sigma\sqrt n)$; $\mathbf{P}(Z_n\le c)\to\Phi(c)$ — CLT, CDFs only (B&amp;T §5.4).</li>
+<li>Integer-valued sums: add the $\tfrac12$ correction; $0.878508$ exact vs $0.841345$ without and $0.878327$ with, at $n=36,p=0.5$.</li>
+<li>Bernoulli poll: $\sigma^2=f(1-f)\le1/4$; $\pm1\%$ at $95\%$ costs $n=50000$ by Chebyshev, $n=9604$ by CLT.</li>
+<li>$f_{\Theta|X}(\theta|x)=f_\Theta(\theta)f_{X|\Theta}(x|\theta)/f_X(x)$ — four versions, one idea (B&amp;T §8.1).</li>
+<li>MAP maximizes the posterior; it needs no normalizing constant and minimizes $\mathbf{P}(\text{error})$ for discrete $\Theta$ (B&amp;T §8.2).</li>
+<li>$\mathbb{E}[\Theta\mid X]$ minimizes MSE over all estimators; its MSE is $\mathbb{E}[\operatorname{var}(\Theta\mid X)]$ (B&amp;T §8.3).</li>
+<li>$\hat\Theta_L=\mathbb{E}[\Theta]+\frac{\operatorname{cov}(X,\Theta)}{\operatorname{var}(X)}(X-\mathbb{E}[X])$, MSE $=(1-\rho^2)\operatorname{var}(\Theta)$ — five moments (two means, two variances, one covariance), nothing else (B&amp;T §8.4).</li>
+<li>Delete the prior and MAP becomes maximum likelihood: that is the door into G7 (B&amp;T §9.1).</li>
+</ul></div>

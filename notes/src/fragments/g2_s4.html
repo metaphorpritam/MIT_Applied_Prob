@@ -1,0 +1,1377 @@
+<h2 id="g2-s4">§4 &nbsp; Joint PMFs and multiple random variables</h2>
+<p class="srcref">Sources: L07 slides 1–8 (raster p01–p02) · L06 slide 8 (the same grid, its two normalization identities) · rec06 problems 1–2 · rec07 problems 1–2 · B&amp;T §2.5 (joint PMFs), B&amp;T §2.6 (conditioning), B&amp;T §2.7 (independence), B&amp;T Problem 2.35 p. 130. Every number on this page is recomputed in <code>computes/g2_s4.py</code>; figures in <code>computes/g2_s4_figs.py</code>.</p>
+
+<p>Up to now a random variable has lived alone: one experiment, one number, one PMF. Real models are
+never like that. The die you roll decides how many coins you flip; the message you transmit and the
+symbol the receiver sees are two numbers attached to the same experiment; a binomial count is
+secretly a sum of $n$ smaller random variables. This section builds the apparatus for handling
+several random variables defined on the <em>same</em> sample space: the joint PMF (one table holding
+everything), the two operations that extract smaller objects from it (marginalization and
+conditioning), the definition of independence in PMF language, and the two facts that make sums of
+random variables tractable — linearity of expectation, which always holds, and additivity of
+variance, which needs independence. The section closes with the payoff L07 advertises: the binomial
+mean and variance obtained in three lines by writing $X$ as a sum of indicators, instead of
+grinding through $\sum_k k\binom{n}{k}p^k(1-p)^{n-k}$ — and then the hat problem of L07 slides 7–8,
+where the same indicators are dependent, linearity survives untouched, and the variance has to be
+assembled from cross terms.</p>
+
+<p>Everything here is the discrete analogue of the two-event machinery from G1. Marginalization is
+the total probability theorem; the multiplication rule for PMFs is the multiplication rule for
+events; conditional PMFs are conditional probabilities with a normalization step. What is genuinely
+new is the quantifier: independence of <em>random variables</em> demands a product identity at
+<em>every</em> pair of values, not at one pair of events.</p>
+
+<h3>4.1 The joint PMF</h3>
+
+<div class="defn"><b>Definition (joint PMF; L07 slide 2, B&amp;T §2.5).</b> Let $X$ and $Y$ be discrete random
+variables associated with the same experiment — i.e. both are functions on the same sample space
+$\Omega$. Their <b>joint PMF</b> is
+$$p_{X,Y}(x,y)=\mathbf{P}(X=x,\ Y=y)=\mathbf{P}\big(\{X=x\}\cap\{Y=y\}\big),$$
+defined for every pair of real numbers $(x,y)$. Here $x$ ranges over the possible values of $X$,
+$y$ over the possible values of $Y$, and the comma inside $\mathbf{P}(\cdot)$ means intersection of
+the two events.</div>
+
+<p>Two properties follow instantly from the axioms of G1. First, $p_{X,Y}(x,y)\ge 0$, because it is
+a probability. Second, the events $\{X=x,Y=y\}$ over all pairs $(x,y)$ are disjoint (a single
+outcome $\omega$ produces exactly one value $X(\omega)$ and one value $Y(\omega)$, hence lands in
+exactly one cell) and their union is all of $\Omega$, so by the additivity axiom
+$$\sum_x\sum_y p_{X,Y}(x,y)=\mathbf{P}(\Omega)=1 .$$
+That normalization check is the cheapest error detector in this whole subject: if your table does
+not add to $1$, stop and find the mistake before doing anything else.</p>
+
+<p>For two random variables with finitely many values, the joint PMF <em>is</em> a table. L07 slide 3
+puts one on the board and asks two questions about it; that table will be our running example for
+the next four subsections.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s4_grid}}" alt="Four by four grid of joint probabilities on x from 1 to 4 and y from 1 to 4, each cell written over denominator 20, with the marginal PMF of X shown as an orange strip beneath the grid and the marginal PMF of Y as a green strip to the right." style="max-width:760px">
+<div class="figcap">Fig. 4.1 — The joint PMF of L07 slide 3, redrawn with its two marginals in the margins (which is where the name "marginal" comes from). Cell shading is proportional to probability. The sixteen cells sum to $20/20=1$; the orange strip sums to $1$; the green strip sums to $1$ (L07 slide 3).</div>
+
+<div class="ex"><b>Example 4.1 (L07 slide 3 = L06 slide 8 — the table, read carefully).</b> The random variables $X$
+and $Y$ both take values in $\{1,2,3,4\}$, with joint PMF (all entries over $20$)
+$$
+\begin{array}{c|cccc}
+p_{X,Y}(x,y) & x=1 & x=2 & x=3 & x=4\\\hline
+y=4 & 1/20 & 2/20 & 2/20 & 0\\
+y=3 & 2/20 & 4/20 & 1/20 & 2/20\\
+y=2 & 0 & 1/20 & 3/20 & 1/20\\
+y=1 & 0 & 1/20 & 0 & 0
+\end{array}
+$$
+<p><b>Check the normalization.</b> Add the numerators row by row:
+row $y=4$ gives $1+2+2+0=5$; row $y=3$ gives $2+4+1+2=9$; row $y=2$ gives $0+1+3+1=5$;
+row $y=1$ gives $0+1+0+0=1$. Total $5+9+5+1=20$, so the masses sum to $20/20=1$. The table is a
+legitimate joint PMF. (This discharges the first blank of L06 slide 8, which asks for
+$\sum_x\sum_y p_{X,Y}(x,y)$ on this very grid; the second blank there,
+$\sum_x p_{X|Y}(x\mid y)=1$, is established in §4.3.)</p>
+<p><b>A first query.</b> $\mathbf{P}(X=2,Y=3)=p_{X,Y}(2,3)=4/20=1/5=0.2$ — read directly off the
+table, no computation. $\mathbf{P}(X=1,Y=1)=0$: the pair $(1,1)$ never occurs, even though $X=1$ is
+possible and $Y=1$ is possible. Blank cells are impossible <em>combinations</em>, not impossible
+values.</p></div>
+
+<div class="note"><b>Interpretation.</b> A joint PMF is a complete probabilistic description of the
+pair $(X,Y)$: any question you can ask about $X$ and $Y$ together — a marginal, a conditional, an
+expectation, a probability of any event defined in terms of them — is a sum of table entries,
+possibly followed by one division. Nothing else about $\Omega$ is ever needed again. This is why
+the very first move in a multi-variable problem is almost always "build the table".</div>
+
+<div class="warn"><b>Gotcha.</b> The marginals do not determine the joint. Two different tables can
+have identical row sums and identical column sums, yet describe completely different dependence
+structure (Practice 4.2 below constructs a pair). Information flows one way only: joint
+$\Rightarrow$ marginals, never marginals $\Rightarrow$ joint. The single exception is independence,
+where the joint is <em>defined</em> to be the product of the marginals (§4.5).</div>
+
+<div class="ex"><b>Practice 4.1.</b> Let $X$ and $Y$ be the numbers on two independent rolls of a
+fair 4-sided die. Write $p_{X,Y}(x,y)$ and compute $\mathbf{P}(X=Y)$ and
+$\mathbf{P}(X+Y=5)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The $16$ ordered pairs are equally likely, so $p_{X,Y}(x,y)=1/16$ for every
+$x,y\in\{1,2,3,4\}$ and $0$ elsewhere. The event $\{X=Y\}$ consists of the four diagonal cells
+$(1,1),(2,2),(3,3),(4,4)$, so $\mathbf{P}(X=Y)=4\cdot\frac{1}{16}=\frac{4}{16}=\frac14=0.25$.
+The event $\{X+Y=5\}$ consists of $(1,4),(2,3),(3,2),(4,1)$, again four cells, so
+$\mathbf{P}(X+Y=5)=\frac{4}{16}=\frac14=0.25$. Both are "count the cells, multiply by the common
+mass" — the discrete-uniform special case of B&amp;T §2.5.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.2.</b> Build two different joint PMFs on $\{0,1\}^2$ that share the
+marginals $p_X(0)=p_X(1)=1/2$ and $p_Y(0)=1/4$, $p_Y(1)=3/4$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Table A (independent):</b> $p_{X,Y}(x,y)=p_X(x)p_Y(y)$, i.e.
+$p_{X,Y}(0,0)=\frac12\cdot\frac14=\frac18$, $p_{X,Y}(0,1)=\frac12\cdot\frac34=\frac38$,
+$p_{X,Y}(1,0)=\frac18$, $p_{X,Y}(1,1)=\frac38$. Row sums:
+$\frac18+\frac38=\frac12$ for each $x$ ✓; column sums: $\frac18+\frac18=\frac14$ and
+$\frac38+\frac38=\frac34$ ✓.</p>
+<p><b>Table B (dependent):</b> $p_{X,Y}(0,0)=\frac14$, $p_{X,Y}(0,1)=\frac14$,
+$p_{X,Y}(1,0)=0$, $p_{X,Y}(1,1)=\frac12$. Row sums: $\frac14+\frac14=\frac12$ and
+$0+\frac12=\frac12$ ✓; column sums: $\frac14+0=\frac14$ and $\frac14+\frac12=\frac34$ ✓.</p>
+<p>Same margins, different tables: in B, $X=1$ forces $Y=1$, while in A knowing $X$ tells you
+nothing. Marginals are shadows; they lose the dependence.</p></div></details></div>
+
+<h3>4.2 Marginals: summing the joint over the other variable</h3>
+
+<p>The identity to be proved is $p_X(x)=\sum_y p_{X,Y}(x,y)$: sum the joint PMF over $y$ and what
+survives is the PMF of $X$ alone.</p>
+
+<p>L07 slide 2 states the marginalization identity without proof. Here is the proof; it is one
+application of the total probability theorem from G1, and it is worth seeing once so that the
+identity stops looking like a notational convention.</p>
+
+<div class="thm"><b>Property (marginalization; L07 slide 2, B&amp;T §2.5).</b> For every $x$,
+$$p_X(x)=\sum_y p_{X,Y}(x,y),\qquad\text{and symmetrically}\qquad p_Y(y)=\sum_x p_{X,Y}(x,y).$$
+The sums run over all values $y$ (resp. $x$) with positive probability; terms with
+$p_{X,Y}=0$ contribute nothing.</div>
+
+<p><b>Derivation.</b> Fix a value $x$ of $X$. Let $y_1,y_2,\dots$ be the distinct values that $Y$ can
+take, and set $B_j=\{Y=y_j\}$. These events are disjoint (each outcome $\omega$ gives one number
+$Y(\omega)$, so $\omega$ belongs to exactly one $B_j$) and their union is $\Omega$ (every $\omega$
+gives <em>some</em> value), so $\{B_j\}$ is a partition of the sample space in exactly the sense of
+G1 §2. Now intersect the event $A=\{X=x\}$ with the partition:
+$$A=A\cap\Omega=A\cap\Big(\bigcup_j B_j\Big)=\bigcup_j (A\cap B_j),$$
+using distributivity of intersection over union. The pieces $A\cap B_j$ are disjoint, because the
+$B_j$ are. The additivity axiom therefore gives
+$$\mathbf{P}(A)=\sum_j \mathbf{P}(A\cap B_j),$$
+which in random-variable notation reads
+$$p_X(x)=\mathbf{P}(X=x)=\sum_j\mathbf{P}(X=x,\ Y=y_j)=\sum_y p_{X,Y}(x,y).\qquad\blacksquare$$
+In words: to find the probability that $X=x$, sweep along the row (or column) of the table where
+$X=x$ and add up every way that could have happened, tagged by the value of $Y$.</p>
+
+<div class="ex"><b>Example 4.2 (L07 slide 3 — both marginals, computed).</b> Apply the identity to
+the slide-3 table. Column $x=1$ of Fig. 4.1, read from $y=1$ up to $y=4$:
+$$p_X(1)=\underbrace{0}_{y=1}+\underbrace{0}_{y=2}+\underbrace{\tfrac{2}{20}}_{y=3}+\underbrace{\tfrac{1}{20}}_{y=4}
+=\tfrac{3}{20}=0.15 .$$
+Column $x=2$:
+$$p_X(2)=\tfrac{1}{20}+\tfrac{1}{20}+\tfrac{4}{20}+\tfrac{2}{20}=\tfrac{8}{20}=\tfrac{2}{5}=0.4 .$$
+Column $x=3$:
+$$p_X(3)=0+\tfrac{3}{20}+\tfrac{1}{20}+\tfrac{2}{20}=\tfrac{6}{20}=\tfrac{3}{10}=0.3 .$$
+Column $x=4$:
+$$p_X(4)=0+\tfrac{1}{20}+\tfrac{2}{20}+0=\tfrac{3}{20}=0.15 .$$
+Check: $\tfrac{3}{20}+\tfrac{8}{20}+\tfrac{6}{20}+\tfrac{3}{20}=\tfrac{20}{20}=1$ ✓.
+<p>Now the rows, which give $p_Y$:
+$$p_Y(1)=0+\tfrac{1}{20}+0+0=\tfrac{1}{20}=0.05,\qquad
+p_Y(2)=0+\tfrac{1}{20}+\tfrac{3}{20}+\tfrac{1}{20}=\tfrac{5}{20}=\tfrac14=0.25,$$
+$$p_Y(3)=\tfrac{2}{20}+\tfrac{4}{20}+\tfrac{1}{20}+\tfrac{2}{20}=\tfrac{9}{20}=0.45,\qquad
+p_Y(4)=\tfrac{1}{20}+\tfrac{2}{20}+\tfrac{2}{20}+0=\tfrac{5}{20}=\tfrac14=0.25 .$$
+Check: $\tfrac{1}{20}+\tfrac{5}{20}+\tfrac{9}{20}+\tfrac{5}{20}=\tfrac{20}{20}=1$ ✓.</p>
+<p><b>Means and variances of the marginals.</b> Once you have $p_X$, the §2 (expectation) and
+§3.2 (variance) formulas apply unchanged, because a marginal PMF is just a PMF:
+$$\mathbb{E}[X]=1\cdot\tfrac{3}{20}+2\cdot\tfrac{8}{20}+3\cdot\tfrac{6}{20}+4\cdot\tfrac{3}{20}
+=\tfrac{3+16+18+12}{20}=\tfrac{49}{20}=2.45,$$
+$$\mathbb{E}[X^2]=1\cdot\tfrac{3}{20}+4\cdot\tfrac{8}{20}+9\cdot\tfrac{6}{20}+16\cdot\tfrac{3}{20}
+=\tfrac{3+32+54+48}{20}=\tfrac{137}{20}=6.85,$$
+$$\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2=6.85-(2.45)^2=6.85-6.0025=0.8475=\tfrac{339}{400}.$$
+Similarly
+$$\mathbb{E}[Y]=1\cdot\tfrac{1}{20}+2\cdot\tfrac{5}{20}+3\cdot\tfrac{9}{20}+4\cdot\tfrac{5}{20}
+=\tfrac{1+10+27+20}{20}=\tfrac{58}{20}=\tfrac{29}{10}=2.9,$$
+$$\mathbb{E}[Y^2]=\tfrac{1+20+81+80}{20}=\tfrac{182}{20}=9.1,\qquad
+\operatorname{var}(Y)=9.1-(2.9)^2=9.1-8.41=0.69=\tfrac{69}{100}.$$</p></div>
+
+<div class="note"><b>Interpretation.</b> "Marginal" is literally a description of where the numbers
+get written: in the margins of the table, as row and column totals (Fig. 4.1). Marginalizing is
+<em>forgetting</em> — you throw away the information about which $y$ occurred and keep only the
+total. Anything you compute from $p_X$ alone (mean, variance, $\mathbf{P}(X\le 2)$) can be computed
+from the joint table too, but not conversely.</div>
+
+<div class="warn"><b>Gotcha.</b> Marginalize over the <em>other</em> variable, holding the one you
+want fixed. To get $p_X(3)$ you sum the column $x=3$ across all $y$; a very common slip is to sum
+the row $y=3$ instead and report $9/20$. Keep the free variable in the subscript of the answer:
+$p_X(x)=\sum_y$ — the summation index is the variable that disappears.</div>
+
+<div class="ex"><b>Practice 4.3.</b> From Fig. 4.1 compute $\mathbf{P}(X\le 2)$ and
+$\mathbf{P}(Y\ge 3)$, and check that
+$\mathbf{P}(X\le 2)+\mathbf{P}(Y\ge 3)\ne \mathbf{P}(X\le 2\ \text{or}\ Y\ge 3)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mathbf{P}(X\le 2)=p_X(1)+p_X(2)=\tfrac{3}{20}+\tfrac{8}{20}=\tfrac{11}{20}=0.55$ and
+$\mathbf{P}(Y\ge 3)=p_Y(3)+p_Y(4)=\tfrac{9}{20}+\tfrac{5}{20}=\tfrac{14}{20}=0.7$. The two events
+are not disjoint: their intersection is the $2\times2$ block $\{X\le2, Y\ge3\}$ with mass
+$\tfrac{2+4+1+2}{20}=\tfrac{9}{20}=0.45$. By inclusion–exclusion (G1 §1),
+$\mathbf{P}(X\le2\ \text{or}\ Y\ge3)=0.55+0.7-0.45=0.8$, not $0.55+0.7=1.25$ — which could not be a
+probability anyway.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.4.</b> A joint PMF on $\{1,2\}\times\{1,2\}$ has
+$p_{X,Y}(1,1)=0.1$, $p_{X,Y}(1,2)=0.3$, $p_{X,Y}(2,1)=c$, and $p_{X,Y}(2,2)=0.2$. Find $c$ and both
+marginals.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Normalization forces $0.1+0.3+c+0.2=1$, so $c=1-0.6=0.4$. Then
+$p_X(1)=0.1+0.3=0.4$, $p_X(2)=0.4+0.2=0.6$ (sum $1$ ✓), and
+$p_Y(1)=0.1+0.4=0.5$, $p_Y(2)=0.3+0.2=0.5$ (sum $1$ ✓).</p></div></details></div>
+
+<h3>4.3 Conditional PMFs, the multiplication rule, and the chain rule</h3>
+
+<p>L07 slide 2 lists $p_{X|Y}(x\mid y)=\mathbf{P}(X=x\mid Y=y)$ and the multiplication rule
+$p_{X,Y}=p_X\,p_{Y|X}$ but does not connect them to the definition of conditional probability. The
+connection is immediate and is the whole content of B&amp;T §2.6.</p>
+
+<div class="defn"><b>Definition (conditional PMF; L07 slide 2, B&amp;T §2.6).</b> For any $y$ with
+$p_Y(y)&gt;0$, the conditional PMF of $X$ given $Y=y$ is
+$$p_{X|Y}(x\mid y)=\mathbf{P}(X=x\mid Y=y)
+=\frac{\mathbf{P}(X=x,\ Y=y)}{\mathbf{P}(Y=y)}=\frac{p_{X,Y}(x,y)}{p_Y(y)} .$$
+It is undefined when $p_Y(y)=0$ — you may not condition on an impossible event. Here $y$ is a
+<em>fixed</em> number (the conditioning value) and $x$ is the free variable.</div>
+
+<p><b>Why it is a PMF.</b> Each value is nonnegative, and summing over $x$ with $y$ held fixed,
+$$\sum_x p_{X|Y}(x\mid y)=\sum_x\frac{p_{X,Y}(x,y)}{p_Y(y)}=\frac{1}{p_Y(y)}\sum_x p_{X,Y}(x,y)
+=\frac{p_Y(y)}{p_Y(y)}=1,$$
+where the middle step pulls the constant $1/p_Y(y)$ out of the sum and the next uses
+marginalization from §4.2. So a conditional PMF is a genuine PMF over $x$ — a row of the table
+rescaled to add to one. Every §2 formula (expectation, the expected value rule) and every §3.2 formula (variance) applies
+to it verbatim, giving the conditional expectation
+$\mathbb{E}[X\mid Y=y]=\sum_x x\,p_{X|Y}(x\mid y)$ and the conditional variance
+$\operatorname{var}(X\mid Y=y)=\sum_x (x-\mathbb{E}[X\mid Y=y])^2 p_{X|Y}(x\mid y)$.</p>
+
+<div class="thm"><b>Multiplication rule for PMFs (L07 slide 2).</b> Rearranging the definition,
+$$p_{X,Y}(x,y)=p_Y(y)\,p_{X|Y}(x\mid y)=p_X(x)\,p_{Y|X}(y\mid x).$$
+The second equality is the same computation with the roles of $X$ and $Y$ swapped. Either form is
+valid wherever the conditioning marginal is positive; where it is zero, the joint entry is zero too,
+so the identity holds with the convention $0\cdot(\text{undefined})=0$.</div>
+
+<div class="thm"><b>Chain rule for three random variables (L07 slide 3).</b>
+$$p_{X,Y,Z}(x,y,z)=p_X(x)\,p_{Y|X}(y\mid x)\,p_{Z|X,Y}(z\mid x,y).$$
+<b>Derivation.</b> Write the joint PMF as the probability of an intersection of three events and
+apply the multiplication rule for events from G1 §2 twice:
+$$\mathbf{P}(A\cap B\cap C)=\mathbf{P}(A)\,\mathbf{P}(B\mid A)\,\mathbf{P}(C\mid A\cap B)$$
+with $A=\{X=x\}$, $B=\{Y=y\}$, $C=\{Z=z\}$. Translating each factor into PMF notation:
+$\mathbf{P}(A)=p_X(x)$; $\mathbf{P}(B\mid A)=p_{Y|X}(y\mid x)$;
+$\mathbf{P}(C\mid A\cap B)=p_{Z|X,Y}(z\mid x,y)$. This is exactly the tree-diagram picture from G1:
+choose $x$, then $y$ given $x$, then $z$ given both, multiplying branch probabilities along the
+path.</div>
+
+<div class="ex"><b>Example 4.3 (L07 slide 3 grid — every conditional PMF, computed).</b> Using
+Fig. 4.1 and $p_Y$ from Example 4.2, divide each row by its row total.
+<p><b>Row $y=1$</b> ($p_Y(1)=1/20$): only the cell $x=2$ is nonzero, with mass $1/20$, so
+$$p_{X|Y}(2\mid 1)=\frac{1/20}{1/20}=1,\qquad p_{X|Y}(x\mid 1)=0 \text{ for } x=1,3,4 .$$
+Knowing $Y=1$ pins $X$ down completely: $\mathbb{E}[X\mid Y=1]=2$ and
+$\operatorname{var}(X\mid Y=1)=0$.</p>
+<p><b>Row $y=2$</b> ($p_Y(2)=5/20$):
+$$p_{X|Y}(1\mid 2)=\frac{0}{5/20}=0,\quad
+p_{X|Y}(2\mid 2)=\frac{1/20}{5/20}=\frac15=0.2,\quad
+p_{X|Y}(3\mid 2)=\frac{3/20}{5/20}=\frac35=0.6,\quad
+p_{X|Y}(4\mid 2)=\frac{1/20}{5/20}=\frac15=0.2 .$$
+Sum $=0+0.2+0.6+0.2=1\ ✓$. Then
+$\mathbb{E}[X\mid Y=2]=2(0.2)+3(0.6)+4(0.2)=0.4+1.8+0.8=3$ and
+$\operatorname{var}(X\mid Y=2)=(2-3)^2(0.2)+(3-3)^2(0.6)+(4-3)^2(0.2)=0.2+0+0.2=0.4=\tfrac25$.</p>
+<p><b>Row $y=3$</b> ($p_Y(3)=9/20$):
+$$p_{X|Y}(1\mid 3)=\frac{2/20}{9/20}=\frac29,\quad
+p_{X|Y}(2\mid 3)=\frac{4/20}{9/20}=\frac49,\quad
+p_{X|Y}(3\mid 3)=\frac{1/20}{9/20}=\frac19,\quad
+p_{X|Y}(4\mid 3)=\frac{2/20}{9/20}=\frac29 .$$
+Sum $=\tfrac{2+4+1+2}{9}=1\ ✓$.
+$$\mathbb{E}[X\mid Y=3]=1\cdot\tfrac29+2\cdot\tfrac49+3\cdot\tfrac19+4\cdot\tfrac29
+=\tfrac{2+8+3+8}{9}=\tfrac{21}{9}=\tfrac73\approx2.3333,$$
+$$\mathbb{E}[X^2\mid Y=3]=\tfrac{1\cdot2+4\cdot4+9\cdot1+16\cdot2}{9}=\tfrac{2+16+9+32}{9}=\tfrac{59}{9},
+\qquad \operatorname{var}(X\mid Y=3)=\tfrac{59}{9}-\Big(\tfrac73\Big)^2=\tfrac{59}{9}-\tfrac{49}{9}
+=\tfrac{10}{9}\approx1.1111 .$$</p>
+<p><b>Row $y=4$</b> ($p_Y(4)=5/20$):
+$$p_{X|Y}(1\mid 4)=\frac{1/20}{5/20}=\frac15,\quad
+p_{X|Y}(2\mid 4)=\frac{2/20}{5/20}=\frac25,\quad
+p_{X|Y}(3\mid 4)=\frac25,\quad p_{X|Y}(4\mid 4)=0,$$
+sum $=\tfrac{1+2+2}{5}=1\ ✓$, with
+$\mathbb{E}[X\mid Y=4]=1(\tfrac15)+2(\tfrac25)+3(\tfrac25)=\tfrac{1+4+6}{5}=\tfrac{11}{5}=2.2$ and
+$\operatorname{var}(X\mid Y=4)=\tfrac{1\cdot1+4\cdot2+9\cdot2}{5}-(2.2)^2=\tfrac{27}{5}-4.84
+=5.4-4.84=0.56=\tfrac{14}{25}$.</p>
+<p><b>The other direction, $p_{Y|X}(\,\cdot\mid 2)$</b> (divide column $x=2$ by $p_X(2)=8/20$):
+$$p_{Y|X}(1\mid 2)=\frac{1/20}{8/20}=\frac18,\quad p_{Y|X}(2\mid 2)=\frac18,\quad
+p_{Y|X}(3\mid 2)=\frac{4/20}{8/20}=\frac12,\quad p_{Y|X}(4\mid 2)=\frac{2/20}{8/20}=\frac14,$$
+sum $=\tfrac{1+1+4+2}{8}=1\ ✓$, and
+$\mathbb{E}[Y\mid X=2]=1(\tfrac18)+2(\tfrac18)+3(\tfrac12)+4(\tfrac14)
+=\tfrac18+\tfrac28+\tfrac{12}{8}+\tfrac88=\tfrac{23}{8}=2.875$.</p>
+<p><b>Total expectation check.</b> The conditional means must average back to the unconditional one,
+weighted by $p_Y$ (the total expectation theorem of §3):
+$$\sum_y p_Y(y)\,\mathbb{E}[X\mid Y=y]
+=\tfrac{1}{20}(2)+\tfrac{5}{20}(3)+\tfrac{9}{20}\big(\tfrac73\big)+\tfrac{5}{20}\big(\tfrac{11}{5}\big)
+=0.1+0.75+1.05+0.55=2.45=\mathbb{E}[X] \ ✓$$
+matching Example 4.2. A failed check here always means an arithmetic error upstream.</p></div>
+
+<div class="note"><b>Interpretation.</b> Conditioning on $Y=y$ is "zoom in on one row and rescale".
+The <em>shape</em> of the row is what matters; the division by $p_Y(y)$ only restores the total to
+$1$. Notice how much the shape can change: given $Y=1$, $X$ is deterministic
+($\operatorname{var}=0$); given $Y=3$, $X$ is spread out ($\operatorname{var}=10/9$). Learning $Y$
+changes both your best guess about $X$ and your uncertainty about it.</div>
+
+<div class="warn"><b>Gotcha.</b> $p_{X|Y}(x\mid y)$ and $p_{Y|X}(y\mid x)$ are different functions
+built from the same cell. From the table, $p_{X|Y}(2\mid 3)=4/9\approx0.444$ but
+$p_{Y|X}(3\mid 2)=1/2=0.5$: same numerator $4/20$, different denominators ($9/20$ versus $8/20$).
+Confusing the two is the PMF version of the prosecutor's fallacy from G1 §2.</div>
+
+<div class="ex"><b>Practice 4.5.</b> From Fig. 4.1, compute $\mathbb{E}[Y\mid X=3]$ and
+$\operatorname{var}(Y\mid X=3)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Column $x=3$ has entries $0,\ 3/20,\ 1/20,\ 2/20$ at $y=1,2,3,4$, with total
+$p_X(3)=6/20$. Dividing: $p_{Y|X}(2\mid3)=\frac{3/20}{6/20}=\frac12$,
+$p_{Y|X}(3\mid3)=\frac{1}{6}$, $p_{Y|X}(4\mid3)=\frac{2}{6}=\frac13$; sum
+$\frac36+\frac16+\frac26=1$ ✓. Then
+$$\mathbb{E}[Y\mid X=3]=2\cdot\tfrac12+3\cdot\tfrac16+4\cdot\tfrac13=1+\tfrac12+\tfrac43
+=\tfrac{6+3+8}{6}=\tfrac{17}{6}\approx2.8333,$$
+$$\mathbb{E}[Y^2\mid X=3]=4\cdot\tfrac12+9\cdot\tfrac16+16\cdot\tfrac13=2+1.5+\tfrac{16}{3}
+=\tfrac{12+9+32}{6}=\tfrac{53}{6},$$
+$$\operatorname{var}(Y\mid X=3)=\tfrac{53}{6}-\Big(\tfrac{17}{6}\Big)^2=\tfrac{318}{36}-\tfrac{289}{36}
+=\tfrac{29}{36}\approx0.8056 .$$</p></div></details></div>
+
+<div class="ex"><b>Practice 4.6.</b> A fair coin is flipped; $X=1$ on heads, $X=0$ on tails. If
+$X=1$ you roll a fair 4-sided die and call the result $Y$; if $X=0$ you set $Y=1$. Write the joint
+PMF via the multiplication rule and find $p_Y(1)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Use $p_{X,Y}(x,y)=p_X(x)p_{Y|X}(y\mid x)$ with $p_X(0)=p_X(1)=\tfrac12$. Given $X=0$:
+$p_{Y|X}(1\mid0)=1$, so $p_{X,Y}(0,1)=\tfrac12\cdot1=\tfrac12$ and $p_{X,Y}(0,y)=0$ for
+$y=2,3,4$. Given $X=1$: $p_{Y|X}(y\mid1)=\tfrac14$ for $y=1,2,3,4$, so
+$p_{X,Y}(1,y)=\tfrac12\cdot\tfrac14=\tfrac18$ for each of the four values. Total:
+$\tfrac12+4\cdot\tfrac18=\tfrac12+\tfrac12=1$ ✓. Marginalizing over $x$,
+$p_Y(1)=\tfrac12+\tfrac18=\tfrac58=0.625$, while $p_Y(2)=p_Y(3)=p_Y(4)=\tfrac18=0.125$.</p></div></details></div>
+
+<h3>4.4 Conditioning on a general event, and the L07 grid worked out</h3>
+
+<p>Conditioning on $\{Y=y\}$ is a special case of a more useful operation: conditioning on
+<em>any</em> event $A$ with $\mathbf{P}(A)&gt;0$ defined in terms of $X$ and $Y$. The recipe is the
+definition of conditional probability applied cell by cell.</p>
+
+<div class="defn"><b>Definition (joint PMF conditioned on an event; B&amp;T §2.6).</b> For an event $A$ with
+$\mathbf{P}(A)&gt;0$,
+$$p_{X,Y\mid A}(x,y)=\mathbf{P}(X=x,\ Y=y\mid A)
+=\frac{\mathbf{P}(\{X=x,Y=y\}\cap A)}{\mathbf{P}(A)}
+=\begin{cases}\dfrac{p_{X,Y}(x,y)}{\mathbf{P}(A)}, &amp; \text{if }(x,y)\in A,\\[6pt] 0, &amp;\text{otherwise,}\end{cases}$$
+where the last line uses the fact that when $A$ is described by the values of $X$ and $Y$, the event
+$\{X=x,Y=y\}$ is either entirely inside $A$ or entirely outside it. And
+$\mathbf{P}(A)=\sum_{(x,y)\in A}p_{X,Y}(x,y)$ by additivity.</div>
+
+<div class="recipe"><b>Recipe — conditioning a joint table on an event $A$.</b>
+<ol>
+<li><b>Cross out</b> every cell not in $A$ (set it to zero).</li>
+<li><b>Add up</b> the surviving cells: that total is $\mathbf{P}(A)$.</li>
+<li><b>Divide</b> every surviving cell by $\mathbf{P}(A)$. Verify the new table sums to $1$.</li>
+<li><b>Answer the question</b> using the new table exactly as you would any joint PMF: marginalize
+for $p_{X\mid A}$, divide rows for conditionals, apply the expected value rule for
+$\mathbb{E}[g(X,Y)\mid A]$.</li>
+</ol>
+Steps 1–3 are "restrict and renormalize"; they are the only new idea, and they are the same three
+steps you used in G1 to condition a discrete-uniform law on a sub-event.</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s4_flow}}" alt="Flowchart: starting from a joint PMF table, three branches for the law of one variable alone (marginalize), the law given Y equals y (condition by dividing by the row total), and the law given a general event A (restrict and renormalize), all converging on the instruction to sum a block and divide by that sum, and finally on the expected value rule for functions of two random variables." style="max-width:900px">
+<div class="figcap">Fig. 4.2 — Decision guide for questions asked of a joint PMF. Every branch is "sum a set of cells, then divide by that sum" (L07 slides 2–4; B&amp;T §2.5–2.6).</div>
+
+<div class="ex"><b>Example 4.4 (L07 slide 3, second unsolved query — "What if we condition on
+$X\le 2$ and $Y\ge 3$?").</b> The slide poses this question and leaves it blank. Solve it in full.
+<p><b>Step 1 — identify the event.</b> $B=\{X\le 2\}\cap\{Y\ge 3\}$ is the $2\times2$ block of cells
+with $x\in\{1,2\}$ and $y\in\{3,4\}$, namely $(1,3),(2,3),(1,4),(2,4)$.</p>
+<p><b>Step 2 — its probability.</b> Add those four cells:
+$$\mathbf{P}(B)=p_{X,Y}(1,3)+p_{X,Y}(2,3)+p_{X,Y}(1,4)+p_{X,Y}(2,4)
+=\tfrac{2}{20}+\tfrac{4}{20}+\tfrac{1}{20}+\tfrac{2}{20}=\tfrac{9}{20}=0.45 .$$</p>
+<p><b>Step 3 — renormalize.</b> Divide each surviving cell by $9/20$, i.e. multiply by $20/9$:
+$$p_{X,Y\mid B}(1,3)=\frac{2/20}{9/20}=\frac29,\quad
+p_{X,Y\mid B}(2,3)=\frac{4/20}{9/20}=\frac49,\quad
+p_{X,Y\mid B}(1,4)=\frac{1}{9},\quad
+p_{X,Y\mid B}(2,4)=\frac{2}{9},$$
+and every other cell is $0$. Check: $\tfrac{2+4+1+2}{9}=\tfrac99=1$ ✓.</p>
+<p><b>Step 4 — the conditional marginals.</b> Marginalize the new table:
+$$p_{X\mid B}(1)=\tfrac29+\tfrac19=\tfrac39=\tfrac13,\qquad
+p_{X\mid B}(2)=\tfrac49+\tfrac29=\tfrac69=\tfrac23,$$
+$$p_{Y\mid B}(3)=\tfrac29+\tfrac49=\tfrac69=\tfrac23,\qquad
+p_{Y\mid B}(4)=\tfrac19+\tfrac29=\tfrac39=\tfrac13 .$$
+Both sum to $1$ ✓.</p>
+<p><b>Step 5 — conditional mean and variance of $X$.</b>
+$$\mathbb{E}[X\mid B]=1\cdot\tfrac13+2\cdot\tfrac23=\tfrac13+\tfrac43=\tfrac53\approx1.6667,$$
+$$\mathbb{E}[X^2\mid B]=1\cdot\tfrac13+4\cdot\tfrac23=\tfrac13+\tfrac83=3,\qquad
+\operatorname{var}(X\mid B)=3-\Big(\tfrac53\Big)^2=3-\tfrac{25}{9}=\tfrac{2}{9}\approx0.2222 .$$
+Compare with the unconditional $\mathbb{E}[X]=2.45$, $\operatorname{var}(X)=0.8475$: conditioning on
+$B$ pushes the mean down (it forbids $X=3,4$) and shrinks the variance by a factor of nearly four
+(only two values survive).</p>
+<p>Likewise $\mathbb{E}[Y\mid B]=3\cdot\tfrac23+4\cdot\tfrac13=2+\tfrac43=\tfrac{10}{3}\approx3.3333$
+and $\operatorname{var}(Y\mid B)=\big(9\cdot\tfrac23+16\cdot\tfrac13\big)-\big(\tfrac{10}{3}\big)^2
+=\tfrac{18+16}{3}-\tfrac{100}{9}=\tfrac{102-100}{9}=\tfrac29\approx0.2222$.</p>
+<p><b>Step 6 — the punchline the slide is fishing for.</b> Multiply the conditional marginals:
+$$p_{X\mid B}(1)p_{Y\mid B}(3)=\tfrac13\cdot\tfrac23=\tfrac29
+=p_{X,Y\mid B}(1,3)\ ✓,\qquad
+p_{X\mid B}(2)p_{Y\mid B}(3)=\tfrac23\cdot\tfrac23=\tfrac49=p_{X,Y\mid B}(2,3)\ ✓,$$
+$$p_{X\mid B}(1)p_{Y\mid B}(4)=\tfrac13\cdot\tfrac13=\tfrac19=p_{X,Y\mid B}(1,4)\ ✓,\qquad
+p_{X\mid B}(2)p_{Y\mid B}(4)=\tfrac23\cdot\tfrac13=\tfrac29=p_{X,Y\mid B}(2,4)\ ✓ .$$
+All four cells factor, so <b>conditioned on $B$, $X$ and $Y$ are independent</b> — even though (as
+§4.5 shows) they are <em>not</em> independent unconditionally. As a corollary,
+$\mathbb{E}[XY\mid B]=\mathbb{E}[X\mid B]\,\mathbb{E}[Y\mid B]=\tfrac53\cdot\tfrac{10}{3}
+=\tfrac{50}{9}\approx5.5556$, which you can verify directly:
+$\tfrac{1\cdot3\cdot2+2\cdot3\cdot4+1\cdot4\cdot1+2\cdot4\cdot2}{9}
+=\tfrac{6+24+4+16}{9}=\tfrac{50}{9}$ ✓.</p></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s4_renorm}}" alt="Two four-by-four grids side by side. Left: the full joint PMF with the two-by-two block for X at most 2 and Y at least 3 outlined in orange, total probability nine twentieths. Right: the same block after dividing by nine twentieths, showing two ninths, four ninths, one ninth and two ninths, all other cells zero." style="max-width:960px">
+<div class="figcap">Fig. 4.3 — Restrict and renormalize. Left: the block $B=\{X\le2,\ Y\ge3\}$ carries $\mathbf{P}(B)=9/20=0.45$. Right: dividing every surviving cell by $9/20$ produces a joint PMF that sums to $1$ (L07 slide 3; B&amp;T §2.6).</div>
+
+<div class="note"><b>Interpretation.</b> Conditioning never changes the <em>relative</em> sizes of
+the surviving cells — $(1,3)$ was twice $(1,4)$ before ($2/20$ vs $1/20$) and is twice $(1,4)$ after
+($2/9$ vs $1/9$). All the division does is restore normalization. That is why conditional
+probability is often described as "renormalized restriction", and why the shape of a conditional
+PMF can be read off the original table before any arithmetic.</div>
+
+<div class="warn"><b>Gotcha.</b> Conditional independence given an event $B$ and unconditional
+independence are logically unrelated — neither implies the other, in either direction.
+<em>Conditioning can create independence:</em> Example 4.4 above, where the dependent pair of
+Fig. 4.1 factors once restricted to $B=\{X\le2,Y\ge3\}$, and again in rec07 P2 (§4.9), where $X,Y$
+are provably dependent for every completion of the table (part d) yet are independent conditioned on
+$B=\{X\le2,Y\le2\}$ (parts e–f). <em>Conditioning can equally destroy it:</em> let $X,Y$ be
+independent fair coin indicators, $p_{X,Y}(x,y)=\tfrac14$ on $\{0,1\}^2$, and condition on
+$A=\{X+Y=1\}$, which has $\mathbf{P}(A)=\tfrac12$. The conditional table keeps only $(0,1)$ and
+$(1,0)$, each with mass $\frac{1/4}{1/2}=\tfrac12$, so $p_{X\mid A}(0)=p_{Y\mid A}(1)=\tfrac12$ but
+$p_{X,Y\mid A}(0,1)=\tfrac12\ne\tfrac12\cdot\tfrac12=\tfrac14$ — knowing $X$ now determines $Y$.
+Always say what you are conditioning on.</div>
+
+<p>The widget below is the whole of §4.3–§4.4 made interactive. Pick a conditioning event and watch
+the conditional PMF of $X$ redraw with the renormalization spelled out. All displayed values are
+verified in <code>computes/g2_s4.py</code> (block "widget table").</p>
+
+<div id="w-g2s4-jointpmf"></div>
+<script>
+Widget.create({
+  el: '#w-g2s4-jointpmf',
+  title: 'Joint PMF explorer — the L07 slide-3 grid, conditioned',
+  note: 'Numerators over 20 are the slide-3 table. Choose a conditioning event: the surviving cells are kept, summed to give P(event), and divided by that sum. The thick stems show the resulting conditional PMF of X; the thin stems offset to their right are the unconditional p_X, shown for comparison.',
+  height: 330,
+  controls: [
+    {type:'select', id:'ev', label:'condition on', value:'none', options:[
+      {v:'none',  label:'nothing (full joint PMF)'},
+      {v:'y1',    label:'Y = 1'},
+      {v:'y2',    label:'Y = 2'},
+      {v:'y3',    label:'Y = 3'},
+      {v:'y4',    label:'Y = 4'},
+      {v:'blk',   label:'X <= 2 and Y >= 3   (slide 3)'},
+      {v:'xle2',  label:'X <= 2'}
+    ]},
+    {type:'check', id:'ref', label:'show unconditional p_X', value:true}
+  ],
+  draw(s, canvas, out) {
+    // numerators over 20, indexed [x][y], x,y in 1..4
+    const N = {1:{1:0,2:0,3:2,4:1}, 2:{1:1,2:1,3:4,4:2}, 3:{1:0,2:3,3:1,4:2}, 4:{1:0,2:1,3:2,4:0}};
+    const keep = (x, y) => {
+      if (s.ev === 'none') return true;
+      if (s.ev === 'y1') return y === 1;
+      if (s.ev === 'y2') return y === 2;
+      if (s.ev === 'y3') return y === 3;
+      if (s.ev === 'y4') return y === 4;
+      if (s.ev === 'blk') return x <= 2 && y >= 3;
+      return x <= 2;
+    };
+    let tot = 0;
+    const colNum = [0, 0, 0, 0, 0];   // 1-indexed numerator of each x column
+    for (let x = 1; x !== 5; x++) for (let y = 1; y !== 5; y++) {
+      if (keep(x, y)) { tot += N[x][y]; colNum[x] += N[x][y]; }
+    }
+    const gcd = (a, b) => b ? gcd(b, a % b) : a;
+    const frac = (a, b) => { if (a === 0) return '0'; const g = gcd(a, b); return (b / g === 1) ? String(a / g) : (a / g) + '/' + (b / g); };
+    const xs = [1, 2, 3, 4];
+    const pc = xs.map((x) => tot ? colNum[x] / tot : 0);
+    const pu = xs.map((x) => (N[x][1] + N[x][2] + N[x][3] + N[x][4]) / 20);
+    const ymax = Math.max(0.45, Math.max.apply(null, pc) * 1.25);
+    const P = new Plot(canvas, {xlim:[0.4, 4.6], ylim:[0, ymax], height:330,
+      xticks:[1,2,3,4], xlabel:'x', ylabel:'conditional PMF of X'});
+    P.frame();
+    if (s.ref) P.stem(xs.map((x) => x + 0.08), pu, {color:4, width:1.4, r:3, label:'unconditional p_X(x)'});
+    P.stem(xs.map((x) => x - 0.08), pc, {color:0, width:3, r:5, label:'p_X|event(x)'});
+    for (let i = 0; i !== 4; i++) {
+      if (pc[i] > 0) P.text(frac(colNum[i + 1], tot), xs[i] - 0.08, pc[i], {dy:8, color:'#1a1a1a'});
+    }
+    P.legend('right');
+    let mu = 0, m2 = 0;
+    for (let i = 0; i !== 4; i++) { mu += xs[i] * pc[i]; m2 += xs[i] * xs[i] * pc[i]; }
+    const vr = m2 - mu * mu;
+    out.textContent =
+      'P(event) = ' + frac(tot, 20) + ' = ' + (tot / 20).toFixed(4) +
+      '   |   surviving column masses (numerators over ' + tot + '): ' +
+      xs.map((x) => 'x=' + x + ': ' + frac(colNum[x], tot)).join(', ') +
+      '   |   E[X | event] = ' + mu.toFixed(4) +
+      '   |   var(X | event) = ' + vr.toFixed(4);
+  }
+});
+</script>
+
+<p>Three experiments worth running. (1) Choose $Y=1$: the conditional PMF collapses to a single
+stem of height $1$ at $x=2$, $\mathbb{E}=2$, $\operatorname{var}=0$ — one observation removes all
+uncertainty. (2) Choose $Y=3$: the readout gives $\mathbb{E}=2.3333$, $\operatorname{var}=1.1111$,
+matching Example 4.3, and the shape is close to the unconditional one because row $y=3$ carries
+$9/20$ of all the mass. (3) Compare "$X\le2$ and $Y\ge3$" ($\mathbb{E}=1.6667$,
+$\operatorname{var}=0.2222$) with "$X\le2$" alone ($\mathbb{E}=1.7273$,
+$\operatorname{var}=0.1983$): both truncate $X$ to $\{1,2\}$, but adding the $Y\ge3$ requirement
+reweights which of the two is more likely, from $8/11$ to $2/3$.</p>
+
+<div class="ex"><b>Practice 4.7.</b> Condition the Fig. 4.1 table on the event $C=\{X=Y\}$ and
+compute $\mathbb{E}[X\mid C]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The diagonal cells are $(1,1)=0$, $(2,2)=1/20$, $(3,3)=1/20$, $(4,4)=0$. So
+$\mathbf{P}(C)=\tfrac{1}{20}+\tfrac{1}{20}=\tfrac{2}{20}=\tfrac{1}{10}=0.1$. Renormalizing,
+$p_{X,Y\mid C}(2,2)=\frac{1/20}{2/20}=\tfrac12$ and $p_{X,Y\mid C}(3,3)=\tfrac12$; all other cells
+are $0$ and the two sum to $1$ ✓. Hence
+$\mathbb{E}[X\mid C]=2\cdot\tfrac12+3\cdot\tfrac12=\tfrac52=2.5$ (and by symmetry
+$\mathbb{E}[Y\mid C]=2.5$ as well).</p></div></details></div>
+
+<div class="ex"><b>Practice 4.8.</b> For the same table, is
+$\mathbf{P}(X\le 2\mid Y\ge3)$ equal to $\mathbf{P}(Y\ge3\mid X\le2)$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>No. Both have the same numerator $\mathbf{P}(X\le2,\ Y\ge3)=9/20$, but different denominators.
+$\mathbf{P}(Y\ge3)=\tfrac{9}{20}+\tfrac{5}{20}=\tfrac{14}{20}$, so
+$\mathbf{P}(X\le2\mid Y\ge3)=\frac{9/20}{14/20}=\tfrac{9}{14}\approx0.6429$. Meanwhile
+$\mathbf{P}(X\le2)=\tfrac{11}{20}$, so
+$\mathbf{P}(Y\ge3\mid X\le2)=\frac{9/20}{11/20}=\tfrac{9}{11}\approx0.8182$. Same joint mass, two
+different conditional probabilities — the asymmetry of conditioning, again.</p></div></details></div>
+
+<h3>4.5 Independence of random variables</h3>
+
+<p>G1 defined independence for <em>events</em>: $A$ and $B$ are independent if
+$\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$ — a single numerical identity. For random
+variables the definition demands the same identity for every value pair simultaneously. L07 slide 3
+prints the qualifier "for all $x,y,z$" in red for exactly this reason.</p>
+
+<div class="defn"><b>Definition (independent random variables; L07 slide 3, B&amp;T §2.7).</b> $X$ and $Y$
+are <b>independent</b> if
+$$p_{X,Y}(x,y)=p_X(x)\,p_Y(y)\qquad\textbf{for all }x,y .$$
+Three random variables $X,Y,Z$ are independent if
+$$p_{X,Y,Z}(x,y,z)=p_X(x)\,p_Y(y)\,p_Z(z)\qquad\textbf{for all }x,y,z .$$
+Equivalently (dividing by $p_Y(y)$ where it is positive), $X$ and $Y$ are independent iff
+$p_{X|Y}(x\mid y)=p_X(x)$ for all $x$ and all $y$ with $p_Y(y)&gt;0$: conditioning on $Y$ never
+changes the law of $X$.</div>
+
+<div class="warn"><b>Gotcha — "for all" really means all.</b> Independence of the random variables
+$X$ and $Y$ is <em>much</em> stronger than independence of one pair of events built from them. In
+the Fig. 4.1 table the single pair of events $\{X=2\}$ and $\{Y=4\}$ <em>is</em> independent:
+$$p_{X,Y}(2,4)=\tfrac{2}{20}=\tfrac{1}{10}=0.1,\qquad
+p_X(2)\,p_Y(4)=\tfrac{8}{20}\cdot\tfrac{5}{20}=\tfrac{40}{400}=\tfrac{1}{10}=0.1 ,$$
+so the product identity holds at $(2,4)$. But it fails at fifteen of the sixteen cells, so the
+random variables are dependent. One lucky cell proves nothing — and this is exactly the contrast
+with G1 §3, where checking a single product identity settled the question for a single pair of
+events.</div>
+
+<div class="ex"><b>Example 4.5 (L07 slide 3, first unsolved query — "Independent?").</b> Decide
+whether $X$ and $Y$ of Fig. 4.1 are independent.
+<p><b>Fastest disproof: find one zero in the wrong place.</b> The cell $(1,1)$ has
+$p_{X,Y}(1,1)=0$. But $p_X(1)=\tfrac{3}{20}=0.15&gt;0$ and $p_Y(1)=\tfrac{1}{20}=0.05&gt;0$, so
+$$p_X(1)\,p_Y(1)=\tfrac{3}{20}\cdot\tfrac{1}{20}=\tfrac{3}{400}=0.0075\ne 0=p_{X,Y}(1,1).$$
+The factorization fails at $(x,y)=(1,1)$, so <b>$X$ and $Y$ are not independent</b>.</p>
+<p><b>Why the zero pattern alone settles it.</b> If $X$ and $Y$ were independent, the set of cells
+with positive probability would be a full rectangle: $p_{X,Y}(x,y)&gt;0$ exactly when
+$p_X(x)&gt;0$ <em>and</em> $p_Y(y)&gt;0$. Fig. 4.1's support is a ragged blob, not a rectangle, so
+independence is impossible. Learn this as a one-second visual test.</p>
+<p><b>Second disproof: conditionals differ.</b> From Example 4.3,
+$p_{X|Y}(2\mid1)=1$ while $p_{X|Y}(2\mid2)=\tfrac15=0.2$. Independence would require both to equal
+$p_X(2)=\tfrac{8}{20}=0.4$. Knowing $Y$ demonstrably changes the law of $X$.</p>
+<p><b>Third view: the covariance is nonzero.</b> Using the expected value rule of §4.6,
+$$\mathbb{E}[XY]=\sum_x\sum_y xy\,p_{X,Y}(x,y)=\tfrac{139}{20}=6.95,$$
+while $\mathbb{E}[X]\mathbb{E}[Y]=2.45\times2.9=7.105=\tfrac{1421}{200}$, so
+$$\operatorname{cov}(X,Y)=\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]=6.95-7.105=-0.155=-\tfrac{31}{200}\ne0 .$$
+A nonzero covariance <em>proves</em> dependence (independence forces $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$),
+though a zero covariance would <em>not</em> prove independence.</p></div>
+
+<div class="recipe"><b>Recipe — is this pair independent?</b> In increasing order of effort; stop at
+the first "no".
+<ol>
+<li><b>Support test.</b> Is the set of positive cells a full rectangle (product of the two supports)?
+If a cell is $0$ while its row and column totals are both positive, answer <em>no</em>, done.</li>
+<li><b>Proportional rows test.</b> Independence means every row of the table is a scalar multiple of
+every other row. Pick two rows and two columns and check
+$\dfrac{p_{X,Y}(x_1,y_1)}{p_{X,Y}(x_1,y_2)}=\dfrac{p_{X,Y}(x_2,y_1)}{p_{X,Y}(x_2,y_2)}$; a single
+violation answers <em>no</em> (this is the trick rec07 P2 uses).</li>
+<li><b>Full check.</b> Compute both marginals and verify $p_{X,Y}(x,y)=p_X(x)p_Y(y)$ in
+<em>every</em> cell. Only a complete pass justifies answering <em>yes</em>.</li>
+</ol>
+Never conclude independence from a physical story alone ("different dice, so independent") when a
+table is available — check the table.</div>
+
+<div class="note"><b>Interpretation.</b> Independence is a rank-one condition: the matrix of joint
+probabilities must be the outer product of the two marginal vectors. That is a very special table.
+Generic tables are dependent; independence is an assumption you impose to make a model tractable,
+and it must be justified by how the experiment is run (separate coins, separate trials), then
+checked when a table is handed to you.</div>
+
+<div class="ex"><b>Practice 4.9.</b> Are $X$ and $Y$ independent if
+$p_{X,Y}(x,y)=\tfrac18,\tfrac38,\tfrac18,\tfrac38$ at $(0,0),(0,1),(1,0),(1,1)$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Marginals: $p_X(0)=\tfrac18+\tfrac38=\tfrac12$, $p_X(1)=\tfrac18+\tfrac38=\tfrac12$;
+$p_Y(0)=\tfrac18+\tfrac18=\tfrac14$, $p_Y(1)=\tfrac38+\tfrac38=\tfrac34$. Check all four cells:
+$p_X(0)p_Y(0)=\tfrac12\cdot\tfrac14=\tfrac18$ ✓;
+$p_X(0)p_Y(1)=\tfrac12\cdot\tfrac34=\tfrac38$ ✓;
+$p_X(1)p_Y(0)=\tfrac18$ ✓; $p_X(1)p_Y(1)=\tfrac38$ ✓. All four hold, so $X$ and $Y$
+<em>are</em> independent. (This is Table A of Practice 4.2.)</p></div></details></div>
+
+<div class="ex"><b>Practice 4.10.</b> $X$ is uniform on $\{-1,0,1\}$ and $Y=X^2$. Show
+$\operatorname{cov}(X,Y)=0$ but $X,Y$ are dependent.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mathbb{E}[X]=\tfrac13(-1+0+1)=0$ and $XY=X\cdot X^2=X^3$, so
+$\mathbb{E}[XY]=\mathbb{E}[X^3]=\tfrac13(-1+0+1)=0$. Hence
+$\operatorname{cov}(X,Y)=0-0\cdot\mathbb{E}[Y]=0$. But $Y$ is a function of $X$: given $X=0$ we know
+$Y=0$ with certainty, i.e. $p_{Y|X}(0\mid0)=1$, whereas $p_Y(0)=\tfrac13$. The factorization fails
+($p_{X,Y}(0,0)=\tfrac13$ but $p_X(0)p_Y(0)=\tfrac13\cdot\tfrac13=\tfrac19$), so they are dependent.
+Zero covariance does not imply independence.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.11.</b> $X_1,X_2,X_3$ are independent, each uniform on $\{0,1\}$.
+Compute $\mathbf{P}(X_1=X_2=X_3)$ and $\mathbf{P}(X_1+X_2+X_3=2)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>By the three-variable factorization, every one of the $8$ triples has probability
+$\tfrac12\cdot\tfrac12\cdot\tfrac12=\tfrac18$. The event $\{X_1=X_2=X_3\}$ is $\{(0,0,0),(1,1,1)\}$,
+so its probability is $2\cdot\tfrac18=\tfrac14=0.25$. The event $\{X_1+X_2+X_3=2\}$ contains the
+three triples with exactly two ones, so its probability is $3\cdot\tfrac18=\tfrac38=0.375$ — the
+binomial value $\binom{3}{2}(\tfrac12)^2(\tfrac12)^1$.</p></div></details></div>
+
+<h3>4.6 Expectation of a function of two random variables; linearity</h3>
+
+<p>L07 slide 4 states the expected value rule for two variables and three consequences without
+proof. rec07 P1 (= B&amp;T Problem 2.35, p. 130) asks for exactly the missing verification, and the
+recitation handout defers it to the text. Here it is in full.</p>
+
+<div class="thm"><b>Expected value rule for $g(X,Y)$ (L07 slide 4; B&amp;T §2.5).</b> Let $Z=g(X,Y)$ for a
+real-valued function $g$. Then
+$$\mathbb{E}[Z]=\mathbb{E}[g(X,Y)]=\sum_x\sum_y g(x,y)\,p_{X,Y}(x,y),$$
+provided the sum is well defined. No PMF of $Z$ needs to be computed.</div>
+
+<div class="ex"><b>Example 4.6 (rec07 P1 = B&amp;T Problem 2.35, p. 130 — full derivation; the
+recitation solution defers to the text).</b>
+<p><b>Part 1 — verify the expected value rule using the single-variable rule.</b> The trick is to
+package the pair into one random variable. Define $W=(X,Y)$, a random variable taking values in
+pairs; more carefully, since we only need a discrete object, let $z$ range over the distinct values
+of $Z=g(X,Y)$. Start from the definition of expectation applied to $Z$:
+$$\mathbb{E}[Z]=\sum_z z\,p_Z(z).$$
+Every variable here: $z$ is a value of $Z$, and $p_Z(z)=\mathbf{P}(g(X,Y)=z)$.</p>
+<p>Now express $p_Z(z)$ through the joint PMF. The event $\{Z=z\}$ is the union of the disjoint
+cells $\{X=x,Y=y\}$ over all pairs $(x,y)$ with $g(x,y)=z$; disjoint because distinct cells are
+disjoint. Additivity gives
+$$p_Z(z)=\sum_{\{(x,y)\,:\,g(x,y)=z\}} p_{X,Y}(x,y).$$
+Substitute:
+$$\mathbb{E}[Z]=\sum_z z\!\!\sum_{\{(x,y):g(x,y)=z\}}\!\! p_{X,Y}(x,y)
+=\sum_z \sum_{\{(x,y):g(x,y)=z\}} \underbrace{z}_{=\,g(x,y)}\,p_{X,Y}(x,y)
+=\sum_z\sum_{\{(x,y):g(x,y)=z\}} g(x,y)\,p_{X,Y}(x,y),$$
+where the constant $z$ moved inside the inner sum (it does not depend on $(x,y)$) and was then
+rewritten as $g(x,y)$, legal because inside that inner sum $g(x,y)=z$ by construction. Finally, the
+sets $\{(x,y):g(x,y)=z\}$ over distinct $z$ are disjoint and their union is all pairs, so the
+double sum is just a sum over all $(x,y)$:
+$$\mathbb{E}[g(X,Y)]=\sum_x\sum_y g(x,y)\,p_{X,Y}(x,y).\qquad\blacksquare$$</p>
+<p><b>Part 2 — linearity, $\mathbb{E}[aX+bY]=a\mathbb{E}[X]+b\mathbb{E}[Y]$.</b> Apply the rule
+with $g(x,y)=ax+by$, where $a,b$ are given scalars:
+$$\mathbb{E}[aX+bY]=\sum_x\sum_y (ax+by)\,p_{X,Y}(x,y)
+=a\sum_x\sum_y x\,p_{X,Y}(x,y)+b\sum_x\sum_y y\,p_{X,Y}(x,y),$$
+splitting the sum (finite sums may be split) and pulling out the constants. Treat the first double
+sum: $x$ does not depend on the inner index $y$, so
+$$\sum_x\sum_y x\,p_{X,Y}(x,y)=\sum_x x\sum_y p_{X,Y}(x,y)=\sum_x x\,p_X(x)=\mathbb{E}[X],$$
+the middle step being marginalization (§4.2). Symmetrically, exchanging the order of summation,
+$$\sum_x\sum_y y\,p_{X,Y}(x,y)=\sum_y y\sum_x p_{X,Y}(x,y)=\sum_y y\,p_Y(y)=\mathbb{E}[Y].$$
+Therefore $\mathbb{E}[aX+bY]=a\mathbb{E}[X]+b\mathbb{E}[Y]$. $\blacksquare$</p>
+<p><b>Corollaries on slide 4.</b> Taking $b=0$ and adding a constant (a degenerate random variable
+with $\mathbb{E}[\beta]=\beta$) gives $\mathbb{E}[\alpha X+\beta]=\alpha\mathbb{E}[X]+\beta$.
+Applying the two-variable result twice gives
+$\mathbb{E}[X+Y+Z]=\mathbb{E}[(X+Y)+Z]=\mathbb{E}[X+Y]+\mathbb{E}[Z]
+=\mathbb{E}[X]+\mathbb{E}[Y]+\mathbb{E}[Z]$, and by induction the same for any finite number of
+terms. <b>No independence is used anywhere in this derivation</b> — linearity holds for arbitrarily
+dependent random variables.</p></div>
+
+<div class="thm"><b>Products under independence (L07 slide 4; B&amp;T §2.7).</b> If $X$ and $Y$ are
+independent then
+$$\mathbb{E}[XY]=\mathbb{E}[X]\,\mathbb{E}[Y],\qquad
+\mathbb{E}[g(X)h(Y)]=\mathbb{E}[g(X)]\cdot\mathbb{E}[h(Y)].$$
+<b>Derivation (the expansion the slide omits).</b> Use the expected value rule with the function
+$(x,y)\mapsto xy$ and then the factorization $p_{X,Y}=p_Xp_Y$:
+$$\mathbb{E}[XY]=\sum_x\sum_y xy\,p_{X,Y}(x,y)=\sum_x\sum_y xy\,p_X(x)p_Y(y)
+=\sum_x x\,p_X(x)\sum_y y\,p_Y(y)=\mathbb{E}[X]\,\mathbb{E}[Y],$$
+where the third equality factors the inner sum out because $x\,p_X(x)$ does not depend on $y$. The
+general version is identical with $g(x)$ in place of $x$ and $h(y)$ in place of $y$:
+$$\mathbb{E}[g(X)h(Y)]=\sum_x\sum_y g(x)h(y)p_X(x)p_Y(y)
+=\Big(\sum_x g(x)p_X(x)\Big)\Big(\sum_y h(y)p_Y(y)\Big)=\mathbb{E}[g(X)]\mathbb{E}[h(Y)].$$</div>
+
+<div class="warn"><b>Gotcha — $\mathbb{E}[g(X,Y)]\ne g(\mathbb{E}[X],\mathbb{E}[Y])$ in general
+(L07 slide 4).</b> Test it on Fig. 4.1 with $g(x,y)=xy$: the correct value is
+$\mathbb{E}[XY]=6.95$, while $g(\mathbb{E}[X],\mathbb{E}[Y])=2.45\times2.9=7.105$. They differ by
+exactly the covariance, $-0.155$. Substituting means into a nonlinear function is one of the most
+common modeling errors in practice; it is legal only when $g$ is linear (affine), which is precisely
+what makes linearity of expectation special.</div>
+
+<div class="ex"><b>Practice 4.12.</b> For the Fig. 4.1 table, compute $\mathbb{E}[X+Y]$ two ways.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Way 1 (linearity):</b> $\mathbb{E}[X+Y]=\mathbb{E}[X]+\mathbb{E}[Y]=2.45+2.9=5.35$.</p>
+<p><b>Way 2 (expected value rule, cell by cell, numerators over 20):</b>
+$$\sum_x\sum_y (x+y)\,p_{X,Y}(x,y)=\tfrac{1}{20}\Big[
+\underbrace{(1{+}4)1+(2{+}4)2+(3{+}4)2}_{y=4}
++\underbrace{(1{+}3)2+(2{+}3)4+(3{+}3)1+(4{+}3)2}_{y=3}$$
+$$+\underbrace{(2{+}2)1+(3{+}2)3+(4{+}2)1}_{y=2}
++\underbrace{(2{+}1)1}_{y=1}\Big]
+=\tfrac{1}{20}\big[(5+12+14)+(8+20+6+14)+(4+15+6)+3\big]=\tfrac{107}{20}=5.35\ ✓$$
+Linearity is obviously the cheaper route — that is the point of it.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.13.</b> $X$ and $Y$ are independent with $\mathbb{E}[X]=2$,
+$\mathbb{E}[Y]=-1$. Find $\mathbb{E}[3X-2Y+5]$ and $\mathbb{E}[XY]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>By linearity (no independence needed):
+$\mathbb{E}[3X-2Y+5]=3\mathbb{E}[X]-2\mathbb{E}[Y]+5=3(2)-2(-1)+5=6+2+5=13$.
+By the product rule (independence needed):
+$\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]=2\cdot(-1)=-2$.</p></div></details></div>
+
+<h3>4.7 Variance of a sum</h3>
+
+<p>Slide 5 lists three variance facts and then three examples with the answers left blank. We derive
+the general result first, then fill in all three blanks.</p>
+
+<p>Recall from §3 the two scaling rules, both immediate from the definition
+$\operatorname{var}(W)=\mathbb{E}[(W-\mathbb{E}[W])^2]$:
+$$\operatorname{var}(aX)=a^2\operatorname{var}(X),\qquad \operatorname{var}(X+a)=\operatorname{var}(X),$$
+for any constant $a$ — scaling stretches deviations by $|a|$ (hence squares by $a^2$), shifting
+moves the mean along with the values and leaves deviations untouched.</p>
+
+<div class="thm"><b>Property (variance of a sum; L07 slide 5, B&amp;T §2.7).</b> For any $X,Y$ with finite
+variances,
+$$\operatorname{var}(X+Y)=\operatorname{var}(X)+\operatorname{var}(Y)+2\operatorname{cov}(X,Y),
+\qquad \operatorname{cov}(X,Y)=\mathbb{E}\big[(X-\mathbb{E}[X])(Y-\mathbb{E}[Y])\big].$$
+If $X$ and $Y$ are <b>independent</b>, the cross term vanishes and
+$$\operatorname{var}(X+Y)=\operatorname{var}(X)+\operatorname{var}(Y).$$</div>
+
+<p><b>Derivation (the slide states the result with no proof).</b> Write $\mu_X=\mathbb{E}[X]$ and
+$\mu_Y=\mathbb{E}[Y]$ for the two means, and let $Z=X+Y$. By linearity (§4.6),
+$\mathbb{E}[Z]=\mu_X+\mu_Y$. Then, by definition of variance,
+$$\operatorname{var}(Z)=\mathbb{E}\big[(Z-\mathbb{E}[Z])^2\big]
+=\mathbb{E}\big[\big((X+Y)-(\mu_X+\mu_Y)\big)^2\big]
+=\mathbb{E}\big[\big((X-\mu_X)+(Y-\mu_Y)\big)^2\big],$$
+regrouping terms inside the square. Expand the square algebraically:
+$$\big((X-\mu_X)+(Y-\mu_Y)\big)^2=(X-\mu_X)^2+2(X-\mu_X)(Y-\mu_Y)+(Y-\mu_Y)^2 .$$
+Take expectations of all three pieces and use linearity again:
+$$\operatorname{var}(X+Y)=\underbrace{\mathbb{E}[(X-\mu_X)^2]}_{=\operatorname{var}(X)}
++2\underbrace{\mathbb{E}[(X-\mu_X)(Y-\mu_Y)]}_{=\operatorname{cov}(X,Y)}
++\underbrace{\mathbb{E}[(Y-\mu_Y)^2]}_{=\operatorname{var}(Y)} .$$
+Now suppose $X$ and $Y$ are independent. Then so are the shifted variables $X-\mu_X$ and $Y-\mu_Y$
+(each is a function of one original variable only), so the product rule of §4.6 applies with
+$g(x)=x-\mu_X$ and $h(y)=y-\mu_Y$:
+$$\mathbb{E}[(X-\mu_X)(Y-\mu_Y)]=\mathbb{E}[X-\mu_X]\cdot\mathbb{E}[Y-\mu_Y]
+=(\mu_X-\mu_X)(\mu_Y-\mu_Y)=0\cdot0=0 .$$
+The cross term is zero and $\operatorname{var}(X+Y)=\operatorname{var}(X)+\operatorname{var}(Y)$.
+$\blacksquare$</p>
+
+<div class="ex"><b>Example 4.7 (L07 slide 5 — all three blanks filled).</b>
+<p><b>(i) If $X=Y$, what is $\operatorname{var}(X+Y)$?</b> Here $Y$ is not an independent copy of
+$X$; it is literally the same random variable, so $X+Y=2X$ and by the scaling rule
+$$\operatorname{var}(X+Y)=\operatorname{var}(2X)=2^2\operatorname{var}(X)=4\operatorname{var}(X),$$
+<em>not</em> $2\operatorname{var}(X)$. The cross-term view confirms it:
+$\operatorname{cov}(X,X)=\mathbb{E}[(X-\mu_X)^2]=\operatorname{var}(X)$, so
+$\operatorname{var}(X)+\operatorname{var}(X)+2\operatorname{var}(X)=4\operatorname{var}(X)$.
+Numerically, with the Fig. 4.1 marginal ($\operatorname{var}(X)=0.8475$):
+$\operatorname{var}(X+Y)=4(0.8475)=3.39=\tfrac{339}{100}$, whereas the (wrong) independent formula
+would have given $1.695$.</p>
+<p><b>(ii) If $X=-Y$, what is $\operatorname{var}(X+Y)$?</b> Then $X+Y=X+(-X)=0$, a constant. A
+constant has zero deviation from its mean, so
+$$\operatorname{var}(X+Y)=\operatorname{var}(0)=0 .$$
+Again the cross-term view: $\operatorname{cov}(X,-X)=-\operatorname{var}(X)$, so
+$\operatorname{var}(X)+\operatorname{var}(-X)+2\operatorname{cov}(X,-X)
+=\operatorname{var}(X)+\operatorname{var}(X)-2\operatorname{var}(X)=0$ ✓. With
+$\operatorname{var}(X)=0.8475$ this is $0.8475+0.8475-1.695=0$.</p>
+<p><b>(iii) If $X,Y$ are independent and $Z=X-3Y$, what is $\operatorname{var}(Z)$?</b> Write
+$Z=X+(-3Y)$. The variables $X$ and $-3Y$ are independent ($-3Y$ is a function of $Y$ alone), so
+additivity applies, and then the scaling rule handles the factor:
+$$\operatorname{var}(Z)=\operatorname{var}(X)+\operatorname{var}(-3Y)
+=\operatorname{var}(X)+(-3)^2\operatorname{var}(Y)=\operatorname{var}(X)+9\operatorname{var}(Y).$$
+Note the sign disappears — variances add even for a difference. A numeric instance using the two
+marginals of Fig. 4.1 as if they were independent
+($\operatorname{var}(X)=0.8475$, $\operatorname{var}(Y)=0.69$):
+$$\operatorname{var}(Z)=0.8475+9(0.69)=0.8475+6.21=7.0575=\tfrac{2823}{400}.$$</p></div>
+
+<div class="note"><b>Interpretation.</b> Cases (i) and (ii) are the two extremes of dependence.
+Perfectly aligned variables ($X=Y$) reinforce: deviations always point the same way, so the sum
+swings twice as far and the variance quadruples. Perfectly opposed variables ($X=-Y$) cancel
+exactly, and the sum is deterministic. Independence sits exactly in the middle, where deviations
+neither reinforce nor cancel on average and the variances simply add. This is why averaging $n$
+independent measurements reduces variance by $1/n$ but averaging $n$ copies of the same measurement
+reduces nothing.</div>
+
+<div class="warn"><b>Gotcha.</b> $\operatorname{var}(X-Y)=\operatorname{var}(X)+\operatorname{var}(Y)$
+for independent $X,Y$ — you <em>add</em>, never subtract. Subtracting could produce a negative
+number, which no variance can be. Also note the asymmetry with expectation:
+$\mathbb{E}[X-Y]=\mathbb{E}[X]-\mathbb{E}[Y]$ always, but variance ignores the sign.</div>
+
+<div class="ex"><b>Practice 4.14.</b> $D_1,D_2,D_3$ are independent fair 6-sided dice. Find
+$\operatorname{var}(D_1+D_2+D_3)$ and $\operatorname{var}(D_1-D_2)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>For one fair die, $\mathbb{E}[D]=\tfrac{1+2+3+4+5+6}{6}=\tfrac{21}{6}=3.5$ and
+$\mathbb{E}[D^2]=\tfrac{1+4+9+16+25+36}{6}=\tfrac{91}{6}$, so
+$\operatorname{var}(D)=\tfrac{91}{6}-(3.5)^2=\tfrac{91}{6}-\tfrac{49}{4}
+=\tfrac{182-147}{12}=\tfrac{35}{12}\approx2.9167$. By independence and additivity,
+$\operatorname{var}(D_1+D_2+D_3)=3\cdot\tfrac{35}{12}=\tfrac{35}{4}=8.75$ and
+$\operatorname{var}(D_1-D_2)=\operatorname{var}(D_1)+\operatorname{var}(D_2)
+=2\cdot\tfrac{35}{12}=\tfrac{35}{6}\approx5.8333$.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.15.</b> Independent $X,Y$ have $\operatorname{var}(X)=4$,
+$\operatorname{var}(Y)=9$. For which constant $c$ is $\operatorname{var}(X+cY)$ smallest, and what is
+the minimum?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\operatorname{var}(X+cY)=\operatorname{var}(X)+c^2\operatorname{var}(Y)=4+9c^2$. This is
+minimized at $c=0$, giving $4$: with independent noise, mixing in <em>any</em> multiple of $Y$ can
+only increase the spread. (If $X$ and $Y$ were correlated the answer would change — that is the
+idea behind least-squares estimation, developed later in the course.)</p></div></details></div>
+
+<h3>4.8 Binomial mean and variance via indicator variables</h3>
+
+<p>L07 slide 6 sets up the binomial mean as the brute-force sum
+$\mathbb{E}[X]=\sum_{k=0}^{n}k\binom{n}{k}p^k(1-p)^{n-k}$, introduces the indicator variables
+$X_i$, and then leaves <em>every</em> subsequent line blank. Filling them in is the payoff for
+§4.6–§4.7.</p>
+
+<div class="defn"><b>Setup (L07 slide 6).</b> $X$ is the number of successes in $n$ independent
+trials, each with success probability $p$; so $X$ is binomial with parameters $n$ and $p$. Define
+the <b>indicator</b> (also called Bernoulli) random variables
+$$X_i=\begin{cases}1,&amp;\text{if trial }i\text{ is a success},\\ 0,&amp;\text{otherwise},\end{cases}
+\qquad i=1,\dots,n .$$
+Since the trials are independent with common success probability, $X_1,\dots,X_n$ are independent
+and each has $\mathbf{P}(X_i=1)=p$, $\mathbf{P}(X_i=0)=1-p$.</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s4_indicator}}" alt="Eight boxes in a row labeled trial 1 through trial 8, each marked success or fail, with an arrow from each box down to the corresponding indicator value X sub i equal to 1 or 0, and the sum X equals X1 plus X2 plus dots plus X8 equals 4 written below." style="max-width:900px">
+<div class="figcap">Fig. 4.4 — The indicator decomposition $X=X_1+\cdots+X_n$ (L07 slide 6). The mean needs only linearity; the variance additionally needs independence.</div>
+
+<div class="ex"><b>Example 4.8 (L07 slide 6 — all four blanks filled).</b>
+<p><b>Step 0 — the key identity $X=\sum_{i=1}^n X_i$.</b> For any outcome of the $n$ trials, the sum
+$X_1+\cdots+X_n$ adds a $1$ for each success and a $0$ for each failure, so it equals the number of
+successes, which is $X$. This is an identity between random variables (it holds outcome by outcome),
+not merely between their distributions.</p>
+<p><b>Blank 1 — $\mathbb{E}[X_i]$.</b> Directly from the definition of expectation for a
+two-valued random variable:
+$$\mathbb{E}[X_i]=1\cdot\mathbf{P}(X_i=1)+0\cdot\mathbf{P}(X_i=0)=1\cdot p+0\cdot(1-p)=p .$$
+The expectation of an indicator is the probability of the event it indicates — remember this; it is
+the engine of the whole method.</p>
+<p><b>Blank 2 — $\mathbb{E}[X]$.</b> Apply linearity of expectation (§4.6) to the sum of $n$ terms:
+$$\mathbb{E}[X]=\mathbb{E}\Big[\sum_{i=1}^n X_i\Big]=\sum_{i=1}^n\mathbb{E}[X_i]
+=\underbrace{p+p+\cdots+p}_{n\text{ terms}}=np .$$
+Two lines, and no binomial coefficient in sight. Contrast the brute-force route on the slide, which
+requires the identity $k\binom{n}{k}=n\binom{n-1}{k-1}$ and a re-indexing of the sum. Note also that
+<b>independence was never used</b> — linearity holds regardless, which is precisely why the same
+argument will solve the hat problem of §4.10, where the $X_i$ are dependent.</p>
+<p><b>Blank 3 — $\operatorname{var}(X_i)$.</b> Since $X_i$ only takes values $0$ and $1$, we have
+$X_i^2=X_i$ (because $0^2=0$ and $1^2=1$), hence $\mathbb{E}[X_i^2]=\mathbb{E}[X_i]=p$. Then
+$$\operatorname{var}(X_i)=\mathbb{E}[X_i^2]-(\mathbb{E}[X_i])^2=p-p^2=p(1-p).$$</p>
+<p><b>Blank 4 — $\operatorname{var}(X)$.</b> The $X_i$ are independent, so variances add (§4.7),
+term by term:
+$$\operatorname{var}(X)=\operatorname{var}\Big(\sum_{i=1}^n X_i\Big)=\sum_{i=1}^n\operatorname{var}(X_i)
+=\underbrace{p(1-p)+\cdots+p(1-p)}_{n\text{ terms}}=np(1-p).$$</p>
+<p><b>Numerical check ($n=10$, $p=0.3$).</b> The formulas give $\mathbb{E}[X]=10(0.3)=3$ and
+$\operatorname{var}(X)=10(0.3)(0.7)=2.1$, with $\operatorname{var}(X_i)=0.3\times0.7=0.21$.
+Evaluating the brute-force sums directly from the binomial PMF gives
+$\sum_{k=0}^{10}k\binom{10}{k}(0.3)^k(0.7)^{10-k}=3$ and
+$\sum_k k^2\binom{10}{k}(0.3)^k(0.7)^{10-k}-3^2=11.1-9=2.1$ — identical, as they must be.</p></div>
+
+<div class="recipe"><b>Recipe — the indicator method.</b> When a random variable counts how many
+things of some kind happen:
+<ol>
+<li><b>Name the events.</b> $A_1,\dots,A_n$ = the individual things that might happen.</li>
+<li><b>Define indicators.</b> $X_i=1$ if $A_i$ occurs, else $0$; then the count is
+$X=\sum_i X_i$ — verify this identity outcome by outcome.</li>
+<li><b>Mean.</b> $\mathbb{E}[X]=\sum_i \mathbf{P}(A_i)$ by linearity. Works even when the $A_i$
+overlap or are dependent.</li>
+<li><b>Variance.</b> Only if the $X_i$ are independent may you write
+$\operatorname{var}(X)=\sum_i \mathbf{P}(A_i)(1-\mathbf{P}(A_i))$. Otherwise expand
+$X^2=\sum_i X_i^2+\sum_{i\ne j}X_iX_j$ and compute
+$\mathbb{E}[X_iX_j]=\mathbf{P}(A_i\cap A_j)$ pair by pair.</li>
+</ol></div>
+
+<div class="warn"><b>Gotcha.</b> Independence is needed for the variance step and <em>only</em> for
+the variance step. Students routinely under-use linearity (writing painful sums for means that need
+none) and over-use variance additivity (applying it to dependent indicators). Ask "am I adding
+expectations or variances?" before deciding whether independence matters.</div>
+
+<div class="ex"><b>Practice 4.16.</b> A fair coin is tossed $5$ times. Find the mean and variance of
+the number of heads, and $\mathbf{P}(X=5)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Binomial with $n=5$, $p=\tfrac12$: $\mathbb{E}[X]=np=5\cdot\tfrac12=\tfrac52=2.5$ and
+$\operatorname{var}(X)=np(1-p)=5\cdot\tfrac12\cdot\tfrac12=\tfrac54=1.25$. Also
+$\mathbf{P}(X=5)=\binom{5}{5}(\tfrac12)^5=\tfrac{1}{32}=0.03125$.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.17.</b> Ten independent trials have success probabilities
+$p_1,\dots,p_{10}$ that are <em>not</em> all equal. Is $\mathbb{E}[X]=\sum_i p_i$ still correct? Is
+$\operatorname{var}(X)=\sum_i p_i(1-p_i)$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Both are correct. $X=\sum_i X_i$ still holds, $\mathbb{E}[X_i]=p_i$, and linearity gives
+$\mathbb{E}[X]=\sum_i p_i$ with no assumption on the $p_i$ or on independence. The variance formula
+uses $\operatorname{var}(X_i)=p_i(1-p_i)$ and additivity, which requires independence — which we
+have here. ($X$ is no longer binomial; it is called Poisson-binomial. The mean and variance
+formulas survive, the PMF does not.)</p></div></details></div>
+
+<div class="ex"><b>Practice 4.18.</b> Use indicators to find the expected number of pairs
+$(i,j)$, $i&lt;j$, of the $n=5$ tosses in Practice 4.16 that are both heads.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Index the $\binom52=10$ pairs and let $Z_{ij}=1$ if tosses $i$ and $j$ are both heads. Then
+$\mathbb{E}[Z_{ij}]=\mathbf{P}(\text{both heads})=\tfrac12\cdot\tfrac12=\tfrac14$ by independence of
+the two tosses. By linearity the expected number of all-heads pairs is
+$10\cdot\tfrac14=\tfrac{10}{4}=2.5$. Note that the $Z_{ij}$ are <em>dependent</em> (they share
+tosses) — irrelevant for the mean.</p></div></details></div>
+
+<h3>4.9 Recitation workout: three joint-PMF problems in full</h3>
+
+<div class="ex"><b>Problem 4.A (rec06 P1) — a four-sided die decides how many coins to flip.</b>
+A fair four-sided die with faces labeled $0,1,2,3$ is thrown once to determine how many times a fair
+coin is to be flipped. Define $N$ = the result of the die roll and $K$ = the total number of heads
+obtained. (a) Determine and sketch $p_N(n)$. (b) Determine and tabulate $p_{N,K}(n,k)$.
+(c) Determine and sketch $p_{K|N}(k\mid2)$. (d) Determine and sketch $p_{N|K}(n\mid2)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The marginal of $N$.</b> The die is fair with four faces, so each of the outcomes
+$0,1,2,3$ has probability $\tfrac14$:
+$$p_N(n)=\begin{cases}\tfrac14,&amp;n\in\{0,1,2,3\},\\ 0,&amp;\text{otherwise.}\end{cases}$$
+This needs nothing but the die (left panel of Fig. 4.5 shows the joint table; the marginal is the
+row totals, each $\tfrac14$). Its mean and variance:
+$\mathbb{E}[N]=\tfrac{0+1+2+3}{4}=\tfrac{6}{4}=\tfrac32=1.5$, and
+$\mathbb{E}[N^2]=\tfrac{0+1+4+9}{4}=\tfrac{14}{4}=3.5$, so
+$\operatorname{var}(N)=3.5-(1.5)^2=3.5-2.25=1.25=\tfrac54$.</p>
+<p><b>(b) The joint PMF.</b> Use the multiplication rule $p_{N,K}(n,k)=p_N(n)\,p_{K|N}(k\mid n)$.
+Given $N=n$, the coin is flipped $n$ independent times with $\mathbf{P}(H)=\tfrac12$, so
+<em>conditionally</em> $K$ is binomial with parameters $n$ and $\tfrac12$:
+$$p_{K|N}(k\mid n)=\binom{n}{k}\Big(\tfrac12\Big)^k\Big(\tfrac12\Big)^{n-k}
+=\frac{\binom{n}{k}}{2^{\,n}},\qquad k=0,1,\dots,n .$$
+Multiplying by $p_N(n)=\tfrac14$ throughout:</p>
+<p>$n=0$ (no flips at all, so $K=0$ with certainty):
+$p_{N,K}(0,0)=\tfrac14\cdot1=\tfrac14$.<br>
+$n=1$: $\binom10/2=\tfrac12$ and $\binom11/2=\tfrac12$, so
+$p_{N,K}(1,0)=\tfrac14\cdot\tfrac12=\tfrac18$ and $p_{N,K}(1,1)=\tfrac18$.<br>
+$n=2$: $\tfrac{\binom20}{4}=\tfrac14$, $\tfrac{\binom21}{4}=\tfrac24=\tfrac12$,
+$\tfrac{\binom22}{4}=\tfrac14$, so
+$p_{N,K}(2,0)=\tfrac14\cdot\tfrac14=\tfrac1{16}$,
+$p_{N,K}(2,1)=\tfrac14\cdot\tfrac12=\tfrac18$,
+$p_{N,K}(2,2)=\tfrac1{16}$.<br>
+$n=3$: $\tfrac{\binom30}{8}=\tfrac18$, $\tfrac{\binom31}{8}=\tfrac38$,
+$\tfrac{\binom32}{8}=\tfrac38$, $\tfrac{\binom33}{8}=\tfrac18$, so
+$p_{N,K}(3,0)=\tfrac1{32}$, $p_{N,K}(3,1)=\tfrac3{32}$,
+$p_{N,K}(3,2)=\tfrac3{32}$, $p_{N,K}(3,3)=\tfrac1{32}$.</p>
+$$
+\begin{array}{c|cccc}
+p_{N,K}(n,k) &amp; k=0 &amp; k=1 &amp; k=2 &amp; k=3\\\hline
+n=0 &amp; 1/4 &amp; 0 &amp; 0 &amp; 0\\
+n=1 &amp; 1/8 &amp; 1/8 &amp; 0 &amp; 0\\
+n=2 &amp; 1/16 &amp; 1/8 &amp; 1/16 &amp; 0\\
+n=3 &amp; 1/32 &amp; 3/32 &amp; 3/32 &amp; 1/32
+\end{array}
+$$
+<p>Normalization check over the common denominator $32$:
+$8+(4+4)+(2+4+2)+(1+3+3+1)=8+8+8+8=32$, i.e. the entries sum to $\tfrac{32}{32}=1$ ✓. (Each row
+sums to $\tfrac14$, as it must, since the row total is $p_N(n)$.)</p>
+<p><b>(c) $p_{K|N}(k\mid2)$.</b> Divide row $n=2$ by $p_N(2)=\tfrac14$ — equivalently, read off the
+conditional binomial with $n=2$, $p=\tfrac12$:
+$$p_{K|N}(0\mid2)=\frac{1/16}{1/4}=\frac14,\qquad
+p_{K|N}(1\mid2)=\frac{1/8}{1/4}=\frac12,\qquad
+p_{K|N}(2\mid2)=\frac{1/16}{1/4}=\frac14,$$
+and $0$ otherwise; the three add to $\tfrac14+\tfrac12+\tfrac14=1$ ✓ (middle panel of Fig. 4.5).
+Its mean is $\mathbb{E}[K\mid N=2]=0(\tfrac14)+1(\tfrac12)+2(\tfrac14)=1$, consistent with the
+binomial formula $np=2\cdot\tfrac12=1$.</p>
+<p><b>(d) $p_{N|K}(n\mid2)$.</b> This is the "reverse" conditional and needs Bayes-style arithmetic.
+First the marginal of $K$ at $2$ — sum the column $k=2$ (marginalization, §4.2):
+$$p_K(2)=p_{N,K}(0,2)+p_{N,K}(1,2)+p_{N,K}(2,2)+p_{N,K}(3,2)
+=0+0+\tfrac1{16}+\tfrac3{32}=\tfrac{2}{32}+\tfrac{3}{32}=\tfrac{5}{32}=0.15625 .$$
+Only $n=2$ and $n=3$ contribute: to get $2$ heads you need at least $2$ tosses, and $N\le3$. Now
+divide:
+$$p_{N|K}(2\mid2)=\frac{p_{N,K}(2,2)}{p_K(2)}=\frac{1/16}{5/32}
+=\frac{2/32}{5/32}=\frac25=0.4,$$
+$$p_{N|K}(3\mid2)=\frac{p_{N,K}(3,2)}{p_K(2)}=\frac{3/32}{5/32}=\frac35=0.6 .$$
+(The recitation handout states $3/5$ without showing this division — <em>[SOLUTION GAP]</em> filled.
+The handout also contains two typos: it says "at least 3 coin tosses ... only $N=3$ and $N=4$",
+which should read "at least 2 coin tosses ... only $N=2$ and $N=3$", since $N\le3$ always; and it
+writes the denominator as the four-term sum $1/16+1/32+1/32+1/32$, which equals the correct
+$5/32$ because $3/32$ has been split into three $1/32$'s. The numerical answers are unaffected.)
+Check: $\tfrac25+\tfrac35=1$ ✓ (right panel of Fig. 4.5). The conditional mean is
+$\mathbb{E}[N\mid K=2]=2(\tfrac25)+3(\tfrac35)=\tfrac45+\tfrac95=\tfrac{13}{5}=2.6$ — seeing two
+heads makes the larger die value more plausible, pushing the mean above the unconditional
+$\mathbb{E}[N]=1.5$.</p>
+<p><b>Beyond the handout — the marginal of $K$, and $\mathbb{E}[K]$ two ways.</b> Summing each
+column over the common denominator $32$:
+$$p_K(0)=\tfrac{8+4+2+1}{32}=\tfrac{15}{32},\quad
+p_K(1)=\tfrac{0+4+4+3}{32}=\tfrac{11}{32},\quad
+p_K(2)=\tfrac{5}{32},\quad p_K(3)=\tfrac{1}{32},$$
+summing to $\tfrac{15+11+5+1}{32}=\tfrac{32}{32}=1$ ✓. Then directly,
+$$\mathbb{E}[K]=0\cdot\tfrac{15}{32}+1\cdot\tfrac{11}{32}+2\cdot\tfrac{5}{32}+3\cdot\tfrac{1}{32}
+=\tfrac{11+10+3}{32}=\tfrac{24}{32}=\tfrac34=0.75 .$$
+Via the total expectation theorem instead, using
+$\mathbb{E}[K\mid N=n]=n\cdot\tfrac12$ (conditional binomial mean):
+$$\mathbb{E}[K]=\sum_{n=0}^{3}p_N(n)\,\mathbb{E}[K\mid N=n]
+=\tfrac14\Big(0+\tfrac12+1+\tfrac32\Big)=\tfrac14\cdot 3=\tfrac34=0.75\ ✓$$
+— the same answer with far less arithmetic, and the reason conditioning is a computational tool and
+not just a concept. For completeness,
+$\mathbb{E}[K^2]=0+1\cdot\tfrac{11}{32}+4\cdot\tfrac{5}{32}+9\cdot\tfrac{1}{32}=\tfrac{40}{32}=\tfrac54$,
+so $\operatorname{var}(K)=\tfrac54-\big(\tfrac34\big)^2=\tfrac{20-9}{16}=\tfrac{11}{16}=0.6875$.</p>
+<p><b>Are $N$ and $K$ independent?</b> No. $p_{N,K}(0,1)=0$ while
+$p_N(0)\,p_K(1)=\tfrac14\cdot\tfrac{11}{32}=\tfrac{11}{128}\approx0.0859\ne0$: the support is
+triangular, not rectangular (Recipe of §4.5, test 1).</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s4_rec06p1}}" alt="Three panels. Left: a four by four table of the joint PMF of N and K with entries one quarter, one eighth, one sixteenth, one thirty-second and so on, zero above the diagonal. Middle: stem plot of the conditional PMF of K given N equals 2 with heights one quarter, one half, one quarter. Right: stem plot of the conditional PMF of N given K equals 2 with heights two fifths at n equals 2 and three fifths at n equals 3." style="max-width:1000px">
+<div class="figcap">Fig. 4.5 — rec06 P1: the joint PMF $p_{N,K}$ (zero above the diagonal, since $K\le N$), and the two conditional PMFs requested in parts (c) and (d).</div>
+
+<div class="ex"><b>Problem 4.B (rec06 P2) — eight equally likely points in the plane.</b>
+The outcome space consists of eight equally likely points, each of probability $\tfrac18$, at
+$(0,3),(4,3),(2,2),(4,2),(0,1),(2,1),(4,1),(4,0)$, where the coordinates are the values of $(X,Y)$.
+(a) Which value(s) of $x$ maximize $\mathbb{E}[Y\mid X=x]$? (b) Which value(s) of $y$ maximize
+$\operatorname{var}(X\mid Y=y)$? (c) Let $R=\min(X,Y)$; sketch $p_R(r)$. (d) Let $A$ be the event
+$X^2\ge Y$; find $\mathbb{E}[XY]$ and $\mathbb{E}[XY\mid A]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Marginals first.</b> Group the eight points by $x$: $x=0$ has $(0,3),(0,1)$;
+$x=2$ has $(2,2),(2,1)$; $x=4$ has $(4,3),(4,2),(4,1),(4,0)$. Hence
+$$p_X(0)=\tfrac28=\tfrac14,\qquad p_X(2)=\tfrac28=\tfrac14,\qquad p_X(4)=\tfrac48=\tfrac12,$$
+summing to $1$ ✓. Grouping by $y$: $y=0$ has $(4,0)$; $y=1$ has $(0,1),(2,1),(4,1)$; $y=2$ has
+$(2,2),(4,2)$; $y=3$ has $(0,3),(4,3)$, so
+$$p_Y(0)=\tfrac18,\qquad p_Y(1)=\tfrac38,\qquad p_Y(2)=\tfrac28=\tfrac14,\qquad p_Y(3)=\tfrac28=\tfrac14,$$
+summing to $1$ ✓.</p>
+<p><b>(a) Conditional means of $Y$</b> <em>(the handout states the three values with no arithmetic —
+[SOLUTION GAP] filled).</em> Conditioning on $X=x$ makes the points in that column equally likely,
+since they had equal mass to begin with.</p>
+<ul>
+<li>$X=0$: the surviving points are $(0,3),(0,1)$, each with conditional probability
+$\frac{1/8}{1/4}=\tfrac12$. So
+$\mathbb{E}[Y\mid X=0]=3(\tfrac12)+1(\tfrac12)=\tfrac{3+1}{2}=2 .$</li>
+<li>$X=2$: points $(2,2),(2,1)$, each $\tfrac12$, so
+$\mathbb{E}[Y\mid X=2]=2(\tfrac12)+1(\tfrac12)=\tfrac32=1.5 .$</li>
+<li>$X=4$: points $(4,3),(4,2),(4,1),(4,0)$, each $\frac{1/8}{1/2}=\tfrac14$, so
+$\mathbb{E}[Y\mid X=4]=\tfrac{3+2+1+0}{4}=\tfrac64=\tfrac32=1.5 .$</li>
+</ul>
+<p>For any other $x$ the conditional expectation is undefined ($p_X(x)=0$). The maximum is $2$,
+attained uniquely at $\boxed{x=0}$.</p>
+<p><b>(b) Conditional variances of $X$</b> <em>([SOLUTION GAP] filled).</em> Conditioning on $Y=y$
+again leaves a uniform distribution on the surviving $x$-values.</p>
+<ul>
+<li>$y=0$: only $(4,0)$, so $X=4$ with probability $1$;
+$\mathbb{E}[X\mid Y=0]=4$ and $\operatorname{var}(X\mid Y=0)=0$.</li>
+<li>$y=1$: $X$ is uniform on $\{0,2,4\}$ (each $\frac{1/8}{3/8}=\tfrac13$). Mean
+$\tfrac{0+2+4}{3}=2$; second moment $\tfrac{0+4+16}{3}=\tfrac{20}{3}$; so
+$\operatorname{var}(X\mid Y=1)=\tfrac{20}{3}-2^2=\tfrac{20-12}{3}=\tfrac83\approx2.6667 .$</li>
+<li>$y=2$: $X$ uniform on $\{2,4\}$ (each $\tfrac12$). Mean $3$; second moment
+$\tfrac{4+16}{2}=10$; so $\operatorname{var}(X\mid Y=2)=10-9=1 .$</li>
+<li>$y=3$: $X$ uniform on $\{0,4\}$ (each $\tfrac12$). Mean $2$; second moment
+$\tfrac{0+16}{2}=8$; so $\operatorname{var}(X\mid Y=3)=8-4=4 .$</li>
+</ul>
+<p>The maximum is $4$, attained at $\boxed{y=3}$ — the two surviving points are as far apart as the
+diagram allows, which is what maximizes spread.</p>
+<p><b>(c) The PMF of $R=\min(X,Y)$</b> <em>([SOLUTION GAP]: the handout gives only the sketch; here
+is the point-by-point mapping).</em> Evaluate $\min(x,y)$ at each of the eight equally likely
+points:
+$$(0,3)\mapsto0,\quad(0,1)\mapsto0,\quad(4,0)\mapsto0,\quad
+(2,1)\mapsto1,\quad(4,1)\mapsto1,\quad(2,2)\mapsto2,\quad(4,2)\mapsto2,\quad(4,3)\mapsto3 .$$
+Counting: three points give $R=0$, two give $R=1$, two give $R=2$, one gives $R=3$. Since each point
+has mass $\tfrac18$,
+$$p_R(0)=\tfrac38,\qquad p_R(1)=\tfrac28=\tfrac14,\qquad p_R(2)=\tfrac28=\tfrac14,\qquad
+p_R(3)=\tfrac18,$$
+summing to $\tfrac{3+2+2+1}{8}=1$ ✓ (right panel of Fig. 4.6). Its mean:
+$\mathbb{E}[R]=0(\tfrac38)+1(\tfrac14)+2(\tfrac14)+3(\tfrac18)=\tfrac{0+2+4+3}{8}=\tfrac98=1.125$.
+Note this is a function of two random variables handled by the expected value rule in disguise —
+we summed $g(x,y)=\min(x,y)$ against the joint PMF.</p>
+<p><b>(d) $\mathbb{E}[XY]$ and $\mathbb{E}[XY\mid A]$.</b> By the expected value rule with
+$g(x,y)=xy$, traversing the points top to bottom and left to right:
+$$\mathbb{E}[XY]=\tfrac18\big(0\cdot3+4\cdot3+2\cdot2+4\cdot2+0\cdot1+2\cdot1+4\cdot1+4\cdot0\big)
+=\tfrac18\big(0+12+4+8+0+2+4+0\big)=\tfrac{30}{8}=\tfrac{15}{4}=3.75 .$$
+For the conditional version, first identify $A=\{X^2\ge Y\}$ point by point:
+$(0,3)$: $0\ge3$ false; $(4,3)$: $16\ge3$ true; $(2,2)$: $4\ge2$ true; $(4,2)$: true;
+$(0,1)$: $0\ge1$ false; $(2,1)$: $4\ge1$ true; $(4,1)$: true; $(4,0)$: $16\ge0$ true. So
+conditioning on $A$ removes exactly the two point masses at $(0,3)$ and $(0,1)$, leaving six, and
+$$\mathbf{P}(A)=\tfrac68=\tfrac34=0.75,\qquad \text{each survivor now has mass }
+\frac{1/8}{3/4}=\frac16 .$$
+Therefore
+$$\mathbb{E}[XY\mid A]=\tfrac16\big(4\cdot3+2\cdot2+4\cdot2+2\cdot1+4\cdot1+4\cdot0\big)
+=\tfrac16\big(12+4+8+2+4+0\big)=\tfrac{30}{6}=5 .$$
+Conditioning raised the mean product from $3.75$ to $5$ — unsurprising, since the discarded points
+both had $X=0$ and hence $XY=0$.</p>
+<p><b>Bonus: are $X$ and $Y$ independent here?</b> No. $\mathbb{E}[X]=0(\tfrac14)+2(\tfrac14)+4(\tfrac12)=\tfrac52$
+and $\mathbb{E}[Y]=0(\tfrac18)+1(\tfrac38)+2(\tfrac14)+3(\tfrac14)=\tfrac{0+3+4+6}{8}=\tfrac{13}{8}$,
+so $\mathbb{E}[X]\mathbb{E}[Y]=\tfrac52\cdot\tfrac{13}{8}=\tfrac{65}{16}=4.0625$ while
+$\mathbb{E}[XY]=3.75$; the covariance is $3.75-4.0625=-0.3125=-\tfrac{5}{16}\ne0$, which proves
+dependence (§4.5). The support is also ragged — e.g. $(0,0)$ has probability $0$ although
+$p_X(0)&gt;0$ and $p_Y(0)&gt;0$.</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s4_rec06p2}}" alt="Left panel: scatter of eight points each labeled one eighth at coordinates (0,3), (4,3), (2,2), (4,2), (0,1), (2,1), (4,1), (4,0), with short orange horizontal bars marking the conditional means of Y at x equals 0, 2 and 4. Right panel: stem plot of the PMF of R equals min of X and Y with heights three eighths, one quarter, one quarter and one eighth at r equals 0, 1, 2, 3." style="max-width:980px">
+<div class="figcap">Fig. 4.6 — rec06 P2. Left: the eight equally likely points with the conditional means $\mathbb{E}[Y\mid X=x]$ marked; $x=0$ is the maximizer. Right: the PMF of $R=\min(X,Y)$ from part (c).</div>
+
+<div class="ex"><b>Problem 4.C (rec07 P2) — a dot-diagram joint PMF with unspecified entries.</b>
+$X$ and $Y$ take values in $\{1,2,3\}$. The joint PMF is partially specified (entries marked $*$ are
+unknown):
+$$
+\begin{array}{c|ccc}
+p_{X,Y}(x,y) &amp; x=1 &amp; x=2 &amp; x=3\\\hline
+y=3 &amp; 1/12 &amp; 1/12 &amp; *\\
+y=2 &amp; 2/12 &amp; * &amp; *\\
+y=1 &amp; 1/12 &amp; 2/12 &amp; 0
+\end{array}
+$$
+(a) What is $p_X(1)$? (b) Sketch the conditional PMF of $Y$ given $X=1$. (c) What is
+$\mathbb{E}[Y\mid X=1]$? (d) Is there a choice of the unspecified entries making $X$ and $Y$
+independent? Let $B=\{X\le2\ \text{and}\ Y\le2\}$, and suppose that conditioned on $B$, $X$ and $Y$
+are independent. (e) What is $p_{X,Y}(2,2)$? (f) What is $p_{X,Y\mid B}(2,2)$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a)</b> The whole column $x=1$ is known, so marginalization (§4.2) works despite the missing
+entries:
+$$p_X(1)=p_{X,Y}(1,1)+p_{X,Y}(1,2)+p_{X,Y}(1,3)=\tfrac{1}{12}+\tfrac{2}{12}+\tfrac{1}{12}
+=\tfrac{4}{12}=\tfrac13\approx0.3333 .$$</p>
+<p><b>(b)</b> Divide that column by its total:
+$$p_{Y|X}(y\mid1)=\frac{p_{X,Y}(1,y)}{p_X(1)}:\qquad
+p_{Y|X}(1\mid1)=\frac{1/12}{4/12}=\frac14,\quad
+p_{Y|X}(2\mid1)=\frac{2/12}{4/12}=\frac12,\quad
+p_{Y|X}(3\mid1)=\frac{1/12}{4/12}=\frac14,$$
+and $0$ otherwise; the three add to $1$ ✓. The handout gives only this formula and no drawing
+(<em>[SOLUTION GAP]</em>); the sketch is the right panel of Fig. 4.7.</p>
+<p><b>(c)</b> $$\mathbb{E}[Y\mid X=1]=\sum_{y=1}^{3}y\,p_{Y|X}(y\mid1)
+=1\cdot\tfrac14+2\cdot\tfrac12+3\cdot\tfrac14=\tfrac14+1+\tfrac34=2 .$$
+(The conditional law is symmetric about $y=2$, so the answer had to be $2$.) For completeness,
+$\mathbb{E}[Y^2\mid X=1]=1(\tfrac14)+4(\tfrac12)+9(\tfrac14)=\tfrac{1+8+9}{4}=\tfrac{18}{4}=4.5$,
+so $\operatorname{var}(Y\mid X=1)=4.5-4=0.5$.</p>
+<p><b>(d) No choice makes them independent.</b> <em>(All the intermediate arithmetic the handout
+skips is shown — [SOLUTION GAP] filled.)</em> Argue by contradiction: suppose $X,Y$ are
+independent. The bottom row is fully known, so
+$$p_Y(1)=p_{X,Y}(1,1)+p_{X,Y}(2,1)+p_{X,Y}(3,1)=\tfrac1{12}+\tfrac2{12}+0=\tfrac{3}{12}=\tfrac14 .$$
+Since $p_{X,Y}(3,1)=0$ and independence requires $p_{X,Y}(3,1)=p_X(3)p_Y(1)$, we get
+$p_X(3)\cdot\tfrac14=0$, hence $p_X(3)=0$. A zero marginal forces the whole column to vanish:
+$p_{X,Y}(3,2)=p_{X,Y}(3,3)=0$. The only unspecified entry left is $(2,2)$, and it must absorb all
+remaining mass:
+$$p_{X,Y}(2,2)=1-\Big[\tfrac1{12}+\tfrac2{12}+\tfrac1{12}+\tfrac2{12}+\tfrac1{12}\Big]
+=1-\tfrac{7}{12}=\tfrac{5}{12},$$
+the bracket being the five known nonzero entries $(1,1),(1,2),(1,3),(2,1),(2,3)$. Now compute the
+two marginals implied by this completed table:
+$$p_X(2)=p_{X,Y}(2,1)+p_{X,Y}(2,2)+p_{X,Y}(2,3)=\tfrac2{12}+\tfrac5{12}+\tfrac1{12}=\tfrac{8}{12}=\tfrac23,$$
+$$p_Y(2)=p_{X,Y}(1,2)+p_{X,Y}(2,2)+p_{X,Y}(3,2)=\tfrac2{12}+\tfrac5{12}+0=\tfrac{7}{12}.$$
+Independence would demand
+$$p_{X,Y}(2,2)=p_X(2)p_Y(2)=\tfrac{8}{12}\cdot\tfrac{7}{12}=\tfrac{56}{144}=\tfrac{7}{18}\approx0.3889,$$
+but we just forced $p_{X,Y}(2,2)=\tfrac5{12}\approx0.4167$. Since
+$0.4167\ne0.3889$, the assumption fails: <b>no completion makes $X$ and $Y$ independent</b>.</p>
+<p><b>A shorter argument (also in the handout, with its ratios left unevaluated).</b> Use only the
+four fully known cells at $x\in\{1,2\}$, $y\in\{1,3\}$. Independence would give
+$$\frac{p_{X,Y}(1,3)}{p_{X,Y}(1,1)}=\frac{p_X(1)p_Y(3)}{p_X(1)p_Y(1)}=\frac{p_Y(3)}{p_Y(1)}
+=\frac{p_X(2)p_Y(3)}{p_X(2)p_Y(1)}=\frac{p_{X,Y}(2,3)}{p_{X,Y}(2,1)} .$$
+But
+$$\frac{p_{X,Y}(1,3)}{p_{X,Y}(1,1)}=\frac{1/12}{1/12}=1
+\qquad\text{while}\qquad
+\frac{p_{X,Y}(2,3)}{p_{X,Y}(2,1)}=\frac{1/12}{2/12}=\frac12 ,$$
+and $1\ne\tfrac12$. The columns are not proportional, so independence is impossible — no knowledge
+of the starred entries required. (This is test 2 of the Recipe in §4.5.)</p>
+<p><b>(e) $p_{X,Y}(2,2)$ from conditional independence given $B$.</b> The event
+$B=\{X\le2,\ Y\le2\}$ contains exactly the four cells $(1,1),(2,1),(1,2),(2,2)$. Conditioned on
+$B$, the joint PMF is each of these divided by $\mathbf{P}(B)$, and conditional independence means
+that the four conditional cells factor. Equivalently — and this is the cleanest form because
+$\mathbf{P}(B)$ cancels — the $2\times2$ block of <em>unconditional</em> masses must have
+proportional rows:
+$$\frac{p_{X,Y}(1,1)}{p_{X,Y}(1,2)}=\frac{p_{X,Y}(2,1)}{p_{X,Y}(2,2)} .$$
+(Both sides equal $p_{Y|B}(1)/p_{Y|B}(2)$ after dividing numerator and denominator by
+$\mathbf{P}(B)\,p_{X|B}(x)$.) Solve for the unknown:
+$$p_{X,Y}(2,2)=\frac{p_{X,Y}(1,2)\,p_{X,Y}(2,1)}{p_{X,Y}(1,1)}
+=\frac{(2/12)(2/12)}{1/12}=\frac{4/144}{1/12}=\frac{4}{144}\cdot\frac{12}{1}=\frac{4}{12}=\frac13
+\approx0.3333 .$$</p>
+<p><b>(f) $p_{X,Y\mid B}(2,2)$.</b> First $\mathbf{P}(B)$, by adding the four cells of the block
+<em>([SOLUTION GAP]: the handout asserts $9/12$ without this sum)</em>:
+$$\mathbf{P}(B)=p_{X,Y}(1,1)+p_{X,Y}(2,1)+p_{X,Y}(1,2)+p_{X,Y}(2,2)
+=\tfrac1{12}+\tfrac2{12}+\tfrac2{12}+\tfrac4{12}=\tfrac{9}{12}=\tfrac34=0.75 .$$
+Then renormalize (§4.4):
+$$p_{X,Y\mid B}(2,2)=\frac{p_{X,Y}(2,2)}{\mathbf{P}(B)}=\frac{1/3}{3/4}
+=\frac13\cdot\frac43=\frac{4}{9}\approx0.4444 .$$
+The other three conditional cells are $\frac{1/12}{3/4}=\tfrac19$, $\frac{2/12}{3/4}=\tfrac29$ and
+$\tfrac29$; they sum with $\tfrac49$ to $\tfrac{1+2+2+4}{9}=1$ ✓. As a final consistency check on
+(e), the conditional marginals are $p_{X\mid B}(1)=\tfrac19+\tfrac29=\tfrac13$,
+$p_{X\mid B}(2)=\tfrac29+\tfrac49=\tfrac23$, $p_{Y\mid B}(1)=\tfrac19+\tfrac29=\tfrac13$,
+$p_{Y\mid B}(2)=\tfrac23$, and indeed
+$p_{X\mid B}(2)p_{Y\mid B}(2)=\tfrac23\cdot\tfrac23=\tfrac49=p_{X,Y\mid B}(2,2)$ ✓ — the
+conditional independence we were told to assume.</p>
+<p><b>The moral.</b> Parts (d) and (e)–(f) together show that unconditional dependence and
+conditional independence coexist happily in the same table: restricting to $B$ throws away the very
+cells (the $x=3$ column and the $y=3$ row) that broke the proportionality.</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s4_rec07p2}}" alt="Left panel: three by three dot diagram with probabilities one twelfth, one twelfth and star on the top row, two twelfths and two stars on the middle row, one twelfth, two twelfths and zero on the bottom row. Right panel: stem plot of the conditional PMF of Y given X equals 1 with heights one quarter, one half and one quarter, and a triangle marking the conditional mean at y equals 2." style="max-width:960px">
+<div class="figcap">Fig. 4.7 — rec07 P2. Left: the given dot diagram, $*$ marking unspecified masses. Right: the conditional PMF $p_{Y|X}(y\mid1)$ requested in part (b), with $\mathbb{E}[Y\mid X=1]=2$ marked.</div>
+
+<div class="ex"><b>Practice 4.19.</b> In rec06 P1, compute $p_{N|K}(n\mid0)$ and
+$\mathbb{E}[N\mid K=0]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Column $k=0$ of the table has entries $\tfrac14,\tfrac18,\tfrac1{16},\tfrac1{32}$ at
+$n=0,1,2,3$; over the denominator $32$ these are $\tfrac{8}{32},\tfrac{4}{32},\tfrac{2}{32},
+\tfrac{1}{32}$, so $p_K(0)=\tfrac{15}{32}$. Dividing:
+$$p_{N|K}(0\mid0)=\tfrac{8}{15},\quad p_{N|K}(1\mid0)=\tfrac{4}{15},\quad
+p_{N|K}(2\mid0)=\tfrac{2}{15},\quad p_{N|K}(3\mid0)=\tfrac{1}{15},$$
+summing to $\tfrac{15}{15}=1$ ✓. Then
+$\mathbb{E}[N\mid K=0]=\tfrac{0\cdot8+1\cdot4+2\cdot2+3\cdot1}{15}=\tfrac{11}{15}\approx0.7333$ —
+well below the unconditional $\mathbb{E}[N]=1.5$, since seeing no heads makes few tosses more
+plausible.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.20.</b> In rec06 P2, compute $\operatorname{var}(Y\mid X=4)$ and
+compare it with $\operatorname{var}(Y\mid X=0)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Given $X=4$, $Y$ is uniform on $\{0,1,2,3\}$ (each $\tfrac14$): mean
+$\tfrac{0+1+2+3}{4}=\tfrac32$, second moment $\tfrac{0+1+4+9}{4}=\tfrac{14}{4}=3.5$, so
+$\operatorname{var}(Y\mid X=4)=3.5-2.25=1.25=\tfrac54$. Given $X=0$, $Y$ is uniform on $\{1,3\}$:
+mean $2$, second moment $\tfrac{1+9}{2}=5$, so $\operatorname{var}(Y\mid X=0)=5-4=1$. The column
+$x=4$ is both lower on average and more spread out.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.21.</b> In rec07 P2, suppose instead you are told the three starred
+entries are equal. Determine them.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The five known entries sum to $\tfrac{1+1+2+1+2}{12}=\tfrac{7}{12}$ (with $p_{X,Y}(3,1)=0$),
+so the three starred cells must total $1-\tfrac{7}{12}=\tfrac{5}{12}$. If they are equal, each is
+$\tfrac{5}{36}\approx0.1389$. Note this is <em>not</em> the value $\tfrac13$ found in part (e) for
+$p_{X,Y}(2,2)$, which is fine: (e) used a different piece of information (conditional independence
+given $B$), and a partially specified table can be completed in infinitely many ways.</p></div></details></div>
+
+<h3>4.10 The hat problem: indicators without independence</h3>
+
+<p>L07 closes with the problem the whole section has been building toward, and leaves every line of
+it blank across two slides. It is the exact stress test for §4.6–§4.8: the indicator decomposition
+still works, linearity still gives the mean for free, but the indicators are now <em>dependent</em>,
+so the variance can no longer be read off term by term. Every number below is recomputed — including
+a brute-force check over all $n!$ permutations for $n=2,3,5$ — in <code>computes/g2_s4.py</code>
+(block "hat problem").</p>
+
+<div class="defn"><b>Setup (L07 slide 7).</b> $n$ people throw their hats into a box; the hats are
+mixed and each person then draws one hat at random, so that the assignment of hats to people is a
+<b>uniformly random permutation</b> of the $n$ hats — all $n!$ orderings equally likely. Let $X$ be
+the number of people who get their own hat back, and define the indicators
+$$X_i=\begin{cases}1,&amp;\text{if person }i\text{ selects their own hat},\\ 0,&amp;\text{otherwise},\end{cases}
+\qquad i=1,\dots,n,\qquad\text{so that}\qquad X=X_1+X_2+\cdots+X_n .$$
+As in §4.8 the identity $X=\sum_i X_i$ holds outcome by outcome: each person contributes a $1$ to the
+count exactly when their own indicator is $1$.</div>
+
+<div class="ex"><b>Example 4.9 (L07 slides 7–8 — all eight blanks filled).</b>
+<p><b>Blank 1 — $\mathbf{P}(X_i=1)$.</b> Fix a person $i$. By symmetry every one of the $n$ hats is
+equally likely to be the one person $i$ draws — no hat is distinguished by the shuffling — and
+exactly one of them is person $i$'s own. The discrete uniform law of G1 therefore gives
+$$\mathbf{P}(X_i=1)=\frac{\#\{\text{favorable hats}\}}{\#\{\text{possible hats}\}}=\frac1n .$$
+(Counting permutations gives the same answer: of the $n!$ equally likely permutations, exactly
+$(n-1)!$ fix person $i$, and $(n-1)!/n!=1/n$.) Consequently $\mathbf{P}(X_i=0)=1-\tfrac1n$.</p>
+
+<p><b>Blank 2 — $\mathbb{E}[X_i]$.</b> $X_i$ is an indicator, so its expectation is the probability
+of the event it indicates (the rule isolated in §4.8):
+$$\mathbb{E}[X_i]=1\cdot\mathbf{P}(X_i=1)+0\cdot\mathbf{P}(X_i=0)=1\cdot\tfrac1n+0=\tfrac1n .$$</p>
+
+<p><b>Blank 3 — are the $X_i$ independent?</b> <b>No.</b> Take $n\ge2$ and condition on person $1$
+getting their own hat. That hat is gone, so person $2$ is drawing uniformly among the remaining
+$n-1$ hats, exactly one of which is person $2$'s own:
+$$\mathbf{P}(X_2=1\mid X_1=1)=\frac{1}{n-1}\ \ne\ \frac1n=\mathbf{P}(X_2=1)\qquad(n\ge2).$$
+Since conditioning on $X_1$ changes the law of $X_2$, the factorization test of §4.5 fails and the
+indicators are dependent. The dependence is <em>positive</em> here — one success makes the next more
+likely, because removing a matched hat shrinks the pool — which is worth contrasting with the
+binomial of §4.8, where the trials were independent by construction. For $n=10$ the two numbers are
+$1/9\approx0.1111$ versus $1/10=0.1$; for $n=100$, $1/99\approx0.010101$ versus $0.01$.</p>
+
+<p><b>Blank 4 — $\mathbb{E}[X]$.</b> Linearity of expectation (§4.6) needs no independence
+whatsoever, so it applies verbatim to these dependent indicators:
+$$\mathbb{E}[X]=\mathbb{E}\Big[\sum_{i=1}^n X_i\Big]=\sum_{i=1}^n\mathbb{E}[X_i]
+=\underbrace{\tfrac1n+\tfrac1n+\cdots+\tfrac1n}_{n\text{ terms}}=n\cdot\tfrac1n=1 .$$
+<b>On average exactly one person gets their own hat, no matter how many people there are.</b> Ten
+people, a hundred people, a million: the answer is $1$. Obtaining this from the PMF of $X$ instead
+would mean deriving the number of permutations with exactly $k$ fixed points — a far harder
+counting problem that the indicator method sidesteps completely.</p>
+
+<p><b>Blank 5 — $\mathbb{E}[X_i^2]$ (slide 8).</b> $X_i$ takes only the values $0$ and $1$, and
+$0^2=0$, $1^2=1$, so $X_i^2=X_i$ as random variables. Hence
+$$\mathbb{E}[X_i^2]=\mathbb{E}[X_i]=\tfrac1n .$$</p>
+
+<p><b>Blank 6 — $\mathbf{P}(X_1X_2=1)$.</b> The product $X_1X_2$ of two indicators is itself an
+indicator: it equals $1$ exactly when <em>both</em> $X_1=1$ and $X_2=1$. Apply the multiplication
+rule for events (G1 §2), which is where the dependence finally shows up:
+$$\mathbf{P}(X_1X_2=1)=\mathbf{P}(X_1=1,\ X_2=1)=\mathbf{P}(X_1=1)\,\mathbf{P}(X_2=1\mid X_1=1)
+=\frac1n\cdot\frac{1}{n-1}=\frac{1}{n(n-1)}\qquad(n\ge2),$$
+using Blank 1 for the first factor and Blank 3 for the second. Because $X_1X_2$ is an indicator, its
+expectation is that same probability:
+$$\mathbb{E}[X_iX_j]=\mathbf{P}(X_i=1,\ X_j=1)=\frac{1}{n(n-1)}\qquad\text{for every }i\ne j,$$
+the value being the same for every ordered pair by symmetry of the permutation. Note it is
+<em>not</em> $\mathbb{E}[X_i]\mathbb{E}[X_j]=1/n^2$ — that is precisely the independence assumption
+we do not have, and $\tfrac{1}{n(n-1)}&gt;\tfrac{1}{n^2}$ records the positive dependence.</p>
+
+<p><b>Blank 7 — $\mathbb{E}[X^2]$.</b> Square the decomposition and split the double sum into its
+diagonal ($i=j$) and off-diagonal ($i\ne j$) parts, exactly as slide 8 writes it:
+$$X^2=\Big(\sum_{i=1}^n X_i\Big)^2=\sum_{i=1}^n\sum_{j=1}^n X_iX_j
+=\sum_{i=1}^n X_i^2+\sum_{\substack{i,j\,:\,i\ne j}}X_iX_j .$$
+Take expectations and use linearity once more (still no independence needed). The first sum has $n$
+terms, each with expectation $1/n$ by Blank 5. The second sum runs over <em>ordered</em> pairs
+$(i,j)$ with $i\ne j$: there are $n$ choices for $i$ and then $n-1$ for $j$, so $n(n-1)$ terms, each
+with expectation $\frac{1}{n(n-1)}$ by Blank 6. Therefore
+$$\mathbb{E}[X^2]=\underbrace{n\cdot\frac1n}_{\text{diagonal}}
++\underbrace{n(n-1)\cdot\frac{1}{n(n-1)}}_{\text{off-diagonal}}=1+1=2\qquad(n\ge2).$$
+The two cancellations are the whole trick: the count of terms is exactly the reciprocal of each
+term's expectation, in both blocks.</p>
+
+<p><b>Blank 8 — $\operatorname{var}(X)$.</b> Use the shortcut formula of §3.2 together with
+$\mathbb{E}[X]=1$ from Blank 4:
+$$\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2=2-1^2=2-1=1\qquad(n\ge2).$$
+So the number of people who get their own hat has mean $1$ <em>and</em> variance $1$, for every
+$n\ge2$. (For $n=1$ the single person always gets their own hat, $X\equiv1$, and
+$\operatorname{var}(X)=0$; there are no off-diagonal terms.)</p>
+
+<p><b>Numerical cross-check.</b> Enumerating all $n!$ permutations and computing $X$ directly gives
+$\mathbb{E}[X]=1$, $\mathbb{E}[X^2]=2$, $\operatorname{var}(X)=1$ for $n=2,3,5$, and the closed
+forms give the same for $n=10$ and $n=100$ ($\mathbf{P}(X_1X_2=1)=1/90$ and $1/9900$
+respectively) — see <code>computes/g2_s4.py</code>.</p></div>
+
+<div class="note"><b>Interpretation.</b> Compare the two variance computations side by side. For the
+binomial (§4.8) the off-diagonal expectations were $\mathbb{E}[X_iX_j]=p^2=\mathbb{E}[X_i]
+\mathbb{E}[X_j]$, so all the cross terms cancelled against $(\mathbb{E}[X])^2$ and the variance
+collapsed to the sum $np(1-p)$ of individual variances. Here they do not cancel, and the entire
+extra slide of work is the price of that. What is striking is the answer: mean $1$ and variance $1$
+independent of $n$, the signature of the Poisson distribution — and indeed the number of fixed points
+of a random permutation converges to Poisson with parameter $1$ as $n\to\infty$. The naive guess
+"$n$ people, so more matches for larger $n$" is wrong: more people also means each individual match
+is rarer, at exactly the compensating rate.</div>
+
+<div class="warn"><b>Gotcha.</b> Do not write $\operatorname{var}(X)=\sum_i\operatorname{var}(X_i)
+=n\cdot\tfrac1n\big(1-\tfrac1n\big)=1-\tfrac1n$. That is the independence formula, and the $X_i$ here
+are dependent; it gives $0.9$ for $n=10$ instead of the correct $1$. Whenever the indicators come
+from sampling <em>without</em> replacement — hats, cards, a fixed permutation, drawing balls from an
+urn — expect dependence and go through the $\mathbb{E}[X_iX_j]$ expansion. The mean, by contrast, is
+always safe.</div>
+
+<div class="ex"><b>Practice 4.22.</b> With $n=3$ people, write out the PMF of $X$ by listing all
+$3!=6$ permutations, and verify $\mathbb{E}[X]=1$ and $\operatorname{var}(X)=1$ directly.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Label the permutations by which hat each of persons $1,2,3$ receives. The six equally likely
+outcomes and their fixed-point counts are
+$$(1,2,3)\mapsto3,\quad(1,3,2)\mapsto1,\quad(2,1,3)\mapsto1,\quad(3,2,1)\mapsto1,\quad
+(2,3,1)\mapsto0,\quad(3,1,2)\mapsto0 .$$
+So $p_X(0)=\tfrac26=\tfrac13$, $p_X(1)=\tfrac36=\tfrac12$, $p_X(2)=0$ (fixing two people forces the
+third), $p_X(3)=\tfrac16$; they sum to $\tfrac{2+3+0+1}{6}=1\ ✓$. Then
+$$\mathbb{E}[X]=0\cdot\tfrac13+1\cdot\tfrac12+3\cdot\tfrac16=\tfrac12+\tfrac12=1\ ✓,$$
+$$\mathbb{E}[X^2]=0\cdot\tfrac13+1\cdot\tfrac12+9\cdot\tfrac16=\tfrac12+\tfrac32=2\ ✓,\qquad
+\operatorname{var}(X)=2-1=1\ ✓ .$$
+Note $p_X(2)=0$: you can never have exactly $n-1$ fixed points.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.23.</b> $n$ people draw hats as above. Let $Y$ be the number of
+<em>ordered</em> pairs $(i,j)$, $i\ne j$, in which both people get their own hat. Find
+$\mathbb{E}[Y]$, and reconcile it with $\mathbb{E}[X^2]=2$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$Y=\sum_{i\ne j}X_iX_j$, a sum of $n(n-1)$ indicators each with expectation $\frac{1}{n(n-1)}$
+(Blank 6). By linearity $\mathbb{E}[Y]=n(n-1)\cdot\frac{1}{n(n-1)}=1$ for every $n\ge2$. Reconciling:
+$X^2=\sum_i X_i^2+Y$, so $\mathbb{E}[X^2]=\mathbb{E}\big[\sum_i X_i^2\big]+\mathbb{E}[Y]=1+1=2\ ✓$ —
+$\mathbb{E}[Y]$ <em>is</em> the off-diagonal block of Blank 7. (In unordered terms, the expected
+number of matched <em>pairs</em> is $\binom{n}{2}\frac{1}{n(n-1)}=\tfrac12$.)</p></div></details></div>
+
+<div class="ex"><b>Practice 4.24.</b> Ten cards numbered $1,\dots,10$ are shuffled and dealt into
+ten numbered slots. Let $X$ count the slots receiving their matching card. Give $\mathbb{E}[X]$ and
+$\operatorname{var}(X)$, and account numerically for the gap between the correct variance and the
+$1-\tfrac1{10}=0.9$ that an independence assumption would predict.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>This is the hat problem with $n=10$, so $\mathbb{E}[X]=1$ and $\operatorname{var}(X)=1$ — the
+physical relabeling (cards and slots instead of hats and people) changes nothing, because the
+assignment is still a uniformly random permutation.</p>
+<p>The independence formula fails because $\mathbf{P}(X_i=1,X_j=1)=\frac{1}{10\cdot9}=\frac{1}{90}$
+exceeds $\mathbf{P}(X_i=1)\mathbf{P}(X_j=1)=\frac{1}{100}$: matches are positively correlated, since
+each match removes one card <em>and</em> one slot, raising every remaining match probability from
+$1/10$ to $1/9$. The $90$ positive cross terms contribute exactly $90(\tfrac1{90}-\tfrac1{100})=0.1$
+of extra variance, restoring $0.9+0.1=1$.</p></div></details></div>
+
+<div class="summary"><b>§4 cheat sheet.</b>
+<ul>
+<li><b>Joint PMF.</b> $p_{X,Y}(x,y)=\mathbf{P}(X=x,Y=y)\ge0$, $\sum_x\sum_y p_{X,Y}(x,y)=1$. It is a
+table; every question is a sum of cells possibly followed by a division (L07 slide 2; B&amp;T §2.5).</li>
+<li><b>Marginals.</b> $p_X(x)=\sum_y p_{X,Y}(x,y)$ — sum the <em>other</em> variable away (total
+probability theorem). Fig. 4.1 example: $p_X=(\tfrac3{20},\tfrac8{20},\tfrac6{20},\tfrac3{20})$,
+$p_Y=(\tfrac1{20},\tfrac5{20},\tfrac9{20},\tfrac5{20})$.</li>
+<li><b>Conditional PMF.</b> $p_{X|Y}(x\mid y)=p_{X,Y}(x,y)/p_Y(y)$ for $p_Y(y)&gt;0$: a row rescaled
+to sum to $1$. Multiplication rule $p_{X,Y}=p_X\,p_{Y|X}=p_Y\,p_{X|Y}$; chain rule
+$p_{X,Y,Z}=p_X\,p_{Y|X}\,p_{Z|X,Y}$ (L07 slides 2–3; B&amp;T §2.6).</li>
+<li><b>Conditioning on an event $A$.</b> Cross out cells outside $A$, add the rest to get
+$\mathbf{P}(A)$, divide. Slide-3 example: $\mathbf{P}(X\le2,Y\ge3)=\tfrac9{20}$, conditional cells
+$\tfrac29,\tfrac49,\tfrac19,\tfrac29$, $\mathbb{E}[X\mid B]=\tfrac53$,
+$\operatorname{var}(X\mid B)=\tfrac29$ — and $X,Y$ become independent given $B$.</li>
+<li><b>Independence.</b> $p_{X,Y}(x,y)=p_X(x)p_Y(y)$ <em>for all</em> $x,y$ (L07 slide 3, red).
+Support must be a rectangle; rows must be proportional. The slide-3 grid fails at $(1,1)$:
+$0\ne\tfrac3{20}\cdot\tfrac1{20}$, so $X,Y$ are dependent — even though the single pair of events
+$\{X=2\},\{Y=4\}$ happens to be independent.</li>
+<li><b>Expectations.</b> $\mathbb{E}[g(X,Y)]=\sum_x\sum_y g(x,y)p_{X,Y}(x,y)$;
+$\mathbb{E}[aX+bY]=a\mathbb{E}[X]+b\mathbb{E}[Y]$ always; $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$
+only under independence. In general $\mathbb{E}[g(X,Y)]\ne g(\mathbb{E}[X],\mathbb{E}[Y])$
+($6.95$ vs $7.105$ on the slide-3 grid).</li>
+<li><b>Variances.</b> $\operatorname{var}(aX)=a^2\operatorname{var}(X)$,
+$\operatorname{var}(X+a)=\operatorname{var}(X)$;
+$\operatorname{var}(X+Y)=\operatorname{var}(X)+\operatorname{var}(Y)+2\operatorname{cov}(X,Y)$, so
+independence $\Rightarrow$ variances add. Degenerate cases: $Y=X$ gives
+$4\operatorname{var}(X)$; $Y=-X$ gives $0$; $Z=X-3Y$ with independence gives
+$\operatorname{var}(X)+9\operatorname{var}(Y)$ (L07 slide 5).</li>
+<li><b>Indicators.</b> $\mathbb{E}[\text{indicator}]=\mathbf{P}(\text{event})$. Binomial
+$X=\sum_i X_i$ gives $\mathbb{E}[X]=np$ (linearity only) and $\operatorname{var}(X)=np(1-p)$
+(independence needed), replacing the brute-force sum on L07 slide 6.</li>
+<li><b>Hat problem (L07 slides 7–8; §4.10).</b> $n$ people, a uniformly random permutation of their
+hats, $X=$ number of own-hat matches. $\mathbf{P}(X_i=1)=\mathbb{E}[X_i]=\mathbb{E}[X_i^2]=\tfrac1n$;
+the $X_i$ are <em>dependent</em>, $\mathbf{P}(X_2=1\mid X_1=1)=\tfrac1{n-1}$. Linearity alone gives
+$\mathbb{E}[X]=n\cdot\tfrac1n=1$. For the variance, $\mathbb{E}[X_iX_j]=\tfrac{1}{n(n-1)}$ over
+$n(n-1)$ ordered pairs $i\ne j$, so $\mathbb{E}[X^2]=1+1=2$ and $\operatorname{var}(X)=2-1=1$ —
+both free of $n$ (for $n\ge2$).</li>
+<li><b>Recitation results.</b> rec06 P1: $p_{K|N}(\cdot\mid2)=(\tfrac14,\tfrac12,\tfrac14)$,
+$p_{N|K}(\cdot\mid2)=(\tfrac25,\tfrac35)$, $\mathbb{E}[K]=\tfrac34$. rec06 P2: $x=0$ maximizes
+$\mathbb{E}[Y\mid X=x]$ at $2$; $y=3$ maximizes $\operatorname{var}(X\mid Y=y)$ at $4$;
+$p_R=(\tfrac38,\tfrac14,\tfrac14,\tfrac18)$; $\mathbb{E}[XY]=\tfrac{15}{4}$,
+$\mathbb{E}[XY\mid A]=5$. rec07 P2: $p_X(1)=\tfrac13$, $\mathbb{E}[Y\mid X=1]=2$, no independent
+completion, $p_{X,Y}(2,2)=\tfrac13$, $p_{X,Y\mid B}(2,2)=\tfrac49$.</li>
+</ul></div>

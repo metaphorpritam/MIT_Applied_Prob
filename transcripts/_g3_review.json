@@ -1,0 +1,282 @@
+[
+ {
+  "section": 1,
+  "severity": "critical",
+  "description": "\u00a71.7, Practice 1.17 solution, last sentence: \"a normal quantity strays beyond two standard deviations about one time in twenty-two, and beyond three about one time in $740$.\" The sentence is about the two-sided quantity P(|X| >= k*sigma) just computed (0.045500 and 0.002700, keys normal_P_abs_gt_2sigma / normal_P_abs_gt_3sigma). 1/0.0455 = 22.0 (correct), but 1/0.0027 = 370.4, not 740. The 740 figure is 1/0.00135 = 1/(1-Phi(3)), i.e. the ONE-sided tail \u2014 so the two halves of the sentence use different conventions. Correct text: \"...and beyond three about one time in 370\" (or state both as one-sided: one in 44 and one in 741)."
+ },
+ {
+  "section": 0,
+  "severity": "major",
+  "description": "\u00a70.3 reading guide, \u00a74 bullet (\"\u00a74 \u2014 Derived distributions and convolution (L11, rec11 P3, B&T \u00a74.1\u20134.2)\") lists only derived distributions, the monotonic shortcut, the linear case, convolution and the sum of two normals. The actual g3_s4.html contains a full subsection \u00a74.8 \"Covariance and correlation\" (~100 lines: definition of cov from L11 slide 7, bilinearity, independence \u21d2 zero covariance, Example 4.9 zero-covariance-without-independence, correlation coefficient rho from L11 slide 8, Example 4.10, Fig. 4.9) and its srcref explicitly cites \"\u00a74.2 (covariance and correlation, pp. 217\u2013229)\". Neither the \u00a74 bullet nor the \"Route\" line in the \u00a70 summary box mentions covariance/correlation at all, so the note's own map omits a major topic. Add covariance/correlation (L11 slides 7\u20138, B&T \u00a74.2) to the \u00a74 bullet and to the Route line."
+ },
+ {
+  "section": 0,
+  "severity": "major",
+  "description": "\u00a70.2, Table 0.1: the row \"Conditioning on an event $A$\" ($p_{X\\mid A}$ / $f_{X\\mid A}$) has \"\u00a72\" in the Where column. \u00a72 never treats $f_{X\\mid A}$ \u2014 grepping g3_s2.html for f_{X|A} returns nothing, and \u00a72.1\u2013\u00a72.9 cover only joint/marginal/conditional-on-a-random-variable, independence, expectation and the three rec09 problems. The only place a density is conditioned on a positive-probability event is \u00a71 (Example 1.4 Step 4: $f_Z(z)=f_{T\\mid\\{T<5\\}}(z)=f_T(z)/\\mathbf{P}(T<5)$, cited to B&T \u00a73.5 p. 165). The Where entry should read \u00a71 (or \u00a71, \u00a72)."
+ },
+ {
+  "section": 0,
+  "severity": "major",
+  "description": "\u00a70.3 reading guide, \u00a72 bullet reads \"(L09, rec09, B&T \u00a73.4\u20133.5)\", assigning all of rec09 to \u00a72. Both actual fragments state the opposite: g3_s1.html's srcref says \"rec09 P2 (exponential memorylessness \u2014 solved here, where the exponential lives, rather than in \u00a72)\" and solves it as Example 1.6, and g3_s2.html's srcref says \"rec09 P1, P3, P4 (P2, memorylessness, belongs to \u00a71)\". The \u00a71 bullet meanwhile cites only \"(L08, rec08, B&T \u00a73.1\u20133.3)\". Fix: \u00a71 bullet \u2192 \"(L08, rec08, rec09 P2, \u2026)\", \u00a72 bullet \u2192 \"(L09, rec09 P1/P3/P4, \u2026)\"."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "\u00a70.2, Table 0.1 caption: \"reproducing L09 slide 1 (and L08 slide 8) and completing it with the marginalization, independence and Bayes rows the slides state elsewhere.\" The enumeration of added rows is incomplete: the table also adds a \"Normalization\" row and an \"Expected value rule\" row, neither of which appears on L09 slide 1 (whose seven rows per the transcript are p_X/f_X, F_X, E[X] with the two formulas, var, joint, p_{X|A}/f_{X|A}, p_{X|Y}/f_{X|Y}). Since the caption makes an explicit fidelity claim, it should list all five added rows. Separately, L08 slide 8 has only five rows (no conditioning-on-an-event row, no expectation formulas), so \"(and L08 slide 8)\" overstates the correspondence."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "\u00a70.3 reading guide, \u00a71 bullet lists \"density and properties; E, E[g(X)], var; CDF; mixed distributions; uniform, exponential + memorylessness, normal + standardization + Phi table\" but omits \u00a71.6 entirely \u2014 \"Maxima and minima of independent exponentials\" (rec08 P3(d),(e), Examples 1.7\u20131.8, the rate-addition rule, Fig. 1.7), a full subsection of the fragment it is describing."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "\u00a72.1, Definition (jointly continuous; joint PDF): \"such that for <em>every</em> subset $S$ of the plane, P((X,Y) in S) = iint_S f_{X,Y}\". This is false as stated (non-measurable sets) and inconsistent with \u00a71's parallel definition, which correctly writes \"for every 'nice' subset $B$ of the real line\" and adds the measurability footnote. Insert the same \"nice\"/measurable qualifier here."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Citation duplication: the \u00a71 srcref lists \"Problem 3.9 (p. 187), Problem 9 (p. 186)\" as two separate book sources, and Example 1.4 correspondingly calls itself \"rec08 P2 = B&T Problem 3.9, pp. 186\u2013187\" while Step 1 invokes a distinct \"mixed-random-variable framework (B&T Problem 9, p. 186)\" and the cheatsheet row cites \"\u00a73.2 Prob. 9\". The rec08 transcript records Al's taxi as \"Problem 3.9, pages 186\u2013187\", i.e. chapter-3 Problem 9 spanning both pages \u2014 so these are almost certainly the same problem cited twice under two names. Either verify that Problem 9 is a genuinely different problem or collapse the two citations."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "\u00a71.7 opening: \"L08 slides 6 and 7 present it, leave three blanks, and assert two facts with 'it turns out'.\" Per the L08 transcript there are four blanks across those two slides \u2014 three on slide 6 (E[X] for the standard normal, E[Y], Var(Y)) and one on slide 7 (X ~ N(mu,sigma^2) \u21d2 (X-mu)/sigma ~ N(__)). The fragment itself fills all four (Example 1.9 \"all three blanks\" on slide 6, plus Example 1.10's standardization blank on slide 7), so the count in the intro is one short."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "\u00a72 srcref writes \"Bertsekas\u2013Tsitsiklis B&amp;T \u00a73.4 \u2026 and B&amp;T \u00a73.5\" \u2014 the publisher name and the abbreviation are stacked redundantly. The style contract's book-citation form is \"B&T \u00a7x.y\" (as used correctly in \u00a70 and \u00a71 srcrefs)."
+ },
+ {
+  "section": 0,
+  "severity": "major",
+  "description": "\u00a70.3 reading guide omits covariance and correlation entirely. The \u00a74 bullet lists only the CDF method, the monotone shortcut, the linear case, convolution and the sum of two normals \u2014 but the actual g3_s4.html \u00a74.8 'Covariance and correlation' (~150 lines: cov definition, computational formula, variance-of-a-sum, independence\u21d2cov=0, the zero-cov-without-independence counterexample, \u03c1, the \u22121\u2264\u03c1\u22641 proof, Fig. 4.9, Example 4.10, Practice 4.16\u20134.18; L11 slides 7\u20138, B&T \u00a74.2) is never mentioned. It is also absent from Table 0.1 (no covariance/correlation row) and from the 'Route:' line of the \u00a70 summary. A reader navigating by \u00a70 has no way to learn covariance is in this note. Fix: add a \u00a74 clause '\u2026and covariance/correlation, the two numbers measuring departure from independence (L11 slides 7\u20138)', a Table 0.1 row 'Covariance/correlation \u2014 same definition in both (centered) \u2192 \u00a74', and 'covariance and correlation' to the Route line."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "Book-figure and book-example citations collide with \u00a74's own numbering and violate the 'its Figure x.y' rule. g3_s4.html cites B&T figures as 'Fig 4.2' (line 76), 'Fig 4.5' (line 324), 'Fig 4.7' (lines 466, 528), 'Fig 4.9' (line 595), 'Figs 4.8\u20134.10' (line 560), 'Figs 4.2\u20134.10' (srcref) \u2014 distinguished from the note's own Fig. 4.1\u2013Fig. 4.9 only by a missing period. The worst case: line 625's own caption reads 'Fig. 4.7 \u2014 The moving overlap' (continuous convolution) while line 466 cites 'B&T \u00a74.1, Fig 4.7' for the discrete convolution picture. Same clash for examples: the note has its own 'Example 4.8 (triangular density)' and 'Example 4.10 (a signal-plus-noise correlation)' while the srcref cites B&T 'Examples 4.8, 4.10'. Fix: spell book figures out as 'its Figure 4.7' / 'its Figures 4.8\u20134.10' and book examples as 'B&T Example 4.8', per the house rule."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "The linear-transformation derivation is done from scratch three times and Z=Y/X twice, with zero cross-referencing. f_Y(y)=(1/|a|)f_X((y\u2212b)/a) is derived in full in \u00a71.7 Example 1.9, again in \u00a73.6 Example 3.10 Part 1 (both cases a>0, a<0), and again in \u00a74.1 'The linear case, derived completely'. Z=Y/X on the unit square is solved in full in \u00a73.6 Example 3.8 and again in \u00a74.3 Example 4.5 \u2014 same case split at z=1, same triangle-area argument, even the same Monte-Carlo checks. g3_s4.html contains exactly one '\u00a73' string and it refers to G2 \u00a73, so \u00a74 never acknowledges that \u00a73.6 already did this work. Fix: keep \u00a74 as the canonical derivation and reduce \u00a73.6 to a statement of results plus a forward pointer, or at minimum have \u00a74.1 and \u00a74.3 open with 'already carried out in \u00a73.6 for the L10 slides; here it is in general form'."
+ },
+ {
+  "section": 1,
+  "severity": "major",
+  "description": "\u00a71.7 Example 1.9's proof that Y=aX+b is normal silently assumes a>0 but boxes a general conclusion. The chain is F_Y(y)=P(X\u2264(y\u2212b)/a)=F_X((y\u2212b)/a) justified by 'dividing by the positive a preserves the inequality' (g3_s1.html line ~620), and the result is stated as f_Y(y)=1/(a\u03c3\u221a(2\u03c0))\u00b7exp{\u2212(y\u2212(a\u03bc+b))\u00b2/(2a\u00b2\u03c3\u00b2)} \u2014 with a bare 'a', not |a|, so the density is negative when a<0. The case a<0 is never mentioned here even though the slide's 'Fact' Y~N(a\u03bc+b, a\u00b2\u03c3\u00b2) is asserted for all a\u22600. Fix: state the hypothesis a>0 explicitly, write the prefactor as 1/(|a|\u03c3\u221a(2\u03c0)), and forward-reference \u00a73.6 Example 3.10 / \u00a74.1 where the a<0 case is handled."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "\u00a73.6 violates the per-topic quality contract on three counts. It is a substantive h3 (three full worked examples, ~30 lines) but has (a) no practice questions at all \u2014 the contract requires 1\u20133 in .ex boxes with <details class=\"sol\"> at the end of every h3 topic; (b) no <div class=\"warn\"> gotcha \u2014 the 'Gotcha built in:' text about E[R]=\u221e is inline bold prose inside Example 3.8's .ex box, so it will not render as a gotcha box and is invisible to a reader skimming for warnings; (c) no <div class=\"note\"> interpretation box. Fix: promote the E[R]=\u221e remark to a real warn div and add two practice items (e.g. 'V uniform on [40,80], 300-mile trip \u2014 find f_T and E[T]'; 'X~U[0,2], find the density of Y=1/X and note where the mean fails to exist')."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "\u00a75.1's master table cites B&T section numbers in a 'Source' column with no 'B&T' prefix, so they read as internal cross-references and collide with this note's own \u00a73.1\u2013\u00a73.6 and \u00a74.1\u2013\u00a74.2. Rows read 'L08 s2; \u00a73.1', 'L08 s4; \u00a73.2', 'L09 s3; \u00a73.4', 'L09 s5; \u00a73.5', 'L10 s2, s3; \u00a73.6', 'L10 s5, s6; \u00a74.1', 'L11 s3, s4; \u00a74.2'. A reader who follows '\u00a73.4' for the joint PDF lands on this note's \u00a73.4 '(D|C) Discrete unknown, continuous evidence: detection'; '\u00a74.2' for convolution lands on '4.2 The general formula for a strictly monotonic g'. Compounding it, this table \u2014 the note's stated 'whole of G3 on one page' \u2014 has no column pointing to where in THIS note each row is treated, unlike \u00a70's Table 0.1 which has a 'Where' column. Fix: prefix the book refs ('B&T \u00a73.4') and add a 'Where in G3' column (\u00a71.1, \u00a71.4, \u00a72.1, \u00a72.2, \u00a72.3, \u00a73.3, \u00a74.1, \u00a74.5\u2026)."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "\u00a74.6 'Continuous convolution and the sum of two uniforms' has two <div class=\"note\"> interpretation boxes but no <div class=\"warn\"> gotcha, despite covering the single highest-error-rate operation in the section \u2014 getting the limits of \u222bf_X(x)f_Y(w\u2212x)dx right when both supports are bounded. The relevant warning exists only as '\u00a75.4 Gotcha 4 \u2014 convolution limits', in a different fragment ~400 lines later, and \u00a74.6 does not point to it. Fix: add a warn box at \u00a74.6 stating that the integral runs over {x: f_X(x)>0} \u2229 {x: f_Y(w\u2212x)>0} and that this intersection changes with w (which is exactly why the uniform sum is piecewise), or at minimum cross-reference \u00a75.4 Gotcha 4."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "\u00a74.8 'Covariance and correlation' is the only h3 in \u00a74 with no <div class=\"note\"> interpretation box (it has defn, thm\u00d74, ex\u00d72, warn, figcap). The contract asks for a box giving the meaning of the result; the topic most needs one at the \u03c1 definition \u2014 why dividing by \u03c3_X\u03c3_Y makes \u03c1 unit-free and scale-invariant, and why \u03c1 measures only the linear part. Fix: add an interpretation box after the correlation definition (line ~988 of g3_s4.html)."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "\u00a70.3's per-section bullets under-describe two more sections. The \u00a73 bullet ('Inference when the unknown and the observation may each be discrete or continuous\u2026 one rule, four notations') never mentions \u00a73.6, which solves L10's three derived-distribution examples (Y/X on the unit square, Joan's Boston\u2013New York trip, Y=aX+b applied to a normal); a reader hunting for Joan's trip will look in \u00a74 and not find it. The \u00a71 bullet likewise omits \u00a71.6 'Maxima and minima of independent exponentials' (rec08 P3(d)(e), the rates-add rule). Fix: append '\u2026plus an appendix (\u00a73.6) discharging the three derived-distribution examples L10 leaves open' to the \u00a73 bullet, and 'maxima and minima of independent exponentials (rates add)' to the \u00a71 bullet."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Four h3 subsections open cold with no motivating prose: \u00a72.6, \u00a72.7, \u00a72.8 (g3_s2.html lines 495, 558, 617) and \u00a74.4 (g3_s4.html line 362) each place a <div class=\"ex\"> immediately after the heading. The contract's structure template puts motivating prose before the worked content, and every other h3 in the note follows it (compare \u00a72.9, \u00a74.3, \u00a74.5\u2013\u00a74.8, \u00a73.6). The recitation sections are exactly where a one-line 'why this problem is here / which tool it exercises' matters most \u2014 e.g. \u00a72.7 exercises marginalization off a non-rectangular support, \u00a72.8 exercises total expectation. Fix: add one motivating sentence after each of these four headings."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "Table 0.1's caption contradicts the table for the expectation row. The caption states 'Rows spanning both columns are the concepts the slide draws centered between them', and the Variance and CDF rows are correctly colspan=2. But L09 slide 1 also draws E[X] in the centre 'Common' column with \u03a3_x x p_X(x) and \u222b x f_X(x)dx flanking it, whereas Table 0.1 renders Expectation as an ordinary two-column row. The bullet immediately below then says '\ud835\udd3c and var are centered too', contradicting the table the reader just looked at. Fix: either make the Expectation row match the slide's centred layout (label centred, formulas in the flanking cells) or amend the caption to say the centring convention has been applied only where the formula itself is identical."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Book-citation form is inconsistent: 'B&T Ex. 3.19' / 'B&T Ex. 3.20' appear 3 times (g3_s3.html \u00a73 cheatsheet) against 'B&T Example \u2026' 12 times elsewhere; similarly 'B&T \u00a73.1\u20133.3.' appears both with and without a trailing period. Also g3_s1.html line 524 puts the [SOURCE TYPO] note in a <span class=\"srcref\">, a class the contract reserves for the per-fragment source line \u2014 it will inherit srcref styling and read as a citation rather than an editorial correction. Fix: normalize to 'B&T Example x.y' throughout and move the typo note into the surrounding prose or a warn box."
+ },
+ {
+  "section": 4,
+  "severity": "critical",
+  "description": "Practice 4.9 (two fair dice, \u00a74.5) prints a wrong number that contradicts its own algebra: \"$p_W(7)=6\\cdot\\frac{1}{36}=\\frac{6}{36}=\\frac16\\approx0.138889$\". $1/6=0.166667$; $0.138889=5/36$ is the probability of a sum of 8. Root cause is in the compute, not just the prose: computes/g3_s4.py line 371 reads `show(\"p49_p7\", float(dice[6]), \"= 6/36\")` on `dice = np.convolve([1/6]*6,[1/6]*6)`, whose support is 2..12 so index for w=7 is 5, not 6. computes/g3_s4.json therefore carries the self-contradicting pair `p49_p7 = 0.1388888888888889` and `p49_p7_frac = \"1/6\"`. Fix: `dice[5]`, rerun, and set the HTML value to 0.166667."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "\u00a75.1, paragraph after the correspondence table: \"...and the covariance/correlation pair $\\operatorname{cov}(X,Y)=...$, $\\rho=...$ (L11 slides 7\u20138). Every one of them was proved in G2 \u00a75.3 and is imported here unchanged.\" This is false. Covariance and correlation are new G3 material introduced on L11 slides 7\u20138 and derived in \u00a74.8 of this very note (definition, computational formula, variance-of-a-sum, the $-1\\le\\rho\\le1$ bound and equality case). The correlation coefficient appears nowhere in G2 (zero occurrences of `rho` in g2_s4.html and g2_s5.html), and what covariance G2 does contain sits in G2 \u00a74.7 (variance of a sum), not \u00a75.3. Compounding this, \u00a75's own section map (intro, line 17) describes \u00a74 as \"derived distributions and convolution\" and never mentions \u00a74.8, so the synthesis page leaves the reader with no pointer to where covariance/correlation are actually proved. Correct text: state that they are proved in \u00a74.8 of this note from L11 slides 7\u20138."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "\u00a75.3, paragraph after the method table: \"The Joan example (L10 slide 7 leaves it unsolved; \u00a74 of this note derives it in full)\". Wrong cross-reference: Joan ($V\\sim U[30,60]$, $T=200/V$) is derived in \u00a73.6, Example 3.9; the string \"Joan\" does not occur anywhere in g3_s4.html. Should read \"\u00a73.6 of this note derives it in full (Example 3.9)\"."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "\u00a74.3 and \u00a74.1 silently re-derive material already fully worked in \u00a73.6, with no cross-reference in either direction (g3_s4.html contains zero references to this note's \u00a73). (a) Example 4.5 ($Z=Y/X$ on the unit square, cited \"L11 slide 1\") is the same problem, same two cases, same answer as Example 3.8 ($R=Y/X$, cited \"L10 slide 4\") \u2014 two full solutions, two different variable names, two separate figure/compute families (ratio_* in g3_s4.json vs I1_* in g3_s3.json), and two different slide attributions with no note that both slides pose it. (b) The \"Case $a>0$/Case $a<0$\" derivation plus the Property in \u00a74.1 repeats verbatim the derivation in Example 3.10 Part 1. Either \u00a73.6 should defer to \u00a74 (stating results and pointing forward) or \u00a74 should cite \u00a73.6; as it stands the reader meets each derivation twice with conflicting provenance."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "\u00a74 attributes L10 material to L11 slides, and its srcref omits L10 entirely (\"Sources: L11 slides 1\u20138 \u2026 rec11 problem 3 \u2026\"). (a) The Recipe in \u00a74.1 is headed \"(the CDF method; L11 slides 1\u20132, B&T \u00a74.1)\" and the Fig. 4.1 caption and the \u00a74 cheatsheet repeat \"L11 slides 1\u20132\" \u2014 but the two-step CDF procedure (\"Get CDF of $Y$\u2026 Differentiate to get $f_Y$\") is stated on L10 slide 6; L11 slide 1 is only the blank $Y/X$ example and L11 slide 2 is the monotone change-of-variables picture. (b) The Property in \u00a74.1 is cited as \"L11 slide 2 special case\" \u2014 the formula $f_Y(y)=\\frac{1}{|a|}f_X(\\frac{y-b}{a})$ is asserted on L10 slide 8 (s5's own method table cites \"L10 s8\" correctly). Add L10 slides 6 and 8 to the srcref and to these two boxes."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "Book figures are cited as \"Fig 4.2\", \"Fig 4.5\", \"Fig 4.7\", \"Fig 4.9\" (srcref line 2 and lines 76, 324, 466, 528, 560, 595, 625), violating the note's convention that B&T figures be spelled out (\"its Figure 4.7\"). Because \u00a74's own figures are numbered Fig. 4.1\u20134.9, the collisions are actively misleading: the caption of the note's own Fig. 4.6 ends \"(L11 slide 3; B&T \u00a74.1, Fig 4.7)\" while the note also has a Fig. 4.7 two subsections later, and the Fig. 4.4 caption cites \"B&T Example 4.8, Fig 4.5\" while the note has its own Fig. 4.5."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "\u00a75.1 correspondence table, \"Source\" column: book sections are written bare (\"\u00a73.1\", \"\u00a73.2\", \"\u00a73.4\", \"\u00a73.5\", \"\u00a73.6\", \"\u00a74.1\", \"\u00a74.2\") while the rest of the note writes \"B&T \u00a7x.y\" and the note's own sections are \u00a70\u2013\u00a75 \u2014 the same fragment writes \"\u00a75.3\" and \"\u00a74 of this note\" for internal references, so the column is unreadable as written. One entry is also wrong on the merits: the convolution row cites \"L11 s3, s4; \u00a74.2\", but convolution is B&T \u00a74.1 (as g3_s4.html's own srcref states, \"\u00a74.1 (derived distributions, convolution\u2026)\"); B&T \u00a74.2 is covariance and correlation. The total-probability and total-expectation rows likewise cite \"\u00a73.4\" where the continuous total probability theorem is B&T \u00a73.5 (\u00a73.4 is joint PDFs). Prefix every entry with \"B&T\" and fix the convolution/total-probability rows."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "\u00a75 intro (line 11) says recitation 10 \"is not new material at all but the Fall-2010 course's Quiz 1\", contradicting both its own srcref (\"rec10 \u2026 the Spring 2010 Quiz 1, reused as a G1\u2013G3 checkpoint\") and \u00a75.5 (\"the solution handout is titled '6.041/6.431 Spring 2010 Quiz 1 Solutions'\"), and contradicting transcripts/rec10.md line 7 (\"the recitation reuses the Spring 2010 Quiz 1 and its official solutions\") \u2014 the Fall 2010 attribution belongs only to the OCW boilerplate/running header. Change to \"the Spring 2010 Quiz 1, reused in this Fall 2010 offering\"."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "The srcref says \"Sources: L10 slides 1\u20133 (raster p01) \u2026\", but \u00a73.6 (\"Appendix: the three unsolved derived-distribution examples on L10\") works L10 slides 4, 7 and 8, which live on raster p02. The srcref must list L10 slides 1\u20138 (raster p01\u2013p02), otherwise the section's last subsection has no declared source."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "The srcref declares \"L11 slides 2\u20136\", but the body cites L11 slides 7\u20138 (\u00a75.1, \"the covariance/correlation pair \u2026 (L11 slides 7\u20138)\") and L11 slides 3\u20134 (table row) and \"L11 s3\u2013s6\" (method table). Widen the srcref to L11 slides 2\u20138."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Practice 4.12 spot value: $f_W(1.5)=e^{-1.5}(e-1)=0.3834004996$, which is $0.383400$ to six places; the note prints $0.383401$. computes/g3_s4.json has `uexp_at_1.5 = 0.3834004995642035`, so this is a transcription/rounding slip in the HTML, not in the compute."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Practice 4.4 calls $f_Y(y)=e^{y-e^{y}}$ \"the standard Gumbel density\". The standard (maximum) Gumbel density is $e^{-y-e^{-y}}$, with mean $+\\gamma=+0.577216$; the density derived here is its reflection (the Gumbel distribution for minima), consistent with the note's own computed mean $-0.577216$ (`p44_mean`). Either rename it (\"reflected/minimum Gumbel\") or note that $-Y$ is standard Gumbel."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Example 3.2, Step 6: \"$y = 2$ (a bulb that lasted 2 time units, i.e. longer than the prior mean lifetime $\\approx 1/1.25 = 0.8$)\". $1/\\mathbb{E}[\\Lambda]$ is not the prior mean lifetime; $\\mathbb{E}[Y]=\\mathbb{E}[1/\\Lambda]=\\int_1^{3/2} 2/\\lambda\\,d\\lambda = 2\\ln(3/2)=0.810930$. This is exactly the $\\mathbb{E}[g(X)]\\ne g(\\mathbb{E}[X])$ trap the note flags in \u00a73.6 (Joan) and \u00a74.3 (Gotcha), so it should not be committed in passing here \u2014 relabel as \"the reciprocal of the prior mean rate\" or quote 0.810930."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Practice 3.8: \"$\\lambda = 3.912$ means noise standard deviation $\\sqrt2/\\lambda = 0.361504$, roughly a third of the signal separation ($X$ moves by 2 between the two hypotheses, i.e. $\\pm1$ about the origin)\". 0.3615 is a third of 1 (the half-separation), not of the separation 2 \u2014 as a fraction of the stated separation it is about 18%. Say \"roughly a third of the distance from the origin to either signal value\"."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "\u00a75 intro claims \"one new operation appeared that has no discrete counterpart worth the name, the derived distribution\", but the \u00a75.1 correspondence table two paragraphs later gives the discrete counterpart explicitly ($p_Y(y)=\\sum_{x:g(x)=y}p_X(x)$, L10 slide 5), \u00a75.3 step 2 of the Recipe repeats it, and \u00a74.5 develops discrete convolution in full. Rephrase (the genuinely new thing is the CDF/Jacobian machinery, not the concept)."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "\u00a75.2, uniform variance derivation: $\\frac{1}{b-a}\\big[\\frac{u^3}{3}\\big]_{-c}^{c}=\\frac{1}{b-a}\\cdot\\frac{c^3-(-c^3)}{3}$. The lower-limit substitution should be $(-c)^3$, not $-c^3$; the numeric value is unaffected but the displayed step is not the substitution it claims to be."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "\u00a75.1 Interpretation box: \"...why the conditional density $f_{X|Y}(x|y)$ can be defined at all \u2026: both numerator and denominator of $\\mathbf{P}(x\\le X\\le x+\\delta\\mid y\\le Y\\le y+\\varepsilon)$ carry a factor $\\varepsilon$ that cancels before the limit is taken.\" As written the quantity whose limit is taken is a probability, not a density \u2014 the division by $\\delta$ is missing. Gotcha 2 in \u00a75.4 states it correctly (\"the limit of $\\mathbf{P}(\\cdot\\mid\\cdot)/\\delta$\"); make the two consistent."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "The srcref cites \"B&T \u00a74.1 (\u2026 Examples 4.8, 4.10, Figs 4.2\u20134.10 \u2026)\", but Example 4.10 is never used anywhere in \u00a74 (only Example 4.8 is cited, in \u00a74.3). Drop it or use it."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "Broken word inside the change-of-variables Theorem box: it renders as \"where x = g^{-1}(y) is theunique solution of g(x) = y\" \u2014 \"the\" and \"unique\" run together with no space (s4_p04.png, and identically in s4_live.png). Cause is in notes/src/fragments/g3_s4.html line 156-157: the KaTeX display contains \\text{ is the\\nunique solution of }, and the literal newline inside \\text{} is swallowed rather than rendered as a space. Fix: put the line break outside the \\text{} group or write \\text{ is the unique solution of } on one line. Correct output reads \"is the unique solution of g(x)=y\"."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "Table in \u00a75.1 (\"The whole of G3 on one page\"), CDF row, is mis-columned and shows a stray pipe glyph: the Discrete (G2) cell reads \"\u2014\" while the Continuous (G3) cell reads \"= \\sum_{k\\le x} p_X(k)  |  = \\int_{-\\infty}^x f_X(t)dt, and f_X = dF_X/dx\" (s5_p01.png, row 5; source g3_s5.html line 39). The discrete CDF sum is sitting in the continuous column separated by a bare ASCII \"|\", which reads as a typo and falsely implies the discrete world has no CDF entry. Every other row of this table puts the discrete formula in column 1. Note \u00a70's Table 0.1 handles the same row correctly by centering it across both columns with \"(= \\sum_{k\\le x} p_X(k) or \\int_{-\\infty}^x f_X(t)dt)\" (s0_p04.png) \u2014 match that treatment, or move the sum into the Discrete cell and drop the pipe."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "Book-figure citation style violated six times in \u00a74, all visible on the rendered page. The contract requires B&T figures spelled out as \"its Figure x.y\", never \"Fig. x.y\"; \u00a72 does this correctly (\"B&T Example 3.11, p. 161, its Figure 3.13\", s2_p11.png caption). \u00a74 instead prints: sources line \"Examples 4.8, 4.10, Figs 4.2\u20134.10, pp. 202\u2013217\" (s4_p01.png); Property heading \"(linear transformation; L11 slide 2 special case, B&T \u00a74.1, Fig 4.2)\" (s4_p02.png); Fig. 4.4 caption \"(L11 slide 1; B&T Example 4.8, Fig 4.5)\" (s4_p07.png); Theorem heading \"(discrete convolution; L11 slide 3, B&T \u00a74.1, Fig 4.7)\" (s4_p09.png); Fig. 4.6 caption \"(L11 slide 3; B&T \u00a74.1, Fig 4.7)\" (s4_p10.png); Theorem heading \"(convolution; L11 slide 4, B&T \u00a74.1, Figs 4.8\u20134.10)\" (s4_p11.png) and Fig. 4.7 caption \"(B&T \u00a74.1, Fig 4.9)\" (s4_p12.png). The abbreviations also collide visually with the note's own figure numbers, which are Fig. 4.1\u20134.9 in the same section \u2014 \"Fig 4.7\" in the theorem heading is a different picture from the note's own \"Fig. 4.7\" two pages later."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "Fig. 5.4 mean annotations are too small to read at the rendered figure width. Left panel's \"E[X] = 21/8 = 2.625\" and right panel's \"E[Y] = 8/3 = 2.667\" (s5_p09.png) put a stacked fraction at roughly half the tick-label size; at 4x zoom the 21/8 numerator/denominator are mushed into one blob and the 8/3 reads as \"n/3\". Either inline the fractions (21/8, 8/3) instead of stacking them, or raise that annotation's fontsize to match the axis tick labels."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Fig. 3.3 panel (a): both shaded-region labels are overprinted by the density curves. \"miss (X = +1 judged \u22121)\" has the orange f_{Z|X}(z|\u22121) curve running straight through the \"+1\", and \"false alarm\" has the blue f_{Z|X}(z|+1) curve crossing between \"false\" and \"alarm\" (s3_p09.png). Move both labels up into the empty band above the curves, or give them a white bbox as the P(error) box in the same panel already has."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Fig. 2.7 right panel: the label \"E[X] = E[Y] = 1/3\" sits directly on top of the green dotted reference line \u2014 the dots run through the bottom of the glyphs and cut the brackets, so it reads as struck-through text (s2_p16.png). Offset the label a few points above the line or add a background bbox."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Fig. 2.5 left panel (stick-breaking support): the orange leader arrow from \"slice at X = x; Y uniform on [0, x]\" and the green leader arrow from \"slice at Y = y; x runs from y to l\" cross each other in mid-plot, and the \"f_{X,Y}(x,y) = 1/(l x)\" label box overlaps the orange vertical slice line (s2_p14.png). Swap the two annotation anchors so the leaders do not cross, and nudge the density label clear of the slice."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Conditional-density widget, bottom panel: the readout annotation \"E[X | Y = y] = 0.2500\" is bisected by the dashed conditional-mean vertical line, which passes through the \"y]\" and looks like a strikethrough (s2_p08.png). Place the annotation to one side of the dashed line rather than centered on it."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Bayes-updater widget caption contradicts what is drawn: the caption says \"Prior Beta(a,b) in grey dashes; posterior Beta(a+k, b+n\u2212k) in blue\", but the prior renders as a pink/rose dashed curve (legend swatch is pink too) while only the posterior is blue (s3_p15.png). Either recolor the prior to grey or change the caption to say pink/rose."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Fig. 3.5 panel (b): the annotation \"sample frequency k/n = 0.7\" is jammed against the right axis spine and overprints the blue n=10 posterior curve (s3_p13.png). Move it left of the dotted k/n line or above the curves."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "The \\mathbb{E} in every matplotlib figure annotation renders as an undersized, baseline-shifted fallback glyph that does not match the crisp double-struck E used in the body text \u2014 visible as a stray small \"E\" in Fig. 1.2 \"E[X]=(a+b)/2=4.5\", Fig. 1.4 \"E[X]=5/4 min\" (s1_p05.png, s1_p08.png), Fig. 1.5 legend \"(E[X]=2)\" (s1_p10.png), Fig. 2.7 (s2_p16.png), Fig. 3.2(b) y-axis label \"E[\u039b | Y=y]\" (s3_p07.png), Figs. 5.2 and 5.4 (s5_p05.png, s5_p09.png). The sources are correct (\\mathbb{E} throughout g3_s*_figs.py); it is a mathtext font-fallback problem. Either set mathtext to a font that carries the double-struck E or use a consistent \\mathrm{E}/rendered-image approach so figures match the prose notation."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Normal-explorer widget opens in a badly framed default state: the x-axis is pinned to [\u221220, 20] while the default parameters are \u03bc=0, \u03c3=1, so the density is a narrow spike occupying under 10% of the plot width with ~90% empty canvas (s1_p16.png). The fixed range is presumably there to accommodate the \u03bc/\u03c3 sliders, but the landing view should either autoscale to roughly \u03bc \u00b1 4\u03c3 or open with a \u03c3 large enough to fill the axis."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "Fig. 4.3 decision chart: the right-hand red \"no\" label overlaps the border of the orange change-of-variables box \u2014 the text sits directly on the box's right edge line (s4_p05.png). Shift the label a few points right, onto the white gap between that box and the CONVOLVE box."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "Fig. 5.2 flowchart is asymmetric at the terminal step: the Monotonic-formula, CDF-method and Convolution boxes all have arrows into the \"Finish: state the support of Y and check \u222bf_Y(y)dy = 1\" box, but the green \"Discrete: p_Y(y) = \u03a3 p_X(x), then check \u03a3 p_Y(y) = 1\" box is a dead end with no outgoing arrow (s5_p05.png). Either route it to Finish as well or make clear it terminates on its own."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Print pagination: page 1 of \u00a73 (s3_p01.png) is roughly 55% blank below the intro paragraph because Fig. 3.1 is pushed whole to page 2. It is mid-content whitespace, not an end-of-section gap. Allowing the figure to break, or shrinking it slightly, would close the hole."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "The \u00a74 bullet of the reading guide (s0_p05.png) is incomplete relative to the actual \u00a74 fragment. The bullet lists the CDF method, the monotonic shortcut, the linear case, convolution and the sum of two normals, but never mentions covariance and correlation \u2014 which is subsection 4.8 of g3_s4.html, a full subsection with a definition, three properties, two worked examples (4.9, 4.10), Fig. 4.9 and Practices 4.16\u20134.18. The bullet's own citation \"B&T \u00a74.1\u20134.2\" already covers \u00a74.2 (covariance), so the omission is only in the prose. Add a clause such as \"and closes with covariance, correlation and the repaired variance-of-a-sum formula\". Verified correct in the same bullet: convolution genuinely does live in \u00a74, and \u00a75 genuinely is synthesis plus the rec10 checkpoint (5.5) and bridge (5.6), so those parts of the guide need no change."
+ }
+]

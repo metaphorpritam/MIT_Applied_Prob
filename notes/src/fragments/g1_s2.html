@@ -1,0 +1,608 @@
+<h2 id="g1-s2">§2 &nbsp; Conditioning, total probability, and Bayes' rule</h2>
+<p class="srcref">Sources: L02 slides 1–8 (raster p01–p02) · rec02 problems 1–4 · Bertsekas–Tsitsiklis §1.3–1.4 (Examples 1.12, 1.13, 1.16, 1.17; Problems 1.14, 1.15)</p>
+
+<p>Everything in §1 assumed the model was fixed and complete. Real problems arrive in pieces: you learn something, and you want to redo the calculation in the light of what you learned. <b>Conditioning</b> is the operation that does this. It is a single definition, and out of it come the three tools L02 advertises on its outline slide — the multiplication rule, the total probability theorem, and Bayes' rule (L02 slide 1). Those three are not three ideas; they are one idea read left-to-right, summed, and inverted.</p>
+
+<p>The section is organized around that observation. §2.1 defines conditional probability and shows it is again a legitimate probability law. §2.2 reads the definition forwards (multiplication rule, sequential trees). §2.3 sums over a partition (total probability). §2.4 inverts (Bayes' rule) and works the radar model completely. §2.5 is a decision guide for choosing among the three. §2.6 applies all of it to Monty Hall.</p>
+
+<div class="note"><b>Recitation 2, solved here.</b> All four rec02 problems are worked in full inside this section, each attached to the tool it exercises. If you want to work the recitation before reading the section, go straight to:
+<ul>
+<li><b>rec02 P1</b> (Alice's two-heads claim; B&T Problem 1.15) — <b>Example 2.3</b>, §2.1.</li>
+<li><b>rec02 P2</b> (two fair 6-sided dice; B&T Problem 1.14) — <b>Example 2.2</b>, §2.1.</li>
+<li><b>rec02 P3</b> (chess tournament; text Examples 1.13 and 1.17) — <b>Example 2.4</b> (part a, §2.3) and <b>Example 2.6</b> (part b, §2.4).</li>
+<li><b>rec02 P4</b> (Monty Hall; B&T Example 1.12) — <b>Example 2.7</b>, §2.6.</li>
+</ul>
+Each statement is given verbatim, with the official solution's gaps filled in and marked.</div>
+
+<h3>2.1 Conditional probability: a re-normalized universe</h3>
+
+<p>The question conditioning answers is: <em>given that event $B$ has occurred, how likely is event $A$?</em> The lecture's phrasing is the one to memorize — "$B$ is our new universe" (L02 slide 3). Outcomes outside $B$ are now known not to have happened, so they receive probability $0$; outcomes inside $B$ keep their <em>relative</em> weights but must be rescaled so that they again total $1$. Dividing by $\mathbf{P}(B)$ is exactly that rescaling.</p>
+
+<div class="defn"><b>Definition (conditional probability; L02 slide 3, B&amp;T §1.3).</b> Let $A$ and $B$ be events in a model $(\Omega, \mathbf{P})$, and assume $\mathbf{P}(B) \neq 0$. The <b>conditional probability of $A$ given $B$</b> is
+$$\mathbf{P}(A \mid B) \;=\; \frac{\mathbf{P}(A \cap B)}{\mathbf{P}(B)}.$$
+Here $A \cap B$ is the event "both $A$ and $B$ occur"; $\mathbf{P}(B)$ is the total probability of the conditioning event, i.e. the size of the new universe. If $\mathbf{P}(B) = 0$ the quantity $\mathbf{P}(A \mid B)$ is <b>undefined</b> — the slide says so explicitly, and it is not a convention that can be relaxed: the ratio would be $0/0$.</div>
+
+<p>Two immediate consequences of the definition, both used constantly below. First, the numerator only ever involves the part of $A$ that lies inside $B$: outcomes of $A$ outside $B$ contribute nothing. Second, in a <b>discrete uniform</b> model — all $|\Omega|$ outcomes equally likely — the definition collapses to counting:
+$$\mathbf{P}(A \mid B) \;=\; \frac{|A \cap B| / |\Omega|}{|B| / |\Omega|} \;=\; \frac{|A \cap B|}{|B|},$$
+where $|E|$ denotes the number of outcomes in the event $E$. The factors $1/|\Omega|$ cancel, which is the formal statement of "$B$ is the new universe": you count inside $B$ and divide by the size of $B$.</p>
+
+<div class="thm"><b>Property (conditional probabilities are a probability law; B&amp;T §1.3).</b> Fix $B$ with $\mathbf{P}(B) &gt; 0$ and define $\mathbf{Q}(A) = \mathbf{P}(A \mid B)$ for every event $A$. Then $\mathbf{Q}$ satisfies the official axiom list of §1.5 — nonnegativity, normalization, and <em>countable</em> additivity (L01 slide 11; L02 slide 2 axiom 3′) — so every theorem proved for probability laws applies verbatim to conditional probabilities.
+<ol>
+<li><b>Nonnegativity.</b> $\mathbf{Q}(A) = \mathbf{P}(A \cap B) / \mathbf{P}(B) \ge 0$, because the numerator is $\ge 0$ by the nonnegativity axiom and the denominator is $&gt; 0$ by assumption.</li>
+<li><b>Normalization.</b> $\mathbf{Q}(\Omega) = \mathbf{P}(\Omega \cap B)/\mathbf{P}(B) = \mathbf{P}(B)/\mathbf{P}(B) = 1$, using $\Omega \cap B = B$ (every outcome of $B$ is in $\Omega$).</li>
+<li><b>Countable additivity.</b> Let $A_1, A_2, \ldots$ be a sequence of pairwise disjoint events. Distributivity of $\cap$ over $\cup$ (applied to countably many sets) gives $\left(\bigcup_{k} A_k\right) \cap B = \bigcup_{k} (A_k \cap B)$, and the pieces $A_k \cap B$ are still pairwise disjoint because the $A_k$ already were. The countable additivity axiom (§1.5) therefore gives $\mathbf{P}\!\left(\bigcup_k A_k \cap B\right) = \sum_k \mathbf{P}(A_k \cap B)$; dividing both sides by the constant $\mathbf{P}(B)$ — which may be taken term by term inside a convergent sum of nonnegative terms — yields
+$$\mathbf{Q}\!\left(\bigcup_k A_k\right) = \sum_k \mathbf{Q}(A_k).$$
+Taking $A_3 = A_4 = \cdots = \varnothing$ recovers the two-set case $\mathbf{Q}(A_1 \cup A_2) = \mathbf{Q}(A_1) + \mathbf{Q}(A_2)$.</li>
+</ol>
+In particular $\mathbf{P}(A^c \mid B) = 1 - \mathbf{P}(A \mid B)$ and $\mathbf{P}(A_1 \cup A_2 \mid B) \le \mathbf{P}(A_1 \mid B) + \mathbf{P}(A_2 \mid B)$ — the complement rule and union bound, transplanted into the new universe.</div>
+
+<div class="ex"><b>Example 2.1 (die roll, L02 slide 4 — the slide leaves both answers blank).</b> A fair $4$-sided die is rolled twice. Let $X$ be the first roll and $Y$ the second, let
+$$B = \{\min(X,Y) = 2\}, \qquad M = \max(X,Y),$$
+and compute $\mathbf{P}(M = 1 \mid B)$ and $\mathbf{P}(M = 2 \mid B)$ (and, while we are here, $\mathbf{P}(M = 3 \mid B)$ and $\mathbf{P}(M = 4 \mid B)$).
+
+<p><b>Step 0 — the model.</b> An outcome is the ordered pair $(x, y)$ with $x, y \in \{1,2,3,4\}$, so
+$$|\Omega| = 4 \times 4 = 16,$$
+and the $16$ cells of the grid in Fig. 2.1 are equally likely: $\mathbf{P}(\{(x,y)\}) = 1/16$ for every cell. This is the discrete uniform law (L01 slide 9), so all the work below is counting cells.</p>
+
+<p><b>Step 1 — write out $B$ explicitly.</b> The slide never does this, and it is where the whole example lives. $\min(x,y) = 2$ means: neither coordinate is $1$, and at least one coordinate equals $2$. Sweeping the grid:
+$$B = \{(2,2),\;(2,3),\;(2,4),\;(3,2),\;(4,2)\}, \qquad |B| = 5 .$$
+These are the shaded cells in Fig. 2.1 — the "hook" shape consisting of column $x=2$ from row $2$ upward plus row $y=2$ from column $2$ rightward. Hence
+$$\mathbf{P}(B) = \frac{|B|}{|\Omega|} = \frac{5}{16} = 0.3125 .$$</p>
+
+<p><b>Step 2 — $\mathbf{P}(M = 1 \mid B)$.</b> The event $\{M = 1\} = \{\max(X,Y) = 1\}$ contains the single cell $(1,1)$, whose minimum is $1$, not $2$. Therefore
+$$\{M = 1\} \cap B = \varnothing, \qquad |\{M=1\} \cap B| = 0,$$
+and by the counting form of the definition,
+$$\mathbf{P}(M = 1 \mid B) = \frac{|\{M=1\} \cap B|}{|B|} = \frac{0}{5} = 0 .$$
+This is forced logically, not just numerically: $\max \ge \min$ always, so $\min = 2$ makes $\max = 1$ impossible. Note the contrast with the unconditional value $\mathbf{P}(M = 1) = 1/16$ — conditioning on $B$ has driven a possible event to impossibility.</p>
+
+<p><b>Step 3 — $\mathbf{P}(M = 2 \mid B)$.</b> $\{M = 2\}$ is the set of cells whose larger coordinate is $2$: $(1,2), (2,1), (2,2)$, three cells, so unconditionally $\mathbf{P}(M=2) = 3/16$. Intersecting with $B$: $(1,2)$ and $(2,1)$ have minimum $1$, so they are out; only $(2,2)$ survives (it has $\min = 2$ and $\max = 2$). So
+$$\{M = 2\} \cap B = \{(2,2)\}, \qquad \mathbf{P}(M = 2 \mid B) = \frac{1}{5} = 0.2 .$$
+That is the blue cell in Fig. 2.1.</p>
+
+<p><b>Step 4 — the remaining values, as a check.</b> $\{M=3\} \cap B = \{(2,3),(3,2)\}$ and $\{M=4\} \cap B = \{(2,4),(4,2)\}$, each of size $2$, so
+$$\mathbf{P}(M = 3 \mid B) = \frac{2}{5}, \qquad \mathbf{P}(M = 4 \mid B) = \frac{2}{5}.$$
+The four conditional probabilities sum to $0 + \tfrac15 + \tfrac25 + \tfrac25 = 1$, as normalization inside the new universe requires — the events $\{M=m\}$, $m = 1,\dots,4$, partition $\Omega$, hence also partition $B$.</p>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s2_diegrid}}" alt="A 4 by 4 grid of the 16 equally likely outcomes of two rolls of a 4-sided die. Five cells are highlighted in orange forming the event B where the minimum equals 2: (2,2), (2,3), (2,4), (3,2), (4,2). Each is annotated with the value of the maximum M. The cell (2,2), the only one with M = 2, is filled solid blue." style="max-width:430px">
+<div class="figcap">Fig. 2.1 — The 16-cell sample space of L02 slide 4, with $B = \{\min(X,Y)=2\}$ shaded (5 cells) and each cell labeled by $M = \max(X,Y)$. The slide draws the grid but marks nothing on it; the shading and labels are added here. Reading off the picture: $\mathbf{P}(M=2 \mid B) = 1/5$.</div>
+
+<div class="note"><b>Interpretation.</b> Conditioning does two things at once, and it helps to keep them separate. (i) It <em>deletes</em>: outcomes outside $B$ lose all their probability — that is why $\mathbf{P}(M = 1 \mid B)$ collapsed from $1/16$ to exactly $0$. (ii) It <em>rescales</em>: what survives is stretched by the common factor $1/\mathbf{P}(B) = 16/5$, so the relative odds among surviving outcomes are untouched. Cells $(2,3)$ and $(2,2)$ were equally likely before conditioning and remain equally likely after. Conditional probability never re-ranks outcomes inside $B$; it only decides who is still in the room.</div>
+
+<div class="warn"><b>Gotcha.</b> $\mathbf{P}(A \mid B)$ can be larger or smaller than $\mathbf{P}(A)$ — there is no general inequality. In Example 2.1, $\mathbf{P}(M=2)= 3/16 = 0.1875$ rose to $\mathbf{P}(M=2\mid B) = 0.2$, while $\mathbf{P}(M=4) = 7/16 = 0.4375$ <em>fell</em> to $2/5 = 0.4$, and $\mathbf{P}(M=1)$ fell to $0$. A second, more expensive error: writing $\mathbf{P}(A\mid B) = \mathbf{P}(A)/\mathbf{P}(B)$. The numerator is $\mathbf{P}(A \cap B)$, never $\mathbf{P}(A)$ — they agree only in the special case $A \subseteq B$. Third: the conditioning bar is not symmetric. $\mathbf{P}(A \mid B) \ne \mathbf{P}(B \mid A)$ in general; §2.4 exists precisely because converting one into the other takes work.</div>
+
+<div class="ex"><b>Example 2.2 (rec02 P2 = B&T Problem 1.14, page 56).</b> We roll two fair 6-sided dice. Each one of the 36 possible outcomes is assumed to be equally likely.
+<br>(a) Find the probability that doubles are rolled.
+<br>(b) Given that the roll results in a sum of 4 or less, find the conditional probability that doubles are rolled.
+<br>(c) Find the probability that at least one die roll is a 6.
+<br>(d) Given that the two dice land on different numbers, find the conditional probability that at least one die roll is a 6.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Model.</b> An outcome is an ordered pair $(i,j)$, $i$ = first die, $j$ = second die, each in $\{1,\dots,6\}$; $|\Omega| = 6 \times 6 = 36$ and every outcome has probability $1/36$ (given). "Ordered" matters: $(1,2)$ and $(2,1)$ are different outcomes, which is what makes all 36 equally likely.</p>
+
+<p><b>(a)</b> Let $D = \{(i,j) : i = j\}$ be the event "doubles". Its elements are $(1,1),(2,2),(3,3),(4,4),(5,5),(6,6)$, so $|D| = 6$ and, by the discrete uniform law,
+$$\mathbf{P}(D) = \frac{|D|}{|\Omega|} = \frac{6}{36} = \frac{1}{6} \approx 0.1667 .$$</p>
+
+<p><b>(b)</b> Let $S = \{(i,j) : i + j \le 4\}$ be the conditioning event. Enumerate it by first coordinate: $i=1$ allows $j \in \{1,2,3\}$; $i=2$ allows $j \in \{1,2\}$; $i=3$ allows $j = 1$; $i \ge 4$ allows nothing. Hence
+$$S = \{(1,1),(1,2),(1,3),(2,1),(2,2),(3,1)\}, \qquad |S| = 6,$$
+matching the official solution. Of these, the doubles are $(1,1)$ and $(2,2)$, so $|D \cap S| = 2$ and
+$$\mathbf{P}(D \mid S) = \frac{\mathbf{P}(D \cap S)}{\mathbf{P}(S)} = \frac{2/36}{6/36} = \frac{2}{6} = \frac{1}{3} \approx 0.3333 .$$
+Conditioning doubled the chance of doubles ($1/6 \to 1/3$): small sums force the two dice to be close, and "close" is a step toward "equal".</p>
+
+<p><b>(c)</b> Let $T$ = "at least one roll is a 6". Counting directly, as the official solution does: the outcomes $(6,i)$ for $i = 1,\dots,5$ (five of them), the outcomes $(i,6)$ for $i = 1,\dots,5$ (five more), and $(6,6)$ (one), for a total $|T| = 5 + 5 + 1 = 11$. So
+$$\mathbf{P}(T) = \frac{11}{36} \approx 0.3056 .$$
+Cross-check by complement: no 6 at all leaves $5 \times 5 = 25$ outcomes, and $36 - 25 = 11$. ✓ (The naive "$6 + 6 = 12$" double-counts $(6,6)$.)</p>
+
+<p><b>(d)</b> Let $U = D^c$ = "the dice land on different numbers". <em>[Filling the gap the official solution leaves: it asserts the counts 30 and 10 without derivation.]</em> Since $D$ and $U$ partition $\Omega$,
+$$|U| = |\Omega| - |D| = 36 - 6 = 30 .$$
+For the numerator, $T \cap U$ is "at least one 6 <em>and</em> the two dice differ". From the list in (c), the only element of $T$ that is a double is $(6,6)$; removing it,
+$$|T \cap U| = |T| - 1 = 11 - 1 = 10 .$$
+Therefore
+$$\mathbf{P}(T \mid U) = \frac{|T \cap U|}{|U|} = \frac{10}{30} = \frac{1}{3} \approx 0.3333 .$$
+Note that $\mathbf{P}(T \mid U) = 1/3 &gt; 11/36 = \mathbf{P}(T)$: excluding doubles removes five outcomes with no 6 for every one outcome with a 6, which tilts the balance toward $T$.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Example 2.3 (Alice's two-heads claim — rec02 P1 = B&T Problem 1.15, pages 56–57).</b> A coin is tossed twice. Alice claims that the event of two heads is at least as likely if we know that the first toss is a head than if we know that at least one of the tosses is a head. Is she right? Does it make a difference if the coin is fair or unfair? How can we generalize Alice's reasoning?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setting up.</b> Let $A$ = "the first toss is a head" and $B$ = "the second toss is a head". Then "two heads" is the event $A \cap B$. Alice's two pieces of information are the conditioning events $A$ ("first toss is a head") and $A \cup B$ ("at least one toss is a head"). So the claim to check is
+$$\mathbf{P}(A \cap B \mid A) \;\ge\; \mathbf{P}(A \cap B \mid A \cup B).$$</p>
+
+<p><b>Step 1 — simplify each side using the definition.</b> For the left side, apply the definition with conditioning event $A$, and note that the numerator event $(A \cap B) \cap A$ equals $A \cap B$ because $A \cap B \subseteq A$ (intersecting with a superset changes nothing):
+$$\mathbf{P}(A \cap B \mid A) = \frac{\mathbf{P}((A\cap B)\cap A)}{\mathbf{P}(A)} = \frac{\mathbf{P}(A \cap B)}{\mathbf{P}(A)} .$$
+For the right side, the same move with conditioning event $A \cup B$, using $(A \cap B) \cap (A \cup B) = A \cap B$ because $A \cap B \subseteq A \cup B$:
+$$\mathbf{P}(A \cap B \mid A \cup B) = \frac{\mathbf{P}((A\cap B)\cap(A\cup B))}{\mathbf{P}(A \cup B)} = \frac{\mathbf{P}(A \cap B)}{\mathbf{P}(A \cup B)} .$$
+<em>[The recitation PDF prints this last fraction as $\frac{A \cap B}{A \cup B}$, dropping the $\mathbf{P}(\cdot)$'s — a typo; the operators belong there.]</em></p>
+
+<p><b>Step 2 — compare.</b> The two expressions have the <em>same numerator</em> $\mathbf{P}(A\cap B)$, so the comparison is entirely a comparison of denominators. Since $A \subseteq A \cup B$, monotonicity of probability (§1: $E \subseteq F \Rightarrow \mathbf{P}(E) \le \mathbf{P}(F)$) gives
+$$\mathbf{P}(A) \le \mathbf{P}(A \cup B) \;\Longrightarrow\; \frac{\mathbf{P}(A\cap B)}{\mathbf{P}(A)} \;\ge\; \frac{\mathbf{P}(A\cap B)}{\mathbf{P}(A\cup B)} .$$
+(A larger positive denominator with a fixed nonnegative numerator gives a smaller quotient.) <b>Alice is right</b>, and nothing in this argument used the coin's bias or even independence of the tosses — only the set inclusion $A \subseteq A \cup B$. So the answer to "does it make a difference if the coin is unfair?" is <b>no</b>: the inequality holds for every probability law on the four outcomes.</p>
+
+<p><b>Step 3 — the fair-coin numbers.</b> <em>[The official solution quotes $1/2$ and $1/3$ without deriving the four ingredients; here they are.]</em> With a fair coin, $\Omega = \{HH, HT, TH, TT\}$ with each outcome of probability $1/4$. Reading off the outcomes:
+$$A = \{HH, HT\},\quad B = \{HH, TH\},\quad A \cap B = \{HH\},\quad A \cup B = \{HH, HT, TH\},$$
+so $\mathbf{P}(A) = 2/4 = 1/2$, $\mathbf{P}(A \cap B) = 1/4$, and $\mathbf{P}(A \cup B) = 3/4$. Substituting,
+$$\mathbf{P}(A\cap B \mid A) = \frac{1/4}{1/2} = \frac{1}{2}, \qquad
+\mathbf{P}(A\cap B \mid A \cup B) = \frac{1/4}{3/4} = \frac{1}{3},$$
+and indeed $1/2 \ge 1/3$.</p>
+
+<p><b>Step 4 — an unfair coin, to confirm the claim is not an artifact of symmetry.</b> Let the tosses be independent with $\mathbf{P}(\text{head}) = p = 0.6$. Then $\mathbf{P}(A \cap B) = p^2 = 0.36$, $\mathbf{P}(A) = p = 0.6$, and by the union formula $\mathbf{P}(A \cup B) = p + p - p^2 = 2p - p^2 = 1.2 - 0.36 = 0.84$. Hence
+$$\mathbf{P}(A\cap B\mid A) = \frac{0.36}{0.6} = 0.6, \qquad
+\mathbf{P}(A\cap B \mid A\cup B) = \frac{0.36}{0.84} = \frac{p}{2-p} = 0.428571,$$
+and $0.6 \ge 0.428571$. ✓</p>
+
+<p><b>Step 5 — the generalization, proved.</b> <em>[The recitation solution states it but gives no proof.]</em> Claim: if $A$, $B$, $C$ are events with
+$$B \subseteq C, \qquad A \cap B = A \cap C, \qquad \mathbf{P}(B) &gt; 0,$$
+then $\mathbf{P}(A \mid B) \ge \mathbf{P}(A \mid C)$. Proof: by the definition twice, and then the hypothesis $A\cap B = A\cap C$ on the numerator,
+$$\mathbf{P}(A \mid B) = \frac{\mathbf{P}(A \cap B)}{\mathbf{P}(B)} = \frac{\mathbf{P}(A \cap C)}{\mathbf{P}(B)} .$$
+From $B \subseteq C$ and monotonicity, $0 &lt; \mathbf{P}(B) \le \mathbf{P}(C)$, so replacing the denominator by the larger $\mathbf{P}(C)$ can only decrease the fraction:
+$$\frac{\mathbf{P}(A\cap C)}{\mathbf{P}(B)} \;\ge\; \frac{\mathbf{P}(A\cap C)}{\mathbf{P}(C)} = \mathbf{P}(A \mid C). \qquad \blacksquare$$
+Alice's case is $C = A \cup B$ with the event of interest $A \cap B$: indeed $A \subseteq A\cup B$ and $(A\cap B)\cap A = (A\cap B)\cap(A\cup B) = A \cap B$. The special case $A \subseteq B \subseteq C$ also satisfies the hypotheses, since then $A \cap B = A = A \cap C$.</p>
+
+<p><b>What it means.</b> The information "the first toss was a head" is <em>more specific</em> than "at least one toss was a head" — it pins down which toss. A sharper conditioning event is a smaller universe, and with the favorable part of the universe unchanged, a smaller universe means a higher conditional probability. The vaguer statement "at least one head" is consistent with the disappointing outcome $TH$, and that extra possibility is what drags $1/2$ down to $1/3$.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 2.1.</b> Two rolls of a fair 4-sided die, notation as in Example 2.1. Compute $\mathbf{P}(\min(X,Y) = 1 \mid M = 3)$, where $M = \max(X,Y)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Condition on $\{M = 3\}$: the cells with larger coordinate equal to $3$ are $(1,3), (2,3), (3,3), (3,2), (3,1)$, so $|\{M=3\}| = 5$. Among these, the ones with minimum $1$ are $(1,3)$ and $(3,1)$, so the intersection has $2$ cells. By the counting form of the definition,
+$$\mathbf{P}(\min = 1 \mid M = 3) = \frac{2}{5} = 0.4 .$$
+Sanity check: given $M = 3$, the minimum can only be $1, 2$ or $3$, with counts $2, 2, 1$ — and $\tfrac25 + \tfrac25 + \tfrac15 = 1$.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 2.2.</b> Same die model. Given that $\min(X,Y) \le 2$, what is the conditional probability that the <em>first</em> roll is a $1$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The conditioning event $C = \{\min(X,Y) \le 2\}$ is the complement of $\{\min \ge 3\}$, and $\{\min \ge 3\}$ means both coordinates lie in $\{3,4\}$: $2 \times 2 = 4$ cells. So $|C| = 16 - 4 = 12$.</p>
+<p>The event $\{X = 1\}$ is the whole first column, $4$ cells, and every one of them has $\min \le 1 \le 2$, so $\{X=1\} \subseteq C$ and $|\{X=1\}\cap C| = 4$. Therefore
+$$\mathbf{P}(X = 1 \mid \min \le 2) = \frac{4}{12} = \frac{1}{3} \approx 0.3333,$$
+up from the unconditional $\mathbf{P}(X=1) = 4/16 = 1/4$: learning that the minimum is small makes a small first roll more plausible.</p>
+</div></details>
+</div>
+
+<h3>2.2 The multiplication (chain) rule</h3>
+
+<p>Read the definition of conditional probability backwards — multiply through by $\mathbf{P}(B)$ — and it becomes a construction tool rather than a query tool. This is how sequential models are <em>built</em>: you rarely know $\mathbf{P}(A \cap B)$ directly, but you very often know "the chance of the first thing" and "the chance of the second thing given the first".</p>
+
+<div class="thm"><b>Theorem (multiplication rule; L02 slide 6, B&amp;T §1.3).</b> For events with the relevant conditioning probabilities nonzero,
+$$\mathbf{P}(A \cap B) = \mathbf{P}(A)\,\mathbf{P}(B \mid A),$$
+$$\mathbf{P}(A \cap B \cap C) = \mathbf{P}(A)\cdot\mathbf{P}(B \mid A)\cdot\mathbf{P}(C \mid A \cap B),$$
+and in general, for events $A_1, \dots, A_n$ with $\mathbf{P}(A_1 \cap \cdots \cap A_{n-1}) &gt; 0$,
+$$\mathbf{P}\!\left(\bigcap_{i=1}^{n} A_i\right) = \mathbf{P}(A_1)\,\mathbf{P}(A_2 \mid A_1)\,\mathbf{P}(A_3 \mid A_1 \cap A_2)\cdots \mathbf{P}\!\left(A_n \;\middle|\; \bigcap_{i=1}^{n-1} A_i\right).$$</div>
+
+<p><b>Derivation of the two-event form.</b> Start from the definition of $\mathbf{P}(B \mid A)$ (legitimate because $\mathbf{P}(A) &gt; 0$):
+$$\mathbf{P}(B \mid A) = \frac{\mathbf{P}(A \cap B)}{\mathbf{P}(A)} \quad\Longrightarrow\quad \mathbf{P}(A)\,\mathbf{P}(B\mid A) = \mathbf{P}(A \cap B),$$
+by multiplying both sides by the nonzero number $\mathbf{P}(A)$. That is the entire content: the multiplication rule <em>is</em> the definition, rearranged.</p>
+
+<p><b>Derivation of the three-event form</b> (L02 slide 6 states it without proof). Group the first two events and apply the two-event rule to the pair $(A \cap B,\, C)$:
+$$\mathbf{P}\big((A\cap B) \cap C\big) = \mathbf{P}(A \cap B)\cdot\mathbf{P}\big(C \mid A \cap B\big),$$
+which is the two-event rule with "$A$" $= A\cap B$ and "$B$" $= C$; it needs $\mathbf{P}(A \cap B) &gt; 0$. Now expand the first factor by the two-event rule again, $\mathbf{P}(A\cap B) = \mathbf{P}(A)\mathbf{P}(B\mid A)$, and substitute:
+$$\mathbf{P}(A\cap B\cap C) = \mathbf{P}(A)\,\mathbf{P}(B\mid A)\,\mathbf{P}(C\mid A\cap B).$$
+Note carefully that the last factor conditions on <em>both</em> earlier events, $A \cap B$, not on $B$ alone — a distinction the slide makes typographically and which is the single most common transcription error here.</p>
+
+<p><b>The general form</b> follows by induction on $n$. Base case $n = 2$ is the two-event rule. Inductive step: assume the formula for $n-1$ events and write $\bigcap_{i=1}^{n}A_i = \left(\bigcap_{i=1}^{n-1}A_i\right)\cap A_n$; the two-event rule gives
+$$\mathbf{P}\!\left(\bigcap_{i=1}^{n} A_i\right) = \mathbf{P}\!\left(\bigcap_{i=1}^{n-1} A_i\right) \cdot \mathbf{P}\!\left(A_n \;\middle|\; \bigcap_{i=1}^{n-1}A_i\right),$$
+and the inductive hypothesis expands the first factor into the first $n-1$ factors of the product. ∎ Every conditioning event in the product is legitimate: for each $m \le n-1$ the partial intersection $\bigcap_{i=1}^{m}A_i$ <em>contains</em> $\bigcap_{i=1}^{n-1}A_i$ (intersecting fewer sets can only enlarge the result), so by monotonicity $\mathbf{P}\!\left(\bigcap_{i=1}^{m}A_i\right) \ge \mathbf{P}\!\left(\bigcap_{i=1}^{n-1}A_i\right) &gt; 0$, the last inequality being the theorem's hypothesis.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s2_multtree}}" alt="A three-stage binary probability tree drawn left to right. From the root, branches labeled P(A) and P(A complement) lead to nodes A and A complement. From A, branches P(B given A) and P(B complement given A) lead to nodes A intersect B and A intersect B complement. From each of the four second-stage nodes, two further branches lead to the eight leaves A intersect B intersect C, and so on. Labels P(C given A intersect B) and P(C complement given A intersect B) are shown on the top pair of third-stage branches." style="max-width:620px">
+<div class="figcap">Fig. 2.2 — The sequential tree of L02 slide 6, completed. (The slide leaves the $A^c$ subtree and the $A\cap B\cap C^c$ leaf unlabeled; all eight leaves and both complement subtrees are drawn here.) The probability of a leaf is the product of the branch probabilities along the unique root-to-leaf path — that is the multiplication rule read off the picture.</div>
+
+<div class="note"><b>Interpretation.</b> A tree is not an illustration of the multiplication rule; it is the multiplication rule as a data structure. Each <em>node</em> is a partial history, each <em>branch</em> out of a node carries the conditional probability of the next thing given that history, and the leaf probability is the running product. Two bookkeeping facts follow and should be checked on every tree you draw: the branch probabilities leaving any single node sum to $1$ (they are a conditional probability law over the ways the next stage can go, and normalization applies inside the conditional universe — §2.1), and the leaf probabilities of the whole tree sum to $1$ (the leaves are a partition of $\Omega$).</div>
+
+<div class="warn"><b>Gotcha.</b> The conditional probabilities on later branches are <em>not</em> unconditional probabilities of "the next event". If you draw two cards from a deck without replacement, the second-stage branch is $\mathbf{P}(\text{2nd is red} \mid \text{1st was red})$, not $\mathbf{P}(\text{2nd is red})$ — and the two differ. Writing a tree with unconditional labels on stage-2 branches silently assumes independence (§3), which is an extra modeling claim, not a free lunch. Conversely, the numbers you must supply to build a tree are always of the "given the past" kind; that is what makes trees the natural language for experiments that unfold in time.</div>
+
+<div class="ex"><b>Practice 2.3.</b> An urn holds 5 red and 3 blue balls. You draw 3 balls one at a time, without replacement. Find the probability that all three are red, using the multiplication rule.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Let $R_i$ = "the $i$-th ball drawn is red", $i = 1,2,3$; the event of interest is $R_1 \cap R_2 \cap R_3$. Apply the three-event multiplication rule:
+$$\mathbf{P}(R_1\cap R_2\cap R_3) = \mathbf{P}(R_1)\,\mathbf{P}(R_2\mid R_1)\,\mathbf{P}(R_3\mid R_1\cap R_2).$$
+Each factor is read off the urn's composition <em>at that moment</em>, since given the past all remaining balls are equally likely to be drawn next:</p>
+<ul>
+<li>Initially 5 red out of 8 balls: $\mathbf{P}(R_1) = 5/8$.</li>
+<li>Given $R_1$, one red is gone: 4 red out of 7: $\mathbf{P}(R_2 \mid R_1) = 4/7$.</li>
+<li>Given $R_1 \cap R_2$, two reds are gone: 3 red out of 6: $\mathbf{P}(R_3\mid R_1\cap R_2) = 3/6 = 1/2$.</li>
+</ul>
+<p>Multiplying,
+$$\mathbf{P}(R_1\cap R_2\cap R_3) = \frac{5}{8}\cdot\frac{4}{7}\cdot\frac{3}{6} = \frac{60}{336} = \frac{5}{28} \approx 0.178571 .$$
+Notice how each conditional factor uses the full history (how many reds were removed), which is exactly why the third factor conditions on $R_1 \cap R_2$ and not on $R_2$ alone.</p>
+</div></details>
+</div>
+
+<h3>2.3 Total probability theorem: divide and conquer</h3>
+
+<p>The second tool sums the multiplication rule over a set of mutually exclusive scenarios. L02 slide 7 calls the idea "divide and conquer": if you cannot compute $\mathbf{P}(B)$ head-on, split the world into cases in which $B$'s probability <em>is</em> known, and average.</p>
+
+<div class="defn"><b>Definition (partition).</b> Events $A_1, \dots, A_n$ form a <b>partition</b> of $\Omega$ if they are mutually exclusive ($A_i \cap A_j = \varnothing$ for $i \ne j$) and collectively exhaustive ($A_1 \cup \cdots \cup A_n = \Omega$). Exactly one of them occurs on every outcome. The smallest useful example is $\{A, A^c\}$.</div>
+
+<div class="thm"><b>Theorem (total probability; L02 slide 7, B&amp;T §1.4).</b> Let $A_1, A_2, A_3$ partition $\Omega$, each with $\mathbf{P}(A_i) &gt; 0$, and let $B$ be any event. Then
+$$\mathbf{P}(B) = \mathbf{P}(A_1)\mathbf{P}(B\mid A_1) + \mathbf{P}(A_2)\mathbf{P}(B\mid A_2) + \mathbf{P}(A_3)\mathbf{P}(B\mid A_3),$$
+and in general $\displaystyle \mathbf{P}(B) = \sum_{i} \mathbf{P}(A_i)\,\mathbf{P}(B \mid A_i)$.</div>
+
+<p><b>Derivation</b> (the slide states the formula only; here are the two steps it compresses).</p>
+<p><b>Step 1 — cut $B$ into pieces.</b> Because the $A_i$ cover $\Omega$, every outcome of $B$ lies in exactly one $A_i$, so
+$$B = B \cap \Omega = B \cap (A_1 \cup A_2 \cup A_3) = (A_1 \cap B) \cup (A_2 \cap B) \cup (A_3 \cap B),$$
+using $\Omega \cap B = B$ and distributivity. The three pieces are disjoint: if an outcome were in $(A_i\cap B)$ and $(A_j\cap B)$ with $i \ne j$, it would lie in $A_i \cap A_j = \varnothing$. This is the picture in Fig. 2.3: the two dividing curves slice the grey ellipse $B$ into three arcs.</p>
+<p><b>Step 2 — add, then factor each piece.</b> The additivity axiom applied to three disjoint events gives
+$$\mathbf{P}(B) = \mathbf{P}(A_1 \cap B) + \mathbf{P}(A_2 \cap B) + \mathbf{P}(A_3 \cap B),$$
+and the multiplication rule of §2.2 rewrites each term as $\mathbf{P}(A_i \cap B) = \mathbf{P}(A_i)\,\mathbf{P}(B\mid A_i)$ (legal since $\mathbf{P}(A_i) &gt; 0$). Substituting all three:
+$$\mathbf{P}(B) = \mathbf{P}(A_1)\mathbf{P}(B\mid A_1) + \mathbf{P}(A_2)\mathbf{P}(B\mid A_2) + \mathbf{P}(A_3)\mathbf{P}(B\mid A_3). \qquad \blacksquare$$
+The same two steps work for any finite $n$, and (using countable additivity, L01 slide 11; L02 slide 2 axiom 3′) for a countably infinite partition.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s2_partition}}" alt="A rectangle representing the sample space Omega divided by two curves into three regions labeled A1 (upper left, blue), A2 (lower left, orange) and A3 (right, green). A grey horizontal ellipse across the middle is the event B; the dividing curves cut it into three pieces labeled A1 intersect B, A2 intersect B, and A3 intersect B. Below the rectangle the formula P(B) = P(A1 intersect B) + P(A2 intersect B) + P(A3 intersect B) = sum over i of P(Ai)P(B given Ai)." style="max-width:600px">
+<div class="figcap">Fig. 2.3 — The partition diagram of L02 slides 7–8, regenerated with the pieces and the formula labeled. (On the slide the ellipse carries no letter; it is identified as $B$ by the surrounding text.) Total probability = cut $B$ along the partition, then add the pieces.</div>
+
+<div class="note"><b>Interpretation.</b> $\mathbf{P}(B) = \sum_i \mathbf{P}(A_i)\mathbf{P}(B\mid A_i)$ is a <em>weighted average</em> of the conditional probabilities $\mathbf{P}(B \mid A_i)$, with weights $\mathbf{P}(A_i)$ that sum to $1$. Two consequences worth internalizing. (i) $\mathbf{P}(B)$ always lies between the smallest and the largest of the $\mathbf{P}(B\mid A_i)$ — if $B$ has chance between $0.3$ and $0.5$ under every scenario, its overall chance is between $0.3$ and $0.5$, no matter how the weights fall. (ii) The theorem is the "forward" direction of inference: causes $\to$ effect. You know how each cause produces the effect, and you average over causes. Bayes' rule (§2.4) runs the same picture backwards.</div>
+
+<div class="warn"><b>Gotcha.</b> The $A_i$ must be a genuine partition — mutually exclusive <em>and</em> exhaustive. Dropping exclusivity double-counts the overlap; dropping exhaustiveness silently throws away the outcomes not covered and produces a total less than the truth. A quick audit: do the weights $\mathbf{P}(A_i)$ sum to exactly $1$? If they do not, your list of scenarios is wrong, and no amount of correct conditional probabilities will fix it. Second trap: the summand is $\mathbf{P}(A_i)\mathbf{P}(B\mid A_i)$, not $\mathbf{P}(B\mid A_i)$ alone — averaging conditional probabilities without their weights is only correct when the scenarios happen to be equally likely.</div>
+
+<div class="ex"><b>Example 2.4 (chess tournament, part (a) — rec02 P3 = B&T Example 1.13, page 29).</b> You enter a chess tournament where your probability of winning a game is $0.3$ against half of the players (type 1), $0.4$ against a quarter of the players (type 2), and $0.5$ against the remaining quarter (type 3). You play one game against a randomly chosen opponent. What is the probability of winning?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><em>[The recitation solution delegates this entirely to the textbook — no computation appears in the source. Here it is in full.]</em></p>
+<p><b>Step 1 — name the events and the partition.</b> Let $A_i$ = "the opponent drawn is of type $i$", $i = 1,2,3$, and let $B$ = "you win the game". "A randomly chosen opponent" means the chance of drawing a type-$i$ opponent equals that type's share of the field:
+$$\mathbf{P}(A_1) = 0.5, \qquad \mathbf{P}(A_2) = 0.25, \qquad \mathbf{P}(A_3) = 0.25 .$$
+These are mutually exclusive (an opponent has one type) and collectively exhaustive (every opponent has a type), so $\{A_1,A_2,A_3\}$ is a partition — and as an audit, $0.5 + 0.25 + 0.25 = 1$. ✓ The data of the problem are exactly the conditional probabilities
+$$\mathbf{P}(B\mid A_1) = 0.3, \qquad \mathbf{P}(B\mid A_2) = 0.4, \qquad \mathbf{P}(B\mid A_3) = 0.5 .$$</p>
+<p><b>Step 2 — apply the total probability theorem.</b> Compute the three joint probabilities first (multiplication rule):
+$$\mathbf{P}(A_1 \cap B) = \mathbf{P}(A_1)\mathbf{P}(B\mid A_1) = 0.5 \times 0.3 = 0.15,$$
+$$\mathbf{P}(A_2 \cap B) = \mathbf{P}(A_2)\mathbf{P}(B\mid A_2) = 0.25 \times 0.4 = 0.10,$$
+$$\mathbf{P}(A_3 \cap B) = \mathbf{P}(A_3)\mathbf{P}(B\mid A_3) = 0.25 \times 0.5 = 0.125 .$$
+Adding the three disjoint pieces (Step 2 of the derivation above):
+$$\mathbf{P}(B) = 0.15 + 0.10 + 0.125 = 0.375 .$$</p>
+<p><b>Step 3 — interpret.</b> $0.375$ sits inside $[0.3,\,0.5]$, the range of the per-type win probabilities, as the weighted-average reading demands. It is closer to $0.3$ than to $0.5$ because half the field is type 1. Note that $0.375$ is <em>not</em> the plain average $(0.3+0.4+0.5)/3 = 0.4$: the types are not equally likely, and ignoring the weights would overstate your chances.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 2.4.</b> A factory has two machines. The old machine makes $60\%$ of the items and produces a defective item with probability $0.03$; the new machine makes the other $40\%$ and is defective with probability $0.01$. What fraction of output is defective?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Let $O$ = "item came from the old machine", $N = O^c$ = "from the new machine", $D$ = "item is defective". $\{O, N\}$ is a partition with $\mathbf{P}(O) = 0.6$, $\mathbf{P}(N) = 0.4$ (sum $=1$ ✓), and the given data are $\mathbf{P}(D\mid O) = 0.03$, $\mathbf{P}(D \mid N) = 0.01$. Total probability:
+$$\mathbf{P}(D) = \mathbf{P}(O)\mathbf{P}(D\mid O) + \mathbf{P}(N)\mathbf{P}(D\mid N) = 0.6\times 0.03 + 0.4 \times 0.01 = 0.018 + 0.004 = 0.022 .$$
+So $2.2\%$ of output is defective — between $1\%$ and $3\%$, as the weighted-average bound requires.</p>
+</div></details>
+</div>
+
+<h3>2.4 Bayes' rule: revising beliefs</h3>
+
+<p>The third tool answers the inverse question. L02 slide 8 sets it up in the language of belief: the $\mathbf{P}(A_i)$ are <b>prior</b> probabilities — initial beliefs about which scenario holds; the $\mathbf{P}(B \mid A_i)$ describe how each scenario generates observations; and after observing $B$ you want the <b>posterior</b> $\mathbf{P}(A_i \mid B)$, the revised beliefs. The rule that performs the revision is nothing more than the definition plus the two previous tools.</p>
+
+<div class="thm"><b>Theorem (Bayes' rule; L02 slide 8, B&amp;T §1.4).</b> Let $A_1,\dots,A_n$ partition $\Omega$ with $\mathbf{P}(A_i) &gt; 0$, and let $B$ satisfy $\mathbf{P}(B) &gt; 0$. Then for each $i$
+$$\mathbf{P}(A_i \mid B) \;=\; \frac{\mathbf{P}(A_i \cap B)}{\mathbf{P}(B)} \;=\; \frac{\mathbf{P}(A_i)\,\mathbf{P}(B \mid A_i)}{\mathbf{P}(B)} \;=\; \frac{\mathbf{P}(A_i)\,\mathbf{P}(B \mid A_i)}{\sum_{j} \mathbf{P}(A_j)\,\mathbf{P}(B \mid A_j)} .$$</div>
+
+<p><b>Derivation, one equality at a time.</b> The first equality is the <em>definition</em> of conditional probability (§2.1) applied with conditioning event $B$; it needs $\mathbf{P}(B) &gt; 0$. The second replaces the numerator using the multiplication rule, $\mathbf{P}(A_i \cap B) = \mathbf{P}(A_i)\mathbf{P}(B\mid A_i)$, which is legal since $\mathbf{P}(A_i) &gt; 0$; this converts an unknown joint probability into two knowns. The third — the step the slide performs silently — substitutes the total probability theorem of §2.3 into the denominator:
+$$\mathbf{P}(B) = \sum_{j} \mathbf{P}(A_j)\mathbf{P}(B\mid A_j),$$
+which is available precisely because the $A_i$ form a partition. After this substitution the right-hand side contains only the prior probabilities and the conditional probabilities you were given: the rule is fully computable from the model's inputs. ∎</p>
+
+<div class="note"><b>Interpretation.</b> Read the final formula as "<em>posterior $\propto$ prior $\times$ likelihood</em>". The numerator $\mathbf{P}(A_i)\mathbf{P}(B\mid A_i)$ scores scenario $A_i$ by two independent considerations — how plausible it was to begin with, and how well it explains the observation $B$ — and the denominator is just the normalizing constant that makes the scores of all scenarios sum to $1$. That also explains why the denominator is the <em>same</em> for every $i$: comparisons between scenarios depend only on the numerators, so the relative posterior odds of $A_1$ against $A_2$ are the prior odds multiplied by the likelihood ratio $\mathbf{P}(B\mid A_1)/\mathbf{P}(B\mid A_2)$.</div>
+
+<div class="ex"><b>Example 2.5 (radar detection — L02 slide 5, all three blanks; B&T Example 1.16).</b> Event $A$: an airplane is flying above. Event $B$: something registers on the radar screen. The model, read off the tree on the slide:
+$$\mathbf{P}(A) = 0.05, \quad \mathbf{P}(A^c) = 0.95, \quad \mathbf{P}(B\mid A) = 0.99, \quad \mathbf{P}(B^c\mid A) = 0.01, \quad \mathbf{P}(B\mid A^c) = 0.10, \quad \mathbf{P}(B^c \mid A^c) = 0.90 .$$
+Find $\mathbf{P}(A \cap B)$, $\mathbf{P}(B)$ and $\mathbf{P}(A \mid B)$. (The slide leaves all three right-hand sides blank.)
+
+<p><b>Step 0 — read the model, and audit it.</b> The prior $\mathbf{P}(A) = 0.05$ says planes are rare: on a randomly chosen scan, one chance in twenty. The radar is described by two conditional probabilities: its <em>sensitivity</em> $\mathbf{P}(B\mid A) = 0.99$ (it detects a real plane $99\%$ of the time) and its <em>false-alarm rate</em> $\mathbf{P}(B\mid A^c) = 0.10$ (it registers something on $10\%$ of empty skies). Audit the branch pairs: $0.05 + 0.95 = 1$ ✓, $0.99 + 0.01 = 1$ ✓, $0.10 + 0.90 = 1$ ✓ — each node's branches form a conditional probability law and must normalize.</p>
+
+<p><b>Step 1 — $\mathbf{P}(A\cap B)$ by the multiplication rule (§2.2).</b>
+$$\mathbf{P}(A \cap B) = \mathbf{P}(A)\,\mathbf{P}(B\mid A) = 0.05 \times 0.99 = 0.0495 .$$
+This is the probability of the top leaf of the tree: "a plane is there <em>and</em> the radar sees it".</p>
+
+<p><b>Step 2 — the other three leaves, for completeness and as a check.</b>
+$$\mathbf{P}(A\cap B^c) = 0.05 \times 0.01 = 0.0005, \qquad
+\mathbf{P}(A^c \cap B) = 0.95 \times 0.10 = 0.0950, \qquad
+\mathbf{P}(A^c\cap B^c) = 0.95 \times 0.90 = 0.8550 .$$
+Sum of all four leaves: $0.0495 + 0.0005 + 0.0950 + 0.8550 = 1.0$ ✓ — the leaves partition $\Omega$.</p>
+
+<p><b>Step 3 — $\mathbf{P}(B)$ by the total probability theorem (§2.3)</b> over the two-element partition $\{A, A^c\}$:
+$$\mathbf{P}(B) = \mathbf{P}(A)\mathbf{P}(B\mid A) + \mathbf{P}(A^c)\mathbf{P}(B\mid A^c) = 0.0495 + 0.0950 = 0.1445 .$$
+Equivalently: add the two leaves in which $B$ occurs. About one scan in seven produces a blip.</p>
+
+<p><b>Step 4 — $\mathbf{P}(A\mid B)$ by Bayes' rule (§2.4).</b>
+$$\mathbf{P}(A \mid B) = \frac{\mathbf{P}(A \cap B)}{\mathbf{P}(B)} = \frac{\mathbf{P}(A)\mathbf{P}(B\mid A)}{\mathbf{P}(A)\mathbf{P}(B\mid A) + \mathbf{P}(A^c)\mathbf{P}(B\mid A^c)} = \frac{0.0495}{0.1445} = 0.342561 \approx 0.3426 .$$
+The complementary posterior is $\mathbf{P}(A^c\mid B) = 0.0950/0.1445 = 0.657439$, and $0.342561 + 0.657439 = 1$ ✓.</p>
+
+<p><b>Step 5 — the other posterior, for contrast.</b> If nothing registers,
+$$\mathbf{P}(A\mid B^c) = \frac{\mathbf{P}(A\cap B^c)}{\mathbf{P}(B^c)} = \frac{0.0005}{1 - 0.1445} = \frac{0.0005}{0.8555} = 0.000584 .$$
+So a clean screen is very strong evidence of empty sky, while a blip is weak evidence of a plane. The asymmetry is entirely due to the priors.</p>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s2_radartree}}" alt="Two-stage probability tree for the radar model. From the root, a blue branch labeled P(A)=0.05 goes to node A, plane above; a grey branch labeled P(A complement)=0.95 goes to node A complement, no plane. From A, branches P(B|A)=0.99 and P(B complement|A)=0.01 reach leaves A intersect B with value 0.05 times 0.99 equals 0.0495, and A intersect B complement with 0.0005. From A complement, branches 0.10 and 0.90 reach leaves A complement intersect B with 0.0950 and A complement intersect B complement with 0.8550. A bracket joins the two leaves containing B and is labeled P(B) = 0.0495 + 0.0950 = 0.1445. Below, P(A|B) = 0.0495/0.1445 approximately 0.3426." style="max-width:660px">
+<div class="figcap">Fig. 2.4 — The radar tree of L02 slide 5 with every number filled in (the slide shows only the six branch labels). Highlighted leaves are the two that make up $B$; their sum is the total-probability denominator, and the top one is the Bayes numerator.</div>
+
+<div class="note"><b>Interpretation — why $0.3426$ is so small.</b> The radar is excellent: it catches $99\%$ of planes and cries wolf only $10\%$ of the time. Yet after a blip, a plane is still the <em>less</em> likely explanation — odds roughly 1 in 3. The reason is base rates. Empty skies outnumber planes $19$ to $1$, so even a $10\%$ false-alarm rate applied to the huge $A^c$ population produces $0.0950$ of false blips, nearly twice the $0.0495$ of true ones. In odds form, which makes the arithmetic transparent:
+$$\underbrace{\frac{\mathbf{P}(A)}{\mathbf{P}(A^c)}}_{\text{prior odds } = \,0.05/0.95\, =\, 0.052632} \times \underbrace{\frac{\mathbf{P}(B\mid A)}{\mathbf{P}(B\mid A^c)}}_{\text{likelihood ratio }=\,0.99/0.10\,=\,9.9} \;=\; \underbrace{0.521053}_{\text{posterior odds}}, \qquad \mathbf{P}(A\mid B) = \frac{0.521053}{1+0.521053} = 0.342561 .$$
+The evidence multiplied the odds by $9.9$ — a lot — but it started from $0.052632$, so it ends below $1$. The observation did move belief substantially: the probability of a plane rose from $0.05$ to $0.342561$, a factor of $6.8512$. "Weak posterior" and "strong evidence" are compatible. For the posterior to reach $0.5$ from this radar, the prior would have to be at least $\mathbf{P}(A) = 0.091743$ (solve $p \times 0.99 = (1-p)\times 0.10$).</div>
+
+<div class="warn"><b>Gotcha — the base-rate fallacy.</b> The near-universal wrong answer to Example 2.5 is "$0.99$, because the radar is $99\%$ accurate". That confuses $\mathbf{P}(B \mid A)$ with $\mathbf{P}(A \mid B)$ — the very inversion Bayes' rule exists to perform. Whenever the conditioning event is <em>rare</em>, a test's false-alarm rate applied to the large complementary population dominates the numerator. Two symptoms to watch for: (i) an answer that does not depend on the prior at all — impossible, since the prior appears in Bayes' rule; (ii) an answer equal to one of the given numbers, which usually means you copied a likelihood instead of computing a posterior.</div>
+
+<div class="ex"><b>Example 2.6 (chess tournament, part (b) — rec02 P3 = B&T Example 1.17, page 33).</b> Continuing Example 2.4: suppose that you win. What is the probability that you had an opponent of type 1?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><em>[Again, the recitation solution refers to the book and shows nothing; the full computation follows.]</em></p>
+<p><b>Step 1 — identify what is asked.</b> We want $\mathbf{P}(A_1 \mid B)$: the posterior probability of the scenario "type 1 opponent" given the observation "you won". The priors $\mathbf{P}(A_i)$ and the likelihoods $\mathbf{P}(B\mid A_i)$ are exactly the data of Example 2.4, and $\mathbf{P}(B) = 0.375$ was computed there.</p>
+<p><b>Step 2 — Bayes' rule.</b>
+$$\mathbf{P}(A_1\mid B) = \frac{\mathbf{P}(A_1)\mathbf{P}(B\mid A_1)}{\mathbf{P}(B)} = \frac{0.5 \times 0.3}{0.375} = \frac{0.15}{0.375} = 0.4 .$$</p>
+<p><b>Step 3 — the whole posterior distribution, as a check.</b>
+$$\mathbf{P}(A_2 \mid B) = \frac{0.10}{0.375} = 0.266667, \qquad \mathbf{P}(A_3\mid B) = \frac{0.125}{0.375} = 0.333333,$$
+and $0.4 + 0.266667 + 0.333333 = 1.0$ ✓ (the posterior is a probability law over the partition, by the Property in §2.1).</p>
+<p><b>Step 4 — interpret the shift.</b> The prior on type 1 was $0.5$; after learning that you won it drops to $0.4$. That direction is forced: type-1 players are the strongest opponents ($\mathbf{P}(\text{win}) = 0.3$ is the smallest likelihood), so a win is evidence <em>against</em> having faced one. Symmetrically, type 3 rises from $0.25$ to $0.333333$. Nothing about the field changed — only your information about which opponent you drew.</p>
+<p><b>Step 5 — the mirror question.</b> Had you lost, $\mathbf{P}(B^c) = 1 - 0.375 = 0.625$ and
+$$\mathbf{P}(A_1 \mid B^c) = \frac{\mathbf{P}(A_1)\mathbf{P}(B^c\mid A_1)}{\mathbf{P}(B^c)} = \frac{0.5 \times 0.7}{0.625} = \frac{0.35}{0.625} = 0.56,$$
+up from the prior $0.5$ — a loss is evidence that the opponent was strong. Posterior probabilities move in opposite directions for opposite observations; that is the whole content of "revising beliefs".</p>
+</div></details>
+</div>
+
+<h4>Interactive: the Bayes explorer</h4>
+
+<p>Bayes' rule has three inputs — the prior $\mathbf{P}(A)$, the sensitivity $\mathbf{P}(B\mid A)$, and the false-alarm rate $\mathbf{P}(B\mid A^c)$ — and one output, the posterior $\mathbf{P}(A\mid B)$. The dependence on the prior is the part that defeats intuition, so the widget plots the posterior as a function of the prior with the current setting marked. The defaults are the radar numbers of Example 2.5; the marked point should read $\mathbf{P}(A\mid B) = 0.342561$ with $\mathbf{P}(B) = 0.1445$, matching Step 4 above.</p>
+
+<div id="w-g1s2-bayes"></div>
+<script>
+Widget.create({
+  el: '#w-g1s2-bayes',
+  title: 'Bayes explorer: posterior P(A|B) as a function of the prior P(A)',
+  note: 'Defaults are the radar model of L02 slide 5 (prior 0.05, sensitivity 0.99, false alarm 0.10). The dashed diagonal is "posterior = prior", i.e. no information gained; the curve lies above it whenever sensitivity exceeds the false-alarm rate.',
+  height: 320,
+  controls: [
+    {type:'range', id:'pr', label:'prior P(A)',        min:0.001, max:0.999, step:0.001, value:0.05},
+    {type:'range', id:'se', label:'sensitivity P(B|A)', min:0.01,  max:1.0,   step:0.01,  value:0.99},
+    {type:'range', id:'fa', label:'false alarm P(B|A^c)', min:0.01, max:1.0,  step:0.01,  value:0.10}
+  ],
+  draw(s, canvas, out) {
+    const se = s.se, fa = s.fa, pr = s.pr;
+    const post = (p) => { const den = p*se + (1-p)*fa; return den === 0 ? 0 : p*se/den; };
+    const xs = [], ys = [], ds = [];
+    for (let i = 0; i !== 501; i++) { const x = i/500; xs.push(x); ys.push(post(x)); ds.push(x); }
+    const P = new Plot(canvas, {xlim:[0,1], ylim:[0,1], height:320,
+      xlabel:'prior  P(A)', ylabel:'posterior  P(A|B)'});
+    P.frame();
+    P.line(xs, ds, {color:4, width:1.4, dash:[5,4], label:'posterior = prior'});
+    P.line(xs, ys, {color:0, width:2.4, label:'posterior P(A|B)'});
+    const q = post(pr), pB = pr*se + (1-pr)*fa;
+    P.vline(pr, {color:'#eb6834'});
+    P.hline(q,  {color:'#eb6834'});
+    P.points([pr], [q], {color:1, r:5});
+    P.legend('left');
+    const lr = fa === 0 ? Infinity : se/fa;
+    out.textContent =
+      'prior P(A) = ' + pr.toFixed(3) +
+      '   |   P(B) = ' + pB.toFixed(6) +
+      '   |   posterior P(A|B) = ' + q.toFixed(6) +
+      '   |   P(A^c|B) = ' + (1-q).toFixed(6) +
+      '   |   likelihood ratio P(B|A)/P(B|A^c) = ' + lr.toFixed(3);
+  }
+});
+</script>
+
+<p>Three experiments worth running. (1) Keep the radar likelihoods and drag the prior: at $\mathbf{P}(A) = 0.01$ the posterior is only $0.090909$, at $0.05$ it is $0.342561$, at $0.10$ it is $0.523810$, at $0.25$ it is $0.767442$ — the curve is steep near the left edge, which is exactly why rare-event inference is so sensitive to base rates. (2) Set sensitivity equal to the false-alarm rate (say both $0.40$): the curve collapses onto the dashed diagonal and the posterior equals the prior for every prior — a test that responds identically whether or not $A$ holds carries no information. (3) Push the false alarm rate toward $0$ with sensitivity high: the curve bows up to near $1$ almost everywhere, because a blip becomes nearly conclusive.</p>
+
+<div class="ex"><b>Practice 2.5.</b> A disease affects $0.1\%$ of a population. A test has sensitivity $0.95$ (it is positive on $95\%$ of the sick) and specificity $0.95$ (it is negative on $95\%$ of the healthy). You test positive. What is the probability that you are sick?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Let $S$ = "sick", $T$ = "test is positive". Given: $\mathbf{P}(S) = 0.001$, so $\mathbf{P}(S^c) = 0.999$; $\mathbf{P}(T\mid S) = 0.95$; specificity $0.95$ means $\mathbf{P}(T^c \mid S^c) = 0.95$, hence the false-alarm rate is $\mathbf{P}(T\mid S^c) = 1 - 0.95 = 0.05$.</p>
+<p>Joint probabilities (multiplication rule):
+$$\mathbf{P}(S\cap T) = 0.001\times 0.95 = 0.00095, \qquad \mathbf{P}(S^c \cap T) = 0.999 \times 0.05 = 0.04995 .$$
+Total probability: $\mathbf{P}(T) = 0.00095 + 0.04995 = 0.0509$. Bayes' rule:
+$$\mathbf{P}(S \mid T) = \frac{0.00095}{0.0509} = 0.018664 .$$
+Fewer than $2\%$ of positives are genuinely sick, despite a "$95\%$ accurate" test — the same base-rate arithmetic as the radar, pushed harder by a rarer event. (Set the widget to prior $0.001$, sensitivity $0.95$, false alarm $0.05$ to see this point on the curve.)</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 2.6.</b> In the setting of Practice 2.4 (old machine $60\%$ with defect rate $0.03$, new machine $40\%$ with defect rate $0.01$), an inspector picks a defective item. What is the probability it came from the old machine?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The joints were computed there: $\mathbf{P}(O\cap D) = 0.018$, $\mathbf{P}(N\cap D) = 0.004$, $\mathbf{P}(D) = 0.022$. Bayes' rule:
+$$\mathbf{P}(O\mid D) = \frac{\mathbf{P}(O)\mathbf{P}(D\mid O)}{\mathbf{P}(D)} = \frac{0.018}{0.022} = 0.818182 .$$
+The prior $0.6$ rises to $0.818182$ because the old machine is both more prolific and more error-prone — both factors push the numerator up. Check: $\mathbf{P}(N \mid D) = 0.004/0.022 = 0.181818$ and the two sum to $1$.</p>
+</div></details>
+</div>
+
+<h3>2.5 Which tool? A decision guide</h3>
+
+<p>Students rarely fail these problems because a formula was misremembered; they fail because the wrong formula was reached for. The three tools are distinguished entirely by <em>what you are given</em> and <em>what you want</em>, and Fig. 2.5 makes that the explicit branch point.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s2_toolflow}}" alt="Flowchart. Top box: what is given, and what is asked? Three arrows labeled chain forward, sum over causes, and invert lead to three boxes: given P(A) and stage-by-stage P(B|A), want P(A and B); given a partition Ai with P(Ai) and P(B|Ai), want P(B); given the same data plus B observed, want P(Ai|B). Each leads down to the corresponding formula box: multiplication rule, total probability theorem, Bayes' rule. Horizontal arrows show the multiplication rule supplying one term per branch to total probability, and total probability supplying the denominator of Bayes' rule. A bottom box says: always check that branch probabilities out of each node sum to 1 and leaf probabilities sum to 1." style="max-width:660px">
+<div class="figcap">Fig. 2.5 — Choosing among the three tools of L02 (slides 6–8). The horizontal arrows record the dependency: the multiplication rule produces each term of the total probability sum, and the total probability sum is the denominator of Bayes' rule.</div>
+
+<div class="recipe"><b>Recipe (which tool, and how to run it).</b>
+<ol>
+<li><b>Write the model as a tree or a grid.</b> If the experiment has stages ("first this, then that"), it is a tree and the branch labels are conditional probabilities given the whole past. If it is one shot with equally likely outcomes, it is a grid and everything is counting (§2.1).</li>
+<li><b>Ask what is given.</b> If you have been handed numbers of the form "$\mathbf{P}(\text{next thing} \mid \text{history})$", they belong on branches, and the tools below apply. If you have been handed a joint probability directly, you may not need any of them.</li>
+<li><b>Ask what is wanted.</b>
+<ul>
+<li>A single conjunction, "$A$ <em>and</em> $B$ (and $C$)" $\Rightarrow$ <b>multiplication rule</b>: multiply along one root-to-leaf path, $\mathbf{P}(A)\mathbf{P}(B\mid A)\mathbf{P}(C\mid A\cap B)$.</li>
+<li>The unconditional probability of a late-stage event, "$\mathbf{P}(B)$" $\Rightarrow$ <b>total probability</b>: find a partition $\{A_i\}$ under which $\mathbf{P}(B\mid A_i)$ is known, then add $\mathbf{P}(A_i)\mathbf{P}(B\mid A_i)$ over $i$ — equivalently, add the leaf probabilities of all leaves lying in $B$.</li>
+<li>A conditional probability <em>pointing backwards in time</em>, "given the late observation $B$, which early scenario $A_i$?" $\Rightarrow$ <b>Bayes' rule</b>: numerator $\mathbf{P}(A_i)\mathbf{P}(B\mid A_i)$ (one leaf), denominator the total probability sum (all leaves in $B$).</li>
+</ul></li>
+<li><b>Identify the partition explicitly</b> before using the last two tools, and verify $\sum_i \mathbf{P}(A_i) = 1$.</li>
+<li><b>Audit.</b> Branch probabilities out of each node sum to $1$; leaf probabilities sum to $1$; every answer lies in $[0,1]$; a posterior distribution over the partition sums to $1$; a total probability lies between the smallest and largest conditional.</li>
+</ol>
+</div>
+
+<div class="warn"><b>Gotcha.</b> Two failure modes that Fig. 2.5 is designed to prevent. (i) Reaching for Bayes' rule when the question is forward-looking: if the question asks for $\mathbf{P}(B)$ and you have $\mathbf{P}(B \mid A_i)$, you need total probability, not Bayes — inverting nothing. (ii) Using total probability with a "partition" that is really a list of overlapping cases. The tell is that the weights do not sum to $1$; the fix is to redraw the tree so that the first-stage branches are exactly one mutually exclusive family.</div>
+
+<div class="ex"><b>Practice 2.7.</b> For each question below, name which of the three tools Fig. 2.5 sends you to, and write the formula you would evaluate — do not compute anything. Use the radar model of Example 2.5 ($A$ = plane above, $B$ = blip) throughout.
+<br>(i) What fraction of scans show a blip?
+<br>(ii) What is the chance that a plane is there and the radar misses it?
+<br>(iii) The screen just lit up; is there a plane?
+<br>(iv) The screen is clean; is there a plane?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Run the recipe: ask what is given (here, the prior $\mathbf{P}(A)$ and the two likelihoods $\mathbf{P}(B\mid A)$, $\mathbf{P}(B\mid A^c)$ — all "given the past" numbers, so they sit on branches) and then what is wanted.</p>
+<ul>
+<li><b>(i)</b> An unconditional probability of a <em>late-stage</em> event $\Rightarrow$ <b>total probability</b> over the partition $\{A, A^c\}$:
+$$\mathbf{P}(B) = \mathbf{P}(A)\mathbf{P}(B\mid A) + \mathbf{P}(A^c)\mathbf{P}(B\mid A^c).$$
+Equivalently, add the two leaves lying in $B$. (Step 3 of Example 2.5 evaluates it to $0.1445$.)</li>
+<li><b>(ii)</b> A single conjunction, "plane <em>and</em> no blip" $\Rightarrow$ <b>multiplication rule</b>, one root-to-leaf product:
+$$\mathbf{P}(A \cap B^c) = \mathbf{P}(A)\,\mathbf{P}(B^c\mid A).$$
+(Step 2 evaluates it to $0.0005$.)</li>
+<li><b>(iii)</b> A conditional probability pointing <em>backwards</em> — early scenario given late observation $\Rightarrow$ <b>Bayes' rule</b>, with (ii)-style numerator and (i) as denominator:
+$$\mathbf{P}(A\mid B) = \frac{\mathbf{P}(A)\mathbf{P}(B\mid A)}{\mathbf{P}(A)\mathbf{P}(B\mid A) + \mathbf{P}(A^c)\mathbf{P}(B\mid A^c)}.$$
+(Step 4: $0.342561$.)</li>
+<li><b>(iv)</b> Also <b>Bayes' rule</b>, with the observation $B^c$ in place of $B$ — the tool is chosen by the <em>direction</em> of the conditioning bar, not by which of $B$, $B^c$ was seen:
+$$\mathbf{P}(A\mid B^c) = \frac{\mathbf{P}(A)\mathbf{P}(B^c\mid A)}{\mathbf{P}(A)\mathbf{P}(B^c\mid A) + \mathbf{P}(A^c)\mathbf{P}(B^c\mid A^c)}.$$
+(Step 5: $0.000584$.)</li>
+</ul>
+<p>The audit from the Recipe's last step applies to all four: the branch pairs $0.05+0.95$, $0.99+0.01$, $0.10+0.90$ each sum to $1$, and the posteriors in (iii) sum to $1$ with their complements.</p>
+</div></details>
+</div>
+
+<h3>2.6 The Monty Hall problem</h3>
+
+<div class="ex"><b>Example 2.7 (rec02 P4 = B&T Example 1.12, page 27).</b> <b>The Monty Hall Problem.</b> You are told that a prize is equally likely to be found behind any one of three closed doors in front of you. You point to one of the doors. A friend opens for you one of the remaining two doors, after making sure that the prize is not behind it. At this point, you can stick to your initial choice, or switch to the other unopened door. You win the prize if it lies behind your final choice of a door. Consider the following strategies:
+<br>(a) Stick to your initial choice.
+<br>(b) Switch to the other unopened door.
+<br>(c) You first point to door 1. If door 2 is opened, you do not switch. If door 3 is opened, you switch.
+<br>Which is the best strategy?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 0 — the model, stated precisely.</b> Following the recitation solution, define three families of events for $i = 1,2,3$:</p>
+<ul>
+<li>$P_i$ = "the prize is behind door $i$". Given: $\mathbf{P}(P_1) = \mathbf{P}(P_2) = \mathbf{P}(P_3) = 1/3$ (equally likely, and $\{P_1,P_2,P_3\}$ is a partition).</li>
+<li>$C_i$ = "you initially point to door $i$". Your pointing is made in ignorance of the prize, i.e. $C_i$ is independent of the $P_j$: $\mathbf{P}(C_i \mid P_j) = \mathbf{P}(C_i)$ for all $i,j$. This is the assumption the official solution uses silently when it replaces $\mathbf{P}(C_i\mid P_i)$ by $\mathbf{P}(C_i)$; it is a modeling assumption, and it is what "you point at a door" means here. The $C_i$ also form a partition, so $\mathbf{P}(C_1)+\mathbf{P}(C_2)+\mathbf{P}(C_3) = 1$ — the second fact the solution uses without comment.</li>
+<li>$O_j$ = "your friend (the host) opens door $j$". The host's rule: he opens a door that is neither your door nor the prize door. If you chose the prize door, two doors qualify and he must break the tie somehow; write
+$$q = \mathbf{P}(O_2 \mid P_1 \cap C_1)$$
+for the probability that he opens door 2 in that tied situation (so $\mathbf{P}(O_3\mid P_1\cap C_1) = 1-q$). If you did <em>not</em> choose the prize door, exactly one door qualifies and the corresponding conditional probability is $1$: for instance $\mathbf{P}(O_3\mid P_2\cap C_1) = 1$, because door 1 is yours and door 2 hides the prize.</li>
+</ul>
+<p>Fig. 2.6 is this tree in the case $C_1$ (you point at door 1), with every branch probability and every leaf probability shown, plus the win/lose verdict of each strategy at each leaf.</p>
+
+<p><b>(a) Stick to your initial choice.</b> Sticking wins exactly when the prize is behind the door you first pointed at, i.e. on the event $\bigcup_i (P_i \cap C_i)$, a union of three disjoint events (they are disjoint because the $P_i$ are). By additivity, then the multiplication rule, then independence, then $\mathbf{P}(P_i) = 1/3$:
+$$
+\begin{aligned}
+\mathbf{P}(\text{win, stick}) &= \mathbf{P}(P_1\cap C_1) + \mathbf{P}(P_2\cap C_2) + \mathbf{P}(P_3\cap C_3) &&\text{(additivity, disjoint)}\\
+&= \mathbf{P}(P_1)\mathbf{P}(C_1\mid P_1) + \mathbf{P}(P_2)\mathbf{P}(C_2\mid P_2) + \mathbf{P}(P_3)\mathbf{P}(C_3\mid P_3) &&\text{(multiplication rule)}\\
+&= \mathbf{P}(P_1)\mathbf{P}(C_1) + \mathbf{P}(P_2)\mathbf{P}(C_2) + \mathbf{P}(P_3)\mathbf{P}(C_3) &&\text{(your choice is independent of the prize)}\\
+&= \tfrac13\big(\mathbf{P}(C_1)+\mathbf{P}(C_2)+\mathbf{P}(C_3)\big) &&\text{(each } \mathbf{P}(P_i)=\tfrac13\text{, factor it out)}\\
+&= \tfrac13 \cdot 1 \;=\; \tfrac13 \approx 0.333333 &&\text{(the } C_i \text{ partition } \Omega).
+\end{aligned}
+$$
+Note what does <em>not</em> appear: the host's behavior. Sticking ignores everything that happens after your first pick, so its success probability is frozen at the initial $1/3$.</p>
+
+<p><b>(b) Switch to the other unopened door.</b> Switching wins exactly when your initial pick was <em>wrong</em> — because then the host is forced to open the only other empty door, leaving the prize behind the door you switch to. Enumerating the six (prize, choice) mismatches, each with the host's forced opening:
+$$
+\begin{aligned}
+\mathbf{P}(\text{win, switch}) &= \mathbf{P}(P_1\cap C_2\cap O_3) + \mathbf{P}(P_1\cap C_3\cap O_2) + \mathbf{P}(P_2\cap C_1\cap O_3)\\
+&\quad + \mathbf{P}(P_2\cap C_3\cap O_1) + \mathbf{P}(P_3\cap C_1\cap O_2) + \mathbf{P}(P_3\cap C_2\cap O_1).
+\end{aligned}
+$$
+<em>[Gap filled:]</em> each of these six triple intersections collapses to a double one. By the multiplication rule, e.g.
+$$\mathbf{P}(P_1\cap C_2\cap O_3) = \mathbf{P}(P_1\cap C_2)\cdot \mathbf{P}(O_3\mid P_1\cap C_2) = \mathbf{P}(P_1\cap C_2)\cdot 1 = \mathbf{P}(P_1\cap C_2),$$
+because with the prize behind door 1 and your finger on door 2, the host has no choice but door 3. The same holds for the other five terms. Hence
+$$
+\begin{aligned}
+\mathbf{P}(\text{win, switch}) &= \mathbf{P}(P_1\cap C_2) + \mathbf{P}(P_1\cap C_3) + \mathbf{P}(P_2\cap C_1) + \mathbf{P}(P_2\cap C_3) + \mathbf{P}(P_3\cap C_1) + \mathbf{P}(P_3\cap C_2)\\
+&= \mathbf{P}(P_1)\mathbf{P}(C_2) + \mathbf{P}(P_1)\mathbf{P}(C_3) + \mathbf{P}(P_2)\mathbf{P}(C_1) + \mathbf{P}(P_2)\mathbf{P}(C_3) + \mathbf{P}(P_3)\mathbf{P}(C_1) + \mathbf{P}(P_3)\mathbf{P}(C_2)
+\end{aligned}
+$$
+by independence. <em>[Gap filled — the grouping that produces $2/3$:]</em> substitute $\mathbf{P}(P_i) = 1/3$ everywhere and collect the terms by which $C_j$ they contain. Each $\mathbf{P}(C_j)$ appears exactly twice (once with each $P_i$, $i \ne j$):
+$$= \tfrac13\big[\mathbf{P}(C_2)+\mathbf{P}(C_3)\big] + \tfrac13\big[\mathbf{P}(C_1)+\mathbf{P}(C_3)\big] + \tfrac13\big[\mathbf{P}(C_1)+\mathbf{P}(C_2)\big] = \tfrac13 \cdot 2\big[\mathbf{P}(C_1)+\mathbf{P}(C_2)+\mathbf{P}(C_3)\big] = \tfrac23 \cdot 1 = \tfrac23 \approx 0.666667 .$$
+An independent check: sticking and switching are complementary given the host has opened a door (you win with exactly one of them), so the two probabilities must sum to $1$: $1/3 + 2/3 = 1$ ✓.</p>
+
+<p><b>(c) The mixed strategy.</b> You point to door 1; if door 2 is opened you keep door 1, if door 3 is opened you switch to door 2. So, conditioning throughout on $C_1$, you win in exactly two situations: the prize is behind door 1 <em>and</em> the host opens door 2 (you keep door 1 and it is right), or the prize is behind door 2 <em>and</em> the host opens door 3 (you switch to door 2 and it is right). These are disjoint, so
+$$
+\begin{aligned}
+\mathbf{P}(\text{win, mixed}\mid C_1) &= \mathbf{P}(P_1\cap O_2 \mid C_1) + \mathbf{P}(P_2\cap O_3\mid C_1) &&\text{(additivity, in the universe } C_1)\\
+&= \mathbf{P}(P_1\mid C_1)\mathbf{P}(O_2 \mid P_1\cap C_1) + \mathbf{P}(P_2\mid C_1)\mathbf{P}(O_3\mid P_2\cap C_1) &&\text{(multiplication rule for } \mathbf{P}(\cdot\mid C_1))\\
+&= \mathbf{P}(P_1)\mathbf{P}(O_2\mid P_1\cap C_1) + \mathbf{P}(P_2)\mathbf{P}(O_3\mid P_2\cap C_1) &&\text{(independence of choice and prize)}\\
+&= \tfrac13\, q + \tfrac13 \cdot 1 &&\text{(the host is forced when the prize is behind 2)}\\
+&= \tfrac13\,(q+1).
+\end{aligned}
+$$
+The substitution $\mathbf{P}(O_3\mid P_2\cap C_1) = 1$ is the step the recitation makes without comment: door 1 is yours and door 2 hides the prize, so door 3 is the host's only legal move. The answer therefore depends on the host's tie-breaking rule $q = \mathbf{P}(O_2\mid P_1\cap C_1)$:
+$$q = 1 \;(\text{host always opens door 2 when free}) \;\Rightarrow\; \tfrac13(1+1) = \tfrac23 \approx 0.666667,$$
+$$q = \tfrac12 \;(\text{host tosses a fair coin}) \;\Rightarrow\; \tfrac13\left(\tfrac12+1\right) = \tfrac12 = 0.5 .$$</p>
+
+<p><b>Verdict.</b> <em>[The recitation computes the three numbers but never answers the question asked.]</em> Strategy (b), <b>always switch</b>, is the best. It wins with probability $2/3 \approx 0.666667$ <em>whatever</em> the host's tie-breaking rule — the host's freedom only enters through leaves where you had already chosen correctly, and switching loses on all of those regardless. Strategy (a) wins $1/3$. Strategy (c) wins $\tfrac13(q+1)$, which ranges over $[1/3, 2/3]$ as $q$ ranges over $[0,1]$: it equals $2/3$ only in the lucky case $q=1$, and drops to $1/2$ for the natural fair-coin host. Since (c) is never better than (b) and is usually worse, and since (b) never depends on an assumption about the host that you may have gotten wrong, (b) dominates.</p>
+
+<p><b>An exhaustive cross-check.</b> Enumerating all cases with $C_1$ fixed, a fair-coin host, and probabilities carried as exact fractions gives win probabilities $1/3$ (stick), $2/3$ (switch), $1/2$ (mixed); with $q = 1$ the mixed strategy gives $2/3$. A Monte Carlo run of $200000$ games gave a stick frequency of $0.33372$ and a switch frequency of $0.66628$, consistent with $1/3$ and $2/3$.</p>
+</div></details>
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s2_montytree}}" alt="Monty Hall tree with you always choosing door 1. Three branches of probability one third lead to nodes P1, P2, P3 (prize behind door 1, 2, 3). From P1 two branches labeled P(O2 | P1 and C1) = q and P(O3 | P1 and C1) = 1 minus q lead to leaves O2 and O3 with leaf probabilities q/3 and (1-q)/3. From P2 a single branch of probability 1 leads to leaf O3 with probability 1/3. From P3 a single branch of probability 1 leads to leaf O2 with probability 1/3. Three columns to the right mark each leaf as a Win or Loss under strategy (a) stick, (b) switch, and (c) mixed: row 1 W L W, row 2 W L L, row 3 L W W, row 4 L W L." style="max-width:680px">
+<div class="figcap">Fig. 2.6 — One tree, three strategies (rec02 P4; the recitation draws the full symbolic 12-leaf tree with no numbers). Fixing $C_1$ costs nothing by symmetry and reduces the tree to four leaves. Summing the leaf probabilities of the W cells column by column gives $1/3$ for stick, $2/3$ for switch, and $q/3 + 1/3$ for the mixed strategy.</div>
+
+<div class="note"><b>Interpretation — demolishing the 50-50 intuition.</b> The seductive argument runs: "two doors are left, the prize is behind one of them, so it is 50-50 and switching cannot matter." Every clause is true except the inference. Equal <em>numbers</em> of remaining doors do not imply equal <em>probabilities</em>; probabilities come from the model, and in this model the two surviving doors have entirely different histories. Your door was sealed at the start, when you were guessing blind among three: it carries probability $1/3$, and <em>nothing that happens afterwards can change that</em>, because the host's action is not evidence about your door — he can always open some empty door, whether or not your door hides the prize. The other surviving door is different: it survived a filter. The host looked at the two doors you did not pick, and deliberately eliminated an empty one. So the remaining unpicked door inherits the whole $2/3$ that the pair of unpicked doors began with.
+<br><br>Bayes' rule makes this quantitative. Suppose you chose door 1 and the host opened door 3, with a fair-coin host ($q = 1/2$). The two relevant joints are $\mathbf{P}(P_1 \cap O_3 \mid C_1) = \tfrac13 (1-q) = \tfrac13\cdot\tfrac12 = \tfrac16$ and $\mathbf{P}(P_2\cap O_3\mid C_1) = \tfrac13 \cdot 1 = \tfrac13$, so $\mathbf{P}(O_3 \mid C_1) = \tfrac16 + \tfrac13 = \tfrac12$ and
+$$\mathbf{P}(P_1 \mid C_1 \cap O_3) = \frac{1/6}{1/2} = \frac{1}{3}, \qquad \mathbf{P}(P_2\mid C_1\cap O_3) = \frac{1/3}{1/2} = \frac{2}{3} .$$
+The posterior on your own door is <em>exactly</em> its prior $1/3$: the observation was uninformative about door 1. All of the information went into redistributing the other $2/3$ from a two-door pool onto a single door. That is the whole trick, and it is why the answer is a redistribution, not a coin flip.
+<br><br>Push the intuition further with 100 doors: you pick one ($1/100$), the host opens 98 empty ones, and the single remaining door now carries $99/100$. Nobody defends 50-50 in that version, and the logic is identical.</div>
+
+<div class="warn"><b>Gotcha — the answer depends on the host's rule.</b> "$2/3$ for switching" is a theorem about <em>this</em> model, in which the host (i) always opens a door, (ii) never opens your door, and (iii) never reveals the prize. Change any clause and the arithmetic changes. If the host picked a non-chosen door at random and it happened to be empty, then observing "empty" <em>is</em> evidence about your door, and the posterior on your door rises to $1/2$ — switching becomes pointless. If the host only offers a switch when you initially chose correctly, switching wins with probability $0$. This is why the model paragraph (Step 0) is not pedantry: the puzzle's fame comes precisely from people arguing about different models while believing they are arguing about arithmetic. Note also the asymmetry in strategy (c): its value $\tfrac13(q+1)$ depends on $q$, whereas the values of (a) and (b) do not — a strategy that keys on <em>which</em> door was opened inherits the host's arbitrary tie-break, and that is a fragility, not a feature.</div>
+
+<h4>Interactive: Monty Hall simulator</h4>
+
+<p>Simulation cannot prove the result, but it does settle the argument quickly. Each game below draws a uniform prize location, fixes your pick at door 1, has the host open a legal empty door (fair coin when he has a choice), and records whether sticking and whether switching would have won. The plot shows the two running relative frequencies against the number of games played, with the theoretical $1/3$ and $2/3$ drawn in.</p>
+
+<div id="w-g1s2-monty"></div>
+<script>
+Widget.create({
+  el: '#w-g1s2-monty',
+  title: 'Monty Hall: running win frequencies for stick vs switch',
+  note: 'Model as in Example 2.7 with a fair-coin host. Dashed lines are the exact values 1/3 and 2/3. Press "run games" to advance the random seed and draw a fresh batch (each seed replays reproducibly); the curves settle to the theory, not to 1/2.',
+  height: 320,
+  controls: [
+    {type:'range', id:'n', label:'games per run', min:100, max:5000, step:100, value:2000},
+    {type:'button', id:'go', label:'run games', primary:true,
+      onClick(s, api) { s.seedbump = (s.seedbump || 0) + 1; api.redraw(); }}
+  ],
+  draw(s, canvas, out) {
+    const n = Math.round(s.n);
+    // mulberry32: a named seed makes each run reproducible — run k always
+    // replays the same games, so the curves are comparable across redraws.
+    const seed = 6041 + 7919 * (s.seedbump || 0);
+    let t = seed >>> 0;
+    const rand = () => {
+      t = (t + 0x6D2B79F5) >>> 0;
+      let r = Math.imul(t ^ (t >>> 15), 1 | t);
+      r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+    const xs = [], fk = [], fs = [];
+    let wk = 0, ws = 0;
+    for (let g = 1; g !== n + 1; g++) {
+      const prize = 1 + Math.floor(rand() * 3);
+      const choice = 1;
+      const opts = [1,2,3].filter((d) => d !== choice && d !== prize);
+      const opened = opts[Math.floor(rand() * opts.length)];
+      const other = [1,2,3].filter((d) => d !== choice && d !== opened)[0];
+      if (choice === prize) wk++;
+      if (other === prize) ws++;
+      xs.push(g); fk.push(wk / g); fs.push(ws / g);
+    }
+    const P = new Plot(canvas, {xlim:[0, n], ylim:[0, 1], height:320,
+      xlabel:'games played', ylabel:'running win frequency'});
+    P.frame();
+    P.hline(1/3, {color:'#c3c2b7'});
+    P.hline(2/3, {color:'#c3c2b7'});
+    P.line(xs, fs, {color:2, width:2.0, label:'switch'});
+    P.line(xs, fk, {color:1, width:2.0, label:'stick'});
+    P.legend('left');
+    out.textContent =
+      'seed = ' + seed +
+      '   |   games = ' + n +
+      '   |   stick wins = ' + wk + '  (' + (wk / n).toFixed(4) + ', theory 0.333333)' +
+      '   |   switch wins = ' + ws + '  (' + (ws / n).toFixed(4) + ', theory 0.666667)';
+  }
+});
+</script>
+
+<div class="ex"><b>Practice 2.8.</b> Four doors, one prize, uniformly placed. You point at door 1. The host opens one of the other three doors, chosen among those that are empty. You then switch to one of the two remaining unopened doors, picked at random. What is your probability of winning? Compare with sticking.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Sticking.</b> As in part (a) of Example 2.7, sticking wins exactly when your blind initial pick was right: $\mathbf{P} = 1/4 = 0.25$.</p>
+<p><b>Switching.</b> Let $W$ = "you win". Condition on whether your initial pick was correct — a two-element partition $\{P_1, P_1^c\}$ relative to your choice:
+<br>• If your first pick was right (probability $1/4$), both doors you might switch to are empty, so $\mathbf{P}(W \mid \text{first pick right}) = 0$.
+<br>• If your first pick was wrong (probability $3/4$), the prize is behind one of the three others; the host opens an empty one of those, leaving two unopened non-chosen doors, exactly one of which hides the prize. Choosing between them at random, $\mathbf{P}(W\mid \text{first pick wrong}) = 1/2$.
+<br>Total probability:
+$$\mathbf{P}(W) = \frac14\cdot 0 + \frac34\cdot\frac12 = \frac{3}{8} = 0.375 .$$</p>
+<p>So switching still beats sticking ($0.375 &gt; 0.25$), but by less than in the three-door game, because with four doors the host removes only one of the three "other" doors and the released probability has to be shared between two survivors. If instead the host opened <em>two</em> empty doors, the single remaining door would carry the whole $3/4$.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Practice 2.9.</b> In the standard three-door game you pick door 1 and the host, who tosses a fair coin when free, opens door 2. Compute $\mathbf{P}(P_1 \mid C_1 \cap O_2)$ and $\mathbf{P}(P_3\mid C_1\cap O_2)$ directly from Bayes' rule.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Only $P_1$ and $P_3$ are possible after $O_2$ (if the prize were behind door 2 the host could not have opened it, so $\mathbf{P}(O_2 \mid P_2 \cap C_1) = 0$). The two surviving joints, using the multiplication rule inside the universe $C_1$:
+$$\mathbf{P}(P_1\cap O_2\mid C_1) = \mathbf{P}(P_1)\,\mathbf{P}(O_2\mid P_1\cap C_1) = \tfrac13\cdot\tfrac12 = \tfrac16,$$
+$$\mathbf{P}(P_3\cap O_2\mid C_1) = \mathbf{P}(P_3)\,\mathbf{P}(O_2\mid P_3\cap C_1) = \tfrac13\cdot 1 = \tfrac13 .$$
+Total probability of the observation: $\mathbf{P}(O_2\mid C_1) = \tfrac16 + \tfrac13 = \tfrac12$. Bayes' rule:
+$$\mathbf{P}(P_1\mid C_1\cap O_2) = \frac{1/6}{1/2} = \frac13, \qquad \mathbf{P}(P_3\mid C_1\cap O_2) = \frac{1/3}{1/2} = \frac23 .$$
+Identical to the $O_3$ computation in the Interpretation box, as symmetry demands — which is exactly why the switching strategy's $2/3$ does not depend on which door the host opens.</p>
+</div></details>
+</div>
+
+<div class="summary">
+<b>§2 in one screen.</b>
+<b>Definition.</b> $\mathbf{P}(A\mid B) = \dfrac{\mathbf{P}(A\cap B)}{\mathbf{P}(B)}$, defined only when $\mathbf{P}(B) &gt; 0$; $B$ becomes the new universe, and $\mathbf{P}(\cdot\mid B)$ satisfies all three axioms. For equally likely outcomes, $\mathbf{P}(A\mid B) = |A\cap B|/|B|$.
+<b>Multiplication rule.</b> $\mathbf{P}(A\cap B) = \mathbf{P}(A)\mathbf{P}(B\mid A)$; $\mathbf{P}(A\cap B\cap C) = \mathbf{P}(A)\mathbf{P}(B\mid A)\mathbf{P}(C\mid A\cap B)$; in a tree, a leaf's probability is the product along its path.
+<b>Total probability.</b> For a partition $\{A_i\}$: $\mathbf{P}(B) = \sum_i \mathbf{P}(A_i)\mathbf{P}(B\mid A_i)$ — a weighted average of the $\mathbf{P}(B\mid A_i)$, so $\mathbf{P}(B)$ lies between the smallest and largest of them.
+<b>Bayes' rule.</b> $\mathbf{P}(A_i\mid B) = \dfrac{\mathbf{P}(A_i)\mathbf{P}(B\mid A_i)}{\sum_j \mathbf{P}(A_j)\mathbf{P}(B\mid A_j)}$: posterior $\propto$ prior $\times$ likelihood; the denominator only normalizes.
+<b>Benchmarks.</b> Die grid: $\mathbf{P}(M=1\mid B) = 0$, $\mathbf{P}(M=2\mid B) = 1/5$. Radar: $\mathbf{P}(A\cap B) = 0.0495$, $\mathbf{P}(B) = 0.1445$, $\mathbf{P}(A\mid B) = 0.342561$ — a $99\%$-sensitive detector still leaves the plane the less likely explanation, because the prior was $0.05$. Chess: $\mathbf{P}(\text{win}) = 0.375$, $\mathbf{P}(\text{type 1}\mid\text{win}) = 0.4$. Monty Hall: stick $1/3$, switch $2/3$, mixed $\tfrac13(q+1)$ — always switch.
+<b>Method.</b> Draw the tree; check that branches out of a node sum to $1$ and leaves sum to $1$; then chain forward (multiplication), sum over the partition (total probability), or invert (Bayes) according to Fig. 2.5.
+</div>

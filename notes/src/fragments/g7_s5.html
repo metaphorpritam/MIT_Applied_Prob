@@ -1,0 +1,443 @@
+<h2 id="g7-s5">§5 &nbsp; Synthesis, and the course in one figure</h2>
+<p class="srcref">Sources: L23 slides 2–7 · L24 slides 2–8 · L25 slides 2–3, 5, 8 (headers, for the master tables) · rec23 P3 · B&amp;T §9.1–9.5, with §9.5 "Summary and Discussion" as the model for this page. Cross-note sources: the six prior cheatsheets G1 §5, G2 §5, G3 §5, G4 §5, G5 §5, G6 §5. Every number on this page is recomputed in <code>computes/g7_s5.py</code> (<code>scipy.stats</code> for the normal and binomial quantities, a four-hundred-thousand-replication Monte Carlo for the confidence-interval coverage, a two-million-replication Monte Carlo for the ML variance bias) and the four figures by <code>computes/g7_s5_figs.py</code>.</p>
+
+<p>G7 asked one question in four ways. §1 asked how to judge a rule that turns data into a number,
+and answered with bias, variance and consistency; §2 asked how to <em>build</em> such a rule and
+answered with maximum likelihood; §3 asked the same question when the unknown is a straight line
+rather than a point, and answered with least squares; §4 asked how to choose between two stories
+about the world and answered with the likelihood ratio. This section puts all four on one page,
+sets them beside their Bayesian counterparts from G6, lists the five errors that cost the most
+marks and the most money, and then — because this is the last section of the last note — draws the
+whole of 6.041 as a single map.</p>
+
+<h3>5.1 The classical-inference cheatsheet</h3>
+
+<p>Fix the notation once; all six rows share it. $\theta$ is the unknown parameter: a
+<b>constant</b>, not a random variable, and this single decision is what separates every row below
+from every row of G6 §5.2. Because $\theta$ is not random it has no distribution, so the model is
+written $p_X(x;\theta)$ (discrete data) or $f_X(x;\theta)$ (continuous data) — one distribution per
+candidate value of $\theta$, with a semicolon rather than a conditioning bar (L23 slide 2, in bold on
+the slide: "These are NOT conditional probabilities"). $X_1,\dots,X_n$ are the observations,
+i.i.d. under each fixed $\theta$; $x_1,\dots,x_n$ are the numbers actually seen.
+$\hat\Theta_n=g(X_1,\dots,X_n)$ is an <em>estimator</em> — a random variable, because it is a
+function of the data — and $\hat\theta_n=g(x_1,\dots,x_n)$ is the <em>estimate</em>, a number.
+$\mu$ and $\sigma^2$ denote the mean and variance of a single $X_i$; $\Phi$ is the standard normal
+CDF, and $z$ is the number with $\Phi(z)=1-\alpha/2$. Finally $\alpha$ is used twice in classical
+statistics, with different meanings, and you must keep them apart: $1-\alpha$ is a confidence level
+in row 3, while $\alpha$ alone is a false-rejection probability in row 6.</p>
+
+<table>
+<thead>
+<tr><th class="l">Object</th><th class="l">Formula</th><th class="l">What it needs</th><th class="l">What it guarantees</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td class="l"><b>Estimator quality</b></td>
+  <td class="l">bias $=\mathbb{E}[\hat\Theta_n]-\theta$; &nbsp; $\mathrm{MSE}=\mathbb{E}\big[(\hat\Theta_n-\theta)^2\big]=\operatorname{var}(\hat\Theta_n)+\big(\text{bias}\big)^2$; &nbsp; consistent iff $\hat\Theta_n\to\theta$ in probability</td>
+  <td class="l">The sampling distribution of $\hat\Theta_n$ under each $\theta$.</td>
+  <td class="l">Nothing by itself — these are <em>criteria</em>. Each must hold <b>for all $\theta$</b> (L23 slide 4, which prints it with three exclamation marks).</td>
+  <td class="l">L23 slide 4; §1; B&amp;T §9.1</td>
+</tr>
+<tr>
+  <td class="l"><b>Sample mean</b></td>
+  <td class="l">$\hat\Theta_n=\dfrac{X_1+\cdots+X_n}{n}$, &nbsp; $\mathbb{E}[\hat\Theta_n]=\theta$, &nbsp; $\operatorname{var}(\hat\Theta_n)=\sigma^2/n=\mathrm{MSE}$</td>
+  <td class="l">I.i.d. data with $\theta=\mathbb{E}[X_i]$ and finite $\sigma^2$.</td>
+  <td class="l">Unbiased for every $n$; consistent by the weak law (G6 §1). Often also the ML estimate — exactly so for $X_i\sim N(\theta,\sigma^2)$.</td>
+  <td class="l">L23 slide 5, L24 slide 2; §1; B&amp;T §9.1</td>
+</tr>
+<tr>
+  <td class="l"><b>Confidence interval</b></td>
+  <td class="l">$\big[\hat\Theta_n-\tfrac{z\hat\sigma}{\sqrt n},\ \hat\Theta_n+\tfrac{z\hat\sigma}{\sqrt n}\big]$ with $\Phi(z)=1-\alpha/2$: $z=1.644854$ ($90\%$), $1.959964$ ($95\%$), $2.575829$ ($99\%$)</td>
+  <td class="l">The CLT (so $n$ large), plus $\sigma$ — bounded ($\sigma\le 1/2$ for Bernoulli), estimated ad hoc ($\hat\sigma=\sqrt{\hat\Theta_n(1-\hat\Theta_n)}$), or estimated generically by $\hat S_n^2=\frac{1}{n-1}\sum_i(X_i-\hat\Theta_n)^2$.</td>
+  <td class="l">$\mathbf{P}(\hat\Theta^-\le\theta\le\hat\Theta^+)\ge 1-\alpha$ <b>for all $\theta$</b> — a statement about the <em>interval</em>, which is random, not about $\theta$, which is not.</td>
+  <td class="l">L23 slides 6–7, L24 slide 2; §1, rec23 P3; B&amp;T §9.1</td>
+</tr>
+<tr>
+  <td class="l"><b>Maximum likelihood</b></td>
+  <td class="l">$\hat\theta_{\text{ML}}=\arg\max_\theta p_X(x;\theta)$; in practice maximize $\log p_X(x;\theta)=\sum_{i=1}^n\log p_{X_i}(x_i;\theta)$ under independence</td>
+  <td class="l">The model family, and one maximization. No prior, no integral, no normalizing constant.</td>
+  <td class="l">"Makes the data most likely" (L24 slide 2). Consistent and asymptotically normal under regularity, but <em>not</em> generally unbiased at finite $n$.</td>
+  <td class="l">L23 slide 3, L24 slide 2; §2, rec23 P1–P2, rec24; B&amp;T §9.1</td>
+</tr>
+<tr>
+  <td class="l"><b>Linear regression</b></td>
+  <td class="l">$\hat\theta_1=\dfrac{\sum_{i=1}^n(x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^n(x_i-\bar x)^2}$, &nbsp; $\hat\theta_0=\bar y-\hat\theta_1\bar x$, minimizing $\sum_i(y_i-\theta_0-\theta_1x_i)^2$</td>
+  <td class="l">Data pairs $(x_i,y_i)$ with $\sum_i(x_i-\bar x)^2&gt;0$. Closed form — no iteration.</td>
+  <td class="l">The least-squares fit; identical to ML when $Y_i=\theta_0+\theta_1x_i+W_i$ with $W_i\sim N(0,\sigma^2)$ i.i.d. (L24 slide 4). The slope formula is the sample version of $\operatorname{cov}(X,Y)/\operatorname{var}(X)$ — linear LMS with sample moments substituted.</td>
+  <td class="l">L24 slides 3–4; §3; B&amp;T §9.2</td>
+</tr>
+<tr>
+  <td class="l"><b>Likelihood ratio test</b></td>
+  <td class="l">Reject $H_0$ iff $\dfrac{p_X(x;H_1)}{p_X(x;H_0)}&gt;\xi$; &nbsp; $\alpha(R)=\mathbf{P}(X\in R;H_0)$, $\beta(R)=\mathbf{P}(X\notin R;H_1)$</td>
+  <td class="l">Both hypotheses fully specified (simple), and the null distribution of the test statistic, to set $\xi$.</td>
+  <td class="l">A rejection region with the false-alarm rate $\alpha$ you chose. $\beta$ is then determined — you do not get to choose it too.</td>
+  <td class="l">L24 slides 7–8, L25 slide 2; §4; B&amp;T §9.3</td>
+</tr>
+</tbody>
+</table>
+
+<p>Read the table down the "what it guarantees" column and the classical character of the subject
+appears: every guarantee is a statement about a <em>procedure</em> repeated over hypothetical data
+sets, and every one carries the clause "for all $\theta$". That clause is the price of having no
+prior. Without a distribution on $\theta$ there is no way to average over it, so a claim can only
+be defended by holding for every value it might take.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g7_s5_whichmethod}}" alt="Decision flowchart: from the question you must answer (a single number, a number plus a range, a relation between variables, a decision) to maximum likelihood, sample mean plus confidence interval, linear regression, or the likelihood ratio test" style="max-width:940px">
+<div class="figcap">Fig. 5.1 — Which classical method? The branch is decided by what you owe the reader, not by what the data look like (L23 slides 2–7, L24 slides 2–8, L25 slide 2; B&amp;T §9.1–9.3).</div>
+
+<div class="recipe"><b>Recipe — answering any classical-inference question (L23 slides 2, 4; B&amp;T §9.1).</b>
+<ol>
+<li><b>Write the model with a semicolon.</b> Before anything else, put down $p_X(x;\theta)$ or
+$f_X(x;\theta)$ and say what $\theta$ ranges over. If you find yourself writing $f_\Theta(\theta)$
+you have silently gone Bayesian — decide deliberately, not by accident (Figure 5.1, footer).</li>
+<li><b>Name the deliverable.</b> A point? A point with a range? A line? A decision? This selects the
+column of Figure 5.1 and nothing else does.</li>
+<li><b>Write the likelihood as a product.</b> Under independence
+$p_X(x;\theta)=\prod_{i=1}^n p_{X_i}(x_i;\theta)$; take logs immediately, so the product becomes a
+sum and the derivative is tractable.</li>
+<li><b>Check the estimator, do not assume it.</b> Compute $\mathbb{E}[\hat\Theta_n]$ (bias) and
+$\operatorname{var}(\hat\Theta_n)$ (spread) as functions of $\theta$. Consistency usually follows
+from the weak law applied to a sample average inside the estimator.</li>
+<li><b>Attach an interval, always.</b> A point estimate with no spread hides whether the data did
+any work. Use $\hat\Theta_n\pm z\hat\sigma/\sqrt n$ and say which of the three $\sigma$-handling
+options you used (L23 slide 7).</li>
+<li><b>For a test, fix $\alpha$ first, then find $\xi$, then report $\beta$.</b> The order is not
+negotiable: $\xi$ is chosen to meet the false-alarm budget, and the missed-detection rate is
+whatever that choice implies (L25 slide 2).</li>
+<li><b>State the assumption you are least sure of.</b> Independence, normality, large $n$,
+"the model family contains the truth". Every guarantee above is conditional on these, and the
+guarantee is worth exactly what the assumption is worth.</li>
+</ol></div>
+
+<h3>5.2 Bayesian and classical: the master comparison</h3>
+
+<p>G6 and G7 compute with the same likelihoods and frequently produce the same arithmetic, yet they
+answer different questions. The difference is one modeling decision — whether $\theta$ gets a
+distribution — and everything else follows from it.</p>
+
+<table>
+<thead>
+<tr><th class="l">Question</th><th class="l">Bayesian (G6 §3–§4; B&amp;T ch. 8)</th><th class="l">Classical (G7; B&amp;T ch. 9)</th></tr>
+</thead>
+<tbody>
+<tr><td class="l">What is the unknown?</td><td class="l">A random variable $\Theta$ with a prior $p_\Theta$ or $f_\Theta$ that you supply.</td><td class="l">A constant $\theta$. It has no distribution, so no probability statement about it is meaningful.</td></tr>
+<tr><td class="l">What is random?</td><td class="l">$\Theta$. The data are fixed at what you saw and are conditioned on.</td><td class="l">The data, and therefore every function of them — including $\hat\Theta_n$ and the interval it generates.</td></tr>
+<tr><td class="l">Notation for the model</td><td class="l">$p_{X\mid\Theta}(x\mid\theta)$ — a conditional PMF/PDF.</td><td class="l">$p_X(x;\theta)$ — a family of PMFs/PDFs indexed by $\theta$ (L23 slide 2).</td></tr>
+<tr><td class="l">What is a "good answer"?</td><td class="l">The posterior $f_{\Theta\mid X}(\theta\mid x)$; anything else is a summary of it. Optimality means minimizing an average over the prior.</td><td class="l">An estimator or a test with good <em>sampling</em> properties — unbiased, low variance, consistent, correct size $\alpha$ — uniformly in $\theta$.</td></tr>
+<tr><td class="l">Point estimate</td><td class="l">MAP $\arg\max_\theta f_\Theta(\theta)f_{X\mid\Theta}(x\mid\theta)$; LMS $\mathbb{E}[\Theta\mid X]$; linear LMS.</td><td class="l">ML $\arg\max_\theta p_X(x;\theta)$; sample mean; least squares.</td></tr>
+<tr><td class="l">Interval</td><td class="l">Credible interval: $\mathbf{P}(\Theta\in[a,b]\mid X=x)=0.95$, computed from the posterior for the data you actually saw.</td><td class="l">Confidence interval: $\mathbf{P}(\hat\Theta^-\le\theta\le\hat\Theta^+)\ge0.95$ for all $\theta$, computed over hypothetical repeat experiments.</td></tr>
+<tr><td class="l">Choosing between two hypotheses</td><td class="l">MAP rule: pick $H_1$ iff $\mathbf{P}(H_1\mid X=x)&gt;\mathbf{P}(H_0\mid X=x)$, i.e. iff $\frac{\mathbf{P}(X=x\mid H_1)}{\mathbf{P}(X=x\mid H_0)}&gt;\frac{\mathbf{P}(H_0)}{\mathbf{P}(H_1)}$ (L24 slide 8).</td><td class="l">LRT: pick $H_1$ iff $\frac{p_X(x;H_1)}{p_X(x;H_0)}&gt;\xi$, with $\xi$ set by the false-alarm budget $\alpha$, not by prior odds (L24 slide 8).</td></tr>
+<tr><td class="l">Where the difficulty lies</td><td class="l">Justifying the prior, and doing the normalizing integral.</td><td class="l">Justifying "for all $\theta$", and interpreting the answer without smuggling a prior back in.</td></tr>
+</tbody>
+</table>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g7_s5_twoworlds}}" alt="Left: a posterior density over theta with a shaded 95 percent credible interval. Right: twenty horizontal confidence intervals around a fixed vertical line at theta equals five, nineteen covering it and one missing" style="max-width:940px">
+<div class="figcap">Fig. 5.2 — The same phrase, two meanings. Left: Bayesian, prior $N(0,5^2)$, ten observations of $N(\theta,2^2)$ with sample mean $5$; the shaded band is the $95\%$ credible interval $[3.69,\,6.15]$ and the probability lives on the horizontal axis. Right: classical, $\theta=5$ fixed, $\sigma=2$, $n=25$, twenty independent repetitions of $\hat\Theta_n\pm1.96\sigma/\sqrt n$; the probability lives in the vertical scatter of the intervals. Numbers from <code>computes/g7_s5.py</code> (L21 slides 3–4, L23 slide 6; B&amp;T §8.1, §9.1).</div>
+
+<p>Line up the two columns and three <b>matching pairs</b> appear: not coincidences, but the same
+computation with the prior switched off. Each pair is worth working through numerically once,
+because the numbers make the relationship exact rather than suggestive.</p>
+
+<div class="ex"><b>Example 5.1 (matching pair 1: MAP becomes ML when the prior goes flat — L21 slide 5, L24 slide 2; B&amp;T §8.2, §9.1).</b>
+A coin is tossed $n$ times and $k$ heads appear; the bias is the unknown. Show that with a uniform
+prior the MAP estimate equals the ML estimate exactly, and measure how fast a non-uniform prior is
+washed out as $n$ grows. Use $k/n=0.3$ throughout.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>The classical side.</b> The number of heads $K$ is binomial, so the likelihood is
+$$p_K(k;\theta)=\binom{n}{k}\theta^k(1-\theta)^{n-k},\qquad 0\le\theta\le1 .$$
+The binomial coefficient does not involve $\theta$, so it cannot affect the location of the
+maximum. Take logs — legitimate because $\log$ is strictly increasing, so it preserves the
+argmax:
+$$\ell(\theta)=\log\binom{n}{k}+k\log\theta+(n-k)\log(1-\theta).$$
+Differentiate and set to zero:
+$$\frac{d\ell}{d\theta}=\frac{k}{\theta}-\frac{n-k}{1-\theta}=0
+\ \Longrightarrow\ k(1-\theta)=(n-k)\theta
+\ \Longrightarrow\ k=n\theta
+\ \Longrightarrow\ \hat\theta_{\text{ML}}=\frac{k}{n}.$$
+The second derivative $-k/\theta^2-(n-k)/(1-\theta)^2$ is negative wherever $0&lt;\theta&lt;1$, so
+this stationary point is the maximum, not a minimum. With $k=3$, $n=10$:
+$\hat\theta_{\text{ML}}=3/10=0.3$.</p>
+<p><b>The Bayesian side with a uniform prior.</b> Take $f_\Theta(\theta)=1$ on $[0,1]$, the
+Beta$(1,1)$ density. The posterior is proportional to prior $\times$ likelihood, and MAP maximizes
+that product:
+$$\hat\theta_{\text{MAP}}=\arg\max_\theta\ 1\cdot\binom{n}{k}\theta^k(1-\theta)^{n-k}
+=\arg\max_\theta\ \theta^k(1-\theta)^{n-k}=\frac{k}{n}=0.3 .$$
+Identical, and identical for a reason: a constant factor cannot move an argmax. <em>Maximum
+likelihood is MAP with the prior deleted</em> (or, equivalently, with a flat one).</p>
+<p><b>A non-uniform prior, and how fast it dies.</b> Take the Beta$(2,2)$ prior
+$f_\Theta(\theta)\propto\theta(1-\theta)$, a mild pull toward $\theta=1/2$. Multiplying by the
+likelihood gives a Beta$(2+k,\,2+n-k)$ posterior, whose mode is
+$$\hat\theta_{\text{MAP}}=\frac{(2+k)-1}{(2+k)+(2+n-k)-2}=\frac{k+1}{n+2},$$
+the "add one success and one failure" rule. Evaluating at a fixed ratio $k/n=0.3$:</p>
+<ul>
+<li>$n=10$, $k=3$: $\hat\theta_{\text{MAP}}=4/12=0.333333$, versus ML $0.3$ — gap $0.033333$.</li>
+<li>$n=100$, $k=30$: $31/102=0.303922$ — gap $0.003922$.</li>
+<li>$n=1000$, $k=300$: $301/1002=0.300399$ — gap $0.000399$.</li>
+</ul>
+<p>The gap falls by a factor of about ten each time $n$ rises by a factor of ten, i.e. like $1/n$:
+the prior contributes a fixed two pseudo-observations while the data contribute $n$ real ones.
+<b>Reading:</b> the Bayesian/classical dispute is loud when data are scarce and nearly empty when
+data are plentiful. It is at $n=10$, not $n=1000$, that you must decide whether you believe your
+prior.</p>
+</div></details>
+</div>
+
+<div class="ex"><b>Example 5.2 (matching pairs 2 and 3: the posterior mean becomes the sample mean, and the credible interval becomes the CI — L22 slide 8, L23 slide 6; B&amp;T §8.3, §9.1).</b>
+Ten i.i.d. observations $X_i\sim N(\theta,\sigma^2)$ with known $\sigma=2$ have sample mean
+$\bar x=5$. A Bayesian puts a $N(\mu_0,\sigma_0^2)$ prior on $\Theta$ with $\mu_0=0$. Compute the
+posterior mean and standard deviation for $\sigma_0=1,5,20$ and in the limit $\sigma_0\to\infty$,
+and compare the resulting $95\%$ credible interval with the classical $95\%$ confidence interval.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>The posterior.</b> For a normal prior and normal observations the posterior is normal with
+precision (reciprocal variance) equal to the sum of precisions, and mean equal to the
+precision-weighted average (G6 §4; L22 slide 8):
+$$\frac{1}{\sigma_{\text{post}}^2}=\frac{1}{\sigma_0^2}+\frac{n}{\sigma^2},
+\qquad
+\mu_{\text{post}}=\frac{\mu_0/\sigma_0^2+n\bar x/\sigma^2}{1/\sigma_0^2+n/\sigma^2}
+= w\mu_0+(1-w)\bar x,\quad
+w=\frac{1/\sigma_0^2}{1/\sigma_0^2+n/\sigma^2}.$$
+Here $n=10$, $\sigma^2=4$, so the data precision is $n/\sigma^2=10/4=2.5$, and $\bar x=5$.</p>
+<p><b>Sweeping the prior width.</b></p>
+<ul>
+<li>$\sigma_0=1$: prior precision $1$, so $w=1/(1+2.5)=0.285714$ and
+$\mu_{\text{post}}=0.285714(0)+0.714286(5)=3.571429$, with
+$\sigma_{\text{post}}=\sqrt{1/3.5}=0.534522$. The prior has dragged the answer $28.6\%$ of the way
+back to $0$.</li>
+<li>$\sigma_0=5$: prior precision $0.04$, $w=0.04/2.54=0.015748$, so
+$\mu_{\text{post}}=4.92126$ and $\sigma_{\text{post}}=\sqrt{1/2.54}=0.627456$.</li>
+<li>$\sigma_0=20$: prior precision $0.0025$, $\mu_{\text{post}}=4.995005$,
+$\sigma_{\text{post}}=0.63214$.</li>
+<li>$\sigma_0\to\infty$ (a "flat" prior): prior precision $\to0$, $w\to0$, so
+$\mu_{\text{post}}\to\bar x=5$ exactly and $\sigma_{\text{post}}\to\sqrt{\sigma^2/n}
+=2/\sqrt{10}=0.632456$.</li>
+</ul>
+<p><b>Matching pair 2.</b> In the limit the LMS estimate $\mathbb{E}[\Theta\mid X]$ <em>is</em> the
+sample mean, and its posterior standard deviation is exactly the classical standard error
+$\sigma/\sqrt n=0.632456$. The two frameworks have converged on the same number by different
+routes: the Bayesian by averaging over $\Theta$, the classicist by computing
+$\operatorname{var}(\hat\Theta_n)=\sigma^2/n$ over repeated data.</p>
+<p><b>Matching pair 3.</b> The classical $95\%$ confidence interval is
+$$\bar x\pm 1.959964\cdot\frac{\sigma}{\sqrt n}=5\pm1.959964(0.632456)=5\pm1.23959
+=[3.76041,\ 6.23959],$$
+and the $95\%$ credible interval under the $\sigma_0=5$ prior is
+$$4.92126\pm1.959964(0.627456)=[3.691469,\ 6.151051].$$
+They differ by about $0.07$ at the low end and $0.09$ at the high end — visually the same interval,
+logically different objects.
+The classical one says: <em>the procedure that produced me covers the true $\theta$ in $95\%$ of
+repetitions.</em> The Bayesian one says: <em>given these data and my prior, $\Theta$ lies in me
+with probability $0.95$.</em> Only the second is a probability statement about $\theta$, and it is
+one only because a prior was supplied. Figure 5.2 draws the distinction: on the left the probability
+is spread along the $\theta$ axis; on the right $\theta$ is a single fixed vertical line and the
+probability is spread across the twenty intervals.</p>
+</div></details>
+</div>
+
+<div class="note"><b>Interpretation — the same arithmetic, two different promises.</b> Nothing above
+says one framework is correct. Both compute with $p_X(x;\theta)$; they differ only in what they
+average over. The Bayesian averages over the unknown with the data held at what you saw; the
+classicist averages over hypothetical data with the unknown held at whatever it truly is. Choose
+Bayesian when a prior is genuinely available and you must answer "what is $\theta$, given what I
+saw?"; choose classical when a prior would be an invention and you must answer "does my procedure
+behave well no matter what $\theta$ is?" The one thing you may never do is compute one and
+interpret it as the other — which is Gotcha 1 below.</div>
+
+<h3>5.3 The five gotchas that cost the most</h3>
+
+<div class="warn"><b>Gotcha 1 — a confidence interval is not a probability statement about
+$\theta$.</b> "$[3.76,\,6.24]$ is a $95\%$ confidence interval" does <em>not</em> mean
+$\mathbf{P}(3.76\le\theta\le6.24)=0.95$. Once the data are in, both endpoints are numbers and
+$\theta$ is a number; the statement "$\theta$ lies between them" is either true or false, with no
+probability attached, because in the classical framework $\theta$ has no distribution to put
+probability on. What is $0.95$ is the <em>coverage of the procedure</em>: with $\theta=5$,
+$\sigma=2$, $n=25$, the half-width is $1.959964(2)/\sqrt{25}=0.783986$, and over $400\,000$
+simulated repetitions the interval covered $\theta$ a fraction $0.950283$ of the time ✓ — matching
+the nominal $0.95$ to three decimals. Figure 5.2 (right) shows twenty of those repetitions: nineteen
+cover, one (the sixteenth) misses entirely, and there is nothing pathological about the one that
+missed. Note also that a "$95\%$" CLT-based interval is only approximately $95\%$: the guarantee
+inherits the CLT's error, so at small $n$ or a skewed $X_i$ the true coverage can differ noticeably
+from the nominal one (L23 slide 6; B&amp;T §9.1).</div>
+
+<div class="warn"><b>Gotcha 2 — the likelihood is not a probability distribution in $\theta$.</b>
+$p_X(x;\theta)$ is a legitimate PMF/PDF <em>in $x$ for each fixed $\theta$</em>: it sums or
+integrates to $1$ over $x$. Viewed as a function of $\theta$ with $x$ fixed — which is exactly how
+maximum likelihood uses it — it is <b>not</b> normalized and generally cannot be. Concretely, for
+one observation from an exponential with parameter $\theta$, $f_X(x;\theta)=\theta e^{-\theta x}$,
+so
+$$\int_0^\infty \theta e^{-\theta x}\,d\theta=\frac{1}{x^2},$$
+which equals $0.25$ when $x=2$ and $4.0$ when $x=0.5$ — a different number for every $x$, and
+never $1$ except by accident at $x=1$. For $n=3$ observations with $\sum_i x_i=6$ the likelihood
+is $\theta^3e^{-6\theta}$ and $\int_0^\infty\theta^3e^{-6\theta}d\theta=3!/6^4=0.00462963$. Three
+consequences. (i) You may not report "the probability that $\theta=\hat\theta_{\text{ML}}$" — no
+such quantity exists without a prior. (ii) You may scale the likelihood by any positive constant
+without changing $\hat\theta_{\text{ML}}$, which is why dropping $\binom{n}{k}$ in Example 5.1 was
+legal. (iii) The ML estimate is <em>invariant</em> under reparametrization — if
+$\hat\theta_{\text{ML}}=0.5$ then the ML estimate of $\theta^2$ is $0.25$, because the maximum of a
+function is carried along by any one-to-one relabeling — whereas the MAP estimate is not, since a
+change of variable drags a Jacobian into the prior density (L24 slide 2; B&amp;T §9.1).</div>
+
+<div class="warn"><b>Gotcha 3 — the ML estimate of a variance is biased low, by exactly the factor
+$(n-1)/n$.</b> For $X_i\sim N(\mu,\sigma^2)$ with both unknown, maximizing the likelihood gives
+$\hat\mu_{\text{ML}}=M_n$ and, in §1.6's symbols,
+$$\bar S_n^2=\frac{1}{n}\sum_{i=1}^n(X_i-M_n)^2,
+\qquad
+\mathbb{E}\big[\bar S_n^2\big]=\frac{n-1}{n}\sigma^2 ,$$
+because one degree of freedom has been spent estimating the mean: the deviations are taken from
+$M_n$, which is itself pulled toward the data, so they are systematically too small. The factor
+is $0.5$ at $n=2$, $0.8$ at $n=5$, $0.9$ at $n=10$ and $0.99$ at $n=100$ — a $50\%$ understatement
+of the variance with two data points. Monte Carlo with $\sigma^2=1$, $n=5$, two million
+replications returns $0.79961$ ✓ against the predicted $0.8$, while the $n-1$ version returns
+$0.999512$ ✓ against $1$. The repair is L23 slide 7's $\hat S_n^2=\frac{1}{n-1}\sum_i(X_i-\hat\Theta_n)^2$,
+which is unbiased for every $n$ ($\mathbb{E}[\hat S^2_n]=\sigma^2$; simulated at $n=25$,
+$\sigma^2=4$: $4.003219$ ✓ versus $3.843091$ for the ML version, itself matching the predicted
+$(24/25)(4)=3.84$ ✓). <em>General lesson:</em> ML optimizes fit, and unbiasedness is a separate
+property that it does not promise. Also note that unbiasedness is not preserved by nonlinear
+transformation — $\hat S_n^2$ is unbiased for $\sigma^2$ but $\hat S_n$ is <em>not</em> unbiased
+for $\sigma$, by Jensen's inequality (B&amp;T §9.1).</div>
+
+<div class="warn"><b>Gotcha 4 — regression measures association; it cannot manufacture
+causation.</b> The slope $\hat\theta_1$ is a statement about how $y$ and $x$ co-vary <em>in the
+data you happen to have</em>, and L24 slide 6 lists "sometimes misused to conclude causal
+relations" among the standard concerns. Concretely, let $Z\sim N(0,1)$ be an unobserved common
+cause and let $X=Z+U$, $Y=Z+V$ with $U,V\sim N(0,1)$ independent of $Z$ and of each other. Then
+$X$ has no effect at all on $Y$; yet
+$$\operatorname{cov}(X,Y)=\operatorname{var}(Z)=1,\qquad\operatorname{var}(X)=1+1=2
+\ \Longrightarrow\ \text{slope}=\frac{\operatorname{cov}(X,Y)}{\operatorname{var}(X)}=0.5,$$
+and $\rho=1/\sqrt{2\cdot2}=0.5$. Fitting a line to $200\,000$ simulated pairs returns slope
+$0.504693$ and $\rho=0.502511$ ✓ — a solid, highly significant, entirely non-causal relationship.
+Now <em>intervene</em>: set $X$ yourself, from an independent generator that ignores $Z$. The fitted
+slope collapses to $-0.001634$ ✓, i.e. zero. The regression coefficient changed because the
+question changed, from "how do they co-vary?" to "what happens if I move it?", and only a
+randomized intervention answers the second. Two companion traps from the same slide:
+<em>multicollinearity</em> (nearly proportional explanatory variables make individual coefficients
+wildly unstable even when the fit is fine) and <em>heteroskedasticity</em> (non-constant noise
+variance leaves $\hat\theta_1$ usable but ruins the reported standard errors) (L24 slide 6; B&amp;T
+§9.2).</div>
+
+<div class="warn"><b>Gotcha 5 — the $\alpha/\beta$ trade-off has no free lunch at fixed $n$.</b>
+<p>Shrinking the rejection region lowers $\alpha=\mathbf{P}(\text{reject }H_0;H_0)$ and simultaneously
+raises $\beta=\mathbf{P}(\text{accept }H_0;H_1)$; the threshold $\xi$ slides along a single curve
+and you may pick a point on it, not leave it. Take $H_0: X_i\sim N(0,1)$ against
+$H_1: X_i\sim N(1,1)$ with $n=10$ i.i.d. observations; the LRT reduces (L25 slide 3) to rejecting when
+$\sum_i X_i&gt;\xi'$, and under $H_0$ the sum is $N(0,10)$, so $\xi'=z_{1-\alpha}\sqrt{10}$:</p>
+<table>
+<thead><tr><th class="l">$\alpha$</th><th class="l">threshold $\xi'$</th><th class="l">$\beta$</th></tr></thead>
+<tbody>
+<tr><td class="l">$0.20$</td><td class="l">$2.6614$</td><td class="l">$0.010153$</td></tr>
+<tr><td class="l">$0.10$</td><td class="l">$4.0526$</td><td class="l">$0.030005$</td></tr>
+<tr><td class="l">$0.05$</td><td class="l">$5.2015$</td><td class="l">$0.064580$</td></tr>
+<tr><td class="l">$0.01$</td><td class="l">$7.3566$</td><td class="l">$0.201597$</td></tr>
+<tr><td class="l">$0.001$</td><td class="l">$9.7722$</td><td class="l">$0.471283$</td></tr>
+</tbody>
+</table>
+<p>Going from $\alpha=0.05$ to $\alpha=0.001$ — a fifty-fold tightening of the false-alarm rate —
+multiplies the missed-detection rate by $0.471283/0.064580=7.3$, from one miss in fifteen to nearly
+one in two. The <em>only</em> way to improve both at once is to buy more data: holding
+$\alpha=0.05$ and raising $n$ from $10$ to $40$ to $160$ drives $\beta$ from
+$6.458\times10^{-2}$ to $1.436\times10^{-6}$ to $1.823\times10^{-28}$. One last piece of
+vocabulary: "$H_0$ is not rejected at the $5\%$ level" means the data were not extreme enough, not
+that $H_0$ is true — in the L25 coin example, $S=472$ heads in $n=1000$ tosses gives a deviation
+$|472-500|=28$ against the threshold $1.959964\sqrt{1000(0.25)}=30.99\approx31$, so $H_0$ survives,
+even though the exact two-sided binomial probability of a deviation this large or larger is
+$0.081939$ — uncomfortably close to the line (L25 slide 5; worked in full in §4).</p></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g7_s5_alphabeta}}" alt="Left: a convex decreasing curve of beta against alpha with three marked operating points. Right: log-scale beta versus alpha for sample sizes 10, 40 and 160, showing the curve dropping by many orders of magnitude" style="max-width:920px">
+<div class="figcap">Fig. 5.3 — The error trade-off for $H_0:X_i\sim N(0,1)$ versus $H_1:X_i\sim N(1,1)$. Left ($n=10$): every unit of $\alpha$ you save is paid for in $\beta$. Right: only more data moves the whole curve down; at $\alpha=0.05$, $\beta$ falls from $6.46\times10^{-2}$ at $n=10$ to $1.82\times10^{-28}$ at $n=160$ (L25 slides 2–3; B&amp;T §9.3). Numbers from <code>computes/g7_s5.py</code>.</div>
+
+<h3>5.4 The whole course on one page</h3>
+
+<p>Seven notes, twenty-five lectures, and a single trajectory: <b>outcomes</b> $\to$ <b>numbers</b>
+$\to$ <b>numbers that evolve</b> $\to$ <b>numbers that tell you about the model</b>.</p>
+
+<ul>
+<li><b>Phase 1 — models (G1).</b> A sample space, three axioms, and two operations: additivity over
+disjoint pieces, and renormalization inside a conditioning event. Everything downstream is these
+two applied to a particular decomposition. Total probability and Bayes' rule appear here, and never
+leave (G1 §5).</li>
+<li><b>Phase 2 — random variables (G2, G3).</b> Replace outcomes by numbers, $X:\Omega\to\mathbb{R}$.
+Discrete first: PMFs, the four families, expectation, linearity, variance, and the fact that will
+matter most in the end, $\operatorname{var}(M_n)=\sigma^2/n$ (G2 §5). Then continuous: $p_X\to f_X$,
+$\sum_x\to\int dx$, and the identity table survives unchanged (G3 §5) — plus normal distributions,
+derived distributions, convolution, covariance and the correlation coefficient.</li>
+<li><b>Phase 3 — processes in time (G4, G5).</b> First conditioning becomes an object:
+$\mathbb{E}[X\mid Y]$ is a random variable, iterated expectations and the variance decomposition
+follow, and random sums are computed with them (G4 §5). Then two arrival processes, Bernoulli and
+Poisson, are one process on two clocks (G4 §2–§4). Finally Markov chains keep dependence but restrict it to
+"the present summarizes the past", and three questions — $n$-step, steady state, absorption —
+answer everything (G5 §5).</li>
+<li><b>Phase 4 — what the data says (G6, G7).</b> Averages concentrate: Markov, Chebyshev, the weak
+law, the CLT (G6 §5). Then inference, twice: with a prior (posterior, MAP, LMS, linear LMS) and
+without one (bias, consistency, confidence intervals, maximum likelihood, regression, the
+likelihood ratio test).</li>
+</ul>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g7_s5_arc}}" alt="Concept map of the whole course: four phases across the top, seven note boxes G1 through G7 with their contents, three long horizontal threads connecting them, and a bottom panel listing two ideas and one fact" style="max-width:940px">
+<div class="figcap">Fig. 5.4 — The whole course, G1 $\to$ G7. Across the top, four phases; in the middle, the seven notes and what each contributes; below them, the three threads that run end to end; at the bottom, the two ideas and the one fact everything reduces to. Sources: the six prior cheatsheets G1 §5–G6 §5 plus L23–L25.</div>
+
+<p>The three threads in Figure 5.4 are worth stating in words, because each is the same idea wearing
+four costumes.</p>
+
+<ol>
+<li><b>Condition and renormalize.</b> $\mathbf{P}(A\mid B)=\mathbf{P}(A\cap B)/\mathbf{P}(B)$
+(G1 §2) becomes the conditional PDF $f_{X\mid Y}$ (G3 §2), becomes the posterior
+$f_{\Theta\mid X}(\theta\mid x)=f_\Theta(\theta)f_{X\mid\Theta}(x\mid\theta)/f_X(x)$ (G6 §3),
+becomes — with the prior and the denominator both deleted, because neither survives when $\theta$
+is a constant — the likelihood ratio $p_X(x;H_1)/p_X(x;H_0)$ (G7 §4). The Bayes denominator and the
+LRT threshold play the same structural role: they are the thing that does not depend on the
+hypothesis.</li>
+<li><b>Averages concentrate.</b> $\operatorname{var}(M_n)=\sigma^2/n$ (G2 §3) is a two-line
+consequence of independence; feed it to Chebyshev and you get the weak law, add the CLT and you get
+a number instead of a bound (G6 §1–§2); and those two results are precisely what makes
+$\hat\Theta_n$ consistent and what puts the $1.96\hat\sigma/\sqrt n$ in every confidence interval
+and every significance threshold in G7. One variance formula, three chapters.</li>
+<li><b>Conditional expectation as an object.</b> $\mathbb{E}[X\mid Y]$ as a random variable
+(G4 §1) is what makes $\mathbb{E}[\Theta\mid X]$ an <em>estimator</em> rather than a number
+(G6 §4) — and the least-squares slope of G7 §3 is its linear version with sample moments
+substituted for population ones.</li>
+</ol>
+
+<div class="note"><b>Interpretation — you learned three things, then applied them twenty times.</b>
+Additivity over a partition (total probability $\to$ total expectation $\to$ balance equations
+$\to$ the Bayes denominator), renormalization inside a conditioning event (conditional probability
+$\to$ conditional densities $\to$ posteriors $\to$ likelihood ratios), and the fact that averaging
+$n$ independent things divides the variance by $n$. Every formula in seven cheatsheets is one of
+those three applied to a particular decomposition. If you remember nothing else in five years,
+remember which decomposition to make — the algebra can be re-derived, the modeling instinct cannot
+be looked up.</div>
+
+<h3>5.5 Where to go next</h3>
+
+<p>6.041 stops at the point where each of its four phases turns into a subject of its own, and B&amp;T
+§9.4–9.5 and L25 slide 8 ("What else is there?") point at all four doors. <b>Stochastic
+processes</b> continues Phase 3: continuous-time Markov chains and queueing (the Poisson process of
+G4 §3–§4 with servers attached), martingales and the optional stopping theorem, Brownian motion as
+the continuous-time limit of the random walks of G5, and renewal theory as the mature version of
+the random-incidence paradox of G4 §4.4–§4.5. <b>Statistics</b> continues Phase 4 and fills in what this
+course could only sketch: composite hypotheses and the generalized likelihood ratio, the
+chi-square and Kolmogorov–Smirnov goodness-of-fit tests that L25 slides 6–7 introduce without
+derivation (B&amp;T §9.4), the Cramér–Rao bound that says how small an unbiased estimator's variance
+can possibly be, multiple regression and model selection, and the resampling methods that replace
+the CLT approximation with brute-force simulation. <b>Information theory</b> reinterprets the
+likelihood ratio: $\log\frac{p_X(x;H_1)}{p_X(x;H_0)}$ accumulated over i.i.d. data grows at a rate
+equal to a Kullback–Leibler divergence, which is why $\beta$ in Figure 5.3 falls geometrically in $n$
+— and the same quantity governs how many bits a source needs and how fast a channel can carry them.
+Beyond those three, the modern descendants are visible in the same slide: <b>signal processing</b>
+(efficient and recursive estimation — the Kalman filter is linear LMS, G6 §4, run once per time
+step), <b>machine learning</b> (regression with many variables plus model-complexity selection),
+and <b>causal inference</b> (Gotcha 4, taken seriously). All of them assume, without re-teaching,
+exactly what is in Figure 5.4.</p>
+
+<div class="summary"><b>G7 in twelve lines.</b>
+<ul>
+<li>Classical framing: $\theta$ is an unknown <b>constant</b>; the model is $p_X(x;\theta)$, a family, not a conditional (L23 slide 2; B&amp;T §9.1).</li>
+<li>Estimator properties must hold <b>for all $\theta$</b>: unbiased $\mathbb{E}[\hat\Theta_n]=\theta$; consistent $\hat\Theta_n\to\theta$ in probability; $\mathrm{MSE}=\operatorname{var}(\hat\Theta_n)+\text{bias}^2$.</li>
+<li>Sample mean: unbiased, $\operatorname{var}=\sigma^2/n$, consistent by the WLLN, and the ML estimate when $X_i\sim N(\theta,\sigma^2)$.</li>
+<li>CI: $\hat\Theta_n\pm z\hat\sigma/\sqrt n$ with $z=1.644854/1.959964/2.575829$ at $90/95/99\%$; handle $\sigma$ by bound, ad hoc estimate, or $\hat S_n^2$ (L23 slide 7).</li>
+<li>ML: maximize $\log p_X(x;\theta)=\sum_i\log p_{X_i}(x_i;\theta)$; it is MAP with the prior deleted — uniform prior gives $\hat\theta_{\text{MAP}}=\hat\theta_{\text{ML}}=k/n$ exactly (Example 5.1).</li>
+<li>Regression: $\hat\theta_1=\sum_i(x_i-\bar x)(y_i-\bar y)/\sum_i(x_i-\bar x)^2$, $\hat\theta_0=\bar y-\hat\theta_1\bar x$; equals ML under i.i.d. normal noise (L24 slide 4).</li>
+<li>LRT: reject $H_0$ iff $p_X(x;H_1)/p_X(x;H_0)&gt;\xi$; fix $\alpha$, solve for $\xi$, then read off $\beta$ (L24 slides 7–8, L25 slide 2).</li>
+<li>Matching pairs: MAP $\leftrightarrow$ ML; LMS $\mathbb{E}[\Theta\mid X]$ $\leftrightarrow$ sample mean ($5.0$ in the flat-prior limit, posterior sd $0.632456=\sigma/\sqrt n$); credible interval $[3.691469,6.151051]$ $\leftrightarrow$ CI $[3.76041,6.23959]$ (Example 5.2).</li>
+<li>Gotcha 1: a CI is a claim about the procedure — simulated coverage $0.950283$ over $400\,000$ repetitions, nineteen of twenty in Figure 5.2.</li>
+<li>Gotcha 2: the likelihood is not a density in $\theta$ — $\int_0^\infty\theta e^{-2\theta}d\theta=0.25$, not $1$. Gotcha 3: $\mathbb{E}[\bar S_n^2]=\frac{n-1}{n}\sigma^2$ ($0.8$ at $n=5$; simulated $0.79961$).</li>
+<li>Gotcha 4: a pure confounder gives slope $0.5$ and $\rho=0.5$ with zero causal effect; under intervention the slope is $-0.001634\approx0$. Gotcha 5: $\alpha=0.05\to0.001$ raises $\beta$ from $0.064580$ to $0.471283$; only more data moves the curve.</li>
+<li>The arc: outcomes $\to$ numbers $\to$ numbers that evolve $\to$ numbers that tell you about the model, held together by additivity over a partition, renormalization inside a conditioning event, and $\operatorname{var}(M_n)=\sigma^2/n$ (Figure 5.4).</li>
+</ul></div>

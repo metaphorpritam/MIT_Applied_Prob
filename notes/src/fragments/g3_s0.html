@@ -1,0 +1,132 @@
+<h2 id="g3-s0">§0 &nbsp; From sums to integrals</h2>
+<p class="srcref">Sources: L09 slide 1 (the correspondence table) · L08 slides 1–3, 8 · Bertsekas–Tsitsiklis (cited throughout as <b>B&amp;T</b>) §3.1, Example 1.4 · numbers from <code>computes/g3_s0.py</code>. A bare "§N.k" always means <em>this note's</em> own subsection; every reference to the textbook carries the "B&amp;T" prefix.</p>
+
+<p>Note G2 built the discrete random variable: a function $X:\Omega\to\mathbb{R}$ taking finitely or countably many values, described completely by its PMF $p_X(x)=\mathbf{P}(X=x)$, with every quantity of interest — $\mathbb{E}[X]$, $\operatorname{var}(X)$, conditional PMFs, joint PMFs — obtained by summing something against $p_X$. That entire apparatus rests on one assumption: that the values of $X$ can be listed, so that "sum over $x$" makes sense.</p>
+
+<p>Many quantities cannot be listed. A waiting time, a voltage, a position on a dial, the delay of a train — these take values in a continuum, and the moment you try to write down $\mathbf{P}(X=x)$ for such a variable, the whole scheme collapses: the answer is $0$ for every $x$. This note (G3, lectures L08–L11) rebuilds the entire chapter with a <b>density</b> $f_X$ in place of the mass function $p_X$, and an integral $\int\!dx$ in place of the sum $\sum_x$. Almost nothing else changes. This section explains exactly why the change is forced, exactly what the substitution rule is, and where in this note each translated concept is treated.</p>
+
+<h3>0.1 Why a continuous random variable has no PMF</h3>
+
+<p>The obstruction is already visible in the very first chapter of the course, before random variables are even mentioned.</p>
+
+<div class="ex"><b>Example 0.1 (the wheel of fortune; B&amp;T Example 1.4).</b> A wheel of fortune is continuously calibrated from $0$ to $1$, and it is spun once. The sample space is the interval $\Omega=[0,1]$: every real number in $[0,1]$ is a possible resting position, so $\Omega$ is uncountably infinite. "All positions equally likely" is expressed by the <b>continuous uniform law</b>: for any subinterval,
+$$\mathbf{P}\big([a,b]\big) = b-a, \qquad 0\le a\le b\le 1,$$
+i.e. probability equals length. Let $X$ be the resting position, so $X$ is the identity map on $\Omega$. What is $\mathbf{P}(X=x)$ for a fixed $x\in[0,1]$?
+
+<p><b>Solution.</b> Fix any integer $n\ge 1$ and cut $[0,1]$ into $n$ cells of equal length $1/n$:
+$$\Big[0,\tfrac1n\Big),\ \Big[\tfrac1n,\tfrac2n\Big),\ \ldots,\ \Big[\tfrac{n-1}{n},1\Big].$$
+Here $n$ is a resolution we get to choose. Each cell is an interval of length $1/n$, so by the uniform law each has probability exactly $1/n$; the $n$ cells are disjoint and their probabilities add to $n\cdot\frac1n=1$, consistent with the normalization axiom (G1 §1). The point $x$ lies in exactly one of these cells, call it $C_n$. Since $\{x\}\subseteq C_n$, monotonicity of probability (G1 §1, property (a)) gives
+$$0 \;\le\; \mathbf{P}(X=x) \;=\; \mathbf{P}(\{x\}) \;\le\; \mathbf{P}(C_n) \;=\; \frac1n .$$
+This holds for <em>every</em> $n$: taking $n=10$ bounds the point mass by $0.1$, $n=100$ bounds it by $0.01$, $n=10^{6}$ bounds it by $10^{-6}$, and there is no smallest bound. A nonnegative number smaller than $1/n$ for all $n$ can only be $0$, so
+$$\boxed{\ \mathbf{P}(X=x)=0\ \text{ for every } x\in[0,1].}$$
+By contrast an interval keeps its probability: $\mathbf{P}(0.25\le X\le 0.5)=0.5-0.25=0.25$, an honest positive number.</p></div>
+
+<p>So the PMF of a continuous random variable exists, but it is the constant function $0$ — it carries no information at all, and there is no way to recover $\mathbf{P}(0.25\le X\le 0.5)=0.25$ from it, because "adding up" uncountably many zeros is not a defined operation. Note also what did <em>not</em> break: $\Omega$, the axioms, and $\mathbf{P}$ as a function on events are all exactly as in G1. Only the <em>description device</em> — "list the values and their masses" — has failed.</p>
+
+<div class="note"><b>Interpretation.</b> The failure is a units problem, and the fix is the one physics uses for exactly the same reason. A finite rod of mass $1$ has zero mass at any single point, yet it certainly has mass; you describe it by a <em>linear mass density</em> in kilograms per meter and recover the mass of any segment by integrating the density over that segment. Probability behaves identically: an individual point carries none, but probability is spread over the line at a certain rate, and that rate is $f_X$. Probability is the integral of the density, never the density itself.</div>
+
+<div class="defn"><b>Definition (probability density function; L08 slide 2, B&amp;T §3.1).</b> A random variable $X$ is <b>continuous</b> if there is a function $f_X$, its <b>probability density function</b> (PDF), with $f_X(x)\ge 0$ for all $x$, such that
+$$\mathbf{P}(a\le X\le b)=\int_a^b f_X(x)\,dx \quad\text{for all } a\le b, \qquad\text{and more generally}\qquad \mathbf{P}(X\in B)=\int_B f_X(x)\,dx$$
+for every "nice" set $B$ (L08 slide 2 — measurability technicalities are not part of this course). Here $x$ is a dummy value of $X$, and $f_X(x)$ is <em>not</em> a probability but a probability <em>per unit length</em>. Taking $B=(-\infty,\infty)$ and using $\mathbf{P}(\Omega)=1$ gives the <b>normalization</b>
+$$\int_{-\infty}^{\infty} f_X(x)\,dx = 1 .$$</div>
+
+<p>Two immediate consequences, both worth deriving once. First, the definition is consistent with $\mathbf{P}(X=x)=0$: putting $a=b=x$,
+$$\mathbf{P}(X=x)=\int_x^{x} f_X(s)\,ds = 0,$$
+because an integral over an interval of zero length is zero, whatever the integrand. (The dummy variable is renamed $s$ to keep it distinct from the endpoint $x$ — a habit worth acquiring now, since §1 needs it for CDFs.)</p>
+
+<p>Second, the <b>$\delta$-slab reading</b> of the density (L08 slide 2), which is the single most useful intuition in this note and the engine behind every derivation in §2 and §3. Take a small width $\delta&gt;0$ and integrate over $[x,x+\delta]$:
+$$\mathbf{P}(x\le X\le x+\delta)=\int_x^{x+\delta} f_X(s)\,ds .$$
+If $f_X$ is continuous at $x$, then for $s$ in this short interval $f_X(s)\approx f_X(x)$, a constant; pulling the constant out and integrating $\int_x^{x+\delta} ds = [s]_x^{x+\delta} = (x+\delta)-x=\delta$ gives
+$$\mathbf{P}(x\le X\le x+\delta)\;\approx\; f_X(x)\cdot\delta .$$
+Dividing by $\delta$ and letting $\delta\to 0$ turns the approximation into the definition of the density as a rate:
+$$f_X(x)=\lim_{\delta\to 0}\frac{\mathbf{P}(x\le X\le x+\delta)}{\delta}\;=\;\text{probability mass per unit length at } x .$$
+Check the units on the uniform wheel, where $f_X(x)=1$ on $[0,1]$: the slab probabilities are $f_X(x)\delta=1\cdot\delta$, namely $0.1$, $0.01$ and $0.001$ for $\delta=0.1,\,0.01,\,0.001$ — each shrinks to $0$ with $\delta$, while the <em>ratio</em> probability$/\delta$ stays pinned at $1$. The ratio is the object worth keeping.</p>
+
+<div class="warn"><b>Gotcha — four things that trip people up on day one.</b>
+<ul>
+<li><b>$f_X(x)$ is not a probability and may exceed $1$.</b> A uniform random variable on $[0,\,0.25]$ has $f_X(x)=1/0.25=4$ on that interval; the total area is still $4\times 0.25=1$. Only areas are constrained to $[0,1]$, never heights. (Any statement "$f_X(x)\le 1$" is simply false.)</li>
+<li><b>$\mathbf{P}(X=x)=0$ does not mean "impossible".</b> The wheel <em>does</em> stop somewhere, so some zero-probability outcome occurs on every spin. In a continuous model, "probability $0$" and "cannot happen" part company — a distinction that never arose in G2.</li>
+<li><b>Endpoints are free.</b> Since single points carry no mass, $\mathbf{P}(a\le X\le b)=\mathbf{P}(a&lt;X&lt;b)=\mathbf{P}(a\le X&lt;b)$. Strict versus non-strict inequalities can be swapped at will — for a discrete random variable that swap changes the answer by $p_X(a)+p_X(b)$.</li>
+<li><b>The $\approx$ in $\mathbf{P}(x\le X\le x+\delta)\approx f_X(x)\delta$ is an approximation</b>, exact only in the limit $\delta\to0$. It is legitimate for building definitions and for first-order derivations (it is how L09 slide 5 motivates the conditional density), but never as a final numerical answer — for that, integrate.</li>
+</ul></div>
+
+<h4>A picture of the transition</h4>
+
+<p>It is worth seeing the two worlds in one frame. Take $X_n\sim\text{Binomial}(n,p)$ with $p=1/2$ — a thoroughly discrete random variable from G2 §1, with mean $np$ and standard deviation $\sigma_n=\sqrt{np(1-p)}$. Standardize it, i.e. plot the PMF against $z=(x-np)/\sigma_n$; the stems then sit at spacing $\delta=1/\sigma_n$. Now rescale each stem height from a <em>mass</em> to a <em>density</em> by dividing by that spacing, exactly as the slab formula mass $\approx$ density $\times\ \delta$ instructs. The result is Fig. 0.1.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g3_s0_pmf_to_pdf}}" alt="Three side-by-side panels for n equals 5, 20 and 80. Each shows blue vertical stems of a standardized binomial PMF rescaled to density units, overlaid on an orange standard normal bell curve with light shading beneath it. As n grows the stems become denser, shorter individually, and hug the curve ever more closely; a box in each panel reports the largest single point mass, falling from 0.3125 to 0.1762 to 0.0889." style="max-width:900px">
+<div class="figcap">Fig. 0.1 — Binomial$(n,\tfrac12)$ PMF stems, standardized and rescaled by the stem spacing $\delta=1/\sqrt{np(1-p)}$, against the standard normal density $\frac{1}{\sqrt{2\pi}}e^{-z^2/2}$ (L08 slide 6). The largest single mass falls $0.3125 \to 0.1762 \to 0.0889$ (and $0.0446$ at $n=320$), heading to $0$, while the maximum vertical gap between stems and curve falls $0.0125 \to 0.0050 \to 0.0012$. <b>Visual teaser only</b> — this convergence is the Central Limit Theorem, proved and used in note G6; nothing in G3 depends on it.</div>
+
+<p>Read the figure as a statement about what survives the limit and what does not. Individual masses die: $\max_k p_{X_n}(k)$ falls from $0.3125$ at $n=5$ to $0.0889$ at $n=80$ and to $0.0446$ at $n=320$, on its way to $0$ — the same collapse that Example 0.1 produced in one step. Probabilities of <em>intervals</em> survive intact: at $n=80$ the stems within one standard deviation of the mean carry total mass $0.6857$, against the normal-curve area $\int_{-1}^{1}\frac{1}{\sqrt{2\pi}}e^{-z^2/2}\,dz=0.6827$. Masses vanish; areas persist. That is the entire content of the switch from $p_X$ to $f_X$.</p>
+
+<p>The figure also shows <em>mechanically</em> why sums turn into integrals, and this is the derivation to remember. Suppose a discrete random variable $Y$ takes values $x_1&lt;x_2&lt;\cdots$ spaced $\delta$ apart, with masses given by a density through the slab formula, $p_Y(x_k)\approx f(x_k)\,\delta$. Then G2's expectation formula reads
+$$\mathbb{E}[Y]=\sum_k x_k\,p_Y(x_k)\;\approx\;\sum_k x_k\,f(x_k)\,\delta ,$$
+and the right-hand side is precisely a Riemann sum for $\int x f(x)\,dx$: sample the function $x\mapsto x f(x)$ at the grid points $x_k$ and multiply by the grid width $\delta$. As $\delta\to0$ the Riemann sum converges to the integral, so
+$$\sum_x x\,p_X(x) \;\longrightarrow\; \int_{-\infty}^{\infty} x f_X(x)\,dx .$$
+Nothing here is special to $x\mapsto x$; replacing it by any $g$ gives the expected value rule, and by $(x-\mathbb{E}[X])^2$ the variance. <em>Every</em> row of the table in §0.2 is this one substitution, $p_X(x)\rightsquigarrow f_X(x)\,dx$.</p>
+
+<p>A concrete check that the limit really lands where it should. Let $Y_n$ be uniform on the $n$ midpoints $x_k=\frac{2k-1}{2n}$, $k=1,\dots,n$, of the $n$ equal cells of $[0,1]$, each with mass $1/n$ — so $\delta=1/n$ and $f\equiv1$, matching the wheel of Example 0.1. Then $\mathbb{E}[Y_n]=1/2$ exactly for every $n$ by symmetry, agreeing with $\int_0^1 x\,dx=\big[\tfrac{x^2}{2}\big]_0^1=\tfrac12-0=\tfrac12$. The variances are $\operatorname{var}(Y_n)=\frac{1}{12}\big(1-\frac{1}{n^2}\big)$, numerically $0.078125,\ 0.0825,\ 0.083325,\ 0.08333325$ for $n=4,10,100,1000$, converging to
+$$\int_0^1\Big(x-\tfrac12\Big)^2\,dx=\Big[\tfrac{(x-1/2)^3}{3}\Big]_0^1=\frac{(1/2)^3}{3}-\frac{(-1/2)^3}{3}=\frac{1/8}{3}+\frac{1/8}{3}=\frac{1}{12}=0.08333\ldots$$
+the variance of the continuous uniform on $[0,1]$ (§1 derives the general $[a,b]$ case, $(b-a)^2/12$).</p>
+
+<h3>0.2 The correspondence table</h3>
+
+<p>L09 slide 1 opens the second continuous lecture with a two-column summary of concepts: the discrete world on the left, the continuous world on the right, and — centered between the columns — the objects that are <em>the same in both</em> and therefore need no translation. The same picture appears at the close of L08 (slide 8, "the constellation of concepts"). It is the map of this entire note, so it is reproduced here in full, with the definitions attached.</p>
+
+<table>
+<tr><th class="l">Concept</th><th class="l">Discrete (G2)</th><th class="l">Continuous (this note)</th><th>Where</th></tr>
+<tr><td class="l">Distribution of one r.v.</td><td class="l">$p_X(x)=\mathbf{P}(X=x)$</td><td class="l">$f_X(x)$, with $\mathbf{P}(a\le X\le b)=\displaystyle\int_a^b f_X(x)\,dx$</td><td>§1</td></tr>
+<tr><td class="l">Normalization</td><td class="l">$\displaystyle\sum_x p_X(x)=1$</td><td class="l">$\displaystyle\int_{-\infty}^{\infty} f_X(x)\,dx=1$</td><td>§1</td></tr>
+<tr><td class="l"><b>CDF</b> — same object in both</td><td class="l" colspan="2" style="text-align:center">$F_X(x)=\mathbf{P}(X\le x)$ &nbsp;&nbsp; $\Big(=\displaystyle\sum_{k\le x}p_X(k)$ &nbsp;or&nbsp; $\displaystyle\int_{-\infty}^{x} f_X(t)\,dt\Big)$</td><td>§1</td></tr>
+<tr><td class="l">Expectation</td><td class="l">$\mathbb{E}[X]=\displaystyle\sum_x x\,p_X(x)$</td><td class="l">$\mathbb{E}[X]=\displaystyle\int_{-\infty}^{\infty} x f_X(x)\,dx$</td><td>§1</td></tr>
+<tr><td class="l">Expected value rule</td><td class="l">$\mathbb{E}[g(X)]=\displaystyle\sum_x g(x)p_X(x)$</td><td class="l">$\mathbb{E}[g(X)]=\displaystyle\int_{-\infty}^{\infty} g(x)f_X(x)\,dx$</td><td>§1</td></tr>
+<tr><td class="l"><b>Variance</b> — same definition in both</td><td class="l" colspan="2" style="text-align:center">$\operatorname{var}(X)=\mathbb{E}\big[(X-\mathbb{E}[X])^2\big]=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$; &nbsp; $\operatorname{var}(aX+b)=a^2\operatorname{var}(X)$</td><td>§1</td></tr>
+<tr><td class="l">Joint distribution</td><td class="l">$p_{X,Y}(x,y)=\mathbf{P}(X=x,\,Y=y)$</td><td class="l"><span style="color:#c0392b">$f_{X,Y}(x,y)$</span>, with $\mathbf{P}\big((X,Y)\in S\big)=\displaystyle\iint_S f_{X,Y}\,dx\,dy$</td><td>§2</td></tr>
+<tr><td class="l">Marginal from joint</td><td class="l">$p_X(x)=\displaystyle\sum_y p_{X,Y}(x,y)$</td><td class="l">$f_X(x)=\displaystyle\int_{-\infty}^{\infty} f_{X,Y}(x,y)\,dy$</td><td>§2</td></tr>
+<tr><td class="l">Conditioning on an event $A$</td><td class="l">$p_{X\mid A}(x)=\mathbf{P}(X=x\mid A)$</td><td class="l">$f_{X\mid A}(x)$, with $\mathbf{P}(X\in B\mid A)=\displaystyle\int_B f_{X\mid A}(x)\,dx$</td><td>§1</td></tr>
+<tr><td class="l">Conditioning on another r.v.</td><td class="l">$p_{X\mid Y}(x\mid y)=\dfrac{p_{X,Y}(x,y)}{p_Y(y)}$</td><td class="l"><span style="color:#c0392b">$f_{X\mid Y}(x\mid y)=\dfrac{f_{X,Y}(x,y)}{f_Y(y)}$</span>, if $f_Y(y)&gt;0$</td><td>§2</td></tr>
+<tr><td class="l">Independence</td><td class="l">$p_{X,Y}(x,y)=p_X(x)p_Y(y)$ for all $x,y$</td><td class="l">$f_{X,Y}(x,y)=f_X(x)f_Y(y)$ for all $x,y$</td><td>§2</td></tr>
+<tr><td class="l">Bayes' rule between two r.v.'s</td><td class="l">$p_{X\mid Y}(x\mid y)=\dfrac{p_X(x)p_{Y\mid X}(y\mid x)}{p_Y(y)}$</td><td class="l">$f_{X\mid Y}(x\mid y)=\dfrac{f_X(x)f_{Y\mid X}(y\mid x)}{f_Y(y)}$</td><td>§3</td></tr>
+<tr><td class="l"><b>Covariance and correlation</b> — same definition in both</td><td class="l" colspan="2" style="text-align:center">$\operatorname{cov}(X,Y)=\mathbb{E}\big[(X-\mathbb{E}[X])(Y-\mathbb{E}[Y])\big]=\mathbb{E}[XY]-\mathbb{E}[X]\,\mathbb{E}[Y]$; &nbsp; $\rho=\dfrac{\operatorname{cov}(X,Y)}{\sigma_X\sigma_Y}\in[-1,1]$</td><td>§4</td></tr>
+</table>
+<div class="figcap">Table 0.1 — The discrete/continuous correspondence. The seven rows of L09 slide 1 are reproduced exactly (distribution, CDF, expectation, variance, joint, conditioning on an event, conditioning on another r.v.); L08 slide 8 draws the same picture with five of those rows (it omits the conditioning-on-an-event row and prints no expectation formulas). Six further rows are <em>added</em> here — normalization, the expected value rule, marginalization, independence, covariance/correlation and Bayes — from statements the lectures make elsewhere (normalization, L08 slide 2; the expected value rule, L08 slide 3; marginalization and independence, L09 slide 3; covariance and correlation, L11 slides 7–8; Bayes, L10 slide 2). Rows spanning both columns are the ones whose <em>formula</em> is literally identical in both worlds, which is how the slide draws them: centered. The slide also centers $\mathbb{E}[X]$ itself, with $\sum_x x\,p_X(x)$ and $\int x f_X(x)\,dx$ flanking it — the layout of the Expectation row above, where the label is the shared object and the two cells hold the two formulas. Entries printed in red on L09 slide 1 — the new material of that lecture — are shown here as <span style="color:#c0392b">$f_{X,Y}(x,y)$</span> and <span style="color:#c0392b">$f_{X\mid Y}(x\mid y)$</span>.</div>
+
+<p>Three structural remarks about the table, each of which saves work later.</p>
+
+<ul>
+<li><b>The CDF row is the bridge.</b> $F_X(x)=\mathbf{P}(X\le x)$ is defined for <em>any</em> random variable — discrete, continuous or mixed — because it only ever asks for the probability of an event. That is why L09 slide 1 centers it. It is also why it is the universal computational tool: §1 uses it to define $f_X=\frac{dF_X}{dx}$, and §4 uses it as the first step of the derived-distribution method.</li>
+<li><b>$\mathbb{E}$ and $\operatorname{var}$ are centered too</b>, and that is a statement about <em>properties</em>, not formulas. The formulas differ ($\sum$ versus $\int$), but every identity proved in G2 §2–§4 — linearity $\mathbb{E}[aX+b]=a\mathbb{E}[X]+b$, $\operatorname{var}(aX+b)=a^2\operatorname{var}(X)$, $\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$, $\mathbb{E}[X+Y]=\mathbb{E}[X]+\mathbb{E}[Y]$ with no independence needed — holds verbatim here, with the same proof after the substitution. None of them is re-proved in G3; they are imported.</li>
+<li><b>The right-hand column has one genuinely new inhabitant</b>: nothing in the discrete world corresponds to the change-of-variables Jacobian $\big|dx/dy\big|$ that appears when you transform a continuous random variable (§4). Discretely, $Y=g(X)$ needs only bookkeeping — collect the $x$'s with $g(x)=y$ and add their masses. Continuously, stretching the axis stretches the density, and the stretch factor must be tracked. That is the one place where "replace $\sum$ by $\int$" is <em>not</em> the whole story, and the first half of §4 is about it.</li>
+</ul>
+
+<div class="recipe"><b>Recipe — translating any discrete result into its continuous form.</b> Given a formula from G2:
+<ol>
+<li>Replace each mass function by the corresponding density: $p_X\rightsquigarrow f_X$, $p_{X,Y}\rightsquigarrow f_{X,Y}$, $p_{X\mid Y}\rightsquigarrow f_{X\mid Y}$.</li>
+<li>Replace each $\sum_x$ by $\int_{-\infty}^{\infty}\cdots dx$, one integral per summation index (a double sum becomes a double integral).</li>
+<li>Keep the limits honest: integrate only over the <b>support</b>, the set where the density is nonzero. This replaces the discrete habit of "sum over the values that occur", and it is where most errors in §2 originate — a support like $\{0\le y\le x\le \ell\}$ silently sets the limits of both integrals.</li>
+<li>Interpret a bare $f$-value as a <em>rate</em>, never a probability: if the discrete formula's left side was a probability, the continuous one's left side is a density, and you must integrate to get back to a probability.</li>
+<li>Statements about events (Bayes, total probability, independence of events) need <em>no</em> translation at all — they were never about masses.</li>
+</ol>
+Failure mode to watch: this recipe transports <em>formulas</em>, not <em>proofs</em> that used the existence of a smallest positive mass. In particular the discrete argument "condition on $\{Y=y\}$, an event of positive probability" is invalid here, since $\mathbf{P}(Y=y)=0$; §2 rebuilds conditioning from the $\delta$-slab instead (L09 slide 5).</div>
+
+<h3>0.3 Reading guide for this note</h3>
+
+<p>G3 covers L08–L11 with recitations rec08–rec11, i.e. B&amp;T Chapter 3 in full plus §4.1–4.2. The six sections work through the table above roughly top to bottom; the "Where" column is the authoritative index.</p>
+
+<ul>
+<li><b>§1 — PDFs, CDFs, and the three standard densities</b> (L08, rec08, rec09 P2, B&amp;T §3.1–3.3). The density and its properties; $\mathbb{E}$, $\mathbb{E}[g(X)]$ and $\operatorname{var}$ as integrals; the CDF $F_X$ and the two-way street $f_X=dF_X/dx$; mixed distributions and conditioning a density on a positive-probability event; the continuous uniform, the exponential and its memorylessness (rec09 P2, solved here where the exponential lives), maxima and minima of independent exponentials (rec08 P3(d),(e) — the rates of independent exponentials add at a minimum), and the normal — including standardization $\frac{X-\mu}{\sigma}\sim N(0,1)$ and the $\Phi$ table. <em>Hook:</em> the exponential is the only continuous density that forgets how long it has already waited.</li>
+<li><b>§2 — Joint, marginal and conditional densities</b> (L09, rec09 P1/P3/P4, B&amp;T §3.4–3.5). $f_{X,Y}$ and the $\delta^2$-square interpretation; marginalizing by integrating out a variable; $f_{X\mid Y}(x\mid y)=f_{X,Y}(x,y)/f_Y(y)$ as a normalized slice of the joint surface; independence; Buffon's needle and the stick-breaking example. <em>Hook:</em> conditioning on $\{Y=y\}$, an event of probability zero, is nevertheless perfectly well defined — via slabs, not via G1's definition.</li>
+<li><b>§3 — The four faces of Bayes' rule</b> (L10, rec11 P1–P2, B&amp;T §3.6). Inference when the unknown and the observation may each be discrete or continuous: discrete–discrete (G1's rule), discrete–continuous, continuous–discrete, continuous–continuous, plus the mixed versions that arise in detection and estimation; then an appendix (§3.6) discharging the three derived-distribution examples L10 leaves unworked — $Y/X$ on the unit square, Joan's Boston–New York trip, and $Y=aX+b$ applied to a normal. <em>Hook:</em> one rule, four notations; picking the right one is a matter of asking which of the two variables has a mass function.</li>
+<li><b>§4 — Derived distributions and convolution</b> (L11, rec11 P3, B&amp;T §4.1–4.2). Finding the distribution of $Y=g(X)$: the general two-step CDF method $F_Y(y)=\mathbf{P}(g(X)\le y)$ then differentiate, the shortcut formula for monotonic $g$, the linear case $Y=aX+b$; then the density of a sum of independent random variables, $f_{X+Y}(z)=\int f_X(x)f_Y(z-x)\,dx$, with the graphical flip-and-shift picture and the sum of two independent normals; and finally covariance and correlation (L11 slides 7–8, B&amp;T §4.2) — the two numbers measuring departure from independence, with the repaired variance-of-a-sum formula, the counterexample showing zero covariance does not imply independence, and the coefficient $\rho\in[-1,1]$. <em>Hook:</em> the Jacobian mentioned above — the one thing the correspondence table cannot translate — and, at the end, the discrete convolution of G2 with its sum replaced by an integral, the recipe above one last time.</li>
+<li><b>§5 — Synthesis and checkpoint</b> (rec10, the quiz-review problem set). A consolidated pass over the whole note: which tool answers which question, the common failure modes, and the rec10 quiz-review problems worked in full as a self-test across §1–§4. <em>Hook:</em> exam problems rarely announce which section they belong to; §5 is about recognizing the type.</li>
+</ul>
+
+<p>Behind you: G1 (models, conditioning, Bayes, independence) and G2 (random variables, PMFs, expectation, variance, joint PMFs) — both used constantly and not restated. Ahead: G4 recasts $\mathbb{E}[X\mid Y]$ as a random variable and builds the Poisson process on the exponential density of §1; G6 proves the Central Limit Theorem that Fig. 0.1 only hinted at, and returns to §3's Bayes machinery for estimation.</p>
+
+<div class="summary">
+<b>§0 in one screen.</b>
+For a continuous $X$, $\mathbf{P}(X=x)=0$ for every $x$ — cut $[0,1]$ into $n$ cells and let $n\to\infty$ (B&amp;T Example 1.4). The PMF is therefore useless, and is replaced by a <b>density</b> $f_X\ge0$ with $\mathbf{P}(a\le X\le b)=\int_a^b f_X(x)\,dx$ and $\int_{-\infty}^{\infty}f_X=1$ (L08 slide 2).
+$f_X(x)$ is a rate, not a probability: it may exceed $1$, and $\mathbf{P}(x\le X\le x+\delta)\approx f_X(x)\,\delta$ — the slab formula behind every derivation ahead.
+Everything from G2 transfers by one substitution, $p_X(x)\rightsquigarrow f_X(x)\,dx$, i.e. $\sum_x\rightsquigarrow\int dx$ (L09 slide 1, Table 0.1); $F_X$, $\mathbb{E}$ and $\operatorname{var}$ are the <em>same</em> objects in both worlds, and every algebraic identity of G2 survives unchanged. The one exception is the Jacobian in §4.
+Route: <b>§1</b> densities, CDFs, uniform/exponential/normal → <b>§2</b> joint and conditional densities → <b>§3</b> Bayes in four flavors → <b>§4</b> derived distributions, convolution, covariance and correlation → <b>§5</b> synthesis and the rec10 checkpoint.
+</div>

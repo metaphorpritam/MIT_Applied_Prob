@@ -1,0 +1,247 @@
+[
+ {
+  "section": 2,
+  "severity": "critical",
+  "description": "Widget `w-g7s2-mle` PRNG silently overflows IEEE-754, so every parity number advertised in its `note` is unreachable in a browser. `rand()` computes `sd = (sd * 1103515245 + 12345) & 0x7fffffff` with sd up to 2^31; the product reaches ~2.4e18, far past 2^53, so the double is rounded and the low ~9 bits are destroyed before `& 0x7fffffff`. I emulated JS double arithmetic + ToInt32 exactly: the sequence agrees with the Python `LCG` in computes/g7_s2.py (line 509, exact big-int arithmetic) only for the first two draws, then diverges. With seed 12345, n=20, Bernoulli(0.65) the browser produces k = 8 heads (theta-hat = 0.4), not the claimed 'k = 14 heads (theta-hat = 0.700000)' from key `widget_parity`; the normal (1.834735) and uniform (2.963434) parity values, and all n = 200 values, are likewise unattainable. Fix: use exact 32-bit ops as the g7_s1 cicover widget already does (`Math.imul(...)`, `>>> 0`), or an LCG whose multiplier keeps the product under 2^53, then regenerate `widget_parity` from the identical recurrence."
+ },
+ {
+  "section": 1,
+  "severity": "major",
+  "description": "\u00a71.6, Option 3 box (thm): the closing sentence 'All three converge to $\\sigma^2$ in probability; only $\\hat S_n^2$ is unbiased' is false. $\\hat\\sigma_n^2=\\frac1n\\sum_i(X_i-\\theta)^2$ uses the TRUE $\\theta$, so $\\mathbb{E}[\\hat\\sigma_n^2]=\\frac1n\\sum_i\\mathbb{E}[(X_i-\\theta)^2]=\\sigma^2$ exactly \u2014 it is unbiased with divisor $n$. The note contradicts itself two boxes later ('Notice also that $\\hat\\sigma_n^2$, which uses the true $\\theta$ and therefore spends no degree of freedom, is unbiased with divisor $n$'). Correct reading: of the two computable estimators $\\bar S_n^2$ and $\\hat S_n^2$, only $\\hat S_n^2$ is unbiased; $\\bar S_n^2$ is the only biased one of the three."
+ },
+ {
+  "section": 2,
+  "severity": "major",
+  "description": "Notation collision with \u00a71 and with the source. \u00a72.2 Step 4b writes the ML (divisor-$n$) variance estimator as $\\hat S_n^{2}=\\frac1n\\sum_i(X_i-\\hat M_n)^2$ and then invents $\\hat S_n^{2,\\mathrm{unb}}=\\frac{1}{n-1}\\sum_i(\\cdot)^2$. But L23 slide 7 (verified in the transcript, incl. its footnote 4 confirming the hat is a circumflex), rec23 P3(a), and \u00a71.6/\u00a71.7 all define $\\hat S_n^2$ as the $\\frac{1}{n-1}$ sample variance, with $\\bar S_n^2$ reserved for the $\\frac1n$ version. A reader carrying \u00a71's symbol into \u00a72 reads 'the ML variance estimator is biased' about the wrong estimator. Rename \u00a72's ML estimator to $\\bar S_n^2$ (or $\\hat V_n$, as the \u00a72 cheatsheet already does) and drop the $\\hat S_n^{2,\\mathrm{unb}}$ superscript; also reconcile $\\hat M_n$ (\u00a72) with $M_n$ (\u00a70, \u00a71)."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "\u00a71.4 Definition box, parenthetical on confidence levels: 'L23 lists $\\alpha=0.05$, $0.25$, $0.01$; the middle value is what the slide prints, though $0.1$ or $0.025$ would be more usual' is self-contradictory \u2014 all three values are printed on the slide. The L23 transcript footnote 5 says what was meant: 'The three listed values read 0.05, 0.25, 0.01... The middle one is unusual for a confidence level (0.025 or 0.1 would be more common), but 0.25 is what is printed.' Rewrite as: the middle value 0.25 is unusual but is what the slide prints."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Fig. 1.2 caption says 'Steps 1, 2, 5 and 6 are exact algebra; the single approximation is step 3, the CLT'. That numbering matches the figure's six boxes but contradicts the numbered Construction directly above it, where step 2 is 'Invoke the CLT' and step 3 is 'Compute the normal two-sided probability' (exact algebra). Either renumber the figure boxes to match the derivation or say 'box 3' rather than 'step 3'."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "\u00a72.5, Example 2.4(b), final parenthetical: 'its consistency check $134.38-4.09\\times33.60=-3.044$ rounds to the printed $-3.07$ only because the unrounded slope is used, as here.' As written the clause asserts that $-3.044$ rounds to $-3.07$, which is false ($-3.044$ rounds to $-3.04$). The intended point is that the printed $-3.07$ comes from the unrounded $\\hat\\beta_1=4.091151$ and $\\bar u=33.598$ (giving $-3.074505$), while the sheet's own rounded arithmetic gives $-3.044$. Recast the sentence."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "\u00a72.6 Gotcha overstates what the uniform $[0,\\theta]$ model breaks: 'The words \"under mild conditions\" exclude precisely the uniform $[0,\\theta]$ model... So Properties 2 and 3 are guarantees for the smooth case'. Only Property 3 (asymptotic normality) actually fails \u2014 $\\max_i X_i$ IS consistent, and \u00a72.3's own Interpretation box proves it ('since its MSE $\\to0$ it is consistent'). None of the three reasons the Gotcha lists (rate $1/n$, exponential limit law, finite-$n$ bias) contradicts consistency. Restrict the exclusion to Property 3."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Widget `w-g7s1-mse` control range does not match the surrounding prose. The lead-in says it plots the family for 'a shrinkage factor $c\\in[0,1]$', and Practice 1.3(a) concludes '$0<c^*<1$ always', but the slider is `min:0.5, max:1`, so the small-$c$ half of the family (and $c^*$ for small $|\\theta|$) is unreachable. Separately, the initial `value:0.909` is off the `min:0.5, step:0.005` grid (0.409/0.005 is not an integer), so the control snaps to 0.910 and the readout never shows the $c=n/(n+1)=0.909091$ case the note text singles out. Either widen to `min:0` or state the restricted range, and set `value:0.91` (or `step:0.001`)."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "\u00a70.3, after the tail-probability display: 'Seven heads in ten tosses happens about one time in six for a fair coin' attaches the event 'seven heads' to the number 0.171875, which is $\\mathbf{P}(X\\ge7;\\theta=0.5)$. The probability of exactly seven heads is 0.1171875 (about one in 8.5) \u2014 the value already tabulated three paragraphs earlier. Write 'seven or more heads'."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "\u00a71.3 Property box: the display lists four results ($\\mathbb{E}[\\hat\\Theta_n]=\\theta$, $\\operatorname{var}=\\sigma^2/n$, $\\mathrm{MSE}=\\sigma^2/n$, consistency) and the derivation header says 'the slide asserts all four with no computation'. L23 slide 5 asserts only three \u2014 unbiasedness, WLLN consistency, and MSE $=\\sigma^2/n$; $\\operatorname{var}(M_n)=\\sigma^2/n$ is not printed (the transcript's DERIVATION GAP note says exactly this). Say 'the slide asserts three of these and never states the variance'."
+ },
+ {
+  "section": 4,
+  "severity": "critical",
+  "description": "\u00a74.7 Example 4.7, Step 4 (end): \"The rejection region is $\\{s\\le 469\\}\\cup\\{s\\ge 531\\}$\" is wrong and internally contradictory. That region has exact null probability P(S\u2264469)+P(S\u2265531) = 0.0536778 \u2014 it BUSTS the nominal 5% budget \u2014 yet the very next paragraph asserts the test's true level is \u03b1 = 0.0462912, and that number is P(S\u2264468)+P(S\u2265532), i.e. the region {|s\u2212500| > 31} = {s\u2264468}\u222a{s\u2265532}. The compute keys agree with the latter: COIN_POWER_* is coded as 1\u2212(binom.cdf(531)\u2212binom.cdf(468)), and L25 slide 5 states the rule as P(|S\u2212500| \u2264 31; H0) \u2248 0.95. Fix the sentence to \"{s\u2264468}\u222a{s\u2265532}\" (equivalently 'reject iff |s\u2212500| \u2265 32'). Note also that the note's own Gotcha in \u00a74.5 ('never round a CLT critical value toward a bigger region') forbids the region as printed. Collateral: Fig. 4.5's caption says the observed s=472 sits \"28 short of the boundary at 469\" \u2014 472 is 3 (or 4) away from 469 (468); the 28 is the deviation |472\u2212500|, not a distance to the boundary. Rephrase as \"deviation 28 against the critical deviation 31\"."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "\u00a74.8, \"Where the chi-square statistic comes from\", Step 4: \"By the CLT, each $(N_k-n\\theta_k^*)/\\sqrt{n\\theta_k^*}$ is asymptotically standard normal under $H_0$\" is false. $N_k\\sim\\text{Bin}(n,\\theta_k^*)$, so $\\operatorname{var}(N_k)=n\\theta_k^*(1-\\theta_k^*)$ and the standardized term is asymptotically $N(0,\\,1-\\theta_k^*)$, not $N(0,1)$. The 'sum of $m$ squared standard normals minus one constraint' story is therefore built on a wrong marginal; the correct statement is that the vector of standardized counts is asymptotically multivariate normal with covariance $I-\\sqrt{\\theta^*}\\sqrt{\\theta^*}^{\\!\\top}$, a rank-$(m-1)$ orthogonal projection, whose squared norm is exactly $\\chi^2_{m-1}$. The conclusion $T\\to\\chi^2_{m-1}$ is right; the stated reason is not. (Sanity check that the note's own text contradicts it: if the $m$ terms really were i.i.d. standard normal minus one constraint, the marginal variance claim and the $\\operatorname{var}(T)=2(m-1)=10$ Monte-Carlo check would not both hold for a fair die.)"
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "\u00a73.6 Example 3.10 (Pisa), Step 7: \"the residuals ... change sign $9$ times in $13$ points (pisa_resid_absmax_mm, pisa_sign_runs)\". The compute key is named `pisa_sign_runs` and equals 9 because there are 9 RUNS; the number of sign CHANGES is 8. I reproduced the residual sequence (+,\u2212,\u2212,+,\u2212,+,+,\u2212,+,\u2212,\u2212,+,+): 9 runs, 8 changes. The sentence then compares this to \"independent signs would average about $1+(n-1)/2=7$ runs\", which is a runs benchmark \u2014 so the prose compares 9 sign-changes to 7 runs, mixing two different statistics. Correct wording: \"the residuals form 9 runs of constant sign in 13 points, against an expected 1+(n\u22121)/2 = 7 under independent signs\"."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "\u00a75.1, paragraph before the cheatsheet table: \"Fix the notation once; all five rows share it\" \u2014 the table has SIX body rows (Estimator quality, Sample mean, Confidence interval, Maximum likelihood, Linear regression, Likelihood ratio test). The row references in the same paragraph are then off: \"$1-\\alpha$ is a confidence level in rows 2\u20133\" (the confidence level appears only in row 3, Confidence interval; row 2 is Sample mean) and \"$\\alpha$ alone is a false-rejection probability in row 5\" (row 5 is Linear regression; the LRT is row 6). No consistent counting makes both references correct \u2014 dropping the header row gives CI=row 2 and LRT=row 5, which breaks \"rows 2\u20133\" instead. Fix to \"all six rows\", \"row 3\", \"row 6\"."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "\u00a74.7 reports two different values for the same quantity \u2014 the power of the 5% two-sided n=1000 coin test against \u03b8=0.52 \u2014 without noting the methods differ. The Interpretation note after Example 4.7 gives 0.2339654 (exact binomial, key COIN_POWER_0p52, region {\u2264468}\u222a{\u2265532}); Practice 4.10 gives \"the lecture's $n=1000$ has power only $0.2439611$\" (key P46_POWER_AT_1000, computed in g7_s4.py lines 408\u2013415 by the normal approximation with $c=z_{0.975}\\sqrt{n/4}$). Both are defensible in isolation; presented four paragraphs apart with no comment they read as an arithmetic contradiction. Add \"(normal approximation; the exact binomial value is 0.234)\"."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "\u00a73 srcref (line 2) states the page uses \"$4\\times10^5$-run Monte Carlo for every sampling claim\", but Example 3.7's covariance-identity simulation uses $4\\times10^6$ (computes/g7_s3.py line 352, `N = 4_000_000`), and the body text of Example 3.7 correctly says \"$4\\times10^6$ samples\". The srcref should say \"$4\\times10^5$ for the sampling-distribution checks and $4\\times10^6$ for the covariance identity\"."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "\u00a73.3, Interpretation note (\"why this is the right notion of best\"): \"This is the same orthogonality principle that G6 \u00a74 established for LMS estimation, where the error $\\hat\\Theta-\\Theta$ was uncorrelated with every function of the observation.\" The orthogonality-to-every-function property belongs to the full LMS estimator $\\mathbb{E}[\\Theta\\mid X]$; the regression analogue established two sentences earlier is orthogonality only to the two-dimensional span of $\\mathbf{1}$ and $x$, i.e. the LINEAR LMS orthogonality (error uncorrelated with $X$ alone). As written the analogy overstates what least squares delivers \u2014 residuals are emphatically not orthogonal to nonlinear functions of $x$, which is exactly why Practice 3.5's $y=x^2$ example works. Cite the linear-LMS orthogonality instead."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Compute-key prefixes cited in <code> tags are systematically misaligned with the practice numbers, so a reader tracing a number into computes/g7_s3.json is sent to the wrong block: Practice 3.4 cites P33_*, Practice 3.8 cites P36_*, Practice 3.9 cites P39b_*, Practice 3.12 cites P39_*, Practice 3.13 cites P37_*. (Only Practice 3.2\u2192P32_* and 3.5\u2192P35_* line up.) The values themselves are all correct; rename the JSON keys or drop the numeric prefix."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "\u00a74.1: \"Definition (the two error probabilities; L25 slide 2, B&T \u00a79.3 and its Figure 9.8)\" and Fig. 4.1's caption both attribute the Type I / Type II vocabulary and the formulas $\\alpha(R)=\\mathbf{P}(X\\in R;H_0)$, $\\beta(R)=\\mathbf{P}(X\\notin R;H_1)$ to L25 slide 2. Per the transcripts these appear verbatim on L24 slide 7 (\"Types of errors: Type I (false rejection, false alarm)... Type II (false acceptance, missed detection)\"); L25 slide 2 only says \"fix false rejection probability $\\alpha$\". This is a wrong-lecture attribution, not merely a wrong slide number \u2014 \u00a75's own cheatsheet cites L24 slides 7\u20138 correctly for the same material."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "\u00a74.8 opening: \"Slide 7 poses 'do I have the correct pdf?' and stops at the definition of $D_n$.\" L25 slide 7 also prints the critical value $\\mathbf{P}(\\sqrt n D_n\\ge 1.36)\\approx 0.05$, which the note itself quotes in Route B (\"the slide quotes the critical value\"). Also, \u00a74's srcref lists \"its Figures 9.8, 9.9, 9.12, 9.13\" but Figure 9.13 is never cited anywhere in the body."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "\u00a75.2 Example 5.2, Matching pair 3: \"They differ by about $0.07$ at each end.\" The lower endpoints differ by $3.76041-3.691469=0.0689$ but the upper endpoints by $6.23959-6.151051=0.0885$ \u2014 the two gaps are unequal (they must be, since the two intervals have different centres and different half-widths). Say \"by 0.07 at the low end and 0.09 at the high end\"."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "\u00a75.2 master-comparison table, row \"Choosing between two hypotheses\", Bayesian column writes the MAP rule as $\\frac{p_X(x\\mid H_1)}{p_X(x\\mid H_0)}>\\frac{\\mathbf{P}(H_0)}{\\mathbf{P}(H_1)}$ \u2014 subscript $p_X$ (the classical family notation) combined with a conditioning bar. Everywhere else the note is scrupulous that the Bayesian object is $p_{X\\mid\\Theta}(x\\mid\\theta)$ and the classical one is $p_X(x;\\theta)$ (the row directly above says exactly this). Since the whole point of the row is the semicolon/bar contrast, the notation should be $p_{X\\mid H}(x\\mid H_1)$ or $\\mathbf{P}(X=x\\mid H_1)$ as on L24 slide 8."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "\u00a75.4, Phase 3 bullet, places \"Then two arrival processes, Bernoulli and Poisson, are one process on two clocks\" between a \"(G4 \u00a75)\" citation (attached to the conditional-expectation clause) and a \"(G5 \u00a75)\" citation (attached to Markov chains), so the arrival processes read as belonging to G5. They are in G4 (\u00a72 Bernoulli, \u00a73\u2013\u00a74 Poisson) \u2014 as \u00a75.5 correctly states with \"the Poisson process of G4 \u00a73\u2013\u00a74\". Relatedly, \u00a75.5's \"the random-incidence paradox of G4 \u00a75\" points at the G4 cheatsheet; the derivation is G4 \u00a74.4\u2013\u00a74.5. Add an explicit \"(G4 \u00a72\u2013\u00a74)\" to the Phase 3 sentence."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Example/Practice counters are inconsistent between \u00a73 and every other section, producing a reader-visible numbering hole. \u00a73 runs ONE shared counter across both box types (Practice 3.1, 3.2, Example 3.3, Practice 3.4-3.6, Example 3.7, Practice 3.8-3.9, Example 3.10, Practice 3.11-3.14), so 'Practice 3.3', 'Practice 3.7' and 'Practice 3.10' do not exist and a reader scanning for them assumes content was dropped. \u00a71, \u00a72, \u00a74 and \u00a75 instead run independent counters, which makes labels collide: \u00a71 contains BOTH an 'Example 1.2' (B&T 9.5, the shrinkage estimator) and a 'Practice 1.2', and \u00a72 contains both 'Example 2.3' and 'Practice 2.3' - distinct items with identical numbers. Correct looks like: one convention across all six fragments, and the safest is \u00a73's shared counter (or explicit prefixing everywhere), so that no two boxes in the note carry the same N.k label."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "\u00a70.2 prints raw 17-digit Python floats where the rest of the note rounds to 6-7 significant figures. The sentence 'At $\\theta=0.5$ this gives $\\mathbb{E}[\\hat\\Theta_2]=1.0$, $\\mathbb{E}[\\hat\\Theta_5]=0.625$, $\\mathbb{E}[\\hat\\Theta_{20}]=0.5263157894736842$, $\\mathbb{E}[\\hat\\Theta_{100}]=0.5050505050505051$' dumps computes/g7_s0.json's E_hatTheta_n20 verbatim, and the value is repeated at full precision twice more in the same paragraph ('a sample average of 0.52618 against the exact 0.5263157894736842'). Everywhere else the note uses the house rounding (0.541710, 11.0704977, 0.0909). The values themselves are correct (n/(n-1)*theta = 20/19*0.5) and agree with \u00a71's exact E[hat-Theta_n] = n*theta/(n-1) derivation, so this is presentation only: round to 0.526316 and 0.505051 to match the sibling percentages 5.2632% and 1.0101% already printed in the same sentence."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "\u00a74.9 'Which test? Putting the section together' violates two contract rules at once: it opens cold with a bare <img class=\"fig\"> (Fig. 4.8) with no motivating prose between the h3 and the image, and it carries zero practice questions, so \u00a74's twelve practice items all sit at or before \u00a74.8. Since \u00a74.9 is the decision-guide subsection that a student will use most under exam conditions, it is exactly where 'given this data description, which of the four tests applies?' drill belongs. The style-contract exemption established in this note covers only \u00a75 (finale, no widget/no practice by design) and \u00a70 (orientation, matching g2_s0-g6_s0 precedent); \u00a74.9 is not exempt. Correct looks like: one framing paragraph before Fig. 4.8, plus 1-3 test-selection practice items with hidden solutions after it."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Recitation problems are placed inconsistently, and rec23's two ML problems are the ones that lose visibility. rec23 P3 gets its own h3 (\u00a71.7), rec24 P1 gets \u00a72.4 and rec24 P2 gets \u00a72.5 - each named in the sidebar. But rec23 Problem 2 (= B&T Example 9.4, the joint mean-and-variance ML fit, one of the three rec23 [SOLUTION GAP]s) is buried as an <h4> 'Normal: mean and variance together' inside the ~330-line \u00a72.2, and rec23 Problem 1 (= B&T Example 9.1) sits inside \u00a72.3. \u00a72 is the only fragment using h4 (8 of them) and the TOC builder in 07_classical_inference.html indexes only 'h2, h3', so none of \u00a72.2's four sub-topics reach the sidebar - a student looking for the recitation-23 solutions finds only \u00a71.7. The solutions themselves are complete and correct (log-likelihood, differentiation in mu and v, the g increases-then-decreases second-order check, hat-v = 20.6602/10 = 2.0660); this is placement/discoverability, not content. Correct looks like: promote 'Normal: mean and variance together (rec23 P2)' to its own h3 in \u00a72, matching the treatment given to rec24 P1/P2."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Fourteen of the note's forty h3 subsections open cold with a box or an image instead of the motivating prose the narrative-flow contract calls for: \u00a70.1 (defn), \u00a70.5 (img), \u00a71.1 (defn), \u00a72.2 (h4), \u00a72.3 (ex), \u00a72.4 (ex), \u00a73.1 (defn), \u00a73.2 (defn), \u00a73.6 (recipe), \u00a74.1 (defn), \u00a74.3 (ex), \u00a74.4 (ex), \u00a74.5 (thm), \u00a74.9 (img), \u00a75.3 (warn). The worst cases are \u00a74.3 and \u00a74.4, the two flagship worked examples of the hypothesis-testing section, which drop the reader straight into 'Example 4.1 (test on a normal mean; L25 slide 3)' with no sentence saying why the normal-mean test is the canonical first LRT or how it differs from the variance test that follows. \u00a71.2-\u00a71.7, \u00a72.1, \u00a72.5, \u00a72.6, \u00a73.3-\u00a73.5, \u00a73.7, \u00a73.8, \u00a74.2, \u00a74.6-\u00a74.8 do open with prose, so the fix is one or two framing sentences per offending h3, matching the pattern already used elsewhere in the same fragments."
+ },
+ {
+  "section": 5,
+  "severity": "critical",
+  "description": "Fig. 5.4 (the closing course-arc map, the section's flagship artifact) is CLIPPED on the right in the rendered page. In s5_p06.png (and s5_live.png) the 'PHASE 4 \u00b7 WHAT THE DATA SAYS' banner has no right border and the G7 box \u2014 the very note this document is \u2014 is cut off mid-word: 'Classical inference' loses its right edge, and its bullet lines render as 'bias, consistency', 'maximum likelih', 'linear regressi', with the box's right border missing entirely. G6 renders complete, so roughly the rightmost 10% of the figure is gone. Root cause is layout, not the asset: notes/img/g7_s5_arc.png is complete and correct when opened directly, but notes/src/fragments/g7_s5.html:372 declares style=\"max-width:1200px\" while every other figure in the note uses 920-940px (g7_s5.html:85 and :134 are 940, :342 is 920) and the content column is ~940px wide. Fix: set the arc figure to the same max-width as its siblings (<=940px) so the whole G1->G7 map, including the G7 box and the Phase 4 banner's right border, is visible."
+ },
+ {
+  "section": 1,
+  "severity": "critical",
+  "description": "Raw unrendered LaTeX is visible in the body text. On s1_p04.png two display equations end with literal, unrendered macro source: '...= 0.082645 (\\texttt{B\\_var\\_T}).' and '...= 1.449138 (\\texttt{B\\_crossover}).' \u2014 the backslashes, braces and escaped underscores all print on the page. On s1_p12.png the same failure hits a bold cue: the display line reads '(the \\textbf{sample variance})' with the macro name printed verbatim instead of bolding 'sample variance'. Source is g7_s1.html:132, :144 (and the same nested-macro pattern at :223, :226, :559, :566, :572, :574, :576, :581, :583, which will surface the moment those <details> solutions are opened). The construct that breaks is \\text{\\texttt{...}} \u2014 MathJax does not expand \\texttt inside \\text, so the whole group is emitted as literal characters. Fix: drop the \\text{} wrapper (bare \\texttt{...} does render, see below) or better, move these compute-key annotations out of math into the same <code> spans already used elsewhere on the page (e.g. the 'A_trunc_eps0.01' key on s1_p03.png renders correctly as inline code)."
+ },
+ {
+  "section": 3,
+  "severity": "major",
+  "description": "Escaped underscores leak into rendered math. On s3_p09.png the display line under 'Applied to Example 3.3' reads 'sigma^2 = 60/6 = 10, sigma = sqrt(10) = 3.162278   (sigma\\_hat2, sigma\\_hat)' \u2014 the two compute keys print with visible backslashes: 'sigma\\_hat2', 'sigma\\_hat' instead of 'sigma_hat2', 'sigma_hat'. Source g7_s3.html:627 uses \\texttt{sigma\\_hat2}; \\texttt switches to a verbatim-ish font in which the '\\_' escape is no longer consumed. Same construct at g7_s3.html:482 (P36\\_product) and :773 (pisa\\_Sxx), which will render the same way where they appear. Fix: inside \\texttt use a bare underscore in a mbox/text-mode-safe form, or move the key to an inline <code> span like the correctly-rendered 'se_th1', 'se_th0', 't_crit_6df_975' keys immediately below on the same page."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "Same escaped-underscore leak as \u00a73. On s4_p11.png the display equation reads 'gamma = sqrt(2) z_0.95 = sqrt(2)(1.6448536) = 2.3261743   (E913\\_GAMMA)' \u2014 the key prints with a visible backslash as 'E913\\_GAMMA' rather than 'E913_GAMMA'. Note the contrast is glaring on the very same page, where every other key on that page ('E913_BETA_LRT', 'E913_SQRT095', 'E913_ZETA', 'E913_BETA_MAX') renders cleanly as inline <code>. Source g7_s4.html:608; the identical pattern at g7_s4.html:283 ('P42\\_XIP') sits inside Practice 4.4's collapsed solution and will show the same defect when expanded. Fix: render these two keys as <code> spans outside the math, matching the rest of the section."
+ },
+ {
+  "section": 5,
+  "severity": "major",
+  "description": "Fig. 5.1 (the four-method decision guide) has overlapping and inconsistently-sized formulas in its bottom row, visible on s5_p02.png. (a) LIKELIHOOD RATIO TEST box: the caption line 'reject H0 iff' is drawn on top of the fraction below it \u2014 the subscript of 'H0' and the word 'iff' collide with the numerator 'p_X(x; H1)', so the two lines interpenetrate. (b) LINEAR REGRESSION box: the theta-hat-1 fraction 'Sum(x_i - xbar)(y_i - ybar) / Sum(x_i - xbar)^2' is set at roughly half the font size of the formulas in the three sibling boxes and is effectively illegible at print size, and the 'theta-hat-0 = ybar - theta-hat-1 xbar' line below sits tight against the fraction rule. (c) SAMPLE MEAN + CI box: the summation index under 'Sum X_i' drops into the following line and collides with the sigma-hat of 'Theta-hat_n +/- z sigma-hat/sqrt(n)'. Fix: give all four boxes one common mathtext font size and add vertical padding between the caption line, the formula, and the following line so nothing overprints."
+ },
+ {
+  "section": 2,
+  "severity": "major",
+  "description": "Fig. 2.2 (the ML/MAP decision map) has math that overprints across lines inside its boxes, visible on s2_p03.png. In the Bayesian box, the 'theta' written under 'max' in 'MAP: max_theta p_{Theta|X}(theta|x)' drops onto the line beneath it and collides with the 'E' of 'LMS: E[Theta|X=x]', which reads as a spurious accent on the E. The same failure appears in the 'Calculus fails' box: the 'i' written under 'max' in 'theta-hat = max_i x_i' collides with the 'max x_i' text on the line above. The 'theta-hat_ML' hat in the Maximum likelihood box also grazes the 'Maximum likelihood:' label above it. Fix: increase the line spacing inside these boxes, or use \\max_{...} in inline (not display) style so the limit sits to the right of 'max' rather than beneath it."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "Fig. 4.6 right panel has three colliding annotations, visible on s4_p16.png. (a) The green label 'T = 6.86' is bisected by the red dashed critical-value line at xi = 11.07 \u2014 the final '6' is struck through by the dashes. (b) The orange multi-line annotation ends with 'H0 IS rejected' and the red label 'xi = 11.07' begins immediately beneath it with no gap, so the two blocks touch and read as one run-on. (c) The orange block itself has uneven leading \u2014 wide gaps between its first three lines and near-zero gap between the last two. Fix: move the green 'T = 6.86' label left of the green vertical line (clear of the red dashed line), move the red xi label lower or right, and set a single uniform line spacing for the orange block."
+ },
+ {
+  "section": 4,
+  "severity": "major",
+  "description": "Fig. 4.4 (the ROC pair) has four labels struck through by lines, visible on s4_p10.png. Left panel: the 'alpha = 0.05' annotation near the origin sits directly on the dashed 'useless test' diagonal, which crosses the alpha glyph and makes it read as 'd = 0.05' \u2014 actively misleading, since the legend directly above uses 'd' for the separation parameter. Right panel: the 'k = 4' label is crossed by the dashed diagonal, the 'k = 2' label is crossed by the blue dashed LRT frontier, and 'never reject' is crossed by the x-axis spine. Fix: offset each of these labels perpendicular to the line it currently sits on, or give them an opaque bbox."
+ },
+ {
+  "section": 1,
+  "severity": "major",
+  "description": "Fig. 1.4 (the 'which variance under the square root' decision tree) has two overlaps, visible on s1_p13.png. (a) The figure title 'Which variance goes under the square root? (L23 slide 7; B&T \u00a79.1)' is struck through by the top border of the 'Need a CI for a mean theta' box, which is drawn across the title text rather than below it \u2014 the title reads as struck-out from 'variance' to 'slide 7;'. (b) The 'yes' edge label leaving the 'Are the X_i Bernoulli(theta)?' diamond is drawn on top of its own arrow, so the arrow line passes through the word. Fix: raise the title (or lower the first box) so they do not share vertical space, and offset the edge label to one side of its arrow."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "Raw 16-digit float repr leaks into prose. On s0_p03.png the sentence reads 'A Monte Carlo run of 400,000 replicates at n = 20 returns a sample average of 0.52618 against the exact 0.5263157894736842, with an estimator standard deviation of 0.12384' \u2014 17 significant figures wedged between two 5-significant-figure numbers in the same clause. The intended display value is 0.526316 (six figures, matching \u00a71's treatment of the same exponential-bias example). Fix: round to 0.526316."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Same raw-float leak as \u00a70. On s2_p02.png the Gotcha bullet reads 'the sum over the data at any fixed theta: Sum_k C(10,k) theta^k (1-theta)^(10-k) = 1.000000000000 at theta = 0.3 and at theta = 0.7 alike' \u2014 twelve trailing zeros where the point being made is simply that the sum is exactly 1. The same bullet earlier prints '0.0909090909 = 1/11' at ten digits. Fix: print '1.000000' (or just 1) and '0.090909'."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Fig. 2.3 panel (a), on s2_p05.png: the annotation 'theta-hat_ML = 0.7' is drawn on top of the n = 50 and n = 200 log-likelihood curves and the dashed vertical line, so the label is struck through by two curves and is hard to read at print size. There is empty plot area to the upper-left. Fix: move the label into the empty region with a short leader, or give it an opaque bbox."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Fig. 2.5, on s2_p09.png: (a) in panel (b) the annotation 'exact theta-hat_12 = 1/log(1 + 1/s_n) = 83.499' runs past the right spine of the axes and bleeds into the gutter before panel (c); (b) panel (c)'s rotated y-axis label renders with the hat detached from its theta, so it reads as a stray apostrophe followed by theta. Fix: shorten or re-anchor the panel (b) annotation inside the axes, and use a plain 'theta-hat' text label rather than rotated mathtext for panel (c)."
+ },
+ {
+  "section": 2,
+  "severity": "minor",
+  "description": "Fig. 2.1 right panel, on s2_p02.png: the white annotation box 'shaded area = 1/11 = 0.0909 (not 1 \u2014 no density in theta)' is placed over the plot interior and occludes the left flank of the red likelihood curve between roughly theta = 0.30 and theta = 0.60. The curve visibly disappears behind the box. Fix: move the box into the empty upper-left region of the panel or make its background transparent."
+ },
+ {
+  "section": 0,
+  "severity": "minor",
+  "description": "Fig. 0.1 (the roadmap), on s0_p05.png: (a) the blue curved arrow leaving the 'Estimator or test' box terminates in mid-air on the horizontal divider above the words 'theta ranges over a continuum -> ESTIMATION', pointing at nothing \u2014 it does not reach the \u00a71 box it presumably targets; (b) the connector between the \u00a71 box and the \u00a72 box has collapsed to a bare orange arrowhead sitting on the \u00a71 box's bottom border with no visible shaft, since the two boxes are flush; (c) the box text uses a centered '\u00b7' as a phrase separator in 'bias E[Theta-hat_n] \u2212 theta \u00b7 MSE = var + bias^2' and 'sample mean \u00b7 Theta-hat_n \u00b1 z sigma/sqrt(n)', where inside a formula the dot parses as multiplication ('theta \u00b7 MSE'). Fix: land the blue arrow on the \u00a71 box, add vertical gap between \u00a71 and \u00a72 so the connector has a visible shaft, and replace the '\u00b7' separators with a line break or an em dash."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Fig. 3.2 left panel, on s3_p04.png: the inline contour label 'SSE = 65' is overprinted by both the annotation leader line pointing at the optimum and the green optimum marker, so the digits are partially struck through. Fix: relocate the contour label to a clear arc of the same ellipse, away from the leader line."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Fig. 3.3 left panel, on s3_p06.png: the small orange residual labels are drawn on top of the blue fit line rather than beside their residual segments \u2014 '+1' at x = 1, '+2' at x = 3 and x = 6, '\u22121' at x = 4 and x = 5 all sit on the line and are struck through by it, and '+3' at x = 8 is additionally crowded against the right spine. Fix: offset each residual label horizontally away from the fit line (to the side opposite its segment)."
+ },
+ {
+  "section": 3,
+  "severity": "minor",
+  "description": "Fig. 3.6 panel (c), on s3_p13.png: the four-entry legend box in the upper-left occludes the upper portion of the green dashed '8 points: y = 55 + 5x' line it is describing, hiding the line's behavior over roughly x = 6 to x = 10. Fix: move the legend to the lower-right quadrant, which is empty in that panel."
+ },
+ {
+  "section": 4,
+  "severity": "minor",
+  "description": "The LRT threshold explorer widget canvas, on s4_p12.png: the threshold readout label 't = 1.64' is bisected by the black dashed threshold line drawn at the same x, so the decimal point and first digit are struck through. Fix: offset the label a few pixels to the left or right of the vline."
+ },
+ {
+  "section": 1,
+  "severity": "minor",
+  "description": "Widget explanatory notes are walls of plain-ASCII math while every other formula on the page is typeset by MathJax, an obvious typographic discontinuity on s1_p05.png and s1_p11.png. Examples rendered as literal text: 'MSE(c M_n) = c^2 v/n + (c-1)^2 theta^2', 'sqrt(v(1+c)/(n(1-c)))', 'theta^2/(theta^2+v/n)', 'exactly 2*Phi(z)-1'. The \u00a73 and \u00a74 widget notes have the same problem (s3_p10.png, s4_p12.png). This is inherent to the note being canvas-adjacent plain text, but the paragraphs are long enough (10+ lines) that the effect is a visibly different, lower-quality typographic register in the middle of the page. Fix: either render the widget note as HTML so MathJax typesets it, or shorten these notes to prose plus one or two short expressions."
+ },
+ {
+  "section": 5,
+  "severity": "minor",
+  "description": "Fig. 5.2 left panel, on s5_p03.png: the annotation reads '95% credible interval [3.69, 6.15]' followed by 'P(Theta in \u00b7 | X) = 0.95', where the bare centered dot in the set position reads as a dropped or missing argument rather than as a deliberate placeholder for the interval named on the line above. Fix: write 'P(Theta in [3.69, 6.15] | X = x) = 0.95' explicitly, or 'P(Theta in the band | X = x) = 0.95'."
+ }
+]

@@ -1,0 +1,7 @@
+{
+  "title": "G5 · Markov Chains",
+  "subtitle": "The Markov property, n-step transitions, state classification, steady-state behavior, and absorption — MIT 6.041 Lectures 16–18, Recitations 18–19",
+  "prev": ["04_expectation_processes.html", "G4 · Iterated Expectations & Arrival Processes"],
+  "next": ["06_limits_bayesian.html", "G6 · Limit Theorems & Bayesian Inference"],
+  "sources": "MIT 6.041/6.431 F10 L16–L18 slide handouts, recitations 18–19 (+ rec16–17 as checkpoint), Bertsekas–Tsitsiklis ch. 7"
+}

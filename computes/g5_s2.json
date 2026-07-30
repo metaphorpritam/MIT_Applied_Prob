@@ -1,0 +1,595 @@
+{
+ "warmup_rowsums_ok": true,
+ "warmup_recurrent_states": [
+  3,
+  4,
+  5,
+  6,
+  7
+ ],
+ "warmup_transient_states": [
+  1,
+  2,
+  8,
+  9
+ ],
+ "warmup_recurrent_classes": [
+  [
+   3,
+   4,
+   5
+  ],
+  [
+   6,
+   7
+  ]
+ ],
+ "warmup_period_class1_state3": 1,
+ "warmup_period_class2_state6": 1,
+ "warmup_A_of_1": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8
+ ],
+ "warmup_A_of_2": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8
+ ],
+ "warmup_A_of_8": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8
+ ],
+ "warmup_A_of_9": [
+  6,
+  7,
+  9
+ ],
+ "warmup_A_of_3": [
+  3,
+  4,
+  5
+ ],
+ "warmup_A_of_6": [
+  6,
+  7
+ ],
+ "warmup_p12": 0.5,
+ "warmup_p26": 0.6,
+ "warmup_p67": 0.7,
+ "warmup_Q1": 0.21,
+ "warmup_Q2_r27_4": 0.4158,
+ "warmup_Q2_paths": [
+  [
+   [
+    2,
+    1,
+    2,
+    6,
+    7
+   ],
+   0.084
+  ],
+  [
+   [
+    2,
+    6,
+    6,
+    6,
+    7
+   ],
+   0.0378
+  ],
+  [
+   [
+    2,
+    6,
+    7,
+    6,
+    7
+   ],
+   0.294
+  ]
+ ],
+ "warmup_Q2_path_sum": 0.41579999999999995,
+ "warmup_r2_row_n200": [
+  0.0,
+  0.0,
+  0.094595,
+  0.047297,
+  0.047297,
+  0.476948,
+  0.333863,
+  0.0,
+  0.0
+ ],
+ "warmup_r2_row_n201": [
+  0.0,
+  0.0,
+  0.094595,
+  0.047297,
+  0.047297,
+  0.476948,
+  0.333863,
+  0.0,
+  0.0
+ ],
+ "warmup_r26_avg_limit": 0.4769475357710612,
+ "warmup_absorb_right_class": {
+  "1": 0.527027,
+  "2": 0.810811,
+  "8": 0.405405,
+  "9": 1.0
+ },
+ "per3_rowsums_ok": true,
+ "per3_classes": [
+  [
+   1,
+   2,
+   3
+  ]
+ ],
+ "per3_transient": [],
+ "per3_period": 2,
+ "per3_r22_n1to8": [
+  0.0,
+  1.0,
+  0.0,
+  1.0,
+  0.0,
+  1.0,
+  0.0,
+  1.0
+ ],
+ "per3_r11_n1to8": [
+  0.0,
+  0.5,
+  0.0,
+  0.5,
+  0.0,
+  0.5,
+  0.0,
+  0.5
+ ],
+ "per3_balance_solution": [
+  0.25,
+  0.5,
+  0.25
+ ],
+ "per3_cesaro_row1": [
+  0.25,
+  0.5,
+  0.25
+ ],
+ "two3_rowsums_ok": true,
+ "two_classes": [
+  [
+   1
+  ],
+  [
+   3,
+   4
+  ]
+ ],
+ "two_transient": [
+  2
+ ],
+ "two_period_class34": 1,
+ "two_r21_n1": 0.3,
+ "two_r23_n1": 0.3,
+ "two_r21_n2": 0.42,
+ "two_r23_n2": 0.27,
+ "two_r21_n5": 0.49488,
+ "two_r23_n5": 0.25128,
+ "two_r21_n10": 0.4999475712,
+ "two_r23_n10": 0.25001310720000003,
+ "two_r21_n30": 0.49999999999942357,
+ "two_r23_n30": 0.2500000000001441,
+ "two_r11_n60": 1.0,
+ "two_r31_n60": 0.0,
+ "two_r21_limit": 0.5,
+ "two_r21_limit_exact": "0.3/(1-0.4) = 1/2",
+ "two_r21_n7_matrix": 0.4991808,
+ "two_r21_n7_formula": 0.4991808,
+ "two_r23p4_n7_matrix": 0.4991808,
+ "cyc_rowsums_ok": true,
+ "cyc_single_class": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8
+ ],
+ "cyc_gcd_of_cycle_lengths": 2,
+ "cyc_period_state0": 2,
+ "cyc_return_times_n_le_14": [
+  4,
+  6,
+  8,
+  10,
+  12,
+  14
+ ],
+ "cyc_group_even": [
+  0,
+  2,
+  4,
+  7
+ ],
+ "cyc_group_odd": [
+  1,
+  3,
+  5,
+  6,
+  8
+ ],
+ "cyc_r00_n120": 0.39999999944120646,
+ "cyc_r00_n121": 0.0,
+ "fish_n": 4,
+ "fish_matrix": [
+  [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.25,
+   0.75,
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.5,
+   0.5,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.75,
+   0.25,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0
+  ]
+ ],
+ "fish_rowsums_ok": true,
+ "fish_recurrent": [
+  0
+ ],
+ "fish_transient": [
+  1,
+  2,
+  3,
+  4
+ ],
+ "fish_classes": [
+  [
+   0
+  ]
+ ],
+ "fish_p00": 1.0,
+ "fish_period_state0": 1,
+ "fish_r_n0_m1": 0.0,
+ "fish_r_n0_m5": 0.234375,
+ "fish_r_n0_m10": 0.7806015014648438,
+ "fish_r_n0_m30": 0.9992856772272554,
+ "fish_absorb_m10_matrix": 0.7806015014648438,
+ "fish_absorb_m10_naive_product": 0.7930689410201949,
+ "fish_Egreen_m1_matrix": 3.0,
+ "fish_Egreen_m1_formula": 3.0,
+ "fish_Egreen_m5_matrix": 0.94921875,
+ "fish_Egreen_m5_formula": 0.94921875,
+ "fish_Egreen_m10_matrix": 0.22525405883789062,
+ "fish_Egreen_m10_formula": 0.22525405883789062,
+ "p3_rowsums_ok": true,
+ "p3_recurrent_states": [
+  "s1",
+  "s5"
+ ],
+ "p3_transient_states": [
+  "s0",
+  "s2",
+  "s3",
+  "s4"
+ ],
+ "p3_classes": [
+  [
+   "s1"
+  ],
+  [
+   "s5"
+  ]
+ ],
+ "p3_period_s1": 1,
+ "p3_period_s5": 1,
+ "p3_limit_row_s0": [
+  0.0,
+  0.44444444,
+  0.0,
+  0.0,
+  0.0,
+  0.55555556
+ ],
+ "p3_limit_row_s3": [
+  0.0,
+  0.33333333,
+  0.0,
+  0.0,
+  0.0,
+  0.66666667
+ ],
+ "p3_limit_row_s2": [
+  0.0,
+  1.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0
+ ],
+ "p3_limit_row_s4": [
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  1.0
+ ],
+ "p3_abs_s1_from_s0_exact": "4/9 = 0.444444",
+ "p3_abs_s5_from_s0_exact": "5/9 = 0.555556",
+ "p3_abs_s1_from_s3_exact": "1/3 = 0.333333",
+ "p3_escape_to_s2_series": 0.3333333333333333,
+ "p3_never_enter_s4": 0.7777777777777778,
+ "p3_r03_n": [
+  0.33333333,
+  0.08333333,
+  0.02083333,
+  0.00520833,
+  0.00130208,
+  0.00032552
+ ],
+ "w_eps0p0_eigs": [
+  1.0,
+  -1.0
+ ],
+ "w_eps0p0_pi1_formula": 0.5,
+ "w_eps0p0_r11_n0to8": [
+  1.0,
+  0.0,
+  1.0,
+  0.0,
+  1.0,
+  0.0,
+  1.0,
+  0.0,
+  1.0
+ ],
+ "w_eps0p0_r21_n0to8": [
+  0.0,
+  1.0,
+  0.0,
+  1.0,
+  0.0,
+  1.0,
+  0.0,
+  1.0,
+  0.0
+ ],
+ "w_eps0p0_period_state1": 2,
+ "w_eps0p0_r11_n6_closed": 1.0,
+ "w_eps0p0_r11_n6_matrix": 1.0,
+ "w_eps0p0_first_all_positive": null,
+ "w_eps0p05_eigs": [
+  1.0,
+  -0.95
+ ],
+ "w_eps0p05_pi1_formula": 0.5128205128205129,
+ "w_eps0p05_r11_n0to8": [
+  1.0,
+  0.05,
+  0.9525,
+  0.095125,
+  0.909631,
+  0.13585,
+  0.870942,
+  0.172605,
+  0.836025
+ ],
+ "w_eps0p05_r21_n0to8": [
+  0.0,
+  1.0,
+  0.05,
+  0.9525,
+  0.095125,
+  0.909631,
+  0.13585,
+  0.870942,
+  0.172605
+ ],
+ "w_eps0p05_period_state1": 1,
+ "w_eps0p05_r11_n6_closed": 0.8709422031249999,
+ "w_eps0p05_r11_n6_matrix": 0.8709422031249997,
+ "w_eps0p05_first_all_positive": 2,
+ "w_eps0p2_eigs": [
+  1.0,
+  -0.8
+ ],
+ "w_eps0p2_pi1_formula": 0.5555555555555556,
+ "w_eps0p2_r11_n0to8": [
+  1.0,
+  0.2,
+  0.84,
+  0.328,
+  0.7376,
+  0.40992,
+  0.672064,
+  0.462349,
+  0.630121
+ ],
+ "w_eps0p2_r21_n0to8": [
+  0.0,
+  1.0,
+  0.2,
+  0.84,
+  0.328,
+  0.7376,
+  0.40992,
+  0.672064,
+  0.462349
+ ],
+ "w_eps0p2_period_state1": 1,
+ "w_eps0p2_r11_n6_closed": 0.6720640000000001,
+ "w_eps0p2_r11_n6_matrix": 0.6720640000000001,
+ "w_eps0p2_first_all_positive": 2,
+ "w_eps0p5_eigs": [
+  1.0,
+  -0.5
+ ],
+ "w_eps0p5_pi1_formula": 0.6666666666666666,
+ "w_eps0p5_r11_n0to8": [
+  1.0,
+  0.5,
+  0.75,
+  0.625,
+  0.6875,
+  0.65625,
+  0.671875,
+  0.664062,
+  0.667969
+ ],
+ "w_eps0p5_r21_n0to8": [
+  0.0,
+  1.0,
+  0.5,
+  0.75,
+  0.625,
+  0.6875,
+  0.65625,
+  0.671875,
+  0.664062
+ ],
+ "w_eps0p5_period_state1": 1,
+ "w_eps0p5_r11_n6_closed": 0.671875,
+ "w_eps0p5_r11_n6_matrix": 0.671875,
+ "w_eps0p5_first_all_positive": 2,
+ "w_eps0p05_n_to_1e-3": 121,
+ "w_eps0p2_n_to_1e-3": 28,
+ "w_eps0p5_n_to_1e-3": 9,
+ "warmup_class1_matrix": [
+  [
+   0.2,
+   0.5,
+   0.3
+  ],
+  [
+   1.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.6,
+   0.0,
+   0.4
+  ]
+ ],
+ "warmup_class2_matrix": [
+  [
+   0.3,
+   0.7
+  ],
+  [
+   1.0,
+   0.0
+  ]
+ ],
+ "warmup_class1_first_all_pos_n": 2,
+ "warmup_class2_first_all_pos_n": 2,
+ "per3_first_all_pos_n": null,
+ "cyc_first_all_pos_n": null,
+ "warmup_class1_steady_345": [
+  0.5,
+  0.25,
+  0.25
+ ],
+ "warmup_class2_steady_67": [
+  0.58823529,
+  0.41176471
+ ],
+ "warmup_from2_P_rightclass": 0.8108108108108106,
+ "warmup_from2_P_leftclass": 0.18918918918918937,
+ "warmup_from2_predicted_row": [
+  0.0,
+  0.0,
+  0.094595,
+  0.047297,
+  0.047297,
+  0.476948,
+  0.333863,
+  0.0,
+  0.0
+ ],
+ "warmup_from2_actual_row_n200": [
+  0.0,
+  0.0,
+  0.094595,
+  0.047297,
+  0.047297,
+  0.476948,
+  0.333863,
+  0.0,
+  0.0
+ ],
+ "slide7_classes": [
+  [
+   1,
+   2
+  ]
+ ],
+ "slide7_transient": [],
+ "slide7_period": 1,
+ "slide7_steady": [
+  0.2857142857,
+  0.7142857143
+ ],
+ "slide7_steady_fractions": "pi = (2/7, 5/7) = (0.285714, 0.714286)",
+ "slide7_r_row_n60": [
+  [
+   0.28571429,
+   0.71428571
+  ],
+  [
+   0.28571429,
+   0.71428571
+  ]
+ ]
+}

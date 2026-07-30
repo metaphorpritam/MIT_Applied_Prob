@@ -1,0 +1,57 @@
+{
+  "coin_outcomes": [
+    "HH",
+    "HT",
+    "TH",
+    "TT"
+  ],
+  "coin_n_outcomes": 4,
+  "coin_outcome_prob": "1/4",
+  "X_values": {
+    "HH": 2,
+    "HT": 1,
+    "TH": 1,
+    "TT": 0
+  },
+  "Y_values": {
+    "HH": 1,
+    "HT": 1,
+    "TH": 0,
+    "TT": 0
+  },
+  "Z_values": {
+    "HH": 1,
+    "HT": 0,
+    "TH": 0,
+    "TT": 1
+  },
+  "pmf_X": {
+    "0": "1/4",
+    "1": "1/2",
+    "2": "1/4"
+  },
+  "pmf_X_sum": "1",
+  "E_X": "1",
+  "var_X": "1/2",
+  "pmf_Y": {
+    "0": "1/2",
+    "1": "1/2"
+  },
+  "pmf_Y_sum": "1",
+  "E_Y": "1/2",
+  "var_Y": "1/4",
+  "pmf_Z": {
+    "0": "1/2",
+    "1": "1/2"
+  },
+  "pmf_Z_sum": "1",
+  "E_Z": "1/2",
+  "var_Z": "1/4",
+  "outcomes_with_X_eq_1": [
+    "HT",
+    "TH"
+  ],
+  "tetra_outcomes": 16,
+  "tetra_count_min_eq_2": 5,
+  "tetra_p_min_eq_2": "5/16"
+}

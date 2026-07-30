@@ -1,0 +1,471 @@
+<h2 id="g4-s5">§5 &nbsp; Synthesis, gotchas, and the bridge to Markov chains</h2>
+<p class="srcref">Sources: L12 slides 2–8 · L13 slides 2–8 · L14 slides 2–8 · L15 slides 2–8 · rec12–rec15 · L16 slides 1–3 (forward reference only) · B&amp;T §4.3, §4.5, §6.1–6.3, §7.1. Every number on this page is recomputed in <code>computes/g4_s5.py</code> — closed forms cross-checked by exact <code>Fraction</code> arithmetic, exact convolution of PMFs, <code>scipy.integrate.quad</code>, and (for the two length-biasing results) an independent Monte-Carlo run — and the figure by <code>computes/g4_s5_fig.py</code>.</p>
+
+<p>Four lectures introduced what looks like four topics: conditional expectation as a random variable,
+sums with a random number of terms, the Bernoulli process, and the Poisson process. They are one topic.
+Every result in G4 comes from a single move — <em>condition on the piece of information that makes the
+problem easy, solve the easy problem, then average back over the information</em> — and every arrival
+process in G4 is the same process viewed on a discrete or a continuous clock. This section is the one
+page to revise from: the identity list (§5.1), the two-process correspondence table (§5.2), the four
+mistakes that cost the most points (§5.3), and the single assumption that G4 makes everywhere and G5
+drops, which is what makes Markov chains a new subject (§5.4).</p>
+
+<p>Nothing here is proved for the first time. §1 built $\mathbb{E}[X\mid Y]$ as a random variable and
+proved the law of iterated expectations and the law of total variance (L12, rec12); §2 derived the
+random-sum formulas and the Bernoulli process (L12 end, L13, rec13); §3 built the Poisson process from
+its three defining properties (L14, rec14); §4 did merging, splitting, the Erlang distribution and
+random incidence (L15, rec15). Where a result is only stated here, the section that proves it is named — with one exception,
+the discrete random-incidence formula of §5.2, which no earlier section covers and which is
+therefore derived here.</p>
+
+<h3>5.1 The conditioning toolkit on one page</h3>
+
+<p>In every row below, $X$ is the random variable whose mean or variance you want, $Y$ is the random
+variable you condition on (the "extra information"), $y$ is a value $Y$ might take, $A_1,\dots,A_n$ is a
+partition of the sample space into events of positive probability, $N$ is a nonnegative-integer-valued
+random variable (a random <em>count</em>), and $X_1,X_2,\dots$ are i.i.d. random variables independent
+of $N$, with common mean $\mathbb{E}[X]$ and variance $\operatorname{var}(X)$. The column "type" is the
+single most useful thing on the page: it says whether the object on the left is a number or a random
+variable, and almost every error in G4 is a violation of that column.</p>
+
+<table>
+<thead>
+<tr><th class="l">Object / identity</th><th class="l">Definition or statement</th><th class="l">Type</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr><td class="l">$\mathbb{E}[X\mid Y=y]$</td><td class="l">$\sum_x x\,p_{X|Y}(x|y)$ &nbsp;(or $\int x f_{X|Y}(x|y)\,dx$)</td><td class="l">a <b>number</b>, one for each $y$</td><td class="l">L12 s2; §1.1; B&amp;T §4.3</td></tr>
+<tr><td class="l">$\mathbb{E}[X\mid Y]$</td><td class="l">the function $g(y)=\mathbb{E}[X\mid Y=y]$ evaluated at the random $Y$</td><td class="l">a <b>random variable</b>, a function of $Y$</td><td class="l">L12 s2; §1.1</td></tr>
+<tr><td class="l">Law of iterated expectations</td><td class="l">$\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]=\mathbb{E}[X]$</td><td class="l">number $=$ number</td><td class="l">L12 s2; §1.2; B&amp;T §4.3</td></tr>
+<tr><td class="l">Total expectation theorem</td><td class="l">$\mathbb{E}[X]=\sum_{i}\mathbf{P}(A_i)\,\mathbb{E}[X\mid A_i]$</td><td class="l">number $=$ number</td><td class="l">G2 §3; §1.2</td></tr>
+<tr><td class="l">$\operatorname{var}(X\mid Y=y)$</td><td class="l">$\mathbb{E}\big[(X-\mathbb{E}[X\mid Y=y])^2\mid Y=y\big]$</td><td class="l">a <b>number</b>, one for each $y$</td><td class="l">L12 s3; §1.3</td></tr>
+<tr><td class="l">$\operatorname{var}(X\mid Y)$</td><td class="l">takes the value $\operatorname{var}(X\mid Y=y)$ when $Y=y$</td><td class="l">a <b>random variable</b></td><td class="l">L12 s3; §1.3</td></tr>
+<tr><td class="l">Law of total variance</td><td class="l">$\operatorname{var}(X)=\mathbb{E}\big[\operatorname{var}(X\mid Y)\big]+\operatorname{var}\big(\mathbb{E}[X\mid Y]\big)$</td><td class="l">number $=$ number $+$ number</td><td class="l">L12 s3; §1.3; B&amp;T §4.3</td></tr>
+<tr><td class="l">Random sum $Y=X_1+\cdots+X_N$</td><td class="l">$\mathbb{E}[Y\mid N]=N\,\mathbb{E}[X]$, &nbsp; $\operatorname{var}(Y\mid N)=N\operatorname{var}(X)$</td><td class="l">both <b>random variables</b> (functions of $N$)</td><td class="l">L12 s7, s8; §2.2</td></tr>
+<tr><td class="l">Mean of a random sum</td><td class="l">$\mathbb{E}[Y]=\mathbb{E}[N]\,\mathbb{E}[X]$</td><td class="l">number</td><td class="l">L12 s7; §2.2; B&amp;T §4.5</td></tr>
+<tr><td class="l">Variance of a random sum</td><td class="l">$\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)+\big(\mathbb{E}[X]\big)^2\operatorname{var}(N)$</td><td class="l">number</td><td class="l">L12 s8; §2.2; B&amp;T §4.5</td></tr>
+</tbody>
+</table>
+
+<p>The two laws are the same statement about two moments, and the random-sum formulas are that statement
+applied with $Y=N$. Read the last two rows as: the mean of a random sum only needs the two means; the
+variance needs <em>four</em> quantities, because $Y$ is random for two separate reasons — each term is
+random, and how many terms there are is random.</p>
+
+<div class="note"><b>Interpretation — within versus between.</b> Both decompositions split randomness the
+same way. In the class-sections example of L12 slides 4–5 ($\mathbf{P}(Y=1)=10/30=1/3$ students in a
+section of mean score $90$ and within-section variance $10$; $\mathbf{P}(Y=2)=20/30=2/3$ in a section of
+mean $60$ and variance $20$), the toolkit gives $\mathbb{E}[X]=\frac13(90)+\frac23(60)=70$,
+$$\mathbb{E}\big[\operatorname{var}(X\mid Y)\big]=\tfrac13(10)+\tfrac23(20)=\tfrac{50}{3}=16.666667,
+\qquad
+\operatorname{var}\big(\mathbb{E}[X\mid Y]\big)=\tfrac13(90-70)^2+\tfrac23(60-70)^2=200,$$
+so $\operatorname{var}(X)=\frac{50}{3}+200=\frac{650}{3}=216.666667$. Reading the two terms:
+$\frac{50}{3}$ is the <b>average variability within</b> a section, $200$ is the <b>variability
+between</b> sections, and here the between-section term is $92.3077\%$ of the total — knowing a
+student's section explains almost all of the spread. (Cross-checked in <code>computes/g4_s5.py</code>
+against an explicit 30-student roster with exactly these section means and within-section variances,
+whose pooled variance is $216.666667$.) The identical reading applies to the random sum: in
+$\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)+(\mathbb{E}[X])^2\operatorname{var}(N)$, the
+first term is the variability of the individual terms averaged over how many there are, the second is
+the variability caused by the count itself.</div>
+
+<div class="recipe"><b>Recipe — divide and conquer with conditioning (L12; B&amp;T §4.3, §4.5).</b>
+<ol>
+<li><b>Name the information that simplifies the problem.</b> The right $Y$ is the quantity whose value
+turns a messy random object into a familiar one: the section a student is in, the number of stores
+visited, the number of arrivals in an interval, the first step of a sequential experiment.</li>
+<li><b>Compute $\mathbb{E}[X\mid Y=y]$ and, if variance is wanted, $\operatorname{var}(X\mid Y=y)$</b>
+— treating $y$ as a fixed constant. This is ordinary G2/G3 work on a conditional distribution.</li>
+<li><b>Replace $y$ by $Y$</b> to get the random variables $\mathbb{E}[X\mid Y]$ and
+$\operatorname{var}(X\mid Y)$. Write them down explicitly as functions of $Y$; this is the step people
+skip and then regret.</li>
+<li><b>Average.</b> $\mathbb{E}[X]=\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]$. If you want the variance,
+you need <em>both</em> pieces:
+$\operatorname{var}(X)=\mathbb{E}\big[\operatorname{var}(X\mid Y)\big]+\operatorname{var}\big(\mathbb{E}[X\mid Y]\big)$.</li>
+<li><b>Sanity-check the units and the sign.</b> Both variance terms are nonnegative, so
+$\operatorname{var}(X)\ge\operatorname{var}(\mathbb{E}[X\mid Y])$ and
+$\operatorname{var}(X)\ge\mathbb{E}[\operatorname{var}(X\mid Y)]$: conditioning can never make the
+total variance smaller than either piece.</li>
+</ol></div>
+
+<p><b>A worked check of the random-sum pair.</b> Take $N$ Poisson with parameter $2.5$ (so
+$\mathbb{E}[N]=\operatorname{var}(N)=2.5$) and $X_i$ uniform on $\{1,2,3\}$ dollars, so
+$\mathbb{E}[X]=2$ and $\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2=\frac{14}{3}-4=\frac23=0.666667$.
+The formulas give $\mathbb{E}[Y]=2.5\times 2=5$ and
+$$\operatorname{var}(Y)=\underbrace{2.5\times 0.666667}_{=1.666667\ \text{(within terms)}}
++\underbrace{2^2\times 2.5}_{=10\ \text{(across counts)}}=11.666667 .$$
+<code>computes/g4_s5.py</code> builds the exact PMF of $Y$ by convolving the PMF of $X$ with itself $n$
+times and mixing over $n$, and recovers $\mathbb{E}[Y]=5$ and $\operatorname{var}(Y)=11.666667$ to
+machine precision. Note the size of the two terms: dropping the second one — the standard error —
+would report $1.666667$, which is $14.29\%$ of the truth. When $N$ is at all variable, the randomness
+of the count dominates.</p>
+
+<div class="ex"><b>Practice 5.1 (types, then both variance terms).</b> A help desk has busy days with
+probability $0.4$ and quiet days with probability $0.6$. Let $B$ be the day type. Given a busy day the
+number of calls $N$ is Poisson with mean $20$; given a quiet day it is Poisson with mean $8$.
+(i) Write down the random variable $\mathbb{E}[N\mid B]$ — its values and their probabilities — and
+$\mathbb{E}[N]$. (ii) Find $\operatorname{var}(N)$. (iii) Is $N$ Poisson?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(i) The function $g(b)=\mathbb{E}[N\mid B=b]$ takes two values, $g(\text{busy})=20$ and
+$g(\text{quiet})=8$, because a Poisson mean is its parameter. So $\mathbb{E}[N\mid B]$ is the random
+variable equal to $20$ with probability $0.4$ and $8$ with probability $0.6$ — a random variable, not
+the number $12.8$. Averaging it (law of iterated expectations) gives
+$$\mathbb{E}[N]=\mathbb{E}\big[\mathbb{E}[N\mid B]\big]=0.4(20)+0.6(8)=8+4.8=12.8$$
+(<code>p51.EN</code>).</p>
+<p>(ii) Both terms. Within: for a Poisson, $\operatorname{var}(N\mid B)$ equals the same parameter, so
+$\operatorname{var}(N\mid B)$ is $20$ with probability $0.4$ and $8$ with probability $0.6$, and
+$$\mathbb{E}\big[\operatorname{var}(N\mid B)\big]=0.4(20)+0.6(8)=12.8 .$$
+Between: $\operatorname{var}\big(\mathbb{E}[N\mid B]\big)=0.4(20-12.8)^2+0.6(8-12.8)^2
+=0.4(51.84)+0.6(23.04)=20.736+13.824=34.56$. Adding,
+$$\operatorname{var}(N)=12.8+34.56=47.36$$
+(<code>p51.varN</code>, cross-checked in <code>computes/g4_s5.py</code> by summing the exact mixture
+PMF $0.4\,p_{20}(k)+0.6\,p_8(k)$ directly). Note that the between term is the larger one here: most of
+the spread in the call count is <em>which kind of day it is</em>, not Poisson noise within a day.</p>
+<p>(iii) No. A Poisson random variable has mean $=$ variance, and $47.36\neq 12.8$. A mixture of
+Poissons is <em>overdispersed</em> — the extra $34.56$ is exactly the variance the mixing adds. This is
+the Gotcha-2 failure mode in reverse: someone who averages only the conditional variances would report
+$12.8$, conclude "mean $=$ variance, so $N$ is Poisson", and be wrong twice.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.2 (synthesis: Poisson splitting $+$ random sum).</b> Customers enter a
+shop as a Poisson process of rate $\lambda=10$ per hour. Independently of everything else, each
+customer is a "big spender" with probability $q=0.2$. Big spenders' purchase amounts are i.i.d. with
+mean $\$50$ and standard deviation $\$20$, independent of the arrival process. Over a $3$-hour shift,
+let $Y$ be the total spent by big spenders. Find $\mathbb{E}[Y]$ and $\operatorname{var}(Y)$, and say
+which piece of the variance dominates.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 — split (§4.3).</b> Routing each Poisson arrival by an independent coin gives a Poisson
+process of rate $q\lambda=0.2\times 10=2$ big spenders per hour. Over $T=3$ hours the count $N$ of big
+spenders is therefore Poisson with parameter
+$$q\lambda T=2\times 3=6,\qquad \mathbb{E}[N]=\operatorname{var}(N)=6 .$$
+The splitting property is what lets us ignore the other $8$ per hour entirely.</p>
+<p><b>Step 2 — recognize the random sum (§2.2).</b> $Y=X_1+\cdots+X_N$ with $X_i$ i.i.d.,
+$\mathbb{E}[X]=50$, $\operatorname{var}(X)=20^2=400$, and $N$ independent of the $X_i$ (the coin and
+the amounts are independent of each other). The independence hypothesis is what makes the §5.1 formulas
+apply; without it, neither one is valid.</p>
+<p><b>Step 3 — apply both formulas.</b>
+$$\mathbb{E}[Y]=\mathbb{E}[N]\,\mathbb{E}[X]=6\times 50=\$300,$$
+$$\operatorname{var}(Y)=\underbrace{\mathbb{E}[N]\operatorname{var}(X)}_{6\times 400=2400}
++\underbrace{(\mathbb{E}[X])^2\operatorname{var}(N)}_{50^2\times 6=15000}=17400 ,$$
+so the standard deviation is $\sqrt{17400}=131.909060$ dollars (<code>p52</code>; a two-million-shift
+simulation returns $300.102097$ and $17417.648618$). The count term is $15000/17400=86.206897\%$ of the
+variance: on a shift this short, the dominant uncertainty is <em>how many</em> big spenders walk in, not
+how much each one spends. Reporting only the first term would give a standard deviation of
+$\sqrt{2400}=\$48.989795$ and badly understate the risk.</p>
+</div></details></div>
+
+<h3>5.2 Bernoulli and Poisson: one process, two clocks</h3>
+
+<p>The Poisson process is what the Bernoulli process becomes when the time slot shrinks to zero while the
+expected number of arrivals per unit time is held fixed (L14 slides 4 and 7; B&amp;T §6.2). Take slots of
+length $\delta$, so a window of length $t$ holds $n=t/\delta$ slots, and let the per-slot success
+probability be $p=\lambda\delta$, where $\lambda$ is the arrival rate in arrivals per unit time. Then
+$$np=\frac{t}{\delta}\cdot\lambda\delta=\lambda t ,$$
+independent of $\delta$ — the expected number of arrivals in the window is pinned while the clock gets
+finer. Every row of the correspondence table below is a consequence of that one limit.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g4_s5_bridge}}" alt="Left panel: three time axes showing the same five arrival instants, first bucketed into ten slots of length 0.1, then into twenty-five slots of length 0.04, then as marks on a continuous axis; two arrivals collide in one slot on the coarsest axis. Right panel: binomial probability mass functions for n=4 p=0.5, n=10 p=0.2 and n=100 p=0.02 converging onto the Poisson mass function with parameter 2." style="max-width:960px">
+<div class="figcap">Fig. 5.1 — The Bernoulli-to-Poisson limit (L14 slides 4, 7; B&amp;T §6.2). (a) The same arrival pattern seen through slots of length $\delta=0.1$, then $\delta=0.04$, then in continuous time; on the coarsest clock two arrivals share a slot and are miscounted as one, which is exactly the error the small-interval assumption $P(k,\delta)\approx 0$ for $k&gt;1$ makes vanish as $\delta\to 0$. (b) With $np=\lambda t=2$ held fixed, the binomial PMF collapses onto Poisson$(2)$: the total-variation distance to the Poisson falls $0.729\to 0.174\to 0.0522\to 0.004572\to 0.0004517$ as $\delta$ runs $0.5,\,0.25,\,0.1,\,0.01,\,0.001$ (<code>computes/g4_s5.py</code>).</div>
+
+<table>
+<thead>
+<tr><th class="l">Question</th><th class="l">Bernoulli process</th><th class="l">Poisson process</th><th class="l">Source</th></tr>
+</thead>
+<tbody>
+<tr><td class="l">Clock</td><td class="l">discrete: trials $i=1,2,\dots$</td><td class="l">continuous: time $t\ge 0$</td><td class="l">L14 s7; §2.3, §3.1</td></tr>
+<tr><td class="l">Rate parameter</td><td class="l">$p$ = $\mathbf{P}(\text{arrival})$ per trial</td><td class="l">$\lambda$ = arrivals per unit time; $\mathbf{P}(\text{arrival in }\delta)\approx\lambda\delta$</td><td class="l">L13 s2; L14 s3</td></tr>
+<tr><td class="l">Defining assumptions</td><td class="l">independent trials, same $p$ each trial</td><td class="l">time homogeneity, independence over disjoint intervals, $P(k,\delta)\approx 1-\lambda\delta,\ \lambda\delta,\ 0$ for $k=0,1,&gt;1$</td><td class="l">L13 s2; L14 s3; L15 s2</td></tr>
+<tr><td class="l">Number of arrivals in a window</td><td class="l">binomial: $\mathbf{P}(S=k)=\binom{n}{k}p^k(1-p)^{n-k}$, mean $np$, variance $np(1-p)$</td><td class="l">Poisson: $P(k,\tau)=\dfrac{(\lambda\tau)^ke^{-\lambda\tau}}{k!}$, mean $=$ variance $=\lambda\tau$</td><td class="l">L13 s4; L14 s4; §2.3, §3.2</td></tr>
+<tr><td class="l">Time to the first arrival (interarrival time)</td><td class="l">geometric: $(1-p)^{t-1}p$, mean $1/p$, variance $(1-p)/p^2$</td><td class="l">exponential: $\lambda e^{-\lambda t}$, mean $1/\lambda$, variance $1/\lambda^2$</td><td class="l">L13 s5; L14 s6; §2.4, §3.3</td></tr>
+<tr><td class="l">Time to the $k$th arrival</td><td class="l">Pascal: $\binom{t-1}{k-1}p^k(1-p)^{t-k}$, mean $k/p$, variance $k(1-p)/p^2$</td><td class="l">Erlang$(k)$: $\dfrac{\lambda^ky^{k-1}e^{-\lambda y}}{(k-1)!}$, mean $k/\lambda$, variance $k/\lambda^2$</td><td class="l">L13 s6; L14 s6; L15 s2; §2.5, §3.4</td></tr>
+<tr><td class="l">Memorylessness</td><td class="l">given no success in the first $m$ trials, the remaining wait is again geometric$(p)$</td><td class="l">given no arrival by time $s$, the remaining wait is again exponential$(\lambda)$</td><td class="l">L13 s5, s6; L14 s6; §2.4, §3.3</td></tr>
+<tr><td class="l">Merging two independent streams</td><td class="l">Bernoulli with $p=1-(1-p_1)(1-p_2)=p_1+p_2-p_1p_2$ (simultaneous arrivals count once)</td><td class="l">Poisson with $\lambda=\lambda_1+\lambda_2$; the next arrival is from stream 1 with probability $\lambda_1/(\lambda_1+\lambda_2)$</td><td class="l">L13 s8; L14 s8; L15 s4; §2.6, §4.2</td></tr>
+<tr><td class="l">Splitting by an independent coin of bias $q$</td><td class="l">two Bernoulli processes, rates $qp$ and $(1-q)p$ — <em>not</em> independent of each other</td><td class="l">two Poisson processes, rates $q\lambda$ and $(1-q)\lambda$ — <em>independent</em> of each other</td><td class="l">L13 s7; L15 s6; §2.6, §4.3</td></tr>
+<tr><td class="l">Random incidence (arrive at an arbitrary instant)</td><td class="l">the slot you land in is unremarkable, but the gap containing it is length-biased: $p_L(\ell)=\ell\,p^2(1-p)^{\ell-1}$, mean $(2-p)/p$, not the typical $1/p$ — <em>not treated in §2</em>, derived in the note below</td><td class="l">the interarrival interval containing your instant is Erlang$(2)$, mean $2/\lambda$, not exponential with mean $1/\lambda$</td><td class="l">Bernoulli side: §2.4 $+$ the §4.4 formula (note below). Poisson side: L15 s7, s8; §4.4, §4.5; B&amp;T §6.2, its Figure 6.7</td></tr>
+</tbody>
+</table>
+
+<div class="note"><b>The one row §2 does not cover — random incidence on the discrete clock.</b>
+§2.6 stops at merging and splitting, so the Bernoulli entry above is proved nowhere else in the note.
+It follows in three lines from two facts we already have. The gap between consecutive Bernoulli$(p)$
+arrivals is geometric, $p_T(\ell)=p(1-p)^{\ell-1}$ on $\ell=1,2,\dots$, with $\mathbb{E}[T]=1/p$
+(§2.4); and landing in a gap at an arbitrary slot selects that gap with probability proportional to its
+length, which is the length-biasing rule of §4.4 in its discrete form,
+$$p_L(\ell)=\frac{\ell\,p_T(\ell)}{\mathbb{E}[T]}=\ell\,p(1-p)^{\ell-1}\cdot p=\ell\,p^2(1-p)^{\ell-1}.$$
+Its mean is $\mathbb{E}[L]=\sum_\ell \ell^2 p_T(\ell)\,p=p\,\mathbb{E}[T^2]=p\cdot\frac{2-p}{p^2}=\frac{2-p}{p}$,
+using $\mathbb{E}[T^2]=\operatorname{var}(T)+(\mathbb{E}[T])^2=(1-p)/p^2+1/p^2=(2-p)/p^2$. At $p=0.2$:
+typical gap $\mathbb{E}[T]=5$ slots, observed gap $\mathbb{E}[L]=9$ slots — a factor $1.8$, not $2$.
+The shortfall is the discreteness: the observed gap is at least one slot long no matter what. Under the
+same limit as the rest of §5.2 ($p=\lambda\delta$, gaps measured in time units) the factor closes,
+$\delta\,\mathbb{E}[L]=\delta(2-\lambda\delta)/(\lambda\delta)=(2-\lambda\delta)/\lambda\to 2/\lambda$,
+recovering the Erlang$(2)$ mean in the Poisson column: at $\lambda=2$ and $\delta=10^{-4}$ this is
+$0.999900$ against the limit $2/\lambda=1$. Note also that $p_L$ is <em>not</em> the Pascal$(2)$ PMF
+$(\ell-1)p^2(1-p)^{\ell-2}$ — the discrete analogue of Erlang$(2)$ — so the two clocks agree only in the
+limit, not slot for slot (<code>computes/g4_s5.py</code>).</div>
+
+<p>Two numerical illustrations of the limit, both from <code>computes/g4_s5.py</code> with $\lambda=2$ and
+$t=1$. First the variance: the binomial variance $np(1-p)$ equals $1.600000$ at $\delta=0.1$ and
+$1.960000$ at $\delta=0.01$, climbing to the Poisson value $\lambda t=2$ as $p=\lambda\delta\to0$ kills
+the factor $(1-p)$ — which is why the Poisson has mean and variance <em>equal</em> while the binomial has
+variance strictly smaller than its mean. Second the interarrival time: at $\delta=0.001$ the geometric
+mean is $1/p=500$ slots, and $500$ slots is $500\times 0.001=0.5$ time units $=1/\lambda$, the
+exponential mean.</p>
+
+<div class="recipe"><b>Recipe — which process, and which formula (L13 s2; L14 s3, s7; L15 s2).</b>
+<ol>
+<li><b>Discrete or continuous clock?</b> "Each day", "each time slot", "each trial", "each packet"
+$\to$ Bernoulli, parameter $p$ per trial. "At a rate of $\lambda$ per hour", "arrivals in continuous
+time" $\to$ Poisson, parameter $\lambda$ per unit time. Watch the units: $p$ is dimensionless, $\lambda$
+is 1/time.</li>
+<li><b>What is being asked about?</b> A <em>count</em> in a fixed window $\to$ binomial / Poisson. A
+<em>time</em> until something $\to$ geometric / exponential (first arrival) or Pascal / Erlang ($k$th
+arrival).</li>
+<li><b>Does the question restart the clock?</b> "Given nothing has happened yet", "additional time" —
+invoke memorylessness and start over from scratch; the elapsed wait is irrelevant.</li>
+<li><b>Several streams?</b> Independent streams combine by adding rates (Poisson) or by
+$1-(1-p_1)(1-p_2)$ (Bernoulli); an independently-routed stream splits by multiplying the rate by the
+routing probability.</li>
+<li><b>Is the observer choosing the interval, or is the interval choosing the observer?</b> If you show
+up at an arbitrary instant, you are in the length-biased regime — go to §5.3, Gotcha 3.</li>
+<li><b>Random number of terms?</b> If the quantity is a sum over the arrivals ($Y=X_1+\cdots+X_N$ with
+$N$ the arrival count), use the §5.1 random-sum formulas, not a fixed-$n$ argument.</li>
+</ol></div>
+
+<div class="ex"><b>Practice 5.3 (the unit trap).</b> A detector registers particles as a Poisson process
+of rate $\lambda=3$ per minute. A student wants to simulate it by checking the detector every
+$\delta=0.01$ minutes and flipping a coin each time, and writes "$p=3$".
+(i) What is wrong, and what is the right $p$? (ii) Compute $\mathbf{P}(\text{no particle in }0.5\text{
+minutes})$ both exactly and in the student's (corrected) slotted model. (iii) The slotted model says the
+mean wait to the first particle is $1/p$ <em>slots</em>. Show this is the exponential mean.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(i) $p$ is a probability and therefore dimensionless; $\lambda$ has units of $1/\text{time}$. So
+"$p=3$" is both dimensionally wrong and impossible (a probability exceeding $1$). The bridge of §5.2 is
+$p=\lambda\delta$, which carries the units correctly:
+$$p=\lambda\delta=3\times 0.01=0.03 ,$$
+dimensionless as required. This is the single most common Bernoulli/Poisson error: $\lambda$ is a
+<em>rate</em>, $p$ is a <em>probability per slot</em>, and only the product $\lambda\delta$ converts
+between them.</p>
+<p>(ii) Exactly, using the Poisson PMF with $\tau=0.5$:
+$$P(0,0.5)=e^{-\lambda\tau}=e^{-3\times 0.5}=e^{-1.5}=0.223130 .$$
+In the slotted model the window holds $n=0.5/0.01=50$ slots, and "no particle" means $50$ independent
+failures:
+$$(1-p)^{50}=(0.97)^{50}=0.218065 .$$
+The two agree to $0.005065$ (<code>p53</code>). The slotted answer is slightly <em>low</em> because a
+slot that receives two particles is miscounted as one arrival — exactly the collision effect of
+Fig. 5.1(a), which vanishes as $\delta\to 0$.</p>
+<p>(iii) The number of slots to the first success is geometric$(p)$ with mean $1/p=1/0.03=33.333333$
+slots. Each slot lasts $\delta=0.01$ minutes, so in time units the mean wait is
+$$33.333333\times 0.01=0.333333\text{ minutes}=\frac{1}{3}=\frac1\lambda ,$$
+the exponential mean. The conversion is the same $p=\lambda\delta$ read backwards: $1/p$ slots is
+$\delta/p=\delta/(\lambda\delta)=1/\lambda$ time units, for <em>every</em> $\delta$. Whenever a slotted
+answer and a continuous answer disagree by a factor that looks like $\delta$, you have failed to
+multiply a slot count by the slot length.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 5.4 (merging, then conditioning on which came first).</b> Work email arrives
+as a Poisson process of rate $\lambda_W=5$ per hour, personal email as an independent Poisson process of
+rate $\lambda_P=3$ per hour. (i) What is the probability that the next email is personal? (ii) Starting
+from an empty inbox, what is the expected time until you have received at least one of each kind?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(i) Merging (§4.2): the pooled stream is Poisson with rate $\lambda=\lambda_W+\lambda_P=5+3=8$ per
+hour, and each arrival is personal, independently, with probability
+$$\frac{\lambda_P}{\lambda_W+\lambda_P}=\frac{3}{8}=0.375000 .$$</p>
+<p>(ii) Condition on the first arrival — the "name the information that simplifies the problem" step of
+the §5.1 recipe. Let $T$ be the time until you hold one of each. The first email arrives after an
+$\text{Exp}(8)$ wait with mean $1/8=0.125$ hours, and it is of one kind or the other. Given it was
+work (probability $5/8$), memorylessness (§3.3) restarts the personal stream from scratch, so the
+remaining wait is $\text{Exp}(3)$ with mean $1/3$; given it was personal (probability $3/8$), the
+remaining wait is $\text{Exp}(5)$ with mean $1/5$. Hence, by the total expectation theorem,
+$$\mathbb{E}[T]=\frac18+\frac58\cdot\frac13+\frac38\cdot\frac15
+=0.125000+0.208333+0.075000=0.408333\text{ hours}=24.500000\text{ minutes}$$
+(<code>p54</code>; a $400\,000$-run simulation of $\max(T_W,T_P)$ gives $0.407452$). Note the trap this
+avoids: $\mathbb{E}[T]$ is <em>not</em> $\max(1/5,1/3)=1/3$, and it is not $1/5+1/3$ either — you must
+average over which stream fires first, because the two cases leave different amounts of waiting to
+do.</p>
+</div></details></div>
+
+<h3>5.3 The four expensive mistakes</h3>
+
+<p>Each of the following is a place where a G4 object is confused with a G2/G3 object of a different
+type. Every number quoted is recomputed in <code>computes/g4_s5.py</code>.</p>
+
+<div class="warn"><b>Gotcha 1 — $\mathbb{E}[X\mid Y]$ is a random variable, and $\mathbb{E}[X\mid Y=y]$
+is a number.</b> The notation differs by three characters and the type differs completely (L12 slide 2).
+Symptoms of getting it wrong: writing "$\mathbb{E}[X\mid Y]=70$" (a random variable cannot equal a
+constant unless it is degenerate — in the class example $\mathbb{E}[X\mid Y]$ equals $90$ with
+probability $1/3$ and $60$ with probability $2/3$, and $70$ is its <em>mean</em>); writing
+"$\operatorname{var}(\mathbb{E}[X\mid Y=y])$", which is the variance of a number, hence $0$; or trying
+to take $\mathbb{E}$ of $\mathbb{E}[X\mid Y=y]$ and finding nothing left to average over. The test that
+settles it every time: <em>does the expression still contain a lowercase $y$?</em> If yes it is a
+number (or a function of $y$); if the conditioning symbol is the capital $Y$, it is a random variable
+and you may take its expectation and its variance. In particular the law of iterated expectations
+$\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]=\mathbb{E}[X]$ only parses at all because the inner object is
+a random variable — the outer $\mathbb{E}$ averages over the randomness of $Y$ (§1.2).</div>
+
+<div class="warn"><b>Gotcha 2 — variance does not average.</b> Expectation does:
+$\mathbb{E}[X]=\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]$, full stop. Variance does <em>not</em>:
+$\operatorname{var}(X)\neq\mathbb{E}\big[\operatorname{var}(X\mid Y)\big]$ in general, and the missing
+piece $\operatorname{var}\big(\mathbb{E}[X\mid Y]\big)$ is usually the larger one. In the class example
+the averaged within-section variance is $\frac{50}{3}=16.666667$ while the true variance is
+$\frac{650}{3}=216.666667$ — the naive answer is short by a factor of $13$, because it ignores that the
+two sections sit $30$ points apart. In the random-sum example of §5.1 the same omission reports
+$1.666667$ instead of $11.666667$, i.e. $14.29\%$ of the truth. The mirror-image error is dropping
+$\mathbb{E}[\operatorname{var}(X\mid Y)]$ instead, which is what you get if you forget that $X$ is still
+random once $Y$ is known. <b>Both terms, every time</b> — and note the asymmetry of the two:
+$\mathbb{E}[\operatorname{var}(\cdot)]$ takes the expectation of a variance, while
+$\operatorname{var}(\mathbb{E}[\cdot])$ takes the variance of an expectation; swapping them is a
+different (wrong) quantity. The special case worth memorizing is the random sum: the count's variance
+enters multiplied by $(\mathbb{E}[X])^2$, so a random $N$ inflates $\operatorname{var}(Y)$ enormously
+whenever the individual terms are large on average (L12 slide 8).</div>
+
+<div class="warn"><b>Gotcha 3 — random incidence: the interval you land in is not a typical interval.</b>
+The interarrival times of a Poisson process are exponential with mean $1/\lambda$. If you show up at an
+arbitrary instant $t^*$ and measure the gap $L$ containing it, $L$ is Erlang of order $2$ with mean
+$2/\lambda$ — twice as long (L15 slide 7; B&amp;T §6.2 and its Figure 6.7). The reason is not a paradox
+but arithmetic: long intervals cover more of the time axis, so an arbitrary instant is more likely to
+fall in one. Formally the observed length has the <em>length-biased</em> density
+$$f_L(\ell)=\frac{\ell\,f_T(\ell)}{\mathbb{E}[T]},$$
+which for $f_T(\ell)=\lambda e^{-\lambda\ell}$ and $\mathbb{E}[T]=1/\lambda$ collapses to
+$\lambda^2\ell e^{-\lambda\ell}$, the Erlang$(2)$ density; quadrature confirms it integrates to $1$ and
+has mean $2/\lambda$ — at $\lambda=0.5$ per minute, the typical gap is $2$ minutes and the observed gap
+is $4$ minutes. The same bias applies to <em>any</em> renewal process, exponential or not (L15 slide 8).
+With bus gaps equally likely to be $5$ or $10$ minutes, the plain mean gap is $\frac{5+10}{2}=7.5$
+minutes, but an arriving passenger lands in a $5$-minute gap with probability
+$\frac{5}{5+10}=\frac13=0.333333$ and in a $10$-minute gap with probability $\frac{10}{15}=\frac23=0.666667$,
+so the observed gap averages $\frac13(5)+\frac23(10)=\frac{25}{3}=8.333333$ minutes and the expected
+wait to the next bus is $\frac13\cdot\frac52+\frac23\cdot\frac{10}{2}=\frac{25}{6}=4.166667$ minutes,
+not the naive $7.5/2=3.75$. A 400 000-gap simulation gives $8.336675$ and $4.172885$. <b>The tell:</b>
+whenever the problem says "you arrive at a random time" rather than "consider the $k$th interval", the
+selection mechanism is biased and the unbiased distribution is the wrong one to use.</div>
+
+<div class="warn"><b>Gotcha 4 — split streams: independent for Poisson, dependent for Bernoulli.</b>
+Splitting looks like the same operation in both worlds — route each arrival to stream 1 or stream 2 by an
+independent coin of bias $q$ — and in both worlds each output stream is again a process of the same kind,
+with rate multiplied by $q$ or $1-q$ (L13 slide 7; L15 slide 6). But the two outputs are related
+differently. For a <b>Poisson</b> process the outputs are genuinely <em>independent</em> processes: with
+$\lambda=4$ and $q=0.25$ the split rates are $1$ and $3$, and the joint PMF of the two counts over a
+window factors exactly, $\max|\mathbf{P}(N_1=j,N_2=k)-\mathbf{P}(N_1=j)\mathbf{P}(N_2=k)|=4\times10^{-17}$,
+i.e. zero to machine precision. For a <b>Bernoulli</b> process they are <em>not</em>: a slot holds at
+most one arrival, so an arrival routed up is an arrival not routed down. With $p=0.5$ and $q=0.5$ the
+per-slot marginals are $\mathbf{P}(A=1)=pq=0.25$ and $\mathbf{P}(B=1)=p(1-q)=0.25$, but
+$\mathbf{P}(A=1,B=1)=0\neq 0.0625=\mathbf{P}(A=1)\mathbf{P}(B=1)$. The same asymmetry runs through
+merging: merged Poisson rates simply add ($\lambda_1+\lambda_2$, so with $\lambda_1=2$ and $\lambda_2=3$
+the merged rate is $5$ and the next arrival is from the first stream with probability
+$\frac{2}{5}=0.4$), while merged Bernoulli probabilities do <em>not</em>: with $p_1=0.2$ and $p_2=0.3$
+the merged $p$ is $1-(0.8)(0.7)=0.44$, not $0.5$ — the shortfall $0.06=p_1p_2$ is exactly the
+probability of a collision, counted once (L13 slide 8). Collisions have probability zero in continuous
+time, which is why the Poisson arithmetic is the clean one.</div>
+
+<div class="note"><b>Interpretation — a four-line self-check for any G4 answer.</b> (i) Is every
+conditional object the type I think it is — number where a number belongs, random variable where I am
+about to take an expectation or a variance? (ii) If I computed a variance by conditioning, did I write
+down both terms? (iii) If the problem involves a sum, is the number of terms fixed or random — and if
+random, is it independent of the terms? (iv) If an observer or an interval was "chosen at random", did I
+ask <em>by what mechanism</em>? Gotchas 1–4 each fail exactly one of these four checks.</div>
+
+<div class="ex"><b>Practice 5.5 (spot the biased selection rule).</b> A college runs classes of two
+sizes: $80\%$ of its classes hold $20$ students and $20\%$ hold $100$. The registrar picks a class
+uniformly at random and reports the mean class size; a journalist stops a student uniformly at random
+and asks how big that student's class is. (i) What does each report? (ii) Which one is the
+length-biased quantity, and why does the registrar's answer not describe anybody's experience?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(i) <b>Registrar (unbiased over classes).</b> The size $T$ of a uniformly chosen class has
+$p_T(20)=0.8$, $p_T(100)=0.2$, so
+$$\mathbb{E}[T]=0.8(20)+0.2(100)=16+20=36\ \text{students}.$$
+<b>Journalist (biased by size).</b> A uniformly chosen <em>student</em> is not a uniformly chosen
+class: a class contributes as many students as it holds. Take $C$ classes; they hold $0.8C(20)=16C$
+students in small classes and $0.2C(100)=20C$ in large ones, $36C$ in all. So the sampled student is in
+a large class with probability
+$$\mathbf{P}(L=100)=\frac{20C}{36C}=\frac59=0.555556,\qquad \mathbf{P}(L=20)=\frac{16C}{36C}=\frac49 ,$$
+and the reported size averages
+$$\mathbb{E}[L]=\tfrac49(20)+\tfrac59(100)=\frac{80+500}{9}=\frac{580}{9}=64.444444\ \text{students}$$
+(<code>p55</code>). The registrar says $36$; the students say $64.4$; both are right about different
+questions.</p>
+<p>(ii) The journalist's is the length-biased one, and it is the same formula as Gotcha 3 with class
+size playing the role of interval length:
+$$p_L(\ell)=\frac{\ell\,p_T(\ell)}{\mathbb{E}[T]}\quad\Rightarrow\quad
+p_L(100)=\frac{100\times 0.2}{36}=\frac{20}{36}=\frac59 ,$$
+matching the count above. The tell is exactly the one in §5.3: the selection is made by picking a
+<em>point inside</em> the object (a student inside a class, an instant inside an interarrival gap)
+rather than by picking the object itself, so large objects are oversampled in proportion to their size.
+The registrar's $36$ describes the average <em>class</em>; no student has the average class, and the
+average student's class is nearly twice as big. Same arithmetic, three costumes: buses (§5.3), Poisson
+interarrival gaps (§4.4), class sizes.</p>
+</div></details></div>
+
+<h3>5.4 Bridge to G5: where the independence goes</h3>
+
+<p>Everything in G4 rests on one assumption, stated in a different dialect in each lecture but always the
+same: <b>disjoint stretches of time are independent</b>. For the Bernoulli process it is "a sequence of
+independent Bernoulli trials" (L13 slide 2); for the Poisson process it is the axiom "numbers of arrivals
+in disjoint time intervals are independent" (L14 slide 3, L15 slide 2). Memorylessness is a corollary,
+not an extra assumption: if the past tells you nothing about the future, then knowing that you have
+already waited $m$ trials or $s$ time units cannot change the remaining wait, which is why the geometric
+and the exponential — and only they — appear as interarrival times. Independence is also what licenses
+the merging and splitting arithmetic of §4 and the random-sum formulas of §2, whose derivation used
+$\mathbb{E}[X_1+\cdots+X_n\mid N=n]=\mathbb{E}[X_1+\cdots+X_n]$ — a step that is legal only because $N$
+carries no information about the $X_i$ (L12 slide 7).</p>
+
+<p>The next group removes exactly that assumption, and nothing else. A <b>Markov process</b> is a
+sequence $X_0,X_1,X_2,\dots$ of random variables — the <em>state</em> at each time — in which the future
+does depend on the past, but only through the present:
+$$\mathbf{P}(X_{n+1}=j\mid X_n=i,\ X_{n-1}=i_{n-1},\dots,X_0=i_0)=\mathbf{P}(X_{n+1}=j\mid X_n=i)=p_{ij},$$
+the <em>transition probability</em> from state $i$ to state $j$ (L16 slides 2–3; B&amp;T §7.1). Read the
+equation as a statement about information: the whole history $i_0,\dots,i_{n-1}$ may be deleted once
+$i_n$ is known, because the current state summarizes everything about the past that matters for the
+future. That is strictly weaker than independence — under independence you may delete $i_n$ too — and
+strictly stronger than nothing.</p>
+
+<p>The continuity is unusually direct. L16's opening model is a checkout counter in which arrivals are
+Bernoulli$(p)$ and service times are geometric$(q)$, and the state $X_n$ is the number of customers
+at the counter (those waiting plus the one in service, so state $1$ means one customer being
+served and none waiting): both G4 processes appear as ingredients, and the memorylessness of the geometric is what makes
+the resulting state sequence Markov in the first place. Three threads carry straight over:</p>
+
+<ul>
+<li><b>Conditioning as the engine.</b> The $n$-step transition probabilities satisfy
+$r_{ij}(n)=\sum_k r_{ik}(n-1)p_{kj}$ — the total probability theorem applied to the state at time
+$n-1$. The law of iterated expectations reappears as the tool for expected times to absorption:
+condition on the first step, average over it (G5).</li>
+<li><b>Type discipline.</b> $\mathbb{E}[\text{time to absorption}\mid X_0=i]$ is a number for each state
+$i$ and a random variable when the starting state is random — precisely the distinction of Gotcha 1,
+now indexed by states.</li>
+<li><b>The processes themselves.</b> A Bernoulli process is the trivial Markov chain in which the
+transition probabilities do not depend on the current state at all; the Poisson process is its
+continuous-time counterpart. Adding state-dependence is the single new idea.</li>
+</ul>
+
+<p>One thing does <em>not</em> carry over, and it is worth flagging now: the closed-form distributions.
+Binomial, geometric, Pascal, Poisson, exponential and Erlang exist because independence makes the
+algebra collapse. Once the future depends on the present, the distribution of the state at time $n$ is
+generally obtained by iterating a matrix rather than by a formula, and the interesting questions change
+accordingly — not "what is $\mathbf{P}(X_n=j)$?" but "where does the chain end up in the long run, and
+how long does it take to get there?"</p>
+
+<div class="summary"><b>§5 in one box.</b>
+<ul>
+<li><b>Types.</b> $\mathbb{E}[X\mid Y=y]$ and $\operatorname{var}(X\mid Y=y)$ are numbers;
+$\mathbb{E}[X\mid Y]$ and $\operatorname{var}(X\mid Y)$ are random variables (functions of $Y$). If a
+lowercase $y$ survives, it is a number.</li>
+<li><b>Two laws.</b> $\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]=\mathbb{E}[X]$ and
+$\operatorname{var}(X)=\mathbb{E}\big[\operatorname{var}(X\mid Y)\big]+\operatorname{var}\big(\mathbb{E}[X\mid Y]\big)$
+— within-group plus between-group. Class example: $70=\frac13(90)+\frac23(60)$ and
+$\frac{650}{3}=\frac{50}{3}+200$, the between term being $92.3077\%$ of the total.</li>
+<li><b>Random sums.</b> $\mathbb{E}[Y]=\mathbb{E}[N]\mathbb{E}[X]$;
+$\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)+(\mathbb{E}[X])^2\operatorname{var}(N)$
+(requires $X_i$ i.i.d. and independent of $N$). Worked check: $N\sim$ Poisson$(2.5)$, $X_i$ uniform on
+$\{1,2,3\}$ give $\mathbb{E}[Y]=5$, $\operatorname{var}(Y)=1.666667+10=11.666667$.</li>
+<li><b>One process, two clocks.</b> $n=t/\delta$, $p=\lambda\delta$, $np=\lambda t$. Counts:
+binomial $\to$ Poisson. Interarrivals: geometric $\to$ exponential. $k$th arrival: Pascal $\to$
+Erlang$(k)$. Memorylessness on both sides. Fig. 5.1.</li>
+<li><b>Merging / splitting.</b> Poisson: rates add, next arrival from stream 1 with probability
+$\lambda_1/(\lambda_1+\lambda_2)$; split streams are <em>independent</em>. Bernoulli:
+$p=p_1+p_2-p_1p_2$ ($0.44$, not $0.5$, for $p_1=0.2,p_2=0.3$); split streams are <em>dependent</em>.</li>
+<li><b>Random incidence.</b> $f_L(\ell)=\ell f_T(\ell)/\mathbb{E}[T]$. Poisson: observed gap is
+Erlang$(2)$ with mean $2/\lambda$, twice the typical gap. Buses of $5$ or $10$ minutes: land in the
+long gap with probability $\frac23$, observed gap $\frac{25}{3}=8.333333$ min, expected wait
+$\frac{25}{6}=4.166667$ min, not $3.75$. Bernoulli side (derived in §5.2, nowhere else):
+$p_L(\ell)=\ell p^2(1-p)^{\ell-1}$, mean $(2-p)/p$.</li>
+<li><b>Next (G5).</b> Drop "disjoint intervals are independent", keep "the present summarizes the past":
+$\mathbf{P}(X_{n+1}=j\mid X_n=i,\text{history})=p_{ij}$. Conditioning on the first step remains the
+engine; closed-form distributions do not survive.</li>
+</ul></div>

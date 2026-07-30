@@ -1,0 +1,727 @@
+[
+ {
+  "tag": "L05",
+  "was_complete": true,
+  "fixes_made": [
+   "Slide 6 (raster p02, top-right) figure block: description claimed a 'dashed/implied horizontal reference' line at level 1/(n+1); the image has no such line \u2014 the value 1/(n+1) is simply written beside the vertical axis at the bar-top height. Reworded, and added that both axes are drawn as arrows (up / right)."
+  ],
+  "content_added": [],
+  "residual_concerns": []
+ },
+ {
+  "content_added": [],
+  "fixes_made": [
+   "Slide 2 (raster p01, top-right): red-highlight annotation was imprecise \u2014 the slide prints only the outer parts E[E[X|Y]] and '= E[X]' in red, with the middle summation sum_y E[X|Y=y] p_Y(y) in black. Annotation corrected.",
+   "Slide 8 (raster p02, bottom-right): red-highlight annotation was imprecise \u2014 only the label var(Y) and the final line '= E[N]var(X) + (E[X])^2 var(N)' are red; the intermediate line '= E[var(Y|N)] + var(E[Y|N])' is black. Annotation corrected."
+  ],
+  "residual_concerns": [],
+  "tag": "L12",
+  "was_complete": true
+ },
+ {
+  "tag": "L03",
+  "was_complete": true,
+  "fixes_made": [
+   "Slide 4 (raster p01) Venn figure: replaced a vague/partly inaccurate description ('C cutting across the upper-right part of both A and B') with a redraw-grade spec \u2014 A as an egg-shaped curve upper-left, B as a wider oval overlapping A's lower-right and extending down-right, and C as a long thin cigar/lens ellipse tilted ~-30 degrees running from the top of A, through A, then A\u2229B, then B, tapering to a tip near B's right edge; label positions given for A, B, C. No other substantive change was needed."
+  ],
+  "content_added": [],
+  "residual_concerns": [
+   "Slide 6 (p02) 'E.g.' line: the red/black colouring is a rendering detail \u2014 A_1, A_2^c, A_3 are red on both sides of the equation while the conditioning events A_5, A_6^c are black. The transcript's parenthetical note conveys this but the exact colour semantics are the slide author's, not mathematically meaningful.",
+   "Slide 8 'The king's sibling' is posed with no answer anywhere in the handout; the transcript's [DERIVATION GAP] supplies the standard 2/3 vs 1/2 discussion, which is inferred lecture content, not printed text."
+  ]
+ },
+ {
+  "tag": "L01",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 11 (raster p03, lower-left) FIGURE description was fabricated: the transcript claimed the stem plot had a vertical axis labeled 'p', horizontal tick labels 1, 2, 3, 4 followed by '.....', and stem heights labeled 1/2, 1/4, 1/8, 1/16. Zoomed inspection of raster p03 shows BOTH axes are bare arrows with NO axis names, NO tick marks and NO numeric labels of any kind. Rewrote the [FIGURE] block to state the axes are entirely unlabeled, that the four dotted stems sit at equally spaced (implicit) positions with pale-blue filled circular markers, and that the values 1/2, 1/4, 1/8, 1/16 are inferred from the adjacent text P(n)=2^-n rather than printed.",
+   "Footnote 3 asserted 'the vertical axis of the stem plot is labeled with a lowercase p (probability), not a rho; confirmed by the tick values 1/2, 1/4, 1/8, 1/16' \u2014 this was wrong on both counts (no axis label, no tick values exist). Replaced with an accurate footnote recording that the figure is unlabeled and the values are inferred.",
+   "Slide 5 (raster p02, upper-left) tree description refined: the labels 1, 2, 3, 4 are attached to the four FIRST-STAGE NODES (with 1/2/3 above-left of their node and 4 below-left), not to 'branch tips'; the root node is unlabeled. Also recorded that only 5 of the 16 leaves carry text labels (1,1 / 1,2 / 1,3 / 1,4 and 4,4) and the remaining 11 leaves are drawn but unlabeled, and that no probabilities appear on any branch \u2014 needed to redraw the figure faithfully."
+  ],
+  "content_added": [],
+  "residual_concerns": [
+   "Slide 11: the exact numeric heights of the four stems cannot be measured from the raster (they are unlabeled and only approximately geometric in the drawing). The values 1/2, 1/4, 1/8, 1/16 are an inference from P(n)=2^-n, flagged as such in the figure block and footnote 3.",
+   "Slide 11: the first term of the displayed series renders as a malformed numeral in the raster (a rotated/broken '1' over 2^2). Context P(2)=2^-2 confirms it is 1/2^2; already recorded in footnote 2 and left as-is.",
+   "Slide 5 tree: the second-stage branches for first-roll = 2, 3, 4 fan out to 4 leaves each but the leaves are unlabeled in the raster, so leaf ordering for those subtrees is inferred by analogy with the labeled first subtree."
+  ]
+ },
+ {
+  "tag": "L13",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 7 (Splitting of a Bernoulli Process, raster p02): the [FIGURE] block had the stream roles inverted. It claimed the TOP axis was the master process with 'connector lines link arrivals on the top axis down to the axes below'. The raster shows the opposite: the MIDDLE axis is the original process, and the vertical arrows point OUT of it \u2014 three arrows UPWARD into the top axis (slots 2, 7, 8) and two arrows DOWNWARD into the bottom axis (slots 4, 12). Rewritten with the correct direction and an explicit KEY STRUCTURE note.",
+   "Slide 7: arrival slots were given as vague approximations ('roughly the 2nd slot', 'near the 11th slot'). Counted exactly off the raster against the shared 15-tick / 14-slot grid: middle (original) = slots 2, 4, 7, 8, 12; top sub-stream = 2, 7, 8; bottom sub-stream = 4, 12. The '11th slot' readings were off by one (actually slot 12).",
+   "Slide 7: added the partition observation that {2,7,8} and {4,12} exactly partition the original's {2,4,7,8,12} \u2014 the point of the slide (each arrival routed by one independent coin flip).",
+   "Slide 8 (Merging of Indep. Bernoulli Processes, raster p02): the [FIGURE] block identified the TOP axis as 'the merged process' and the middle/bottom as the two inputs. This is backwards. The raster shows downward arrows FROM the top axis and upward arrows FROM the bottom axis, both pointing INTO the middle axis \u2014 so TOP and BOTTOM are the two independent inputs and MIDDLE is the merged output. Rewritten.",
+   "Slide 8: corrected the arrival slots. Was 'bottom: 4th, 7th, 11th; middle: 2nd, 4th, pair 7 and 8, 11th; top: 2nd, pair 7 and 8'. Actual: top input = slots 2, 7, 8; bottom input = slots 4, 7, 12; merged middle = slots 2, 4, 7, 8, 12. The '11th' was slot 12.",
+   "Slide 8: the collision was described only generically ('where both inputs have an arrival in the same slot'). Identified the specific collision drawn on the slide: slot 7 appears in both inputs but yields a single arrival in the merged stream, which is what the caption '(collisions are counted as one arrival)' refers to.",
+   "Both figures: corrected the marker geometry. Transcript said circles are 'overlaid on'/'straddling' the ticks; in the raster the open circle sits BETWEEN two adjacent ticks, i.e. inside a slot. Fixed in both [FIGURE] blocks and in footnote 4.",
+   "Slide 8: noted the merging figure has NO left-hand fan vertex (the splitting figure does) \u2014 the transcript's two descriptions were otherwise near-identical boilerplate that obscured this difference."
+  ],
+  "content_added": [
+   "Footnote 5 (new): explicit warning that the arrow DIRECTION is the load-bearing detail distinguishing the splitting and merging figures (arrows away from the middle axis vs. toward it), plus the fact that the middle axis carries the identical arrival pattern (slots 2, 4, 7, 8, 12) in both figures.",
+   "Slide 7 [FIGURE]: description of the left-hand fan vertex \u2014 a single point with three lines fanning out (arrowheads on the upper and lower lines, plain horizontal line to the middle axis).",
+   "Both [FIGURE] blocks: the tick/slot grid is now specified (~15 ticks delimiting ~14 slots, shared identically across all three axes), which the original description omitted."
+  ],
+  "residual_concerns": [
+   "Splitting figure: the left-hand fan has THREE lines going to three axes, which is visually at odds with the semantics (one original stream splitting into two sub-streams). The lines are drawn as described in the raster; the middle line reaches the middle (original) axis and appears to be the incoming stream, while the upper and lower arrowed lines terminate at the two output axes. Transcribed as drawn rather than reinterpreted.",
+   "Exact tick counts on each axis are ~15 (14 slots); the leftmost and rightmost ticks are close to the axis ends and the rightmost tick spacing on the merged/top axes is slightly irregular in the raster, so the total could be 14 or 15 ticks. Arrival slot indices 2, 4, 7, 8, 12 are read confidently and are internally consistent across both figures.",
+   "Neither figure carries any axis label, time label, coin-flip probability label (no p, q, or 1-p annotations on the fan branches), or stream names in the raster \u2014 the [FIGURE] blocks' labels 'original/sub-stream/input/merged' are inferred from arrow direction, not printed on the slide."
+  ]
+ },
+ {
+  "tag": "L04",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 3 (Basic counting principle), raster p01 \u2014 FIGURE description was materially wrong: it described a \"binary-style\" tree with \"roughly 2 choices per stage\" (2 -> 2 -> 2 -> 2). High-magnification inspection of the raster shows the root fans into 4 branches, each stage-1 node into 3, and each stage-2 node into 2, i.e. a 3-stage tree with 4*3*2 = 24 leaves. Rewrote the [FIGURE: ...] block to specify the 4-3-2 branching, the 24 leaf ends, the left-to-right layout, and the absence of any printed labels \u2014 the unequal branching is the pedagogical point (illustrates n_1 n_2 ... n_r with distinct n_i).",
+   "Slide 8 (Partitions), raster p02 \u2014 the [DERIVATION GAP] note was self-contradictory: it claimed the slide's 4*3*2 was written \"rather than 4!\" and reflected fixing the first ace's player, then contradicted itself. Corrected: 4*3*2 = 24 = 4! exactly (the trailing *1 is simply omitted on the slide), and the reasoning is first ace -> 4 players, second -> 3, third -> 2, fourth -> 1. Gap note now records that the stage-by-stage argument and the multinomial count 52!/(13!)^4 are unjustified on the slide.",
+   "Slide 5 (Combinations), raster p02 \u2014 added the missing color marker: the final boxed result C(n,k) = n!/(k!(n-k)!) is printed in red on the slide (the preceding line C(n,k)*k! = n!/(n-k)! is black). Transcript previously showed both in the same style, losing the emphasis cue.",
+   "Slide 6 (Binomial probabilities), raster p02 \u2014 added the missing color marker on the final line: '= C(n,k) p^k (1-p)^{n-k}' is printed in red on the slide (the intermediate '(# of k-head seqs.)' line is black).",
+   "Footnotes \u2014 added a new footnote (now #4) documenting that the Slide 3 tree carries no printed labels and that its branching factors were counted off the raster; renumbered the OCW front-matter footnote to #5."
+  ],
+  "content_added": [
+   "Explicit branching structure of the Slide 3 counting tree (4 -> 3 -> 2 branches, 24 leaves) \u2014 previously absent/misstated, so the figure could not have been redrawn correctly from the transcript.",
+   "Correct stage-by-stage justification of the 4*3*2 ace-distribution count on Slide 8.",
+   "Red-emphasis markers on the two boxed red results (combinations formula on Slide 5; binomial PMF on Slide 6).",
+   "Footnote recording that the tree's branching factors were read directly from the raster at magnification and that the tree is deliberately non-binary."
+  ],
+  "residual_concerns": [
+   "Slide 3 tree: the count of stage-2 fans (3 per node) and stage-3 fans (2 per node) is read from a low-resolution schematic where the short right-hand leaf segments partly overlap. The 4-way root fan is unambiguous; the 3 and 2 are confident but not pixel-certain. Total leaf count read as 24.",
+   "Slide 5: the sum \\sum_{k=0}^{n} C(n,k) = is typeset well below the 'Hence:' block with no bullet and no surrounding text, so its intended logical attachment (a standalone exercise vs. a continuation of the Hence derivation) is a layout inference, not stated on the slide.",
+   "All digits on these slides (1.6, 3 letters/4 digits, 6 rolls, 3 of 10 tosses, p^3(1-p)^7, 52/13/48/12) were read from the rasters because the PDF text layer is garbled; they are legible and I am confident, but no independent text-layer cross-check was possible."
+  ]
+ },
+ {
+  "tag": "L07",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [],
+  "residual_concerns": [
+   "The transcript's opening 'Readings' line expands 'Finish Chapter 2' into '\u00a72.5 Joint PMFs of Multiple Random Variables, \u00a72.6 Conditioning, \u00a72.7 Independence'. Those section numbers are NOT printed on raster p01 (the slide says only 'Readings: Finish Chapter 2'); they are an editorial cross-reference to Bertsekas & Tsitsiklis. Left in place because it is flagged as an expansion ('i.e. the remainder of Ch. 2'), but a reader should know it is not slide text.",
+   "Slide 3 grid, cell (x=4, y=3): the fraction 2/20 is typeset in a slightly smaller/raised font than its row-mates in the raster (a LaTeX box-fitting artifact). The value 2/20 is unambiguous and the 11 entries sum to exactly 20/20, so no uncertainty about the content \u2014 noted only in case a downstream reader re-renders the figure and wonders about the odd placement."
+  ]
+ },
+ {
+  "tag": "L10",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 5 (raster p02, top-left) FIGURE: dot count and arrow structure were wrong/vague \u2014 transcript said the right axis carries 'about five marked dots' and that 'the lower group of three x-dots all point up to one common y-dot'. At high magnification BOTH axes carry exactly seven dots, and the arrow map is: x1->y1 (horizontal), x2->y2 (horizontal), x3->y1 (upward slant, crossing the x2->y2 arrow), x4->y4 (horizontal), x5->y5 (horizontal), x6->y5 (upward slant), x7->y5 (longer upward slant). So there are TWO convergence points (two arrows into y1, three into y5), not one, and y3/y6/y7 receive no arrow. Figure block rewritten as an explicit arrow list so it can be redrawn exactly.",
+   "Slide 8 (raster p02, bottom-right) FIGURE: the three curves' line styles and shape were imprecise. Corrected to record that f_X is drawn SOLID while f_aX and f_aX+b are DOTTED; that f_X's 'first peak' is actually a flat plateau straddling the vertical axis, the dip falls to about half plateau height, and the SECOND peak is the tall sharp one (near x~1.7) before dropping to zero at x=2; that f_aX is halved in height (not merely 'reduced'), with peak near x~3 and zero at x=4; and that f_aX+b peaks near x~8 and hits zero at x=9. Supports tightened from 'roughly' to exact: f_X on [-1,2], f_aX on [-2,4], f_aX+b on [3,9]. Also noted the label-to-curve leader arrows.",
+   "Footnote 3: replaced the hedged claim about only the '-2' and '9' ticks with the full verified tick list on the Slide 8 axis (-2, -1, 2, 3, 4, 9) and the three exact supports it pins down."
+  ],
+  "content_added": [
+   "New footnote 4 explaining that on the Slide 5 mapping diagram the dots are drawn on both axes independently of the arrows (three y-dots have no incoming arrow), so the arrow pattern rather than the dot count carries the meaning."
+  ],
+  "residual_concerns": [
+   "Slide 8 (p02): the exact vertical heights of the three curves are only sketched in the slide art (no y-axis scale or tick labels at all), so the statement that f_aX is 'half the height' of f_X is inferred from the a=2 scaling law, not measured off the image.",
+   "Slide 5 (p02): the arrowhead of the x3 arrow lands slightly BELOW the y1 dot rather than exactly on it (same for the x6/x7 arrowheads relative to y5). I read these as pointing at y1 and y5 respectively, which is the only reading consistent with the accompanying formula, but the drawing is not pixel-exact.",
+   "Slide 4 (p01): the in-figure annotation genuinely reads 'f_{X,Y}(y,x)=1' with the arguments in that order (verified at 4x magnification) \u2014 this is retained verbatim in the transcript with the existing footnote 1 flagging it as a slide typo; it is not a transcription error."
+  ]
+ },
+ {
+  "tag": "L08",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 8 'The constellation of concepts' (raster p02, bottom-right): the transcript claimed 'the right-hand continuous items are printed in red'. Verified against the image: only the bottom two right-hand items f_{X,Y}(x,y) and f_{X|Y}(x|y) are red; the top-right f_X(x) is BLACK, as are p_X(x), F_X(x), E[X], var(X), p_{X,Y}, p_{X|Y}. Figure description corrected.",
+   "Footnote 4 (stray glyph on the Gaussian slide, raster p02 top-right): transcript located it 'above the left bell-curve plot'. It actually sits in the white space BETWEEN the two plots (right of the bell curve, above-left of the CDF plot) and reads like a smiley ':)'. Location and reading corrected and marked [UNCERTAIN].",
+   "Slide 4 CDF figure (raster p01, bottom-right), uniform CDF plot: transcript stated the plateau is 'flat at its maximum value 1' as if labelled. The slide prints no numeric '1' on that axis (only the word CDF). Reworded to say the level is 1 but is unlabelled on the slide.",
+   "Slide 4 discrete PMF/CDF figure (raster p01, bottom-right): transcript stated the staircase 'jumps to 1/6 ... 4/6 ... 1' as if those levels were printed. In the image the CDF step levels carry no labels (only the PMF spikes are labelled 1/6, 3/6, 2/6); also the CDF panel has no vertical axis drawn. Corrected and the inferred levels flagged as derived from the PMF."
+  ],
+  "content_added": [
+   "Slide 7 (raster p02, bottom-left): added a description of the standard normal table's ruling/structure \u2014 box border, double vertical rule after the z-column, heading rule, horizontal rules grouping rows in blocks of five (0.0\u20130.4, 0.5\u20130.9, 1.0\u20131.4, 1.5\u20131.9, final row 2.0) \u2014 and the explicit note that the table terminates at z = 2.0.",
+   "Slide 4 discrete CDF figure: added the structural details that the staircase is drawn right-continuous and the panel has only a horizontal x-axis with ticks 1, 2, 4 (no vertical axis)."
+  ],
+  "residual_concerns": [
+   "Raster p02, Gaussian (normal) PDF slide: the small stray glyph between the two plots is low-resolution; best reading is the smiley ':)' but it could be a stray ';)' or a scan artifact. Marked [UNCERTAIN] in footnote 4. It carries no mathematical content either way.",
+   "Raster p02, Mixed distributions pdf figure: the horizontal axis label is rendered with a subscript, 'x_0'. This is almost certainly just the value axis for x (possibly a typesetting leftover), but the subscript is genuinely present in the image and has been transcribed as-is rather than normalised to 'x'.",
+   "All 200 table entries of the standard normal CDF table (rows 0.0\u20132.0) were verified against a 3x-magnified crop and match the transcript exactly; no digit discrepancies remain, but the source print is small enough that a single-digit OCR error cannot be ruled out with absolute certainty."
+  ]
+ },
+ {
+  "content_added": [],
+  "fixes_made": [
+   "Slide 4 merging figure (raster p01, right-bottom): description wrongly called the outgoing arrow 'thick' and implied the label was on the arrow -> corrected to a same-weight horizontal outgoing arrow with the two-line text 'All flashes / (Poisson)' printed ABOVE it and no rate label on it.",
+   "Slide 6 splitting figure (raster p02, right-top): label placement was imprecise -> now specifies p\u00b7\u03bb sits BELOW the upper arrow shaft with 'USA' ABOVE it near the head, and (1\u2212p)\u03bb sits ABOVE the lower arrow shaft with 'Foreign' BELOW it near the head; also notes both output arrows start at the circle's right edge and the two-line incoming label 'Email Traffic / leaving MIT'.",
+   "Slide 7 random-incidence timeline figure (raster p02, left-bottom): 'three x's toward the left, then a wider gap, then an x, then another x close to the right end' was vague/slightly off -> now specifies 5 x's with x1\u2013x3 evenly spread across the left half, a wide gap to x4 in the right half, x5 shortly after, 'Time' label below the axis between x5 and the arrowhead, and the double-headed span arrow having vertical ticks dropping to the axis exactly at x3 and x4, with the 'Chosen time instant' up-arrow roughly mid-interval."
+  ],
+  "residual_concerns": [
+   "None on the math. Every formula on Slide 2 was verified character-by-character against raster p01 (P(k,\u03b4) three-case brace with 1\u2212\u03bb\u03b4 / \u03bb\u03b4 / 0 for k=0,1,>1; P(k,\u03c4)=(\u03bb\u03c4)^k e^{\u2212\u03bb\u03c4}/k!; E[N_\u03c4]=var(N_\u03c4)=\u03bb\u03c4; f_{T_1}(t)=\u03bbe^{\u2212\u03bbt}, t\u22650, E[T_1]=1/\u03bb; f_{Y_k}(y)=\u03bb^k y^{k\u22121} e^{\u2212\u03bby}/(k\u22121)!, y\u22650) and all match.",
+   "Cosmetic only, not fixed: on Slide 7 the closing question 'What is the distribution of the length of the chosen interarrival interval?' is a top-level bullet (\u2022) on the slide, whereas the transcript renders it as a dash-level item; content is identical."
+  ],
+  "tag": "L15",
+  "was_complete": false
+ },
+ {
+  "tag": "L11",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 2 'A general formula' figure (raster p01, top-right): transcript claimed 'a short straight tangent segment is drawn' at the point on g(x) \u2014 the image has NO tangent segment, only a long slanted annotation arrow running from the text label down to a marked point on the curve. Corrected, and added the omitted details: the curve is gently S-shaped (rises, flattens mid-way, steepens sharply at the far right); the arrow from the label g(x) comes in from the lower-right; the x- and y-intervals are drawn as short HEAVY/bold segments on the axes delimited by pairs of dashed lines, each pointed at by its own slanted arrow; the slope label is printed with upright 'd' as slope (dg/dx)(x).",
+   "Slide 1 'Example' figure (raster p01, top-left): transcript said 'a unit square is drawn with corners (0,0),(1,0),(1,1),(0,1)'. In the image only the TOP and RIGHT sides are drawn as separate strokes; the left and bottom sides coincide with the y- and x-axes. Also added: both axes carry arrowheads, the vertical axis extends below the horizontal axis, the '1' ticks are labelled left of the y-axis and below the x-axis, and the annotation arrow is a long straight arrow ending in the middle of the square's interior.",
+   "Slide 3 'The distribution of X+Y' figure (raster p01, bottom-left): the two extra unlabeled dots were described only as 'one up-left' and 'one down-right'. Their actual grid positions are (-1,4) in the second quadrant and (4,-1) in the fourth quadrant, continuing the line x+y=3; made explicit so the figure is redrawable. Also noted each coordinate label sits just above-right of its dot.",
+   "Slide 4 'The continuous case' figure (raster p01, bottom-right): sharpened the description \u2014 the line continues past BOTH intercepts into the second and fourth quadrants; the 'w' on the y-axis is printed to the left of the vertical axis at the crossing height, the 'w' on the x-axis is printed below the axis just left of the axis's own 'x' label, and the text 'x + y = w' sits below the line at its lower-right end."
+  ],
+  "content_added": [
+   "No slides, bullets, formulas, or problem parts were missing \u2014 all 8 lecture slides plus the OCW back page (p03) were already present. The additions were purely figure-detail (structure, labels, stroke/quadrant placement) needed to make the four p01 diagrams redrawable."
+  ],
+  "residual_concerns": [
+   "Slide 2 figure: the y-interval label is literally printed '[y, y+?]' in the source PDF (a glyph failed to render, almost certainly delta times |dg/dx|), and the x-interval label is printed '[x, x+d]' where 'd' stands for the delta used in the body text. Transcribed verbatim with the intended reading noted; not a transcription error but a defect in the original slide.",
+   "Slide 1 figure label is printed f_{X,Y}(y,x)=1 with the arguments in the order (y,x) \u2014 this is how the slide reads (existing note in the transcript retained); it is an inconsistency in the original, not a misreading.",
+   "Slide 7 covariance formula index set is printed '(i,j):i != j' with a leading factor 2; the double-counting convention is the lecturer's and is already flagged in the transcript's notation note. Verified character-by-character against raster p02; no change made."
+  ]
+ },
+ {
+  "tag": "L06",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 3 'Random speed' (raster p01): the line 'd = 200, T = t(V) = 200/V' was wrongly bundled inside the [UNSOLVED EXAMPLE] block as one of 'four quantities posed with blank right-hand sides'. In the raster it is printed in red as a GIVEN relation with a completed right-hand side. Split it out as given content; the [UNSOLVED EXAMPLE] now correctly covers only the three blanks E[V] =, var(V) =, sigma_V =, and a [SOLUTION GAP] marker was added since none are computed on the slide.",
+   "Slide 3 figure: description upgraded to be redrawable \u2014 vertical axis label p_V(v) at top-left, horizontal axis label v at right end, the two '1/2' labels positioned to the RIGHT of the v=1 spike and to the LEFT of the v=200 spike (not simply 'above'), ticks '1' and '200', and the fact that the axis is not to scale.",
+   "Slide 4 figure: same positional detail added for the '1/2' labels and axis labels, instead of the vague 'labeled 1/2 each'.",
+   "Slide 5 figure (Conditional PMF): description made redrawable \u2014 axis arrows, tick labels 1,2,3,4 under the impulses with the axis label x printed to the right of the '4' tick, and the '1/4' label placed on the vertical axis at the common spike-top level (previously only 'marked by a tick/label').",
+   "Slide 6 memoryless figure: all three sub-plots given concrete structure \u2014 ~9 decaying spikes in (a) with heights p, p(1-p), p(1-p)^2, ...; the slanted arrow drawn from the right with p(1-p)^2 at its tail pointing at the third spike's top; ~6 spikes in (b) and (c); the ONLY axis tick label in (a)/(c) is '1' and in (b) is '3'; raster spellings of the axis labels ('p_X |X>2(k)', 'p_X- 2|X>2(k)') recorded.",
+   "Slide 7 Venn figure: vague 'square divided by curved lines' replaced with the actual structure \u2014 a wider-than-tall rectangle split by two curves into upper-left A_1, lower-left A_2, lower-right A_3, with a tilted grey-shaded ellipse straddling all three regions, and the explicit note that the ellipse carries NO printed 'B' label in the raster (B is only named in the equations).",
+   "Slide 8 joint-PMF figure: description upgraded from '4x4 grid over the x-y plane' to the real layout \u2014 axes drawn as arrows, y label at top of the vertical arrow with row ticks 4,3,2,1 top-to-bottom on its left, x label at the right of the horizontal arrow with column ticks 1,2,3,4 beneath, entries printed as twentieths, four cells blank."
+  ],
+  "content_added": [
+   "[SOLUTION GAP] marker on Slide 3 recording that E[V], var(V), sigma_V are never evaluated on the slide.",
+   "[SOLUTION GAP] marker on Slide 8 recording that neither normalization blank (sum_x sum_y p_{X,Y}(x,y) = , sum_x p_{X|Y}(x|y) = ) is filled in, with the note that the tabulated entries do total 20/20 = 1.",
+   "New footnote 4: documents that Slide 3's 'd = 200, T = t(V) = 200/V' is red/given while Slide 4 re-poses the same relation as a blank, so the two slides deliberately overlap.",
+   "New footnote 5: documents the deck's colour convention (black = statement/setup, red = highlighted or filled-in formulas) and enumerates which items are red on p01 and p02 \u2014 information carried by the raster that the plain-text transcript otherwise loses."
+  ],
+  "residual_concerns": [
+   "Slide 6 sub-plots: the exact number of drawn impulses is a visual count from the raster (~9 in the left plot, ~6 in the other two) and the tails are elided with '...'; the counts are approximate and carry no mathematical meaning.",
+   "Slide 6 bottom-plot axis label is typeset in the raster with a visible gap ('p_X- 2|X>2(k)'); read as p_{X-2 | X>2}(k). Context (memorylessness of X-2 given X>2) makes this certain, but the raster glyph spacing is genuinely odd.",
+   "Slide 7: the shaded ellipse is unlabeled in the raster; identifying it as event B is inferred from the P(B) = ... equation directly beneath, not read off the figure.",
+   "Slide 2 and Slides 3-5, 8: the blank right-hand sides are genuinely blank in the source PDF (this is a fill-in-during-lecture handout), so no answers exist in the images to recover."
+  ]
+ },
+ {
+  "tag": "L02",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 6 (Multiplication rule, raster p02, top-right) figure: first pass claimed the A^c subtree 'branches again into two stages with the same shape'. In the image the A^c subtree is only PARTIALLY expanded \u2014 the upper A^c branch reaches an internal vertex that fans into two unlabeled branches, while the lower A^c branch is a bare stub with no further branching. Description rewritten to match, and the unlabeled A\u2229B\u2229C^c leaf (line present, no text) called out explicitly.",
+   "Slides 7 and 8 (raster p02, bottom row) partition figure: first pass described 'two curved lines' generically and placed A_3 as 'lower-right'. Corrected to the actual geometry \u2014 curve (i) runs from the left edge up to the TOP edge separating A_1 (upper-left) from A_2 (lower-left); curve (ii) runs from the top edge down to the BOTTOM edge, with A_3 being the whole right-hand region (its label sits in the lower-right corner). Added that both curves pass through the shaded ellipse.",
+   "Slides 7 and 8 figure: first pass asserted the grey ellipse is 'labeled B'. It carries NO letter label on the slide; corrected in both figure blocks and flagged in the notes section.",
+   "Slide 3 (Conditional probability, raster p01) figure: first pass said the rectangle 'represents the sample space \u03a9' as if labeled. The rectangle is unlabeled; also sharpened the ellipse geometry (A tall and slightly tilted upper-left/centre, B wider and flatter lower-right reaching toward the right edge, labels placed in the non-overlapping parts).",
+   "Slide 4 (Die roll example, raster p01) figure: sharpened axis-label placement \u2014 Y tick labels read 4,3,2,1 top-to-bottom to the LEFT of the grid with the two-line title 'Y = Second / roll' outside them; X ticks 1,2,3,4 sit below the columns with title 'X = First roll' beneath. Added that the event B is not marked on the grid.",
+   "Slide 5 (radar tree, raster p02) figure: added that leaves are bare line-ends with no node dots, stage-2 labels sit to the right of their branches and stage-1 labels to the left, so the tree is redrawable."
+  ],
+  "content_added": [
+   "Notes section: entry recording that the grey ellipse in the Slides 7/8 partition diagrams is unlabeled and its identification with B is inferred from surrounding text.",
+   "Notes section: entry recording that no rectangle in this deck (Slide 3, Slides 7\u20138) carries an \u03a9 label.",
+   "Notes section: entry recording the incomplete drawing of the A^c subtree and the untexted A\u2229B\u2229C^c leaf on Slide 6.",
+   "Notes section: character-level check of the multiplication rule \u2014 centred dots and conditioning on A\u2229B (not B alone) in the final factor.",
+   "Notes section: precise red-highlighting extent on Slide 8 (LHS plus the entire second fraction including its P(B) denominator; first and third fractions black)."
+  ],
+  "residual_concerns": [
+   "Slide 6 tree: the two right-most endpoints of the A^c subtree and the lower A^c stub are truncated line segments in the raster \u2014 it is impossible to tell from the image whether the original slide intended a full 8-leaf tree that was deliberately left incomplete, or whether part of the drawing is clipped. Transcribed as drawn.",
+   "No other uncertainties: all numerals in the radar tree (0.05 / 0.95 / 0.99 / 0.01 / 0.10 / 0.90), the 4\u00d74 grid ticks, the axiom list, and every formula on Slides 6\u20138 were verified character-by-character against the rasters and match the transcript."
+  ]
+ },
+ {
+  "tag": "L19",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [],
+  "residual_concerns": []
+ },
+ {
+  "content_added": [
+   "Slide 2 figure: explicit note that the two fan-out curves land on the two ends of the hatched region, plus arrowheads/axis-label placement and the shallow valley between the two humps (detail needed to redraw)",
+   "Slide 6 figure: full panel-by-panel geometry (top panel = one large square mesh with single bell peak near back-right plus a ruled diagonal cut line; lower-left = curved fin/slab standing on the cut with a secondary bump; lower-right = row of fins from back-left to front-right, one extremely tall narrow spike then successively shorter/broader humps), plus the note that the figure carries no axis labels or tick marks anywhere",
+   "Slide 7 figure: explicit statement that the right (conditional) box's right edge carries NO tick label on the slide, and that the taller-and-narrower drawing encodes 1/x > 1/L",
+   "Slide 4 (Buffon) figure: needle's lower end lies between the lines while its upper end pokes above the upper line; angle arc opens to the right above the line; x-tick drops from the upper line down to the needle with the label x to its left; label l placed below the bar right of the x tick"
+  ],
+  "fixes_made": [
+   "Layout note (header, raster p01/p02): said the 2-up x 2 handout is read 'left column top-to-bottom then right column top-to-bottom', which contradicts the transcript's own slide numbering and the actual content flow -> corrected to row-wise reading order: top-left -> top-right -> bottom-left -> bottom-right",
+   "Slide 2 figure (raster p01): the description invented a caption, claiming the gray ellipse is 'labeled \"Sample Space\"'. No such text appears anywhere in the figure; the only caption is 'Event {a <= X <= b }' on a leader arrow pointing at the small white inner ellipse -> removed the fabricated label and rewrote the figure block from the enlarged crop",
+   "Slide 7 figure (raster p02): claimed the right-hand conditional-density box runs 'from 0 to a point on the y-axis marking x', implying a printed tick label -> the slide's right plot has no tick label at all on its right edge; corrected and stated the implied value is x",
+   "Slide 6 figure (raster p02): panel (b) was described as 'a single narrow slice standing up through it' and panel (c) vaguely as 'vertical fins of varying heights' -> replaced with an accurate, redraw-able description of all three panels (relative sizes, viewing angles, ruled cut line, fin shapes, spike ordering, and exact 2-/3-line leader captions)",
+   "Slide 4 figure (raster p01): vague/partly wrong needle geometry -> specified that the needle crosses the UPPER line with its lower end between the two lines, the angle arc opens right/above the line, and the x tick drops from the upper line down onto the needle just left of the crossing"
+  ],
+  "residual_concerns": [
+   "Slide 7 (raster p02, printed as-is): 'break at X: uniform in [0,1]' is inconsistent with every downstream formula (which require uniform on [0,L]). Verified character-by-character in the raster as '[0, 1]'; it is an original-slide typo, already documented in footnote 1 \u2014 not silently corrected.",
+   "Figure axis ticks rendered as capital 'L' throughout raster p02, and 'l' / 'q' in the Buffon figure on p01, are the figure-font renderings of the LaTeX symbols ell and theta. High confidence, but they are literally drawn as L/l/q; documented in footnote 2 rather than normalized in the figure blocks.",
+   "The joint-density surface in the top panel of the slide-6 mesh figure has no axis labels, so which horizontal direction is x and which is y cannot be determined from the image; the description deliberately says 'back-right' rather than naming an axis."
+  ],
+  "tag": "L09",
+  "was_complete": false
+ },
+ {
+  "tag": "L18",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 3 (Example two-state chain, raster p01) figure description: the self-loops were described as 'curving up and back into itself ... drawn to the upper-left / upper-right', which conflates loop geometry with label position. Corrected to: each self-loop is a tall narrow ellipse rising vertically ABOVE its node (exits left shoulder, arches up, re-enters right shoulder with a downward arrowhead); only the LABELS sit upper-left (0.5) and upper-right (0.8). This matters for redrawing the diagram."
+  ],
+  "content_added": [
+   "Entire raster page p03 was absent from the transcript. Added a new '## Page 3 \u2014 OCW citation page (raster p03)' section with its full verbatim text: 'MIT OpenCourseWare / http://ocw.mit.edu', '6.041 / 6.431 Probabilistic Systems Analysis and Applied Probability / Fall 2010', and 'For information about citing these materials or our Terms of Use, visit: http://ocw.mit.edu/terms.'",
+   "Updated the reading-order preamble note to state that p03 is not a slide page but the OCW citation/terms page, so the page inventory in the transcript is now complete and self-consistent."
+  ],
+  "residual_concerns": [
+   "Slides 5 and 6 (raster p02): all node circles are genuinely printed EMPTY in the handout \u2014 no state numbers appear anywhere in the raster. The prose refers to 'state 4', 'i = 4', 'i = 5', but the mapping of those numbers onto the drawn circles is not recoverable from the images. The transcript already flags this in Footnote 3; verified as a property of the source, not a transcription miss.",
+   "Slide 3 and Slide 5/6: the right-hand sides of P(X_1=1, and X_100=1)=, 'For i = 4, a_i =', 'For i = 5, a_i =', and 'mu_i = 0 for i =' are blank on the printed slide (filled in live during lecture). Verified blank in the raster; correctly marked [UNSOLVED EXAMPLE]."
+  ]
+ },
+ {
+  "tag": "L25",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 7 / raster p02 (bottom-left panel), ECDF figure: the [FIGURE:] block was too vague to redraw from \u2014 it described \"two nearly coincident curves\" without distinguishing line styles, and gave a wrong x-extent for the rise. Corrected to: solid jagged staircase = ECDF, DASHED smooth curve = Normal CDF; axis spans x = -4 to 3 (not \"0 near x=-3 to 1 near x=+2.5\"); ECDF flat at 0 out to about x = -3.4, crosses 0.5 near x = 0, saturates at 1 near x = 1.8 and stays there to x = 3; legend is a two-line plain text label (no line swatches) placed inside the plot area above/left of the curves; the NIST source credit sits below the figure box."
+  ],
+  "content_added": [],
+  "residual_concerns": [
+   "Slide 2 (raster p01, top-right): on the slide the first three items (\"null hypothesis\", \"alternative hypothesis\", \"Choose a rejection region\") are typeset as dash sub-items with no visible parent bullet, while \"Likelihood ratio test\" is a top-level bullet. The transcript renders all of them as top-level bullets. Purely a nesting/typography difference, no content lost \u2014 left as-is.",
+   "Slide 7 figure: the exact x-location where the ECDF first reaches 1 (~1.8) and the positions of the first small steps (~-3.3, ~-2.5) are read off a low-resolution embedded raster and are approximate, not exact data values."
+  ]
+ },
+ {
+  "tag": "L24",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 3 'Regression' (raster p01, bottom-left): the [FIGURE:] block was too vague to redraw \u2014 it said only 'roughly six data points ... short vertical dashed segments drop from several data points'. Rewrote it with the exact structure verified from a 3x zoom: fitted line crossing the y-axis at a small positive intercept; six crosses with their above/below-line placement enumerated left to right; the (x_i,y_i) cross sits ABOVE the line; and, critically, the residual is marked by a SOLID DOUBLE-HEADED vertical arrow (not a dashed segment) between that point and the line, which is what the 'Residual / y_i - theta0hat - theta1hat x_i' callout arrow points to."
+  ],
+  "content_added": [],
+  "residual_concerns": [
+   "Slide 2 (p01): the MAP denominator really is printed p_Y(y) on the slide (verified at 3x zoom) while the numerator is p_{X|Theta}(x|theta)p_Theta(theta). This is a slide typo for p_X(x); the transcript already transcribes it as printed and flags it in a [DERIVATION GAP] \u2014 no change made, but noting the discrepancy is in the source, not the transcript.",
+   "Slide 5 (p02): the slide is internally inconsistent, writing h(x) in the model line and in the data-points line ('work with data points (y_i, h(x))', literally h(x) not h(x_i)) but h_1(x_i) inside the minimization sum. Verified against the image; transcribed as printed and already footnoted."
+  ]
+ },
+ {
+  "content_added": [
+   "Slide 3 figure: full arrival-count structure of the timeline \u2014 11 'x' marks total, with t_1 spanning 3 arrivals, t_2 spanning 1 (sharing a boundary bar with t_1), an unbracketed gap with 1 isolated x, t_3 spanning 3 (one x plus a closely-spaced pair), a second unbracketed gap, delta bracketing exactly 1 x, and 2 trailing x's right of the delta interval before the arrowhead. Previously the figure block gave an invented and wrong mark pattern.",
+   "Slide 4 figure: explicit statement that the timeline is a pixel-for-pixel reproduction of the Slide 3 figure, with per-interval arrival counts listed and a cross-reference to the Slide 3 description.",
+   "Slide 6 figure: the enclosing black rectangular frame, the medium-blue arrow-style axes, the legend's light-gray drop shadow and its position, the origin marker 0, the relative peak heights (r=2 peak is the tallest unimodal peak; r=3 is the highest curve at the right edge), and the two curve crossings (r=1 x r=2 early; r=2 x r=3 past the r=2 peak).",
+   "Slide 7 figure: the per-slot tiny double-headed arrows inside the delta band, the identification of WHICH slots carry arrivals (approximately the 1st, 6th and 8th), the three slanted pointer lines fanning up from the word 'Arrivals' below the axis, and the exact vertical layout of the three annotations (n = t/delta above p = lambda*delta, with np = lambda*t vertically centered to their right).",
+   "Slide 8 figure: that the merge node is a large thick-outlined circle with white interior, that both labels are two-line ('Red bulb flashes / (Poisson)', 'Green bulb flashes / (Poisson)', 'All flashes / (Poisson)'), and the precise placement of the lambda_1 and lambda_2 annotations relative to their arrowheads.",
+   "New footnote 4 recording the red colour emphasis in the original handout (Poisson pmf on Slide 4; Erlang density, exponential density, and the word 'Memoryless' on Slide 6) \u2014 an emphasis cue that is otherwise lost in plain text.",
+   "New section 'Page 3 \u2014 MIT OpenCourseWare citation page' transcribing the OCW front matter (course number 6.041 / 6.431, title, Fall 2010, ocw.mit.edu and ocw.mit.edu/terms), which the original transcript dismissed without transcribing.",
+   "Footnote 3 extended to record that the Bernoulli arrival-rate table cell reads 'p/per trial' verbatim in the original (redundant '/per' is the slide's, not a transcription slip)."
+  ],
+  "fixes_made": [
+   "Slide 3 (raster p01, bottom-left) figure: the arrival-mark pattern was fabricated. Transcript said 'roughly: two x's, then two x's close together, then a gap, then three x's, then more x's after a further gap, then two isolated x's near the right' -> replaced with the actual layout verified from a 4x enlargement: 11 x's on the axis, t_1 spanning 3 x's, t_2 (adjacent, sharing a boundary bar) containing 1 x at its left edge, an unbracketed gap with 1 isolated x, t_3 spanning 3 x's (one x then a close pair), another unbracketed gap, delta bracketing exactly 1 x, and 2 trailing x's before the arrowhead.",
+   "Slide 3 figure: the label '0' was described as 'a tick labeled 0' -> corrected to the origin label printed BELOW the axis at its left end, and 'Time' corrected from 'at its right end' to below the right end of the axis.",
+   "Slide 4 (raster p01, bottom-right) figure: description was a one-line vague restatement ('scattered x arrival marks') that could not be redrawn -> expanded to specify it is the identical Slide 3 timeline, with per-interval arrival counts and a cross-reference.",
+   "Slide 6 (raster p02, top-right) figure: axis label was transcribed as $f_{Y_r}(y)$ with a footnote asserting the argument 'reads like l but is the density variable y'. A 24x enlargement shows the OCW figure genuinely uses a different letter from the slide formula -> corrected to $f_{I_r}(l)$ with horizontal axis $l$, and the claim of a $y$ was removed.",
+   "Slide 6 figure: 'The r=2 curve ... rises to a moderate peak at a small positive y' -> corrected to a peak at roughly one-quarter of the plotted range and identified as the TALLEST of the two unimodal curves; and 'All three curves approach 0 as y grows' -> corrected, since the r=3 curve is still visibly well above 0 at the right edge of the frame (it is the highest curve there).",
+   "Slide 7 (raster p02, bottom-left) figure: slot count was wrong \u2014 'divided into about seven equal small slots' -> corrected to exactly 8 slots, each with its own delta label and its own tiny double-headed arrow.",
+   "Slide 7 figure: 'Three of the slots contain an x' left unspecified which -> corrected to identify them as approximately the 1st, 6th and 8th slots.",
+   "Footnote 1 rewritten: its confident denial ('not the letter l or the digit 1') was itself the misreading, and it is now an explicit [UNCERTAIN] entry distinguishing italic ell from italic capital I while ruling out $y$."
+  ],
+  "residual_concerns": [
+   "Slide 6 Erlang figure axis labels: the vertical-axis label renders as $f_{I_r}(l)$ and the horizontal-axis label as a single bare vertical italic stroke. At the available raster resolution an italic lowercase 'l' (ell) and an italic uppercase 'I' are typographically identical, so the exact letter of the OCW figure's variable cannot be resolved. It is certainly NOT the 'y' used in the slide's own formula $f_{Y_k}(y)$. Flagged inline as [UNCERTAIN] in footnote 1 rather than guessed.",
+   "Slide 7 discretization figure: the three arrival x's sit near slot boundaries and the vertical bars alternate between black and light gray, so the assignment of arrivals to the 1st / 6th / 8th slots is approximate (an off-by-one on the 6th and 8th is possible). Recorded in the figure block with the hedge 'approximately'.",
+   "Slide 3/4 timeline: the two arrivals drawn as a 'close pair' inside t_3 are nearly overlapping, so the total arrival count of 11 could plausibly be 10 or 12 if adjacent glyphs merge; the per-interval structure (3 / 1 / 3 / 1) is what is legible with confidence."
+  ],
+  "tag": "L14",
+  "was_complete": false
+ },
+ {
+  "tag": "rec03",
+  "was_complete": false,
+  "fixes_made": [
+   "Header/footer block (transcript front matter): incomplete page metadata -> now records the problem-set title line \"Recitation 3: September 16, 2010\" (rec03_p01.png) AND the two-line solutions title block \"Recitation 3: Solutions\" / \"September 16, 2010\" (rec03_sol_p01.png), which the first pass omitted entirely.",
+   "Footer description: previously implied a uniform footer -> now records the right-hand page numbers \"Page 1 of 2\" (rec03_p01.png), \"Page 2 of 2\" (rec03_p02.png), \"Page 1 of 1\" (rec03_sol_p01.png), and explicitly notes the solutions page carries NO Athena Scientific credit line, only the page number \u2014 i.e. the whole solution set is a single page."
+  ],
+  "content_added": [
+   "Solutions-handout title block (\"Recitation 3: Solutions\" / \"September 16, 2010\") from raster/rec03_sol_p01.png.",
+   "Per-page footer page numbers for all three content pages, and the fact that the solutions page lacks the Athena Scientific footer."
+  ],
+  "residual_concerns": [
+   "Figure 1 (raster/rec03_p01.png) renders the crossover labels in a sans-serif font as literal \"1-e0\", \"e0\", \"e1\", \"1-e1\" while the body text uses $\\epsilon_0$/$\\epsilon_1$; the transcript already flags this. The subscript glyphs are small but legible as digits 0 and 1 \u2014 no residual ambiguity, noted only because the figure font differs from the body font.",
+   "Verified character-by-character with no discrepancies found: Problem 2 solution formulas $2\\cdot p\\cdot(1-p)$ and $3\\cdot p^2\\cdot(1-p)$; the conditional sample space $\\{(F,F,B);(F,B,F);(B,F,F)\\}$ and answer $2/3$; Problem 4(a) solution $\\mathbf{P}(A)=(\\mathbf{P}(A))^2$ with conclusion $\\mathbf{P}(A)=1$ or $0$; all textbook cross-references (Example 1.20 p.37; Problem 1.31 p.60; Problem 1.43(a) pp.63-64; Problem 1.44 p.64); the transmitted string \"1011\" and received string \"101\"; and the direction of $\\mathbf{P}(C)>0$."
+  ]
+ },
+ {
+  "tag": "rec01",
+  "was_complete": false,
+  "fixes_made": [
+   "Fabricated footnote removed: transcript header claimed 'Footnote marker on both documents: \u2020Required for 6.431; optional for 6.041.' Verified against rec01_p01.png and rec01_sol_p01.png (full page plus a 2x zoom of the bottom 14% of each) \u2014 no such footnote text exists on either page. Replaced with an accurate statement that the \u2020 superscript on the G1 label is printed but never explained in these PDFs, with the course-convention reading flagged as an external inference rather than document text.",
+   "Problem G1 sub-heading corrected (rec01_p01.png, item G1\u2020): 'Marked G1\u2020 \u2014 required for 6.431; optional for 6.041' was stated as if quoted from the document. Rewritten to record the literal printed label 'G1\u2020' and mark the 6.431/6.041 gloss as convention, not source text.",
+   "Footer-note attribution sharpened (rec01_p01.png vs rec01_sol_p01.png): the Athena Scientific permission line appears ONLY on the problem sheet, above the bottom rule; the solutions sheet has no footer text at all, only the bottom horizontal rule. The transcript previously left the solutions sheet's footer status unstated."
+  ],
+  "content_added": [
+   "Title-block difference between the two PDFs, added to Transcription notes: problem sheet is titled 'Recitation 1 / September 9, 2010'; solutions sheet is titled 'Recitation 1: Solutions / September 9, 2010' (rec01_p01.png / rec01_sol_p01.png).",
+   "Page-layout note added: both page 1s carry a full-width horizontal rule under '(Fall 2010)' in the header and a full-width rule at the foot; no boxes, marginal notes, or other rules appear."
+  ],
+  "residual_concerns": [
+   "The meaning of the '\u2020' on the G1 label cannot be confirmed from these two PDFs \u2014 the symbol is printed with no accompanying footnote on any rastered page. The 'required for 6.431 / optional for 6.041' reading is standard for this course but is external knowledge; it is now flagged as such in the transcript rather than asserted.",
+   "All mathematical content (Problems 1-4, G1(a)-(c), and all four worked solutions) was compared character-by-character against the rasters and matched exactly, including subscripts, complements, union/intersection bounds n=1 to infinity, the inclusion directions A_n \u2282 A_{n+1} and A_{n+1} \u2282 A_n, the interval notations [0,\u221e), [0,n], [n,\u221e), and the numerals 0.6/0.7/0.4/0.9/0.1 and c/2c/4c/4/9. No misreads found.",
+   "Confirmed no figures, plots, trees, or tables exist in either PDF, so the transcript's 'Figures: none' section is accurate; the Romeo-and-Juliet unit-square figure genuinely lives only in the textbook, not in these pages."
+  ]
+ },
+ {
+  "tag": "L23",
+  "was_complete": true,
+  "fixes_made": [
+   "Footnote 4 (slide 7, raster p02 bottom-left): claimed the accent on the sample-variance symbol was 'a hat/tilde accent over a capital S'. Verified at ~2.4x magnification that it is unambiguously a hat (circumflex), matching the hat on \\hat\\sigma_n^2 two lines above. Footnote corrected to state 'hat (circumflex) \u2014 not a tilde' and to note the same symbol appears in E[\\hat S_n^2]=\\sigma^2."
+  ],
+  "content_added": [
+   "Slide 2 [FIGURE] block (raster p01, top-right): enriched the block-diagram description with the printed geometry needed to redraw it \u2014 the down-arrow starts below the title and enters the TOP EDGE of box 1 near its right end; both boxes are equal height on a common horizontal baseline; the left input arrow, box1\u2192box2 connector, and box2 output arrow all lie on that baseline with solid right-pointing arrowheads; the diagram sits above the first bullet and its lower edge slightly clips the top of the 'also for vectors X and theta:' text line. Also corrected 'three text labels' to 'ALL text labels' \u2014 both boxes render completely empty and all five labels are blank in the raster."
+  ],
+  "residual_concerns": [
+   "Slide 2 block-diagram labels (raster p01) remain genuinely unrecoverable from the image: both boxes render empty and every arrow label is blank due to font-encoding dropout. The labels theta / p_X(x;theta) / X / 'Estimator' / hat-Theta come from the PDF text layer and lecture context, not from the raster. This is flagged in the FIGURE block and footnote 1.",
+   "Slide 6 (raster p02, top-right): 'often alpha = 0.05, or 0.25, or 0.01'. Re-verified at magnification \u2014 the middle value really is printed 0.25 (not 0.025 or 0.1), which is an unusual choice for a confidence level. Transcribed as printed and already flagged in footnote 5; this may be a typo on the original OCW slide.",
+   "Slide 5 (raster p02, top-left): 'W_i: i.i.d., mean, 0, variance sigma^2' \u2014 the stray comma after 'mean' is confirmed present on the slide as printed; transcribed verbatim with footnote 3 explaining the intended reading 'mean 0'."
+  ]
+ },
+ {
+  "tag": "L21",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 6 (Least Mean Squares Estimation, raster p02 top-right) \u2014 FABRICATED FIGURE LABELS REMOVED: the transcript described the uniform-prior sketch as having vertical axis labeled f_Theta(theta), horizontal axis labeled theta, height 1/6, and endpoints 4 and 10. Zooming the raster confirms the figure is COMPLETELY UNLABELED \u2014 a bare axis cross with an unlabeled open rectangle, no ticks, no numbers, no axis names. Replaced with an accurate label-free description.",
+   "Footnote 3 \u2014 depended on the same fabrication ('the uniform-density height is 1/6 over [4,10], consistent: (10-4)*1/6 = 1'). Rewritten to state that the slide carries no numbers and that any such values would be verbal-only, explicitly warning not to attribute them to the handout.",
+   "Slide 1 Netflix matrix-completion figure (raster p01) \u2014 grid dimensions misread as 'roughly 8 columns by 16 rows'; actual grid is roughly 11 columns by 17 rows. Also added the missing structural detail: per-cell black borders, TWO tones of pale blue plus a few white cells (not a single light-blue shade), about a dozen solid dark-blue cells, 'objects' centred above the grid and 'sensors' set vertically along the left side.",
+   "Slide 5 posterior sketch (raster p02) \u2014 the left-hand pmf stem plot was described only as 'five vertical spikes of unequal heights', too vague to redraw. Added the actual relative heights left-to-right (medium, tallest ~1.5x, short ~0.5x, shortest ~0.33x, medium again) and the noticeably wider gap before the fifth spike."
+  ],
+  "content_added": [
+   "Slide 1 layout fact: 'Netflix competition' and 'Finance' are two bullets printed side by side on a SINGLE line of the slide (the transcript had them as two separate stacked bullets), with the matrix-completion picture sitting under 'Netflix competition' and the S&P-500 copyright placeholder under 'Finance'. Added as an inline note.",
+   "New footnote 5 cataloguing the slides' red-ink emphasis, which the transcript recorded only for Slide 7: X = aS + W (Slide 2); all three Bayes-rule displays plus the posterior name f_{Theta0,Theta1,Theta2|X1..Xn} (Slide 3); the MAP pmf line only, with the pdf line below it in black (Slide 5); the red-outlined conclusion box (Slide 7); E[Theta | X_1,...,X_n] (Slide 8); and the note that Slide 4's boxed formulas are black in a black box."
+  ],
+  "residual_concerns": [
+   "Netflix matrix-completion grid: cell counts (~11 columns x ~17 rows) are estimated from a rasterized thumbnail; the exact column/row count and the exact positions of the dark-blue cells are not resolvable at this resolution. The count is approximate by design in the figure description.",
+   "Slide 6's uniform pdf: the lecturer almost certainly filled in numbers verbally (the standard 6.041 example is Uniform[4,10] with height 1/6), but NOTHING is printed on the handout. The transcript now says so explicitly rather than guessing."
+  ]
+ },
+ {
+  "tag": "rec02",
+  "was_complete": false,
+  "fixes_made": [
+   "Problem 4 [FIGURE] block (raster/rec02_sol_p02.png): leaf count was wrong \u2014 transcript said '15 leaves total'; the tree actually has 12 leaves (4 per prize node: one C_i splitting into 2 leaves plus two C_j with a single leaf each, x3). Corrected and the node census (1 root, 3 prize nodes, 9 choice nodes, 12 leaves) added.",
+   "Problem 4 [FIGURE] block: description was too vague to redraw \u2014 added the layout geometry (unlabeled filled-dot root at far left mid-height; rising/horizontal/descending branch orientation at each stage; node labels printed to the left of each dot; stage-3 leaves at far right), and noted that the '1' branches are drawn horizontally while the split branches rise/descend."
+  ],
+  "content_added": [
+   "Explicit statement in the FIGURE block that the tree occupies the entirety of solution page 2 with no other text besides the course header and the 'Page 2 of 3' footer.",
+   "Explicit statement in the FIGURE block that no numeric probability values (1/3 etc.) appear anywhere on the tree \u2014 only symbolic P(.) expressions and the deterministic 1's.",
+   "Back matter: page-footer inventory \u2014 question PDF 'Page 1 of 1'; solution PDF 'Page 1 of 3' / 'Page 2 of 3' / 'Page 3 of 3'; the solution PDF carries no Athena Scientific footnote (only the question PDF does), plus which problems fall on which solution page."
+  ],
+  "residual_concerns": [
+   "In the P_3 sub-tree of the solution-page-2 figure, the branch labeled P(O_1 | P_3 \u2229 C_3) terminates at the leaf printed O_2 and the branch labeled P(O_2 | P_3 \u2229 C_3) terminates at the leaf printed O_1. This is genuinely what the raster shows (all other sub-trees have matching branch/leaf labels), so it is a source typo, not a transcription error. The pre-existing [SOURCE TYPO?] note was verified correct and left in place.",
+   "The two printed source typos flagged by the first pass were both re-verified character-by-character against raster/rec02_sol_p01.png and are real: the final fraction (A \u2229 B)/(A \u222a B) is printed without the bold P(\u00b7) operators, and 'equally likey' is misspelled. No change made \u2014 the notes are accurate."
+  ]
+ },
+ {
+  "content_added": [],
+  "fixes_made": [],
+  "residual_concerns": [
+   "Extra Handout log-scale plot (rec04_p02.png / rec04_sol_p01.png): the exact n at which the plotted data terminates is read off the graph as n\u2248122 (last marker sits just past the 120 gridline at 10^-10); the underlying data end point is not printed anywhere on the page, so this is an estimate, not a transcribed value.",
+   "Same figure, top panel: the P=0.5 crossing at n\u224823 is inferred from the curve plus the solution text's remark about n=23; no marker or annotation on the plot states it."
+  ],
+  "tag": "rec04",
+  "was_complete": true
+ },
+ {
+  "content_added": [
+   "Solution-sheet title block \"Recitation 9 Solutions / October 7, 2010\" and the fact that the solution sheet's footer carries only \"Page 1 of 1\" without the Athena Scientific credit line (rec09_sol_p01) \u2014 added to the front-matter section"
+  ],
+  "fixes_made": [],
+  "residual_concerns": [],
+  "tag": "rec09",
+  "was_complete": true
+ },
+ {
+  "tag": "rec07",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [],
+  "residual_concerns": []
+ },
+ {
+  "tag": "L16",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 6 (raster p02, top-right), four-state 'does the limit depend on initial state?' figure: self-loop placements were wrong/vague. Transcript said node 1 has a generic self-loop, node 3 'a self-loop drawn above it', and node 4 'also has a self-loop'. At 9x magnification node 1's self-loop is a small tangent circle drawn to its LEFT, node 3's is drawn above and slightly LEFT, and node 4's is a tangent circle drawn to its RIGHT (not above). Rewritten so the diagram is redrawable.",
+   "Slide 6 four-state figure: added that 0.4 + 0.3 + 0.3 = 1 exhausts node 2's outgoing probability (so node 2 has no other transitions), and that the 0.3 labels sit below their horizontal arrows and the 0.4 above its loop \u2014 detail needed to reproduce the figure and to see why 2 is the only transient state.",
+   "Slide 6 four-state figure: made explicit that the 3<->4 arcs and all three unlabelled self-loops carry no printed probabilities, rather than leaving '(unlabelled)' ambiguous."
+  ],
+  "content_added": [],
+  "residual_concerns": [
+   "Node-number digits are genuinely absent from all rasters: every circle in every transition diagram on p01 and p02 renders empty. The transcript's node labels (0,1,2,3,...,9,10 for the checkout counter; 1,2 for the two-state example; 1,2,3 and 1,2,3,4 for the convergence diagrams; 1-8 for the recurrent/transient diagram) cannot be confirmed from the images. They are consistent with the printed fill-in questions (r_22, r_11, r_31, r_21) and are already flagged in the transcript's footnotes 1-2; I left them as-is rather than guess differently. The figure TOPOLOGY, which is what matters, was verified directly and is correct in all five diagrams.",
+   "Slide 7 eight-state diagram: the specific assignment of labels 5, 6, 7 within the middle row (5 = far-left absorbing node, 6,7 = the right-hand recurrent pair) is an inference, as footnote 2 already states. The raster shows no digits. Topology confirmed correct.",
+   "Slide 2 figure block asserts the intended transition probabilities are p(1-q) up, q(1-p) down with a buffer of size 10. These values appear NOWHERE on the slide (the arcs are entirely unlabelled in the raster) \u2014 this is transcriber-supplied context, correctly wrapped in a [DERIVATION GAP], but a study-note builder should not present them as slide content."
+  ]
+ },
+ {
+  "tag": "rec11",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [],
+  "residual_concerns": []
+ },
+ {
+  "content_added": [
+   "Slide 3: [SOLUTION GAP] marker noting that neither warmup probability is evaluable from the handout \u2014 no state numbers on nodes, no transition probabilities on arcs \u2014 with the intended answer forms p_12 p_26 p_67 and r_27(4).",
+   "Slide 3 figure: full recurrent/transient classification read off the arrowheads \u2014 two recurrent classes {T1,T2,B1} and {R1,R2}, four transient states T3, B2, B3, R3, with the specific leak arcs (B2\u2192B1, B3\u2192R1, R3\u2192R2) named.",
+   "Slide 8 figure: explicit statement that six circles are drawn (four on the left, ellipsis, two on the right) and that every one carries a self-loop.",
+   "Slide 8 figure: the cut-balance equation pi_i p_i = pi_{i+1} q_{i+1} is now named inside the [FIGURE] block as the text printed to the right of the enlarged detail.",
+   "Header note: page numbers '1' and '2' printed at bottom center of pages 1-2.",
+   "Notes section, new item 6: the Slide 8 arc labels are set in an upright roman figure font (1- p_0, 1- p_1- q_1, 1- q_m, p_0, p_1, q_1, q_2, q_m, p_i, q_{i+1}) while the body text uses math italic \u2014 same quantities, no symbol change implied."
+  ],
+  "fixes_made": [
+   "Header reading-order note (raster p01/p02): stated rule was 'left column top-to-bottom, then right column top-to-bottom', which contradicts the slide list that follows and the actual 2x2 layout -> corrected to 'row-major: top-left -> top-right -> bottom-left -> bottom-right', with the per-page slide sequence spelled out for both p01 and p02.",
+   "Slide 3 Warmup figure structural note (raster p01): claimed 'the left block {T1, B1, T2} together with the middle nodes forms a set from which probability flows rightward into the right cluster {R1, R2}, which is closed'. This is wrong \u2014 the left block has NO outgoing arcs to the middle (T2's only exit is T2->T1; B1's only exit is B1->T1), and the middle node B2 in fact flows LEFTWARD into it via B2->B1 -> replaced with the correct classification: TWO recurrent classes, {T1,T2,B1} and {R1,R2}, and four transient states T3, B2, B3, R3.",
+   "Slide 4 figure (raster p01), left d=2 panel: 'two rounded rectangles stacked vertically' was too vague to redraw -> specified as tall, narrow, vertically-oriented rounded 'pill' shapes with a gap between them.",
+   "Slide 8 figure (raster p02): 'A vertical dashed line is drawn cutting the chain between two adjacent states' misstates the geometry \u2014 the dashed line does not cross the chain; it begins just below the q_2 label (below the chain) and runs down past the enlarged detail. Also pinned the cut location explicitly as between state 1 and state 2 -> corrected.",
+   "Slide 8 enlarged detail (raster p02): added that the two circles in the detail are drawn WITHOUT self-loops (unlike every circle in the main chain), which the prior description left ambiguous.",
+   "Notes item 5 (raster p02): list of slides with unlabeled circles omitted Slide 7 -> now reads 'Slides 3, 4, 6, 7 and 8', with an explicit caveat that the pi_1/pi_2 state labels used for the Example are supplied for reference, not printed."
+  ],
+  "residual_concerns": [
+   "Slide 3 (raster p01): the state numbers 1, 2, 6, 7 used in the two warmup probability questions are genuinely absent from the printed figure, so the mapping from question indices to the nine drawn circles cannot be recovered from the handout. Flagged in the transcript rather than guessed; my T1/T2/.../R3 labels are descriptive only.",
+   "Slide 3 (raster p01): the arrowhead on the R3 -> R2 arc is small; direction read as pointing up-and-right into R2 (R3 transient). Confident at 4x zoom but it is the least legible arrowhead on the page.",
+   "Slide 8 (raster p02): the upper arc between the second-to-last and last states carries no printed label. The transcript records it as unlabeled and only parenthetically suggests p_{m-1}; that suggestion is inference from the standard birth-death parameterization, not printed text."
+  ],
+  "tag": "L17",
+  "was_complete": false
+ },
+ {
+  "tag": "rec14",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [],
+  "residual_concerns": []
+ },
+ {
+  "tag": "rec08",
+  "was_complete": false,
+  "fixes_made": [
+   "Problem 3(d) (rec08_sol_p02): the transcript wrongly flagged the source phrase 'the third equality uses the independence of X1, X2, X3' as a typo, claiming independence was invoked at the second equality. Counting the actual equality signs in the printed three-line display (P(Z<=z) = P(max<=z) = P(X1<=z,X2<=z,X3<=z) = product = (1-e^{-lz})^3), the independence step IS the third equality. Replaced the bogus [SOURCE TYPO?] with an explanatory [Note] enumerating all four equalities.",
+   "Problem 3(e) (rec08_sol_p02): same bogus 'second vs third equality' typo flag removed; replaced with a [Note] enumerating the five equality signs of the printed chain, confirming independence is the third. The genuinely erroneous line P(X1<=w)P(X2<=w) (reversed inequalities) remains correctly flagged.",
+   "Front matter: added the document sub-titles ('Recitation 8 / October 5, 2010' on the question sheet; 'Recitation 8 Solutions / October 5, 2010' on the solution sheet), the question-sheet footer 'Page 1 of 1', the solution footers 'Page 1 of 2' / 'Page 2 of 2', the absence of the Athena Scientific credit on the solution sheet, and the repetition of the MIT header block atop solution page 2."
+  ],
+  "content_added": [
+   "Solution-sheet and question-sheet title lines and page-footer metadata (previously only the question-sheet Athena Scientific footer was recorded)."
+  ],
+  "residual_concerns": [
+   "Problem 2 (textbook Problem 3.9, Al's taxi/bus waiting time) genuinely has no worked solution in the source \u2014 the solution sheet says only 'See textbook, Problem 3.9, page 187.' The existing [SOLUTION GAP] marker is correct; nothing can be recovered from these rasters.",
+   "Both PDFs contain no figures at all, confirming the transcript's 'no figures' statement; verified region-by-region on rec08_p01 and rec08_sol_p01/p02."
+  ]
+ },
+ {
+  "tag": "rec17",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [],
+  "residual_concerns": []
+ },
+ {
+  "content_added": [
+   "Front-matter note documenting the exact page structure of both PDFs: questions PDF = 2 content pages ('Page 1 of 2', 'Page 2 of 2') + MIT OpenCourseWare back-matter page (rec10_p03); solutions PDF = 3 content pages ('Page 1 of 3'\u2013'Page 3 of 3') + identical back-matter page (rec10_sol_p04), with the full boilerplate text quoted (previously the back-matter pages were entirely unmentioned).",
+   "Note recording the running header present on every content page ('MASSACHUSETTS INSTITUTE OF TECHNOLOGY / Department of Electrical Engineering & Computer Science / 6.041/6.431: Probabilistic Systems Analysis / (Fall 2010)').",
+   "Sharpened the 'no figures' note to specify the exact form of the two tables: the 2.1 answer is an unruled two-column aligned list (outcome / probability), and the 3.1 answer is a ruled three-column table with header row omega | P({omega}) | X(omega)."
+  ],
+  "fixes_made": [],
+  "residual_concerns": [],
+  "tag": "rec10",
+  "was_complete": true
+ },
+ {
+  "tag": "rec13",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [
+   "Source notes (transcripts/rec13.md): added the exact title blocks (\"Recitation 13 / October 21, 2010\" and \"Recitation 13 Solutions / October 21, 2010\"), the page-footer strings (\"Page 1 of 1\" on the problem sheet; \"Page 1 of 3\"/\"Page 2 of 3\"/\"Page 3 of 3\" on the solutions), and the page-break layout of the solutions (sol_p01 ends mid-problem-2 after defining Y and X; 2(a), 2(b) and the whole E[T] derivation are on sol_p02; only the var(T) derivation is on sol_p03). Non-substantive provenance detail only."
+  ],
+  "residual_concerns": [
+   "None. Verified adversarially: every formula on rec13_p01 and rec13_sol_p01..p03 matches the transcript character-for-character, including the summation index sets (sum over z; then x,y; then x,y,z), the joint/conditional PMF subscripts (p_{Z|X,Y}(z|x,y), p_{X,Y}(x,y), p_{X,Y,Z}(x,y,z), p_{Y|X}(y|x), p_{Y,Z|X}(y,z|x)), the source's own inconsistent notation in 1(b) (LHS written E[E[Z|X,Y=y] | X=x], closing line written E[E[Z|Y,X]|X]=E[Z|X] with Y,X reversed), the italic-l vs script-ell mismatch and non-bold E[Y] in 2(a), var(Y)=l^2/12, var(X|Y)=Y^2/12, var(E[X|Y])=l^2/48, E[var(X|Y)]=l^2/36, total 7l^2/144, and problem 3's (var(X))E[N] + (E[X])^2 var(N) = 16*10 + 100*16 = 1760. Both documents are pure text/formula with no figures, tables, trees, or footnotes beyond the Athena Scientific credit line already recorded; rec13_p02 and rec13_sol_p04 are the standard OCW citation pages with no problem content."
+  ]
+ },
+ {
+  "tag": "L20",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 3 intro (raster p01, bottom-left): transcript claimed every convolution panel carries a small legend box with the n value. Verified at 4x zoom that only the UPPER group's three panels have a drawn legend rectangle (with a marker dot but no rendered text); the LOWER group has NO legend rectangle at all in the raster. Rewrote the sentence to state this and to note the lower-group n labels exist only in the PDF text layer.",
+   "Slide 3 lower-group original PMF (raster p01): stem heights were given as 'roughly 0.55, 0.35, 0.22, 0.13, 0.08, 0.05'. Pixel-measured against the 0-to-1 y-axis they are approximately 0.50, 0.26, 0.12, 0.05, 0.03, 0.02 \u2014 a geometric-like PMF with ratio ~1/2. Corrected, and added that the tallest stem reaches only about half the plot height.",
+   "Slide 6 figure, 1/2-correction sketch (raster p02, top-right): transcript said the bell curve's 'peak sits exactly at the top of the stem at 18' and decays 'symmetrically'. Zoomed crop shows the free-hand curve has a rounded, slightly flat top sitting just LEFT of 18 and BELOW the 18 stem (the stem pokes above the curve). Corrected the wording and added the relative stem heights (~0.15, 0.30, 0.42, 0.62, 1.00 at 18, 0.70, 0.42, 0.28, 0.15) plus the fact that labels 18-22 sit below the axis and the axis ends in a right arrowhead.",
+   "Footnote 4: corrected the claim that the legend boxes are merely 'too small to read'. In fact NO plot numerals at all (neither legend labels nor axis tick labels) render in the PNG rasters; only axes, ticks and blue markers appear. Also clarified that the PDF text layer's plot numerals are un-garbled while its body text is cipher-substituted."
+  ],
+  "content_added": [
+   "New section 'Page 3 \u2014 OCW boilerplate (raster p03)' with the verbatim copyright/citation block (MIT OpenCourseWare / http://ocw.mit.edu / 6.041 / 6.431 Probabilistic Systems Analysis and Applied Probability / Fall 2010 / For information about citing these materials or our Terms of Use, visit: http://ocw.mit.edu/terms.), which the first pass only mentioned but did not transcribe.",
+   "Layout note: added that both content pages carry a centred page number at the bottom (1, 2)."
+  ],
+  "residual_concerns": [
+   "Slide 3: the n values (upper group 2, 4, 32; lower group 8, 16, 32) and every axis tick value are NOT visible in the rasters at any zoom. They were confirmed against the PDF's embedded text layer (corpus/dfa381abca77b1062590590c178cbeef_MIT6_041F10_L20.pdf.md), where the plot numerals appear un-garbled, and cross-checked against the plotted shapes. Every tick list already in the transcript matched the text layer exactly, so confidence is high, but they are not directly readable from the images.",
+   "Slide 3 peak heights and peak locations for the four convolution panels (e.g. lower-group n=8 peak near x=13-15) are pixel-estimated from the scatter, not printed anywhere; they should be treated as approximate.",
+   "Slide 6 stem heights in the 1/2-correction sketch are a hand-drawn illustration, not data; the relative heights I added are pixel measurements and are only indicative."
+  ]
+ },
+ {
+  "tag": "L22",
+  "was_complete": false,
+  "fixes_made": [
+   "Slide 6 (Linear LMS properties, raster p02 top-right): the transcript printed 'where rho is the correlation coefficient of X and Theta and sigma_Theta^2 = var(Theta)' as if it were slide prose, while the immediately following [DERIVATION GAP] correctly said rho is NOT defined on the slide \u2014 an internal contradiction that would have put non-existent text into the study notes. Rewritten as an explicit transcriber note stating the two displayed equations are the slide's entire content, plus a character-level verification that the subscript is sigma^2_Theta (prior variance of Theta, not sigma^2_Theta-tilde) and the exponent on rho is 2.",
+   "Slide 6 [DERIVATION GAP] expanded: now records that the slide also omits the two limiting readings of the formula (|rho|=1 gives zero error; rho=0 gives error sigma_Theta^2 with the estimator collapsing to E[Theta]).",
+   "Slide 1 (raster p01 top-left): the stray '\u00b7' printed after the bullet '(Bayesian) Linear LMS estimation' was silently dropped. It is present in both the raster and the PDF text layer; annotated in place as the orphaned 'g(\u00b7)' label that floated out of the block diagram below, so a later reader does not treat it as lost content or as a typo to reintroduce."
+  ],
+  "content_added": [
+   "Footnote 4 (hidden PDF text layer): the previous one-line mention of 'fragments of an Estimation with discrete data slide and a sensor-network example' has been replaced with the actual recovered fragments \u2014 the discrete-data Bayes formula f_{Theta|X}(theta|x) = f_Theta(theta) p_{X|Theta}(x|theta) / p_X(x) with p_X(x) = integral f_Theta(theta) p_{X|Theta}(x|theta) d theta; the sensor-network text 'object at unknown location X', 'sensors', and p_{X_i|Theta}(1|theta) = P(sensor i 'senses' the object | Theta = theta) = h(distance of theta from sensor i); the binary-plus-noise fragment W ~ f_W(w), Theta in {0,1}, X = Theta + W together with its older (X,Y) form X in {0,1}, W ~ p_W(w), Y = X + W; and the discrete-alphabet block-diagram label variants p_Theta(theta), p_{X|Theta}(x|theta), N, 'Estimator'."
+  ],
+  "residual_concerns": [
+   "Figure labels genuinely do not rasterize on either page \u2014 the block diagram on Slide 1 and all six plot frames render as bare line art with zero visible text. Every label transcribed (Theta, f_Theta(theta), f_{X|Theta}(x|theta), X, 'Estimator', g(\u00b7), Theta-hat = g(X); 1/6, 4, 10, theta; 1/2, theta-1, theta+1, x; strip ticks 4, 10 and 3, 5, 9, 11) is recovered from the PDF text layer (corpus/766a6000e4accc0b6975c4833b3646b5_MIT6_041F10_L22.pdf.md), not read off the image. I independently re-verified each against that text layer and against the drawn geometry; they are consistent, but they are not visually confirmable from the rasters.",
+   "Axis naming on the joint-support parallelogram (appears three times: p01 top-right, p01 bottom-left, p02 top-left). The PDF text layer labels the VERTICAL axis 'x' (ticks 4, 10) and the HORIZONTAL axis 'y' (ticks 3, 5, 9, 11) \u2014 legacy labels from an earlier (X, Y) version of the slide. The transcript relabels them theta (vertical) and x (horizontal) to match this lecture's notation. The geometry is identical either way, but the relabelling is an inference from mathematical context, not a reading of the source; existing footnote 2 flags this and it is left as-is.",
+   "The empty second axes frame at the bottom of the 'Conditional mean squared error' panel (p01 bottom-left) is genuinely blank in the raster. Whether it is a build-step placeholder for a board drawing or a figure whose entire content failed to render cannot be determined from the raster; the PDF text layer near it holds only a duplicate of the strip-figure labels ('Var(Theta | X = x)', '4', '10', '3 5 9 11'), which weakly suggests a second copy of the strip figure rather than a new plot."
+  ]
+ },
+ {
+  "tag": "rec06",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [],
+  "residual_concerns": []
+ },
+ {
+  "tag": "rec22",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [
+   "Solution-page footer noted: 'Page 1 of 1', with the explicit observation that the solution page (rec22_sol_p01) carries NO 'Textbook problems are courtesy of Athena Scientific' credit line, unlike the question page (rec22_p01)",
+   "Added an [UNSOLVED EXAMPLE] marker covering parts (a)-(g), which are posed on rec22_p01 but receive no worked answer anywhere in rec22_sol_p01 (only textbook cross-references)"
+  ],
+  "residual_concerns": []
+ },
+ {
+  "tag": "rec23",
+  "was_complete": true,
+  "fixes_made": [
+   "Notes section (rec23_p01.png): the extraction note described the confidence-interval endpoints as $\\hat\\Theta^\\mp = \\hat\\Theta_n \\mp 1.96\\sqrt{v/n}$, which inverts the sign pairing shown on the page; rewritten to state the two endpoints explicitly ($\\hat\\Theta^- $ with $-1.96$, $\\hat\\Theta^+$ with $+1.96$), matching the image. The main displayed formula in the body was already correct."
+  ],
+  "content_added": [
+   "Solution-PDF note (rec23_sol_p01.png): added the sheet's actual title line \"Recitation 23 Solutions\", the fact that it carries no date line (unlike the question sheet's \"Recitation 23 / December 2, 2010\"), and that it carries no Athena Scientific footnote \u2014 only the \"Page 1 of 1\" footer."
+  ],
+  "residual_concerns": []
+ },
+ {
+  "tag": "rec05",
+  "was_complete": false,
+  "fixes_made": [
+   "Problem 4 solution figure (raster/rec05_sol_p02.png), top histogram: transcript claimed 'isolated single-count bars near x ~ 64, ~128 and ~256' and 'a couple of very short bars below height 1 near x ~ 8-16'. Zooming the panel shows there is NO bar at x=128, and the small bars are exactly height 1, not below 1. Corrected to the actual bar set: height ~12 at x=2, ~4 at x=4, and height-1 bars at x=8, 16, 64, 256 (counts sum to exactly 20, matching '20 simulations').",
+   "Problem 4 solution figure, bottom histogram: transcript said only 'a spike of height ~105', '~40 beside it', 'rapidly decaying short bars' and 'sparse isolated single counts out to x ~ 500'. Replaced with the resolved bar positions/heights: x=2 (~107), 4 (~40), 8 (~26), 16 (~13), short bars at 32 and 64, single-count spikes near 128, 256 and 512.",
+   "Both histogram figure blocks: added the key structural fact that every bar sits at a power of 2 (payouts are 2^n), which is what makes the plots redrawable; also recorded that the panels have NO axis labels (title only).",
+   "Appendix figure block (raster/rec05_p02.png): the same two errors were duplicated there ('unit-height bars near x ~ 15, 64, 128, 256' -- the 15 should be 16 and there is no bar at 128). Rewritten to match the verified bar set and made explicit that it is a verbatim reproduction of the solution-page figure.",
+   "Problem 2(a) PMF figure (raster/rec05_sol_p01.png): transcript said values for k=6..10 were 'visually indistinguishable from 0', which reads as if no markers were drawn. Zoomed inspection shows open circles ARE plotted at k=6,7,8,9,10 sitting on the horizontal axis; corrected and added their numeric values. Also refined k=1 (0.268) and k=3 (0.201), specified it is a marker-only scatter (no stems/no connecting line), and noted the y-axis tick labels run 0, 0.1, ..., 0.9, 1.",
+   "Header/footer block: transcript stated only 'Footer on question pages'. Added that both question-PDF content pages are numbered 'Page 1 of 1' (two separate one-page documents) and that the solutions PDF pages carry NO Athena Scientific footer, only 'Page 1 of 2' / 'Page 2 of 2'."
+  ],
+  "content_added": [
+   "Title blocks printed under the MIT header on each page, which the transcript omitted: 'Recitation 5 / September 23, 2010' (question p1), 'Recitation 5: Extra Handout / September 23, 2010' (question p2), and 'Recitation 5 Solutions / September 23, 2010' (solutions PDF)."
+  ],
+  "residual_concerns": [
+   "Bottom histogram (200 simulations) bar heights beyond the first four are read off pixel heights on a 0-150 axis and are approximate: x=32 and x=64 are roughly height 3-5 and 2, and the far-right spikes near 128/256/512 are 1-2 counts each. The exact integer counts cannot be resolved at this raster resolution.",
+   "In the 20-simulation panel the rightmost spike sits just left of the '250' tick region at roughly x=256; its exact position is inferred from the powers-of-2 payout structure rather than read from a tick label.",
+   "The k=6..10 PMF circle values on the binomial plot are computed from the binomial(10,0.2) formula, not measured from the image -- at that scale the markers are indistinguishable from the axis."
+  ]
+ },
+ {
+  "tag": "rec21",
+  "was_complete": false,
+  "fixes_made": [
+   "Problem 2 (textbook Problem 10, page 290) is posed with parts (a)(b)(c) but the solution sheet only says 'Check online solutions' \u2014 the transcript flagged this with [SOLUTION GAP] but lacked the required [UNSOLVED EXAMPLE] marker. Added an explicit [UNSOLVED EXAMPLE] block ahead of the existing gap note (rec21_p01 item 2; rec21_sol_p01 item 2).",
+   "Front-matter: added the document title lines that were omitted \u2014 question sheet 'Recitation 21 / November 23, 2010' (rec21_p01) and solution sheet 'Recitation 21 Solutions / November 23, 2010' (rec21_sol_p01) \u2014 plus the note that the solution sheet repeats the MIT header block on both content pages with centered page numbers '1' and '2' (rec21_sol_p01, rec21_sol_p02)."
+  ],
+  "content_added": [
+   "[UNSOLVED EXAMPLE] marker for Problem 2 parts (a), (b), (c)",
+   "Solution-sheet title line 'Recitation 21 Solutions' and question-sheet title line 'Recitation 21', November 23, 2010",
+   "Note on solution-sheet page numbering (footers '1' and '2') and repeated MIT header block"
+  ],
+  "residual_concerns": [
+   "None. Every formula was compared character by character against the images and all matched: Problem 1(a) E[X]=10E[X_i]=5 and P(X>=7)<=5/7=0.7142; 1(b) 2P(X-5>=2)=P(|X-5|>=2) <= var(X)/4 = (10/12)/4, P(X-5>=2) <= 5/48 = 0.1042; 1(c) the two-step CLT chain with denominator sqrt(10/12), ~1-Phi(2.19) ~ 0.0143; Problem 3(b) the six-line display including strict '<' on the left and '<=' on the right of the standardized bracket, integral limits -1/2sqrt(n) to 1/2sqrt(n), the |_{z=0} evaluation, P(S_n=n)=e^{-n} n^n/n!, the limit statement, n! = n^n e^{-n} sqrt(2*pi*n) e^{lambda_n} with 1/(12n+1) < lambda_n < 1/(12n), and the de Moivre note n! ~ n^{n+1/2} e^{-n} (constant) with Stirling's sqrt(2*pi).",
+   "Confirmed there are genuinely no figures, plots, trees or tables in any of the five rasters; rec21_p02 and rec21_sol_p03 are the standard MIT OpenCourseWare back-matter pages, exactly as the transcript's Figures section already states."
+  ]
+ },
+ {
+  "tag": "rec18",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [
+   "Sources line (transcript head): noted that both PDFs end with the standard MIT OpenCourseWare citation page (raster/rec18_p03.png and raster/rec18_sol_p04.png), quoting its text; the first-pass transcript accounted for no page images beyond the content pages, so a reader could not tell those two rasters had been examined. Purely boilerplate \u2014 no mathematical content was missing."
+  ],
+  "residual_concerns": [
+   "Figure on raster/rec18_p01.png: node S_0 is drawn slightly right of dead-center under S_3 (its outgoing 1/3 arrow to S_3 is essentially vertical). The transcript says 'centered under S_3', which is accurate enough to redraw from; noting only because the offset is visible at high zoom.",
+   "Solution page 1 (raster/rec18_sol_p01.png) carries only 'Page 1 of 3' in its footer \u2014 it lacks the 'Textbook problems are courtesy of Athena Scientific' footer that appears on both problem pages. The transcript's footer note already scopes that line to 'the problem pages', which is correct, but the asymmetry is easy to misread as an omission."
+  ]
+ },
+ {
+  "tag": "rec15",
+  "was_complete": false,
+  "fixes_made": [
+   "Problem 1(d), rec15_sol_p01: the third line of the P(G) derivation had been silently 'corrected' by the first-pass agent to 9\\int_0^\\infty ye^{-3y}\\left(-e^{-x}\\right)|_{x=0}^{x=y} dy. The source actually typesets it without parentheses as 9\\int_0^\\infty ye^{-3y} - e^{-x}|_{x=0}^{x=y} dy (reads as a difference, not a product). Restored the literal source form and added a [SOURCE TYPO?] note explaining the intended product.",
+   "Problem 1(d), rec15_sol_p01: the event G in 'P(G) = P(Y >= X_A)' is never defined anywhere in the official solution. Added a [SOURCE TYPO?] marker identifying G = {Y >= X_A} from context, and flagging the strict/non-strict mismatch (problem asks 'longer than', i.e. Y > X_A; solution computes P(Y >= X_A) \u2014 immaterial for continuous RVs).",
+   "Problem 2(c), rec15_sol_p03: added a [SOURCE TYPO?] marker for the redundant original wording 'Each future arrival is of type A with probability lambda_A/(lambda_A+lambda_B) = 3/7 of being type A' \u2014 the trailing 'of being type A' is a copy-paste leftover from part (b). The transcript reproduced the text faithfully but gave the reader no signal it is a source artifact rather than a transcription error."
+  ],
+  "content_added": [],
+  "residual_concerns": [
+   "None. All six rasters were read (rec15_p01/p02 questions, rec15_sol_p01-p04 solutions); p02 and sol_p04 are the blank MIT OCW citation pages, already noted in the transcript. Every formula on rec15_sol_p01-p03 was compared character by character (including the Erlang PDF 9ye^{-3y}, the antiderivative constants -1/3, -1/9, +1/4, +1/16, the evaluation 9(1/9 - 1/16) = 7/16, the binomial C(10,3)(3/7)^3(4/7)^7, the Poisson PMF (21)^n e^{-21}/n!, the shifted-geometric p_K(k) = (3/7)(4/7)^k for k = 0,1,2,..., and the Problem 3 result lambda*mu / ((lambda+mu+nu)(mu+nu))) and all matched. The transcript's existing SOURCE TYPO markers ('frist bulb', V = Y_1 + ... Y_N with X_i summands, T vs X in part (f), p_K(k) mislabelling) were each independently verified against the images and are genuine source errors, correctly recorded. Confirmed there are no figures, plots, trees, or tables anywhere in either document."
+  ]
+ },
+ {
+  "content_added": [
+   "Solution-sheet title block and footer convention ('Recitation 12 Solutions / October 19, 2010'; 'Page N of 6', 6 content pages plus trailing MIT OCW citation page) added to the front matter, which previously documented only the problem sheet's footer."
+  ],
+  "fixes_made": [
+   "Problem 4 [FIGURE] block (raster rec12_sol_p05.png): minimum location was described as 'right of center (roughly two-thirds across)' -> the parabola's minimum actually sits essentially at the horizontal center of the axes box (measured ~50% across the plot frame).",
+   "Problem 4 [FIGURE] block (rec12_sol_p05.png): axis label $J(\\alpha)$ was described as 'left side, rotated' -> it is printed horizontally (not rotated) just outside the left edge of the box, at about mid-height.",
+   "Problem 4 [FIGURE] block (rec12_sol_p05.png): description was too vague to redraw -> now specifies MATLAB-style plain axes box, thin blue solid curve, ~7 vertical / 8 horizontal evenly spaced dotted gridlines, no tick marks or numeric labels, curve entering at both top corners of the box, minimum ~1/5 of box height above the bottom edge, and the arrow running from lower-right up-and-left with its head touching the curve just right of the minimum and its tail label $\\frac{dJ}{d\\alpha}=0$ inside the box."
+  ],
+  "residual_concerns": [
+   "None. All four problem statements (rec12_p01) and all six solution pages (rec12_sol_p01-p06) were compared line by line; every displayed equation in the transcript matches the raster exactly, including the source's own typographic oddities that the first pass had already flagged: $\\sqrt{a^2\\mathrm{var}(X)\\mathrm{var}(Y)} = a\\sqrt{\\cdots}$ (P1), the mis-set $\\lambda^{\\lambda y}$ with missing $\\int_0^\\infty$ and the spurious primed $y'$ in $f_{X,Y}(x,y')$ (P2a), the sign-dropped boxed $f_Z(z)=\\frac{\\lambda}{2}e^{\\lambda|z|}$ on sol p2 (P2a), the mis-stated branch condition '$r\\ge0,\\ \\theta>2\\pi$' on the $\\frac{\\theta}{2\\pi}(1-e^{-r^2/2})$ line (P3c), the 'PDF of $R^2$ is exponentially distributed' phrasing (P3 note), and the '$Y\\ne 0$ / $Y=0$' conditions (P4). Pages rec12_p02 and rec12_sol_p07 are the identical MIT OCW citation pages, already covered by the transcript's back-matter section."
+  ],
+  "tag": "rec12",
+  "was_complete": false
+ },
+ {
+  "tag": "rec16",
+  "was_complete": false,
+  "fixes_made": [
+   "Problem 1(d) final number (sol page 4 of 6): the transcript had reversed the direction of the typo note \u2014 it printed '0.0228' in the body and claimed the PDF showed 0.0228 while 'the extracted text renders it as 0.0028'. A zoomed crop of rec16_sol_p04.png confirms the official solution literally prints '1 - 0.9772 = 0.0028'. Body line changed to 0.0028 (faithful transcription) and the [SOURCE TYPO?] note rewritten to say the printed 0.0028 is the source's arithmetic slip and the correct value is 0.0228.",
+   "Figure 3/4 [FIGURE] block (rec16_sol_p03.png): the shaded region in Figure 4 was described as 'the triangle 2<=X<=3, X<=W<=4 within the c1 strip' \u2014 verified from a zoomed crop that this region is a TRAPEZOID (area 3/2), while only the c2-strip region 3<=X<=4 is a triangle (area 1/2). Description corrected and areas added; also added that the X=W line enters the square exactly at (2,2), crosses the internal divider at (3,3), exits at (4,4) and continues past it, with the 'X = W' label sitting outside the square at upper right, and that the c1/c2 labels sit at W ~ 3.",
+   "Problem 1(b) [SOURCE TYPO?] note: added the explicit arithmetic (1/2 * 1/6 = 1/12, 3/2 * 1/3 = 1/2, sum 7/12) so the reader can match terms to strips without re-deriving.",
+   "Header/source block: the transcript gave only one title block. Split into the questions PDF title block ('Recitation 16 / (6.041/6.431 Spring 2007 Quiz 2) / November 2, 2010', 2 pages) and the solutions PDF title block ('Recitation 16 Solutions / (6.041/6.431 Spring 2007 Quiz 2 Solutions) / November 2, 2010', 6 pages), which appear differently on rec16_p01.png vs rec16_sol_p01.png."
+  ],
+  "content_added": [
+   "Problem 1(d): explicit standardization note \u2014 sigma = sqrt(4/3600) = 2/60, standardized variable (N - 1/60)/(2/60), threshold (5/60 - 1/60)/(2/60) = (4/60)/(2/60) = 2 \u2014 making the jump to Phi(2) reconstructible from the transcript alone.",
+   "Figure 4 region areas (trapezoid 3/2 in the c1 strip, triangle 1/2 in the c2 strip) and the exact geometry of the X=W line through the square, so the figure is redrawable."
+  ],
+  "residual_concerns": [
+   "Problem 2(a)(i) variance line: a zoomed crop of rec16_sol_p05.png confirms the source really prints 'var(A_i)E[N] + E[A_i]^2 var(N) = 1/p + p/(1 - p)' followed by '= 1/p^2'. The middle expression is internally inconsistent (geometric var(N) = (1-p)/p^2 gives 1/p + (1-p)/p^2 = 1/p^2). The transcript's existing [SOURCE TYPO?] note is correct; this is a genuine defect in the official solution, not a transcription error \u2014 flagged, not silently rewritten.",
+   "Problem 1(c): the source sentence 'Remember also that T and W are independent' and the line 'f_{W,T}(w,3) = f_W(w) f_T(3) = 10 * 1/2 = 5' were verified character-by-character against rec16_sol_p03.png and are transcribed faithfully; both are wrong as printed (should be f_W(w) f_{T|W}(3|w) = (1/2)(10) = 5, and W is independent of the noise, not of T). Already flagged in the transcript's [SOURCE TYPO?] block.",
+   "Problem 1(a)(ii): the source genuinely prints '= 5/3 + 17/6' on the middle line with final answer 17/6; 1/6*(4^2-3^2) = 7/6, so the middle line should read 5/3 + 7/6. Verified at high zoom on rec16_sol_p01.png \u2014 the printed glyphs really are '17/6' in both places. Already flagged.",
+   "rec16_p03.png and rec16_sol_p07.png are the standard OCW cover/terms pages with no problem content; nothing from them is missing."
+  ]
+ },
+ {
+  "tag": "rec20",
+  "was_complete": true,
+  "fixes_made": [],
+  "content_added": [],
+  "residual_concerns": []
+ },
+ {
+  "tag": "rec19",
+  "was_complete": false,
+  "fixes_made": [
+   "Front-matter source note (rec19_p01.png, rec19_sol_p01-p05.png): the note recorded only the shared MIT/6.041 header and the Athena Scientific footer. Expanded to also record the two documents' own title lines and pagination \u2014 question sheet titled 'Recitation 19: November 16, 2010' with footer 'Page 1 of 1'; solution sheet titled 'Recitation 19 Solutions: November 16, 2010' with footers 'Page 1 of 5' through 'Page 5 of 5'."
+  ],
+  "content_added": [],
+  "residual_concerns": [
+   "Part (c), raster rec19_sol_p02.png: the PDF prints mu_{6-1} = 162/46 = 81/23 ~ 3.522. The unreduced form 162/46 is what the source shows (162/46 does equal 81/23), so it is transcribed faithfully, but it is an unusual way to present the intermediate result and may reflect a source-side artifact of the elimination. Transcript reproduces it as printed.",
+   "Part (d), raster rec19_sol_p03.png: the final E[N] display prints (1)v_{6-1}(0) where (1)v_{6-1}(1) is required for consistency with the first display of part (d) and with the substituted value 690/3721. This is a genuine typo in the official solution, not a transcription error; the transcript reproduces it verbatim and flags it with [SOURCE TYPO?]. Left as-is deliberately.",
+   "Part (g), rasters rec19_sol_p04.png: the official solution never states numerically that the transient states 6-1, 6-2, 6-3 have steady-state probability 0, even though the question asks for the probability of being in EACH course. The transcript's [SOLUTION GAP] marker records this; no value was invented."
+  ]
+ },
+ {
+  "tag": "rec24",
+  "was_complete": false,
+  "fixes_made": [
+   "Figure 1 description (question sheet, raster/rec24_p02.png): the curve-crossing description was wrong/incomplete -> corrected. The purple parabola lies ABOVE the red dashed line for x<~2, crosses below near x~2, stays below through mid-range x, and crosses back above near x~8. The old text said only 'lies below the line for mid-range x and crosses it near x~8', omitting the small-x behaviour and the x~2 crossing.",
+   "Figure 1 description (question sheet, raster/rec24_p02.png): callout leader lines were described only vaguely -> now specified as right-angled grey leaders each terminating in a small grey dot, with the dot/label/target coordinates for all three callouts ('Sample data points' dot ~(6.5,383) -> circle (9.1,334); 'Estimated first-order model' dot ~(3.4,233) -> red line ~(5.2,150); 'Estimated second-order model' dot ~(7.35,60) -> purple curve ~(6.1,150)), plus the black outer frame, dark-blue axis box, and curves drawn from x~0.4 to x~11.",
+   "Figure 1 description (solution sheet, raster/rec24_sol_p03.png): same crossing correction applied and callout targets named, so the duplicate figure block is redrawable rather than a vague 'fits the points closely and crosses the line near x~8'.",
+   "Footnote line (raster/rec24_sol_p03.png): transcription had a trailing period that is not in the source ('optional for 6.041.') -> corrected to 'optional for 6.041' and its exact location (bottom-left of the rule carrying 'Page 3 of 3') recorded."
+  ],
+  "content_added": [
+   "Problem 1(d) [SOLUTION GAP] marker (raster/rec24_sol_p02.png): the jump from sqrt(n) > 100*sqrt(1 + 1/mu_K) to 'about 10,000 samples' is unshown arithmetic (mu_K >> 1 => sqrt(n) > 100 => n > 10^4); the CLT is also conflated with the exact identity sigma_Khat = sigma_K/sqrt(n); and the problem asks for ratio = 0.01 while the solution works with < 0.01.",
+   "Problem 1(d)/(e) [SOURCE TYPO?] note (raster/rec24_p01.png vs rec24_sol_p02.png): the problem poses (d)/(e) for the photon-count estimator Khat with sigma_Khat/mu_Khat, but the solution writes them for the temperature estimator Theta-hat_n and sigma_{Theta-hat_n}, then reverts to Khat inside the confidence interval \u2014 the two coincide, Theta-hat_n = Khat = (1/n) sum K_i, in the hot-body limit of part (c).",
+   "Problem 2(b) [SOURCE TYPO?] note (raster/rec24_sol_p03.png): on the solution page the sentence stops at 'and the estimated quadratic model' and the displayed equation y = 4.09x^2 - 3.07 is NOT printed (displaced by the figure float). The transcript retains the equation but now flags that it is supplied from the identical passage on question page 2 and from the part-(b) results.",
+   "Footnote [SOURCE TYPO?] note: the dagger footnote 'Required for 6.431; optional for 6.041' is printed on solution page 3, but no dagger marker occurs anywhere in the body of either sheet \u2014 a leftover template line; no rec24 problem is flagged 6.431-only."
+  ],
+  "residual_concerns": [
+   "Figure 1 callout leader-line endpoints and the exact plotted extents of the two curves are read off the raster by eye; the coordinates given (e.g. dot at ~(3.4,233), curve drawn from x~0.4 to x~11) are approximations for redrawing, not values printed in the source.",
+   "The dagger footnote on solution page 3 has no corresponding marker in the body text; whether it was intended to attach to Problem 2 (regression, explicitly stated to be outside the final's scope) cannot be determined from the images."
+  ]
+ }
+]

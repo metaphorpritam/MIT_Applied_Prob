@@ -1,0 +1,104 @@
+<h2 id="g5-s0">§0 &nbsp; Orientation: dependence, compressed into a state</h2>
+<p class="srcref">Sources: L16 slides 1–3 · L17 slides 1–2, 5 · L18 slides 1–2 · Bertsekas–Tsitsiklis (cited throughout as <b>B&amp;T</b>) Chapter 7 preamble, §7.1 · numbers from <code>computes/g5_s0.py</code>. A bare "§N.k" always means <em>this note's</em> own subsection; every reference to the textbook carries the "B&amp;T" prefix.</p>
+
+<p>Every process in note G4 was <em>memoryless</em>. In a Bernoulli process each slot is a fresh independent coin flip; in a Poisson process the number of arrivals in disjoint intervals are independent, and the time you have already waited tells you nothing about the time you still must wait. B&amp;T open Chapter 7 by naming exactly this and then dropping it: "The Bernoulli and Poisson processes studied in the preceding chapter are memoryless, in the sense that the future does not depend on the past&nbsp;… In this chapter, we consider processes where the future depends on and can be predicted to some extent by what has happened in the past."</p>
+
+<p>Dependence across time is where realistic models live — a queue that is long now will probably still be long a second from now, a machine that is broken now will probably still be broken tomorrow — but unrestricted dependence is unusable: to predict $X_{n+1}$ you would need the entire history $X_0,X_1,\ldots,X_n$, and the bookkeeping grows without bound. Markov chains are the smallest useful relaxation. They allow the future to depend on the past, but insist that the dependence be routed through <em>one</em> summary variable, the current <b>state</b>. B&amp;T put it as the design principle of the chapter: "we emphasize models where the effect of the past on the future is summarized by a <em>state</em>, which changes over time according to given probabilities."</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g5_s0_memory}}" alt="Two panels contrasting a memoryless process with a Markov chain. Left panel: a horizontal time axis with nine slots labelled 1,0,0,1,0,1,1,0,0 and orange triangular arrival markers above the slots that contain a 1; captions read that each slot is a fresh coin with probability p, that the trials are independent so the past is worth nothing, and that the state carried forward is none. Right panel: a two-state transition diagram with circles labelled 1 and 2, drawn in the same style as Figure 1.1 — a self-loop on the outer side of each circle, an arc bowing above from 1 to 2 and a separate arc bowing below from 2 back to 1, each arrowhead landing on the rim of the state it points into; the four arcs are labelled p11 = 0.5, p12 = 0.5, p21 = 0.2, p22 = 0.8; captions read that p_ij is the probability that X_{n+1} = j given X_n = i, that the whole past enters only through X_n, and that the state carried forward is X_n." style="max-width:940px">
+<div class="figcap">Fig. 0.1 — The one change this note makes. Left: the Bernoulli process of G4 §2 (L13 slide 3) — nothing is carried across the boundary between slots. Right: the two-state chain of L16 slide 5 / L17 slide 7 / L18 slide 3 — a single number $X_n$ is carried across, and the transition probabilities depend on it. B&amp;T Chapter 7 preamble.</div>
+
+<h3>0.1 The Markov property, in words and in symbols</h3>
+
+<p>A discrete-time, finite-state Markov chain is built from three ingredients, and L16 slide 3 lists them in the order you should think of them.</p>
+
+<div class="defn"><b>Definition (Markov chain; L16 slide 3, B&amp;T §7.1).</b>
+Let $X_n$ denote the <b>state after $n$ transitions</b>, a random variable taking values in a finite <b>state space</b> $S=\{1,\ldots,m\}$, where $m$ is the number of states and $n=0,1,2,\ldots$ indexes discrete time. The initial state $X_0$ is either given or itself random. The <b>transition probabilities</b> are the numbers
+$$p_{ij}=\mathbf{P}(X_{n+1}=j\mid X_n=i),\qquad i,j\in S,$$
+read "from $i$, the chance the next state is $j$". The model is a Markov chain when these numbers satisfy the <b>Markov property</b>: for every time $n$, every pair of states $i,j$, and every possible history $i_0,\ldots,i_{n-1}$ of earlier states,
+$$\mathbf{P}(X_{n+1}=j\mid X_n=i,\;X_{n-1}=i_{n-1},\ldots,X_0=i_0)\;=\;\mathbf{P}(X_{n+1}=j\mid X_n=i)\;=\;p_{ij}.$$
+Two things are being asserted at once. First, <em>conditional independence of the future from the past given the present</em>: adding history to the conditioning changes nothing. Second, <b>time-homogeneity</b>: the symbol $p_{ij}$ carries no $n$, so the same number applies at every time step (L17 slide 2 states this as "discrete state, discrete time, time-homogeneous"). Being probabilities of a partition of the possible next states, the $p_{ij}$ must satisfy
+$$p_{ij}\ge 0\quad\text{for all }i,j,\qquad \sum_{j=1}^{m}p_{ij}=1\quad\text{for each }i,$$
+the second because from state $i$ the chain must go <em>somewhere</em> at the next step (total probability over the $m$ mutually exclusive, collectively exhaustive events $\{X_{n+1}=j\}$, G1 §1). Note the sum is over the <em>second</em> index: rows sum to one, columns generally do not.</div>
+
+<p>Collecting the $p_{ij}$ into an $m\times m$ array gives the <b>transition probability matrix</b> $P$, whose $(i,j)$ entry is $p_{ij}$. For the chain of Fig. 0.1 (right),
+$$P=\begin{bmatrix}p_{11}&amp;p_{12}\\ p_{21}&amp;p_{22}\end{bmatrix}=\begin{bmatrix}0.5&amp;0.5\\ 0.2&amp;0.8\end{bmatrix},$$
+and each row does sum to $1$: $0.5+0.5=1$ and $0.2+0.8=1$. The matrix and the transition <em>diagram</em> — circles for states, an arrow $i\to j$ drawn whenever $p_{ij}&gt;0$, labelled with $p_{ij}$ — are two renderings of the same object, and §1 onward will move freely between them. Diagrams are for seeing structure (which states can reach which); matrices are for computing.</p>
+
+<div class="note"><b>Interpretation — what "state" really means.</b> The Markov property is not a property of the physical system; it is a property of the system <em>together with your choice of state variable</em>. The state is whatever you must remember about the past in order to make the future's distribution definite. Choose too little and the property fails; choose enough and it holds, at the price of a larger state space. That is why L16 slide 3 lists "identify the possible states" first: modeling a Markov chain <em>is</em> choosing what to remember. In the checkout-counter example of L16 slide 2 (worked in §1) the choice is the number of customers in the queue — not the individual arrival times, not who is being served, just the count. Everything else about the past turns out to be irrelevant once that number is known.</div>
+
+<div class="recipe"><b>Recipe — specifying a Markov model (L16 slide 3; B&amp;T §7.1, "Specification of Markov Models").</b>
+<ol>
+<li><b>Identify the possible states.</b> Ask: what is the least I must know at time $n$ to make $\mathbf{P}(X_{n+1}=\cdot)$ well defined? That answer is the state space $S=\{1,\ldots,m\}$.</li>
+<li><b>Identify the possible transitions</b> — the pairs $(i,j)$ with $p_{ij}&gt;0$. This is the arrow structure of the diagram, and it alone settles every classification question of §2.</li>
+<li><b>Identify the numerical values</b> of those positive $p_{ij}$, checking that each row sums to $1$.</li>
+<li><b>Verify the Markov property.</b> Argue that, given $X_n=i$, the mechanism generating $X_{n+1}$ uses nothing else from the past. If it does use something else, enlarge the state to include it and return to step 1.</li>
+</ol></div>
+
+<div class="warn"><b>Gotcha — four ways to misread the definition.</b>
+<ul>
+<li><b>Markov is not independence.</b> $X_{n+1}$ and $X_n$ are in general strongly dependent; what is asserted is that $X_{n+1}$ is <em>conditionally</em> independent of $X_0,\ldots,X_{n-1}$ <em>given</em> $X_n$. Unconditionally, $X_{n+1}$ and $X_0$ are usually dependent — knowing where you started does tell you something about where you are, just nothing <em>extra</em> once $X_n$ is known.</li>
+<li><b>$p_{ij}$ is conditional, $\mathbf{P}(X_n=j)$ is not.</b> The rows of $P$ are conditional distributions, one per starting state. They only become a distribution over states after you supply an initial distribution.</li>
+<li><b>Order of indices.</b> $p_{ij}$ is "from $i$ to $j$"; the first index is the present, the second the future. Rows sum to $1$, columns need not. Transposing $P$ silently reverses time and is the single most common arithmetic slip in this material.</li>
+<li><b>Self-transitions count.</b> $p_{ii}&gt;0$ is allowed and normal. B&amp;T are explicit: "Even though the state does not change, we still view this as a state transition of a special type (a 'self-transition')." A step of the clock always happens, even when nothing visible does.</li>
+</ul></div>
+
+<h3>0.2 One notation to fix now: $p_{ij}$ versus $r_{ij}(n)$</h3>
+
+<p>The whole note runs on two symbols, and keeping them apart is worth thirty seconds.</p>
+
+<ul>
+<li>$p_{ij}=\mathbf{P}(X_{n+1}=j\mid X_n=i)$ — <b>one</b> step. Given data of the model.</li>
+<li>$r_{ij}(n)=\mathbf{P}(X_n=j\mid X_0=i)$ — the <b>$n$-step</b> transition probability, the chance of being in $j$ after $n$ steps having started in $i$ (L16 slide 4). Computed, not given.</li>
+</ul>
+
+<p>They are linked by the key recursion of L16 slide 4,
+$$r_{ij}(n)=\sum_{k=1}^{m} r_{ik}(n-1)\,p_{kj},$$
+which just conditions on where the chain was one step before the end: $r_{ik}(n-1)$ is the probability of being at $k$ at time $n-1$, and $p_{kj}$ is the chance of stepping from there to $j$. Started off by $r_{ij}(0)=1$ if $i=j$ and $0$ otherwise, it generates the entire table; in matrix form it says $R(n)=R(n-1)P$, hence $R(n)=P^{n}$. §1 derives it with every step and states the general Chapman–Kolmogorov identity; here it is quoted only so that the three questions below can be phrased.</p>
+
+<div class="warn"><b>Gotcha.</b> $r_{ij}(1)=p_{ij}$, but $r_{ij}(2)\ne p_{ij}^2$ — the two-step probability is a <em>sum over intermediate states</em>, not a product along one path. For the chain above, $r_{11}(2)=0.35$ whereas $p_{11}^2=0.25$; the difference $0.10=p_{12}p_{21}=0.5\times0.2$ is the path $1\to2\to1$ that squaring the entry forgets (all values from <code>computes/g5_s0.py</code>).</div>
+
+<h3>0.3 The three questions this note answers</h3>
+
+<p>Given a chain, essentially everything asked of it in 6.041 is one of three questions about $r_{ij}(n)$, distinguished by the time horizon. L16 slide 6 poses the last two under the heading "generic convergence questions"; L18 slide 1 poses the third. Each gets one number here as a preview, computed in <code>computes/g5_s0.py</code>; each is developed by a later section.</p>
+
+<p><b>Question A — the short run: where am I after $n$ steps?</b> Iterate the recursion. For the two-state chain of Fig. 0.1, starting from state 1,
+$$r_{11}(0)=1,\quad r_{11}(1)=0.5,\quad r_{11}(2)=0.35,\quad r_{11}(3)=0.305,$$
+and correspondingly $r_{12}(n)=1-r_{11}(n)$ takes the values $0,\,0.5,\,0.65,\,0.695$. Nothing subtle is happening: this is arithmetic, and §1 supplies the derivation, the matrix reading, and the checkout-counter model that makes it worth doing.</p>
+
+<p><b>Question B — the long run: does $r_{ij}(n)$ settle down, and does the answer forget where it started?</b> For that same chain it does, quickly. The numbers converge to $\pi_1=2/7=0.285714$ and $\pi_2=5/7=0.714286$ from <em>both</em> starting states — at $n=100$ and $n=101$ every entry of the matrix agrees with these to eight decimals, which is the point L16 slide 5's blank table was built to reveal. The convergence is geometric: the largest deviation $\max_{i,j}|r_{ij}(n)-\pi_j|$ falls $0.214286,\ 0.0642857,\ 0.0192857$ at $n=1,2,3$, each about $0.3$ times the last, and reaches $2.49\times10^{-11}$ by $n=20$. (The ratio $0.3$ is not a coincidence — it is the second-largest eigenvalue modulus of $P$, the first being $1$; §3 explains why $1$ is always an eigenvalue.) But convergence can fail in two distinct ways, which is why §2 must come before §3:</p>
+
+<ul>
+<li><b>Periodicity.</b> For the three-state chain of L16 slide 6 ($p_{12}=1$, $p_{21}=p_{23}=0.5$, $p_{32}=1$), the chain sits on state 2 only at even times: $r_{22}(n)=1,0,1,0,1,0,1,0,1$ for $n=0,\ldots,8$. There is no limit at all — the sequence oscillates forever.</li>
+<li><b>Several destinations.</b> For the four-state chain of L16 slide 6 (state 1 absorbing; from state 2, $p_{21}=0.3$, $p_{22}=0.4$, $p_{23}=0.3$; states 3 and 4 forming a closed pair), the limit exists but depends on the start: $r_{11}(n)=1$, $r_{31}(n)=0$, and $r_{21}(n)\to 0.5$. Where you end up is decided by where you began.</li>
+</ul>
+
+<p><b>Question C — the endgame: when there are several possible destinations, which one, and how long until you get there?</b> That last number, $0.5$, is the preview of §4. It is not obtained by taking powers of a matrix but by a one-line equation: writing $a_i$ for the probability of eventual absorption into state $1$ starting from $i$, condition on the first step out of state 2,
+$$a_2=0.3\underbrace{a_1}_{=1}+0.4\,a_2+0.3\underbrace{a_3}_{=0}\;\Longrightarrow\;a_2(1-0.4)=0.3\;\Longrightarrow\;a_2=\frac{0.3}{0.6}=0.5,$$
+matching the $n\to\infty$ matrix computation exactly. Here $a_1=1$ because state $1$ absorbs immediately and $a_3=0$ because the pair $\{3,4\}$ can never be left. The same first-step idea, applied to times instead of probabilities, gives the expected time to absorption — from state 2 the chain leaves on each step with probability $0.3+0.3=0.6$, so by the mean $1/p$ of a geometric random variable (G2 §3) it lingers $1/0.6=1.666667$ steps on average.</p>
+
+<div class="note"><b>Interpretation — three questions, three kinds of arithmetic.</b> The three questions do not merely differ in horizon; they call for structurally different computations, and recognizing which you face is most of the skill. Question A is <em>forward iteration</em> (multiply by $P$ repeatedly). Question B is a <em>linear system in the unknown long-run frequencies</em> $\pi_j$ — the balance equations, indexed by the recurrent states. Question C is a <em>linear system in unknowns indexed by the transient states</em> — the first-step equations, with boundary values pinned at the absorbing destinations. §5 turns this into an explicit decision procedure; for now, notice that B and C are never both the right tool for the same chain, because B needs a single recurrent class and C needs several.</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g5_s0_conceptmap}}" alt="Concept map of note G5. A title reads: compress the past into a state. A top blue box is section 1, the model: states, p_ij, the Markov property, n-step r_ij(n) and Chapman-Kolmogorov. An arrow leads down to an orange box, section 2, classify the states: recurrent, transient, periodic, and does r_ij(n) converge. Three arrows fan out from it to three question boxes: Question A short run, where am I after n steps, with r_11(2)=0.35 and r_11(3)=0.305; Question B long run, a single aperiodic recurrent class, r_ij(n) tends to pi_j equal to 2/7 and 5/7; Question C endgame, several recurrent classes, which one and how soon. Below each, its answer: matrix powers P to the n; section 3 steady state with the balance equations and birth-death cut equations; section 4 absorption with first-step equations for a_i and mu_i. All three feed a final purple box, section 5, synthesis and checkpoint." style="max-width:980px">
+<div class="figcap">Fig. 0.2 — The map of note G5. Structure first (§1–§2), then one equation system per horizon (§3–§4), then the selection rules (§5). The three preview numbers are from <code>computes/g5_s0.py</code>; the questions are L16 slide 6 and L18 slide 1.</div>
+
+<h3>0.4 Roadmap</h3>
+
+<ul>
+<li><b>§1 — The Markov model: states, transition probabilities, $n$-step transitions</b> (L16 slides 2–4, rec18 modeling parts, B&amp;T §7.1–7.2). Building a chain from a verbal description, the transition matrix and diagram, the checkout-counter queue of L16 slide 2 derived in full (including why the queue length is Markov and what $p_{i,i+1}$, $p_{i,i-1}$, $p_{ii}$ are in terms of the arrival rate $p$ and service rate $q$), the key recursion derived rather than asserted, and Chapman–Kolmogorov. <em>Hook:</em> the modeling step — deciding what to remember — is the only step with no formula for it.</li>
+<li><b>§2 — Classification of states: recurrent, transient, periodic</b> (L16 slides 6–7, L17 slides 3–4, rec18 classification parts, B&amp;T §7.2). Which states can be reached from which, recurrent classes and transient states, why a transient state is visited only finitely often, periodicity, and the exact conditions under which $r_{ij}(n)$ converges to a limit that forgets the initial state. <em>Hook:</em> everything here is read off the arrow diagram; the numbers on the arrows do not matter, only which of them are positive.</li>
+<li><b>§3 — Steady-state probabilities and balance equations</b> (L17 slides 5–8, L18 slide 2, B&amp;T §7.3). The steady-state convergence theorem, the balance equations $\pi_j=\sum_k\pi_k p_{kj}$ together with the normalization $\sum_j\pi_j=1$, the long-run-frequency-of-visits interpretation, and birth–death chains with their cut equations $\pi_i p_i=\pi_{i+1}q_{i+1}$. <em>Hook:</em> the balance equations alone are singular — they fix $\pi$ only up to a scale factor, and the normalization is what makes the answer unique.</li>
+<li><b>§4 — Absorption probabilities and expected time to absorption</b> (L18 slides 4–7, rec19, B&amp;T §7.4). First-step analysis for absorption probabilities $a_i$, for the expected time to absorption $\mu_i$, and for mean first-passage and mean recurrence times; the phone-company blocking problem; and analyses conditioned on <em>which</em> class absorbs. <em>Hook:</em> one idea — condition on the first transition — produces every equation system in the section.</li>
+<li><b>§5 — Synthesis and checkpoint</b> (all three lectures plus rec16–rec17 review). Choosing between the balance system and the absorption system, the standard failure modes, mixed problems, and a "test yourself" pass over continuous random variables (G3) and the Poisson process (G4). <em>Hook:</em> a Markov-chain problem is usually easy once you have decided which linear system to write; deciding is the exam skill.</li>
+</ul>
+
+<p>Behind you: G1 (conditioning and the total probability theorem, used on literally every page here), G2 (PMFs, expectation, the geometric distribution, which reappears as the time spent in a state), G3 (continuous random variables), G4 (the Bernoulli process, whose arrivals drive the queueing chains, and iterated expectations, which is what first-step analysis silently uses). Ahead: B&amp;T §7.5 extends all of this to continuous time, outside the scope of these lectures.</p>
+
+<div class="summary">
+<b>§0 in one screen.</b>
+<b>The move.</b> G4's processes were memoryless; a Markov chain lets the future depend on the past, but <em>only through the current state</em> $X_n$ (B&amp;T Chapter 7 preamble).
+<b>The model</b> (L16 slide 3): a finite state space $S=\{1,\ldots,m\}$, transition probabilities $p_{ij}=\mathbf{P}(X_{n+1}=j\mid X_n=i)$ that are the same at every time and unchanged by conditioning on further history, with $p_{ij}\ge0$ and $\sum_j p_{ij}=1$ for each $i$ (rows sum to one). Specify a chain by naming states, then transitions, then numbers.
+<b>Two symbols.</b> $p_{ij}$ = one step, given; $r_{ij}(n)=\mathbf{P}(X_n=j\mid X_0=i)$ = $n$ steps, computed from $r_{ij}(n)=\sum_k r_{ik}(n-1)p_{kj}$, i.e. $R(n)=P^n$. Beware: $r_{ij}(2)\ne p_{ij}^2$ ($0.35$ vs $0.25$).
+<b>Three questions.</b> A — short run: iterate ($r_{11}(2)=0.35$, $r_{11}(3)=0.305$) → §1. B — long run: if there is a single recurrent class and it is aperiodic, $r_{ij}(n)\to\pi_j$ independent of $i$ ($2/7$ and $5/7$; error shrinks by a factor $0.3$ per step) → §2–§3. C — endgame: with several recurrent classes the limit remembers the start ($r_{11}(n)=1$, $r_{31}(n)=0$, $r_{21}(n)\to0.5$), and first-step analysis gives absorption probabilities and expected times ($a_2=0.3/0.6=0.5$; mean exit time from state 2 is $1/0.6=1.666667$) → §4.
+Route: <b>§1</b> model + $n$-step → <b>§2</b> classify → <b>§3</b> steady state → <b>§4</b> absorption → <b>§5</b> synthesis + checkpoint.
+</div>

@@ -1,0 +1,337 @@
+{
+ "issues": [
+  {
+   "section": 2,
+   "severity": "major",
+   "description": "Fig. 2.4 (radar tree) \u2014 the four leaf boxes have overlapping text. Each box holds two stacked lines drawn with too little leading, so the event label collides with the numeric line beneath it: in the 'A^c \u2229 B' box the descenders of the label sit on top of the digits of '0.95 \u00b7 0.10 = 0.0950', and the same collision occurs in the 'A \u2229 B', 'A \u2229 B^c' and 'A^c \u2229 B^c' boxes (verified by zooming s2_p09.png, leaf column x\u2248405\u2013580). The label also starts flush against the box's top border. Correct looks like: increase the vertical gap between the two text lines (or the box height/padding) so the label baseline clears the number line by at least half a line height, with even top/bottom padding inside the rounded rect. Screenshot: s2_p09.png."
+  },
+  {
+   "section": 2,
+   "severity": "major",
+   "description": "Fig. 2.5 (which-tool decision chart) \u2014 the bottom annotation 'Always check: do the branch probabilities out of each node sum to 1, and do the leaf probabilities sum to 1?' overflows its grey rounded box on BOTH sides: the text begins about 50px left of the box's left edge and ends about 80px right of its right edge, so the box border cuts through the words 'check' and 'sum'. Correct looks like: size the rounded rect from the rendered text extent (or shorten/wrap the string) so the text sits inside with padding, as the other boxes in the same figure do. Screenshot: s2_p12.png."
+  },
+  {
+   "section": 3,
+   "severity": "major",
+   "description": "Repetition-code widget ('Repetition code: how the majority-decoder error depends on n and on the channel') \u2014 the rotated y-axis title 'P(majority decoder wrong)' is drawn on top of the y tick labels: the glyphs of the title cross '0.075', '0.05' and '0.025' (confirmed by zooming the left margin of the canvas). Correct looks like: add left margin to the plot area so the rotated axis title sits clear of the tick-label column, matching the other widget canvases in the note where no such collision occurs. Screenshot: s3_p14.png."
+  },
+  {
+   "section": 3,
+   "severity": "minor",
+   "description": "Repetition-code widget uses a linear y-axis running 0\u20130.1 while the companion Fig. 3.10 immediately above uses a log axis. At the default eps=0.10 every stem for n \u2265 7 is visually pinned to zero, so the widget's central claim ('move n and eps and watch the stem heights') is not observable \u2014 only the n=1, 3 and 5 stems have any visible height. Correct looks like: log-scale the y-axis (or auto-scale it to the current eps) so the geometric decay the caption describes is actually visible. Screenshot: s3_p14.png."
+  },
+  {
+   "section": 3,
+   "severity": "minor",
+   "description": "Fig. 3.3 (conditioning destroys independence) \u2014 the 'A \u2229 C' label is placed half outside the yellow sliver ellipse it names and its glyphs are crossed by the ellipse outline; at the right end 'B \u2229 C' sits on the ellipse's right rim and nearly touches the arrowhead of the 'C' callout. Correct looks like: move both labels fully inside the sliver (or attach them with short leader lines outside the shape), and shift the 'C' arrow so its head does not land within a character width of the 'B \u2229 C' text. Screenshot: s3_p05.png."
+  },
+  {
+   "section": 3,
+   "severity": "minor",
+   "description": "Fig. 3.8 (three-step walk) \u2014 the green dashed 'target: +1' guide line at y = 1 runs straight through the annotation column: it is interrupted by the text 'FBF: 0.6\u00b2(0.4) = 0.144' and resumes to the right of it, so the guide reads as two broken segments and the annotation appears to be sitting on the line. Correct looks like: place the three path annotations above or below y = 1 (or shorten the dashed line so it stops at the last path node) so the guide line and the label block do not share the same horizontal band. Screenshot: s3_p11.png."
+  },
+  {
+   "section": 3,
+   "severity": "minor",
+   "description": "Page-break defect: the bold run-in sub-heading 'The classic trap: independent is not disjoint' is orphaned at the very bottom of the page, with roughly 40% of the page left blank below it, and the Fig. 3.2 panel it introduces starts on the next page. Correct looks like: a break-after-avoid / page-break-inside rule tying a run-in heading to the figure that follows it. Screenshot: s3_p03.png."
+  },
+  {
+   "section": 3,
+   "severity": "minor",
+   "description": "Fig. 3.5 is split from its caption by the page boundary: the two-curve plot ends at the bottom of one printed page and the caption 'Fig. 3.5 \u2014 How fast evidence accumulates in the two-coin model\u2026' is stranded alone at the top of the next, above the widget. Correct looks like: wrap image + figcap in a single break-inside:avoid container so caption and figure always print together. Screenshots: s3_p07.png (figure) and s3_p08.png (caption)."
+  },
+  {
+   "section": 4,
+   "severity": "minor",
+   "description": "Fig. 4.3 (birthday curve, top panel) \u2014 the legend box overlaps content: it is drawn on top of the orange dashed 'P(some match)' curve and over the dotted 0.5 reference line, and the green annotation leader for 'n = 23' crosses both curves before reaching the marker. Correct looks like: place the legend in the empty lower-right quadrant of the top panel (where the blue curve has already decayed to 0) and shorten the annotation leader so it does not cross the plotted series. Screenshot: s4_p13.png."
+  },
+  {
+   "section": 5,
+   "severity": "minor",
+   "description": "Fig. 5.1 (dependency map) \u2014 the arrow running from 'The axioms' to the 'Uniform law' box terminates with its arrowhead clipped by/behind the box border, so it renders as a bare line with a faint notch instead of a visible head; every other arrow in the same figure has a clear arrowhead. Correct looks like: shorten the connector so the full arrowhead lands a few pixels above the target box edge. Screenshot: s5_p01.png."
+  },
+  {
+   "section": 1,
+   "severity": "minor",
+   "description": "Line-breaking artifact in the 'Interpretation' box under Fig. 1.1: the sentence breaks between the opening quote and its math span, so one line ends with a dangling stray double-quote character and the next line begins 'min(X,Y) = 2\" is an L-shape'. Correct looks like: wrap the quote mark and the adjacent inline math in a non-breaking span so the quotation stays with the formula. Screenshot: s1_live.png."
+  },
+  {
+   "section": 1,
+   "severity": "minor",
+   "description": "Print pagination waste: the last page of \u00a71 contains nothing but the single-line footer ('Compiled from review temp on 2026-07-28\u2026'), an entirely blank sheet otherwise; separately, the top of s1_p03.png shows a leftover empty green sliver (the bottom edge of the previous .ex box) carried across the break, and the same empty-strip artifact appears at the top of s3_p09.png. Correct looks like: allow the footer to sit on the preceding page and set break-inside:avoid on .ex boxes so a box never leaves a content-free colored strip on the next page. Screenshots: s1_p13.png, s1_p03.png."
+  },
+  {
+   "section": 0,
+   "severity": "minor",
+   "description": "Print pagination: roughly 60% of the page below '0.2 Roadmap of this note' is blank because Fig. 0.1 is pushed whole onto the following page; the same happens in \u00a74 where the bottom ~35% of s4_p02.png is empty ahead of Fig. 4.1. The figures are large enough that no reflow occurs, leaving conspicuous half-empty pages. Correct looks like: cap figure max-height (or allow the following prose to fill the gap) so a page-sized figure does not strand a half page of whitespace. Screenshots: s0_p02.png, s4_p02.png."
+  },
+  {
+   "section": 4,
+   "severity": "major",
+   "description": "Dangling label + contract violation in \u00a74.3. The paragraph beginning \"Number of permutations (L04 slide 3, unsolved on the slide \u2014 Example 4.4).\" (g1_s4.html line 175) calls itself Example 4.4, but no `<div class=\"ex\"><b>Example 4.4` box exists anywhere in the fragment \u2014 the example series runs 4.1, 4.2, 4.3, 4.5, \u2026, 4.14. This is the resolution of L04 slide 3's [UNSOLVED EXAMPLE] \"Permutations \u2014 number of ways of ordering n elements is: (blank)\", and STYLE_CONTRACT \u00a7'Worked problems & practice' requires every [UNSOLVED EXAMPLE] to be solved \"in an `.ex` box (statement first, then step-by-step solution)\". Correct fix: wrap the n! derivation (and, symmetrically, the k-permutation derivation immediately after it) in a proper `<div class=\"ex\"><b>Example 4.4 (L04 slide 3, unsolved on the slide) \u2014 how many orderings of n elements?</b>\u2026</div>` box so the label resolves and the numbering is gap-free."
+  },
+  {
+   "section": 5,
+   "severity": "major",
+   "description": "\u00a75 has zero practice questions. All four subsections (5.1 How the pieces fit together, 5.2 The master cheatsheet, 5.3 Top gotchas of G1, 5.4 The bridge) contain no `<details class=\"sol\">` blocks at all (g1_s5.html: sol=0, practice=0), against the contract's \"End each h3 topic with 1\u20133 practice questions in .ex boxes with <details class=\"sol\"> answers.\" This is the worst place for the gap: \u00a75 is the only synthesis section, so the note has no mixed-review problem set anywhere \u2014 every practice item in \u00a7\u00a71\u20134 sits directly under the subsection whose single tool it exercises, which means the reader is never once asked to *choose* a tool without being told which one. Correct looks like: 4\u20136 problems at the end of \u00a75 that deliberately mix chains (e.g. a counting problem that ends in a Bayes update; a tree problem where the partition must be discovered; an \"is this independent?\" item whose answer requires the L04 conditional-uniformity trick), each with a hidden solution that names which cheatsheet row it used."
+  },
+  {
+   "section": 1,
+   "severity": "major",
+   "description": "Systemic ambiguity: \"\u00a71.x\" is used to mean both the Bertsekas\u2013Tsitsiklis section and this note's own subsection, with identical syntax and no disambiguator. In g1_s1.html \"\u00a71.2\" appears 16 times, sometimes meaning the note's own \u00a71.2 (\"monotonicity (\u00a71.2, property 3)\", \"finite additivity (the k-set property proved in \u00a71.2)\") and sometimes the book (\"\u00a71.2, 'Some Properties of Probability Laws', p. 14\"; \"\u00a71.2, p. 13\"). Meanwhile g1_s1 cites \"\u00a71.5\" for its own countable-additivity subsection while g1_s3 cites \"\u00a71.5\" ten times meaning the book's Independence chapter, and g1_s4 cites \"\u00a71.2\" and \"\u00a71.6\" meaning the book while the note's own \u00a71.2/\u00a74.x exist. A reader following \"(\u00a71.4)\" or \"(\u00a71.5)\" lands in the wrong place roughly half the time. Correct: reserve bare \"\u00a7N.k\" for the note's own headings and prefix every book citation, e.g. \"B&T \u00a71.5\" or \"text \u00a71.5\", uniformly across all six fragments."
+  },
+  {
+   "section": 3,
+   "severity": "major",
+   "description": "Broken cross-reference at the head of \u00a73.3 (g1_s3.html line 247): \"Conditional probabilities form a legitimate probability law: $\\mathbf{P}(\\cdot\\mid C)$ satisfies the three axioms on $\\Omega$ (\u00a71.4).\" This fact is proved in this note at \u00a72.1 (the `thm` box \"Property (conditional probabilities are a probability law)\"), and in the book at \u00a71.3. The note's \u00a71.4 is \"Continuous models: probability = area\" and the book's \u00a71.4 is Total Probability/Bayes \u2014 neither contains the cited result. Since the whole of \u00a73.3 (conditional independence) is built on this property, the pointer needs to be right: it should read \"(\u00a72.1)\"."
+  },
+  {
+   "section": 2,
+   "severity": "minor",
+   "description": "Garbled justification clause in the \u00a72.2 chain-rule induction (g1_s2.html line 172): \"Every intermediate intersection has positive probability because it contains $\\bigcap_{i=1}^{n-1}A_i$\u2026 more precisely, is contained in none smaller than it; the hypothesis \u2026 together with monotonicity makes each conditioning event positive.\" The sentence contradicts itself mid-stream (\"contains\" then \"is contained in\") and reads as an unfinished edit; the contract requires \"one clause of justification\" per nontrivial step. The correct statement is simply: each partial intersection $\\bigcap_{i=1}^{m}A_i$ for $m\\le n-1$ *contains* $\\bigcap_{i=1}^{n-1}A_i$, so by monotonicity $\\mathbf{P}(\\bigcap_{i=1}^{m}A_i)\\ge\\mathbf{P}(\\bigcap_{i=1}^{n-1}A_i)>0$."
+  },
+  {
+   "section": 2,
+   "severity": "minor",
+   "description": "Two citation errors in \u00a72.3. (a) The theorem box (g1_s2.html line 203) reads \"Theorem (total probability; L02 slide 7, \u00a71.3)\", but in Bertsekas\u2013Tsitsiklis the Total Probability Theorem is \u00a71.4, not \u00a71.3 \u2014 and \u00a75.2's cheatsheet row for the same theorem correctly cites \"\u00a71.4\", so the two fragments disagree with each other. (b) Line 215 justifies the countably-infinite partition case with \"(using countable additivity, L01 slide 7, axiom 3\u2032)\", but \u00a71.5 of this note establishes that countable additivity appears on L01 slide 11; slide 7 carries only the two-set Axiom 3, and the symbol \"axiom 3\u2032\" is introduced nowhere in the note."
+  },
+  {
+   "section": 4,
+   "severity": "minor",
+   "description": "\u00a74's intro and \u00a74.7's title both misdescribe the recitation coverage. The opening paragraph says \"Recitation 4 then stress-tests the toolbox on four classics: the birthday problem, non-attacking rooks, the hypergeometric urn, and the multinomial coefficient\" \u2014 rec04 has five problems (P5, multinomial probabilities, is omitted from the list). And \u00a74.7 is titled \"Recitation 4 problems, fully solved\" but contains only P1\u2013P3; P4 is Example 4.9 and P5 is Example 4.11, both back in \u00a74.6. A reader using the sidebar to find rec04 P4/P5 will not find them. Either move P4/P5 under \u00a74.7 or retitle it (e.g. \"\u00a74.7 Recitation 4: the three probability problems\") and add a pointer line naming where P4 and P5 were solved."
+  },
+  {
+   "section": 1,
+   "severity": "minor",
+   "description": "Three colliding numbered series inside \u00a71: Example 1.1\u20131.6, Practice 1.1\u20131.14, and Problem 1.1\u20131.5 all coexist, so \"1.3\" alone denotes three different boxes (Example 1.3 = the four grid probabilities, Practice 1.3 = the 0.5/0.4/0.1 inclusion\u2013exclusion drill, Problem 1.3 = the loaded die). The text already relies on the reader disambiguating by prefix (\"Practice 1.4 gives |D| = 9 \u2212 4 = 5\"; \"Use the continuity property (Problem 1.5a)\"; \"the loaded die of rec01 P3 (\u00a71.7)\"). Renumber the recitation series as R1.1\u2013R1.5 (or fold them into the Example series) so no two boxes in a section share a number."
+  },
+  {
+   "section": 3,
+   "severity": "minor",
+   "description": "Practice 3.3b's hidden solution does not answer the question it asks. The prompt is \"Show that A and B are conditionally independent given C = A\u222aB only if something degenerate happens \u2014 specifically, compute all three conditional probabilities for P(A)=P(B)=0.5 and decide.\" The solution computes only the single numeric case (2/3, 2/3, 1/3, product 4/9 \u2260 1/3) and then asserts \"Conditioning on a union of the events is never innocent\" \u2014 a general claim never proved and in fact false at the boundary: with P(A)=a, P(B)=b independent, P(A\u2229B|C)=ab/(a+b\u2212ab) and P(A|C)P(B|C)=ab/(a+b\u2212ab)\u00b2, which are equal exactly when a+b\u2212ab=1, i.e. (1\u2212a)(1\u2212b)=0, i.e. a=1 or b=1. Either drop the \"only if\" framing from the prompt, or have the solution carry the symbolic computation through to the characterization \"conditional independence given A\u222aB holds iff P(A)=1 or P(B)=1\", which is what \"something degenerate\" was pointing at."
+  },
+  {
+   "section": 1,
+   "severity": "minor",
+   "description": "Decision-guide subsections have neither an interpretation box nor practice questions, breaking the per-topic pattern the rest of the note keeps. \u00a71.6 \"Choosing the right law\" has recipe + one gotcha but note=0, practice=0; \u00a72.5 \"Which tool? A decision guide\" is identical (recipe + one gotcha, note=0, practice=0). Since these are exactly the subsections whose whole purpose is tool *selection*, they are the natural home for 2\u20133 \"classify this problem, then solve it\" items \u2014 mixed prompts where the reader must pick discrete-uniform vs area vs given-weights (\u00a71.6) and multiplication vs total-probability vs Bayes (\u00a72.5) before computing. \u00a73.4 similarly carries a recipe and gotcha but no `note` interpretation box, the only h3 in \u00a7\u00a71\u20134 with none."
+  },
+  {
+   "section": 5,
+   "severity": "minor",
+   "description": "The \u00a75.2 \"canonical worked answers of G1 \u2026 calibration points\" table is incomplete relative to what the note itself flags as headline results. It omits Monty Hall (stick 1/3 vs switch 2/3), the chess tournament (P(win)=0.375, P(type 1|win)=0.4), Romeo & Juliet (7/16 = 0.4375) and the loaded die (4/9) \u2014 yet \u00a70.2 advertises Monty Hall as the \u00a72 hook, \u00a72's summary box lists all four Monty numbers, and \u00a71's summary box explicitly calls Romeo 7/16 and loaded die 4/9 \"recitation headline numbers\". A table presented as the master calibration list should contain every number the section summaries tell the reader to memorize."
+  },
+  {
+   "section": 0,
+   "severity": "minor",
+   "description": "\u00a70's three subsections (0.1, 0.2, 0.3) contain no practice questions and no `<details class=\"sol\">` boxes, against the contract's per-h3 requirement. \u00a70.1 in particular introduces the model, the axioms and a five-step setup recipe, and its own gotcha box names three concrete modeling errors (non-exclusive outcomes, wrong granularity, assumed uniformity) \u2014 each of which is a ready-made 30-second diagnostic item (\"here are four proposed sample spaces for this experiment; which are legal, and which support a uniform law?\"). Without them the reader's first exercise is Practice 1.1, several screens later."
+  },
+  {
+   "section": 1,
+   "severity": "minor",
+   "description": "Practice numbering scheme is different in every section: \u00a71 uses \"Practice 1.1 \u2026 1.14\" (flat, section-wide), \u00a72 uses \"Practice 2.A \u2026 2.H\" (letters), \u00a73 uses \"Practice 3.1a/3.1b, 3.2a/3.2b, \u2026\" (subsection + letter), \u00a74 uses \"Practice 4.1.1, 4.1.2, 4.2.1, \u2026\" (section.subsection.index). Four schemes for one deliverable makes cross-referencing between sections impossible to do by pattern and makes the \u00a75 synthesis unable to point back at specific drills. Pick one \u2014 \u00a74's `<section>.<subsection>.<index>` is the only scheme that locates the item in the TOC \u2014 and apply it throughout."
+  },
+  {
+   "section": 2,
+   "severity": "minor",
+   "description": "rec02 and rec03 problems are reachable only by reading the body text; \u00a71 and \u00a74 give recitation problems their own numbered subsection (\u00a71.7 \"Recitation 1, solved in full\", \u00a74.7 \"Recitation 4 problems, fully solved\") and hence sidebar TOC entries, but rec02 P1\u2013P4 are buried as Examples 2.2, 2.3, 2.4/2.6 and 2.7 and rec03 P1\u2013P4 as Examples 3.2, 3.3, 3.6, 3.7, 3.12, 3.13, with no heading naming them. A student who wants to work rec03 before reading \u00a73 has no navigational entry point. Either add a short \"Recitation N problems solved here\" index list under the \u00a72 and \u00a73 intros mapping each recitation problem to its example number, or mirror the \u00a71.7/\u00a74.7 structure."
+  },
+  {
+   "section": 1,
+   "severity": "minor",
+   "description": "Two practice items outrun the toolkit their subsection has built. (a) Practice 1.1(b), the second exercise in the note, asks for the count of tetrahedral triples with distinct entries and its solution uses the sequential product 4\u00b73\u00b72 \u2014 the basic counting principle, which is only stated and proved in \u00a74.2, three sections later. (b) Practice 1.7(c) (P(XY \u2264 1/2) on the unit square) requires evaluating \u222b\u2081\u141f\u2082\u00b9(1 \u2212 1/(2x))dx = 1/2 \u2212 (1/2)ln 2, whereas \u00a71.4 develops only polygon areas (triangles, rectangles) and every worked example in it is a triangle. Either flag these as stretch items, or supply the missing scaffolding inline (a one-line forward pointer to \u00a74.2 for (a); an explicit \"this one needs a logarithmic integral\" note for (b))."
+  },
+  {
+   "section": 3,
+   "severity": "critical",
+   "description": "\u00a73.6, Example 3.13 (rec03 P3 = Problem 1.31), part (d), the \"Reading the numbers\" paragraph: the odds-form cross-check is wrong twice over. It writes \"the prior ratio 0.6/0.4=1.5\" and \"the posterior odds are the product 1.5\u00d734.1=51.2 in favor of 1, i.e. P(S1|101)=51.2/52.2=0.9579 \u2713\". (i) The prior odds *in favour of 1* are P(S1)/P(S0)=0.4/0.6=2/3, not 1.5 \u2014 1.5 is the prior odds in favour of 0, so it is being multiplied by a likelihood ratio pointing the other way. (ii) Even taking 51.2 at face value, 51.2/52.2=0.98084, not 0.9579, so the \"\u2713\" endorses an arithmetic identity that is false. Correct chain: prior odds (1 over 0) = 2/3; likelihood ratio = 0.081/0.002375 = 34.105; posterior odds = 22.737; P(S1|101) = 22.737/23.737 = 0.957871, which then genuinely matches the Bayes value 1-0.042129 computed two lines above. Note also that none of 1.5, 34.1, 51.2, 52.2 appears in computes/g1_s3.json (computes/g1_s3.py computes only ch_d_lik0/lik1/num/den/P_0_given_101), so this is a hand-computed number, violating the style contract's \"NEVER hand-compute a numeric value\". The \u00a73.6 Recipe step 5 (\"posterior odds = prior odds \u00d7 likelihood ratio\") points readers at this broken worked instance."
+  },
+  {
+   "section": 5,
+   "severity": "major",
+   "description": "\u00a75.3, Gotcha 2 (radar model), last clause: \"the conversion factor P(A)/P(B) can be enormous when A is rare\" is backwards. Bayes gives P(A|B)=P(B|A)\u00b7P(A)/P(B); when A is rare relative to B the factor P(A)/P(B) is *small* \u2014 here 0.05/0.1445=0.3426, which is precisely why the 0.99 detector reliability collapses to a 0.342561 posterior. Correct statement: the factor can be tiny (equivalently, the two conditionals can differ enormously) when A is rare."
+  },
+  {
+   "section": 5,
+   "severity": "major",
+   "description": "\u00a75.3, Gotcha 5 (\"counting order inconsistently\"), parenthetical example: \"Mixing them (e.g. 6! over C(6,6)) silently multiplies your answer by a factorial.\" C(6,6)=1, so the expression is 720/1=720 \u2014 not a probability at all, and not the stated answer times a factorial. No plausible student error produces this expression. A genuine mismatch for the six-different-rolls problem would be an unordered denominator such as the C(11,5)=462 multisets of six rolls against the ordered numerator 6!. Replace or delete the example."
+  },
+  {
+   "section": 4,
+   "severity": "minor",
+   "description": "\u00a74.4, paragraph \"Two immediate consequences\": the chain \"$\\binom{5}{2} = 5!/(2!\\,3!) = 20/2 = 10$\" contains a false intermediate equality \u2014 5!/(2!\u00b73!) is 120/12, not 20/2. The 20/2 belongs to the next clause (2-permutation count 5\u00b74=20 divided by 2!). Write $5!/(2!\\,3!) = 120/12 = 10$, then the alternative 20/2 = 10."
+  },
+  {
+   "section": 4,
+   "severity": "minor",
+   "description": "\u00a74.7, note \"Interpretation \u2014 why the answer feels wrong\": \"That event involves only the n\u22121 pairs containing you and needs about 253 people for even odds.\" Solving 1-(364/365)^{n-1} > 1/2 gives n-1 = 253, i.e. 254 people present (253 *others*). Since the sentence's question is \"how many people must be present\", the number is 254; as written it is off by one and reads as if it were coincidentally the same 253 as C(23,2). Say \"253 other people (254 present)\"."
+  },
+  {
+   "section": 4,
+   "severity": "minor",
+   "description": "\u00a74.3: the L04-slide-3 [UNSOLVED EXAMPLE] \"Number of ways of ordering n elements\" is solved in a bare <p> labelled \"(\u2026 \u2014 Example 4.4)\" rather than in a <div class=\"ex\"> box, unlike Examples 4.1\u20134.3 which cover the other slide-3 blanks. Consequence: there is no example box numbered 4.4 anywhere in the fragment (boxes jump 4.3 \u2192 4.5), and the style contract's rule \"Every [UNSOLVED EXAMPLE] \u2026 solve COMPLETELY in an .ex box\" is not met for this one. Same for the k-permutation derivation immediately after it."
+  },
+  {
+   "section": 1,
+   "severity": "major",
+   "description": "Fig. 1.5 (notes/img/g1_s1_flowchart.png, \u00a71.6) contradicts \u00a71.5. The decision node reads \"Is \u03a9 finite or countable?\" but has only two outgoing labels, \"countable\" and \"continuous\" \u2014 the *finite* case has no arrow at all. The \"countable\" branch then goes to \"Are all outcomes equally likely? \u2192 yes \u2192 Discrete uniform law P(A) = |A|/|\u03a9|\". For a countably infinite \u03a9 that law does not exist: the note's own Gotcha at the end of \u00a71.5 proves it (\"if every P(n) = c, countable additivity gives P(\u03a9) = \u03a3c, which is 0 if c = 0 and \u221e if c > 0 \u2014 never 1\"), and Recipe step 2 immediately below the figure says \"Finite \u2192 counting; countably infinite \u2192 a series\". |\u03a9| is also undefined/infinite on that branch. The alt text repeats the error verbatim (\"if countable ask whether outcomes are equally likely, leading to either the discrete uniform law P(A)=|A|/|Omega| or summing given masses\"). Correct version: the node must split three ways \u2014 finite / countably infinite / continuous \u2014 and only the *finite* branch may reach P(A)=|A|/|\u03a9|; the countably-infinite branch must go to \"sum the given masses (countable additivity)\" with no equally-likely sub-branch."
+  },
+  {
+   "section": 2,
+   "severity": "major",
+   "description": "\u00a72.3, last line of the total-probability derivation (fragment g1_s2.html, after the Step 2 QED): \"and (using countable additivity, L01 slide 7, axiom 3\u2032) for a countably infinite partition\" \u2014 miscitation, and self-contradictory with \u00a71. Per transcripts/L01.md, slide 7 states only the two-set additivity axiom plus the bare remark \"Axiom 3 needs strengthening\"; countable additivity is introduced on L01 slide 11. The label \"axiom 3\u2032\" comes from L02 slide 2, not L01 slide 7. \u00a71.5 of these same notes cites it correctly as \"L01 slide 11\". Should read \"(using countable additivity, L01 slide 11; L02 slide 2 axiom 3\u2032)\"."
+  },
+  {
+   "section": 0,
+   "severity": "minor",
+   "description": "\u00a70.1 Definition box, first bullet: mutual exclusivity is glossed as \"exactly one outcome occurs; no two can occur together\". \"Exactly one occurs\" is the conjunction of mutual exclusivity *and* collective exhaustiveness, not the definition of the first alone \u2014 and the very next parenthetical then re-states exhaustiveness separately, so the definition double-counts. \u00a71.1 gets this right (\"Mutually exclusive \u2014 at most one outcome can occur\"; \"Collectively exhaustive \u2014 at least one outcome occurs\"; \"Taken together: exactly one\"). Fix \u00a70 to \"at most one outcome can occur\"."
+  },
+  {
+   "section": 0,
+   "severity": "minor",
+   "description": "\u00a70.2 roadmap is incomplete relative to the assembled note. It presents G1 as exactly four topics (\u00a71\u2013\u00a74) followed by \"note G2\", but the assembled note contains a fifth numbered section, g1_s5.html \"\u00a75 \u2014 Synthesis, cheatsheet, and the bridge to random variables\" (id=\"g1-s5\" is present in notes/01_probability_basics.html). The hedge in the following paragraph \u2014 \"where a topic runs long it is split across two numbered sections\" \u2014 is also false: no topic is split; \u00a71\u2194g1_s1, \u00a72\u2194g1_s2, \u00a73\u2194g1_s3, \u00a74\u2194g1_s4 are 1-to-1. Either add \u00a75 to the roadmap list or delete the incorrect hedge."
+  },
+  {
+   "section": 0,
+   "severity": "minor",
+   "description": "\u00a70.3 notation table is introduced as \"the complete list used in G1\" but is not complete: it omits the factorial n! and the multinomial coefficient n!/(n_1!\u22efn_r!), both used throughout \u00a74 (g1_s4.html contains frac{n!}{n_1!\\,n_2!\\cdots n_r!} etc.). It also declares the binomial coefficient as \\binom{n}{k} while \u00a74 writes it 22 times as {n \\choose k}; same rendered glyph, but the table is then not the notation \"used\"."
+  },
+  {
+   "section": 0,
+   "severity": "minor",
+   "description": "srcref line cites \"L01 slides 3\u20134, 7, 9\u201311\" but the body cites L01 slide 5 (Recipe step 1: \"If the experiment has stages, a tree is usually the right picture (L01 slide 5)\"), which is outside the declared range. Either widen the srcref to 3\u20135, 7, 9\u201311 or drop the inline slide-5 citation."
+  },
+  {
+   "section": 1,
+   "severity": "minor",
+   "description": "Practice 1.4 (\u00a71.2) asks the reader to prove P(B \u2229 A^c) = P(B) \u2212 P(A) for A \u2286 B \"and use it to show P(A\u222aB) \u2265 max{P(A), P(B)}\", but the posted solution proves the second claim purely from monotonicity applied to A \u2286 A\u222aB and B \u2286 A\u222aB, never using the identity just established. Either restate the exercise (\"and, separately, show\u2026\") or give the derivation that actually uses the identity (P(A\u222aB) \u2212 P(A) = P(B \u2229 A^c) \u2265 0)."
+  },
+  {
+   "section": 1,
+   "severity": "minor",
+   "description": "Example 1.5, Step 2 (\u00a71.4): the displayed bound is asserted as \"0 \u2264 P(A) \u2264 P(B_\u03b5) = 4\u03b5\u00b2 for every \u03b5 > 0\", but Step 1 established area(B_\u03b5) = 4\u03b5\u00b2 only for \u03b5 \u2264 0.3 (\"For all small \u03b5 (any \u03b5 \u2264 0.3) this box sits inside \u03a9\"). For \u03b5 > 0.3 the box is clipped by \u03a9 and P(B_\u03b5 \u2229 \u03a9) < 4\u03b5\u00b2, so the equality in the display is false as quantified. The squeeze is unaffected \u2014 restrict the quantifier to 0 < \u03b5 \u2264 0.3, which is all the limit needs."
+  },
+  {
+   "section": 2,
+   "severity": "minor",
+   "description": "\u00a72.2, paragraph after the general (n-event) multiplication rule: the positivity justification is garbled \u2014 \"Every intermediate intersection has positive probability because it contains \u22c2_{i=1}^{n-1}A_i\u2026 more precisely, is contained in none smaller than it\". The clause after the ellipsis is not a mathematical statement. The correct argument is one line: for k \u2264 n\u22121, \u22c2_{i=1}^{k}A_i \u2287 \u22c2_{i=1}^{n-1}A_i, so by monotonicity P(\u22c2_{i=1}^{k}A_i) \u2265 P(\u22c2_{i=1}^{n-1}A_i) > 0, hence every conditioning event in the product is legitimate."
+  },
+  {
+   "section": 2,
+   "severity": "minor",
+   "description": "\u00a72.1 Property box claims Q(A) = P(A|B) \"satisfies the three axioms of L01 slide 7, so every theorem proved for probability laws applies verbatim\", but item 3 verifies only two-set additivity. Since \u00a71.5 explicitly *replaces* Axiom 3 by countable additivity as the official axiom list, the conditional law should be checked against that stronger axiom (the same one-line distributivity + division argument works for a sequence A_1, A_2, \u2026). As written, the \"applies verbatim\" claim overreaches the proof given, and inherits nothing for the countably-infinite partitions used later in \u00a72.3."
+  },
+  {
+   "section": 2,
+   "severity": "minor",
+   "description": "Contract violation (STYLE_CONTRACT \"Worked problems & practice\": \"End each h3 topic with 1\u20133 practice questions in .ex boxes\"). \u00a72.5 \"Which tool? A decision guide\" ends with a Gotcha and no practice item. The same omission occurs at \u00a71.6 \"Choosing the right law \u2014 a decision procedure\". Every other h3 in both sections complies (2.A/2.B, 2.C, 2.D, 2.E/2.F, 2.G/2.H; 1.1\u20131.14)."
+  },
+  {
+   "section": 2,
+   "severity": "minor",
+   "description": "Contract violation (STYLE_CONTRACT \"Numbers\": never hand-compute; values must come from the compute script/JSON). Eight decimals printed in \u00a72 prose appear in neither computes/g1_s2.json nor the print statements of computes/g1_s2.py: 0.1667 (Ex 2.2a), 0.3056 (Ex 2.2c), 0.1875 (Gotcha after Ex 2.1), 0.178571 (Practice 2.C), 0.8555 (Ex 2.5 Step 5 denominator), 0.181818 (Practice 2.F check), 0.3125 and 0.4375 (Ex 2.1 / Gotcha). I recomputed all eight and they are numerically correct, so this is a provenance defect, not an arithmetic one \u2014 add them to the compute script's outputs."
+  },
+  {
+   "section": 2,
+   "severity": "minor",
+   "description": "Monty Hall widget (id w-g1s2-monty): the \"run games\" button handler sets s.seedbump = (s.seedbump || 0) + 1, but seedbump is never read inside draw(); the re-randomization comes solely from Math.random(). Dead state \u2014 either remove it or make draw() use it as an actual PRNG seed so runs are reproducible (which is what a named seed variable implies to a reader)."
+  }
+ ],
+ "fixes": [
+  {
+   "section": 4,
+   "fixed": [
+    "[1, math] \u00a74.4 'Two immediate consequences': corrected the false chain to $\\binom{5}{2} = 5!/(2!\\,3!) = 120/12 = 10$, and moved the 20/2 to its own clause ('the 2-permutation count 5\u00b74=20 divided by 2! = 2, i.e. 20/2 = 10').",
+    "[2, math] \u00a74.7 note 'Interpretation \u2014 why the answer feels wrong': off-by-one fixed. Verified numerically that 1-(364/365)^m first exceeds 1/2 at m = 253 (0.500477 vs 0.499105 at m = 252), so the text now reads 'even odds there need 253 *other* people, i.e. a party of 254 (solve 1-(364/365)^{n-1} > 1/2, which first holds at n-1 = 253)'.",
+    "[3+5, pedagogy/contract] \u00a74.3: the bare <p> labelled 'Number of permutations (\u2026 \u2014 Example 4.4)' and the k-permutation paragraph that followed are now wrapped in a single <div class=\"ex\"><b>Example 4.4 (L04 slide 3, unsolved on the slide) \u2014 in how many ways can n elements be ordered, and how many k-permutations are there?</b>\u2026 box, with the two derivations as parts (i) and (ii). The example series is now gap-free 4.1\u20134.14 and the [UNSOLVED EXAMPLE] is solved in an .ex box per STYLE_CONTRACT \u00a7'Worked problems & practice'.",
+    "[4, render] Fig. 4.3 top panel: in d:/Python-UV/MIT_Applied_Prob/computes/g1_s4_figs.py the legend moved from loc='center right' (which sat on the dotted 0.5 reference line) to loc='lower right', bbox_to_anchor=(0.995, 0.06), framealpha=1.0 \u2014 the empty lower-right quadrant where P(all distinct) has decayed to ~0; and the n = 23 annotation text moved from xytext=(37, 0.70) to (28.5, 0.30) with shrinkA/shrinkB, so the leader is short and no longer crosses the orange P(some match) curve. Regenerated notes/img/g1_s4_birthday.png and re-viewed it: no overlaps remain.",
+    "[6, pedagogy] \u00a74 intro now says Recitation 4 has five problems, names all five (P1 birthday, P2 rooks, P3 hypergeometric urn, P4 slot derivation of the multinomial coefficient, P5 multinomial probabilities), and points out that P4/P5 are solved in \u00a74.6 as Examples 4.9 and 4.11. \u00a74.7 retitled 'Recitation 4: the three probability problems, fully solved' with a new lead paragraph pointing readers to Examples 4.9 and 4.11 in \u00a74.6 for P4 and P5.",
+    "Rebuilt: `uv run notes/_build/assemble_body.py g1` then `uv run notes/_build/build_note.py 01_probability_basics` \u2014 both pass (32 figures, consecutive section-local numbering, balanced divs, 8 widgets)."
+   ],
+   "skipped": []
+  },
+  {
+   "section": 0,
+   "fixed": [
+    "Issue 1 (math-0, mutual exclusivity gloss): \u00a70.1 Definition box first bullet now reads 'mutually exclusive (at most one outcome can occur - no two can occur together) and collectively exhaustive (at least one outcome occurs - some element of Omega always does). Taken together the two conditions say exactly one omega occurs.' This matches \u00a71.1's phrasing and removes the double-counting of exhaustiveness.",
+    "Issue 2 (math-0, incomplete roadmap): added a fifth roadmap bullet '\u00a75 - Synthesis, cheatsheet, and the bridge to random variables (all four lectures)' matching the actual g1_s5.html title, and replaced the false hedge sentence with 'The four topics occupy \u00a71-\u00a74 one-for-one, in the order above, and \u00a75 is the synthesis; the sidebar table of contents lists the sub-sections of each.' The \u00a70 summary box now also mentions \u00a75. Fig. 0.1 and its caption still describe the four topics only, which is correct since \u00a75 introduces no new topic.",
+    "Issue 3 (math-0, notation table incomplete): added table rows for $n!$ (with 0!=1) and the multinomial coefficient $n!/(n_1!n_2!\\cdots n_r!)$, both used in \u00a74; changed the binomial row to display ${n \\choose k}$ (the form \u00a74 uses 22 times) with an explicit note that ${n \\choose k}$ and \\binom{n}{k} are the same symbol; softened the lead-in from 'the complete list used in G1' to 'lists every symbol used in G1'.",
+    "Issue 4 (math-0, srcref range): verified L01 Slide 5 exists ('Sample space: Discrete example', raster p02) and is genuinely what the Recipe step-1 tree citation points to, so widened the srcref to 'L01 slides 3-5, 7, 9-11 (raster p01-p03)' rather than dropping the inline citation. The raster range p01-p03 already covers slide 5.",
+    "Issue 5 (render, print pagination) for \u00a70: confirmed against the screenshot - old s0_p02.png was ~55% blank because Fig. 0.1 (1063x855 px at max-width:640px => ~515 CSS px tall plus caption) could not fit the remaining page. Capped the figure to style=\"max-width:500px;max-height:400px\" and, together with the new practice boxes, re-shot the section: page 2 now ends ~8% short instead of ~55%, and Fig. 0.1 sits at the top of a fully-filled page 3. No figure content changed, so no regeneration was needed; the PNG was re-viewed in the new print shots.",
+    "Issue 6 (pedagogy, no practice items): added four practice items with <details class=\"sol\"> solutions, one per h3 as the contract requires. Practice 0.1 (end of \u00a70.1) is exactly the reviewer's suggested diagnostic - four proposed sample spaces for two tetrahedral rolls, asking which are MECE and which support a uniform law, hitting all three gotchas (non-exclusive list, wrong granularity/sum space, assumed uniformity). Practice 0.2 (end of \u00a70.1) walks the five-step recipe on the three-roll model and diagnoses which step a wrong 1/3 answer breaks. Practice 0.3 (end of \u00a70.2) matches four questions to the section supplying the tool, reinforcing Fig. 0.1's arrows. Practice 0.4 (end of \u00a70.3) exercises the notation table and the disjoint-vs-independent distinction.",
+    "Numbers: every new numeric value is computed in computes/g1_s0.py (extended, re-run, JSON regenerated) - sum_counts [1,2,3,4,3,2,1], sum_p_of_5 = 1/4 vs uniform 1/7, tetra3_outcomes = 64, tetra3_all_equal = 4 (p = 1/16), tetra3_exactly_two_equal = 36 (p = 9/16), tetra3_all_different = 24 (p = 3/8). Nothing was hand-computed.",
+    "Rebuilt: notes/_build/assemble_body.py g1 and build_note.py 01_probability_basics both pass validation (6 fragments, 32 figures, figure numbering still consecutive; \u00a70 has one figure, Fig. 0.1)."
+   ],
+   "skipped": [
+    "Issue 5, the \u00a74 half (s4_p02.png bottom ~35% blank ahead of Fig. 4.1): out of scope for this fragment - the offending figure and its sizing live in notes/src/fragments/g1_s4.html, and the task rules restrict me to g1_s0.html. The same remedy applies there (cap the img max-width/max-height so the figure fits the remaining page); flagging for the \u00a74 author. The shared rule .fig in notes/_shared/notes.css sets only max-width:100% and has no print-specific height cap, so a global fix there would address both at once if the orchestrator wants one."
+   ]
+  },
+  {
+   "section": 5,
+   "fixed": [
+    "[major/math-1] \u00a75.3 Gotcha 2 (radar): rewrote the last clause. It now states Bayes explicitly as P(A|B)=P(B|A)\u00b7P(A)/P(B) and says the conversion factor P(A)/P(B) is *small* when A is rare \u2014 0.05/0.1445 = 0.346021, which is exactly why the 0.99 likelihood collapses to the 0.342561 posterior. Added radar.bayes_factor = 0.346021 and a check radar.factor_times_like = 0.99\u00b7P(A)/P(B) = 0.342561 to computes/g1_s5.py. (Note: the reviewer quoted 0.3426 as the value of P(A)/P(B); that is the posterior. The true ratio is 0.346021, and the fragment now uses the recomputed value.)",
+    "[major/math-1] \u00a75.3 Gotcha 5: replaced the bogus '6! over C(6,6)' example. The text now gives the genuine mismatch \u2014 ordered numerator 6!=720 against the C(6+6-1,6)=C(11,5)=462 unordered multisets of six rolls, giving 720/462 = 1.558442, not even in [0,1]. Added cnt.six_multisets=462 and cnt.six_mismatch=1.558442 to computes/g1_s5.py. Also fixed a stray line-break hyphenation ('six-different- rolls') in the same box that was rendering as a broken word.",
+    "[minor/render] Fig. 5.1: the arrowheads were being hidden under the box borders, because the FancyBboxPatch boxstyle pad=0.5 (data units) extends the visible border beyond the anchor point while arrows are drawn at zorder 2 below the boxes at zorder 3, and shrinkA/shrinkB were only 1.0 pt. Changed to shrinkA=5.0, shrinkB=8.0 in computes/g1_s5_fig.py (with a comment explaining why), regenerated notes/img/g1_s5_conceptmap.png and re-viewed it: the axioms\u2192Uniform law head is now fully visible, as are all the others, and no arrow now overlaps a box.",
+    "[major/pedagogy] Added a new h3 '5.5 Mixed practice: choose the tool yourself' with five .ex boxes, each with a <details class=\"sol\"> solution that names the cheatsheet rows it used. 5.1 hypergeometric \u2192 total probability \u2192 Bayes (two urns, 2 of 3 red, posterior 20/27 \u2248 0.740741). 5.2 a partition the reader must invent (roll N, then toss a coin N times): P(exactly 2 heads) = 33/128 = 0.2578125 and P(N=2 | 2 heads) = 16/99 \u2248 0.161616. 5.3 'is this independent?' resolved by the L04 s7 conditional-uniformity trick: given exactly 3 heads in 10, P(H1|B)=P(H2|B)=3/10 but P(H1\u2229H2|B)=1/15 \u2260 9/100, so conditioning destroys independence (with the follow-up P(H2|H1\u2229B)=2/9). 5.4 complement then recount inside B: 41/42 \u2248 0.976190 and 20/41 \u2248 0.487805. 5.5 multinomial vs binomial on 12 die rolls: 0.003438 vs 0.296094. Every number is computed in computes/g1_s5.py (new p51\u2013p55 blocks); the \u00a75 intro prose and the summary box gained a line pointing at the new set. No new figures, so Fig. 5.1 remains the only figure and numbering is unchanged.",
+    "[minor/pedagogy] \u00a75.2 calibration table: added the five missing headline numbers, each with a 'why it is worth remembering' line and a source \u2014 loaded die P({1,2,3}) = 4/9 \u2248 0.444444 (rec01 P3), Romeo & Juliet 7/16 = 0.4375 (rec01 P4), chess P(win) = 0.375 (L02 s7) and P(type 1 | win) = 0.4 (L02 s8), and Monty Hall stick 1/3 vs switch 2/3 (rec02 P4). Monty was placed with the other Bayes rows; the rest were placed in source order. All five are now recomputed in computes/g1_s5.py (monty.*, chess.*, romeo.*, die.*) rather than transcribed."
+   ],
+   "skipped": []
+  },
+  {
+   "section": 1,
+   "fixed": [
+    "[1 major/math] Fig. 1.5 flowchart (computes/g1_s1_figs.py::fig_flowchart) redrawn with a genuine three-way classification node ('Classify \u03a9: finite, countably infinite, or continuous?'). Only the FINITE branch reaches the 'Are all outcomes equally likely?' node and the discrete uniform law box, which is now labelled 'P(A)=|A|/|\u03a9| (finite \u03a9 only)'. The countably-infinite branch goes straight to 'Sum the given masses P(A)=\u03a3_{s\u2208A}P(s) (countable additivity)' with no equally-likely sub-branch (the finite 'no' arrow feeds the same box). PNG regenerated at notes/img/g1_s1_flowchart.png and viewed. Alt text rewritten to describe the three-way split; figcap now adds 'the discrete uniform law is reachable only from the finite branch, because no uniform law exists on a countably infinite \u03a9 (\u00a71.5)'.",
+    "[2 minor/math] Practice 1.2.2 (was Practice 1.4) solution now actually uses the identity it just proved: it instantiates P(B\u2229A^c)=P(B)\u2212P(A) at the pairs (A, A\u222aB) and (B, A\u222aB), giving P(A\u222aB)\u2212P(A)=P((A\u222aB)\u2229A^c)=P(B\u2229A^c)\u22650 and P(A\u222aB)\u2212P(B)=P(A\u2229B^c)\u22650, then takes the max. The gap size is now explicit rather than being an unused lemma.",
+    "[3 minor/math] Example 1.5, Step 2 (\u00a71.4): quantifier tightened from 'for every \u03b5 > 0' to 'for every 0 < \u03b5 \u2264 0.3', with a sentence explaining that outside that range the box is clipped by \u03a9 so P(B_\u03b5\u2229\u03a9) < 4\u03b5\u00b2 and the displayed equality would be false. Step 3 correspondingly reads 'for every \u03b5 in (0, 0.3]. Letting \u03b5 \u2192 0 inside that range'.",
+    "[4 minor/render] Interpretation box under Fig. 1.1: each quotation mark is now glued to its formula via <span style=\"white-space:nowrap\">\"$...$\"</span> for \"$X = 1$\", \"$X + Y$ is odd\" and \"$\\min(X,Y) = 2$\". Verified in the re-shot print page s1_p02.png \u2014 no dangling stray quote at a line end.",
+    "[5 minor/render] notes/_shared/notes.css @media print block extended: break-inside/page-break-inside: avoid on .defn/.note/.thm/.warn/.recipe/.summary/.widget/details.sol/table/.figcap, plus '.ex:has(> details.sol)' so short practice/recitation boxes stay whole while long worked Examples remain breakable (a blanket .ex rule stranded an 80%-empty page before Example 1.6 \u2014 verified and backed out). Also h2/h3/h4 break-after: avoid, .fig break-after: avoid, p orphans/widows 3, and break-before: avoid on the trailing <hr> and the compile footer. Re-shot \u00a71: page count 13 \u2192 14, the footer-only blank sheet is gone (footer now shares the last page with the summary, s1_p14.png) and the empty green sliver at the top of s1_p03.png is gone.",
+    "[6 major/pedagogy, this fragment] All textbook citations in g1_s1.html now carry a 'B&T' prefix: B&T \u00a71.2 (axioms thm, properties thm, p.13 footnote, countable-additivity thm, Example 1.5 p.13), B&T Problem 1.5 p.54, B&T Problem 1.13 p.56, B&T Example 1.5 p.13, 'the argument of B&T, p.14'. Bare \u00a7N.k now uniformly means this note's own subsection. The srcref line defines the abbreviation and states the convention explicitly.",
+    "[7 minor/pedagogy] Recitation series renumbered to remove the three-way collision: Problem 1.1\u20131.5 \u2192 Problem R1.1\u2013R1.5, with all in-text cross-references updated ('Repeat Problem R1.4\u2026', 'of Problem R1.3\u2026', 'Use the continuity property (Problem R1.5a)'). No two boxes in \u00a71 now share a number.",
+    "[9 minor/pedagogy, this fragment] Practice items renumbered to \u00a74's <section>.<subsection>.<index> scheme: 1.1\u20131.2 \u2192 1.1.1\u20131.1.2, 1.3\u20131.4 \u2192 1.2.1\u20131.2.2, 1.5\u20131.6 \u2192 1.3.1\u20131.3.2, 1.7\u20131.8 \u2192 1.4.1\u20131.4.2, 1.9\u20131.10 \u2192 1.5.1\u20131.5.2, 1.11\u20131.14 \u2192 1.7.1\u20131.7.4, with in-text references ('Practice 1.2.2 gives |D| = 9 \u2212 4 = 5', 'the numbers of Practice 1.2.1', 'zero area (Practice 1.4.2)') updated to match.",
+    "[8 minor/pedagogy, \u00a71.6] Added the missing interpretation box and practice items to \u00a71.6. New <div class=\"note\"> explains the flowchart as one recipe ('add up the weight sitting on A') read at three granularities and reframes the branch point as 'what object carries the probability?'. New Practice 1.6.1 is a three-part classify-then-solve drill mixing the branches: (a) fair 8-sided die twice, P(X+Y=5) = 4/64 = 1/16 = 0.0625 [finite uniform \u2192 count]; (b) P(n)=(2/3)(1/3)^{n-1}, P(n\u22653) = 1/9 \u2248 0.111111 [countably infinite \u2192 series]; (c) P(Y \u2265 2X) on the unit square = 1/4 = 0.25 [continuous \u2192 polygon area, MC check 0.25014]. New Practice 1.6.2 is a trap item where a student applies |A|/|\u03a9| on a countably infinite \u03a9; it names all three errors and gives the correct P({1,2}) = 3/4 under P(n)=2^{-n}. All values computed in computes/g1_s1.py (new pr6d_* keys) and re-run; g1_s1.json regenerated.",
+    "[10 minor/pedagogy] Both out-of-toolkit practice items flagged as stretch with inline scaffolding. Practice 1.1.1(b) now reads '[stretch] \u2026 Part (b) needs the basic counting principle \u2026 which is only stated and proved in \u00a74.2; use it here on faith and come back after reading that subsection.' Practice 1.4.1(c) now reads '[stretch] \u2026 part (c) is bounded by a hyperbola, so its area is a genuine integral \u2014 and a logarithmic one, \u222b_{1/2}^{1}(1 \u2212 1/(2x))dx. Skip it if you have not met \u222bdx/x = ln x; nothing later in \u00a71 depends on it.'"
+   ],
+   "skipped": [
+    "[6] Cross-fragment half of the citation fix: g1_s2\u2013g1_s5 still use bare '\u00a71.5', '\u00a71.2', '\u00a71.6' for B&T. I only own g1_s1.html, so I fixed \u00a71 and recorded the convention in the \u00a71 srcref ('a bare \u00a7N.k always means this note's own subsection; every textbook reference carries the B&T prefix'). The other five fragments need the same pass from their section owners.",
+    "[9] Cross-fragment half of the practice-numbering fix: \u00a72 (Practice 2.A\u20132.H) and \u00a73 (Practice 3.1a/3.1b\u2026) still use their own schemes. \u00a71 is now on \u00a74's <section>.<subsection>.<index> scheme as the issue directed; \u00a72 and \u00a73 must be converted by their owners.",
+    "[8] The \u00a72.5 and \u00a73.4 halves of this issue (decision-guide practice items for multiplication/total-probability/Bayes, and the missing interpretation box on \u00a73.4) are in g1_s2.html and g1_s3.html, which are not my fragment. Only the \u00a71.6 half was fixed here.",
+    "[5] The 'leftover empty green sliver at the top of s3_p09.png' was not re-verified: my fix is in the shared notes.css print block and applies globally, but re-shooting \u00a73 is the \u00a73 owner's pass. \u00a71's two instances (s1_p03, s1_p13) were verified fixed."
+   ]
+  },
+  {
+   "section": 2,
+   "fixed": [
+    "[1 + 10b] Miscitation of countable additivity in the \u00a72.3 total-probability derivation. Verified against transcripts/L01.md (slide 7 = two-set Axiom 3 + the bare remark \"Axiom 3 needs strengthening\"; slide 11 = countable additivity axiom) and transcripts/L02.md (slide 2 introduces the label 3'). g1_s2.html line 226 now reads \"(using countable additivity, L01 slide 11; L02 slide 2 axiom 3\u2032)\", matching \u00a71.5's citation.",
+    "[10a] Wrong book section on the total-probability theorem box. B\u2013T \u00a71.3 is \"Conditional Probability\"; the Total Probability Theorem is \u00a71.4 (as \u00a75.2's cheatsheet already cited). g1_s2.html line 214 changed from \"L02 slide 7, \u00a71.3\" to \"L02 slide 7, \u00a71.4\".",
+    "[2 + 9] Garbled positivity justification in the \u00a72.2 chain-rule induction. Replaced the self-contradictory \"contains \u2026 more precisely, is contained in none smaller than it\" clause with the one-line argument: for each m \u2264 n\u22121, \u22c2_{i=1}^{m}A_i \u2287 \u22c2_{i=1}^{n-1}A_i (intersecting fewer sets can only enlarge the result), so by monotonicity P(\u22c2_{i=1}^{m}A_i) \u2265 P(\u22c2_{i=1}^{n-1}A_i) > 0, hence every conditioning event in the product is legitimate.",
+    "[3] \u00a72.1 Property box overreached its proof. Header now states Q satisfies the official axiom list of \u00a71.5 \u2014 nonnegativity, normalization, countable additivity (L01 slide 11; L02 slide 2 axiom 3\u2032). Item 3 rewritten as \"Countable additivity\": countable distributivity (\u22c3_k A_k) \u2229 B = \u22c3_k (A_k \u2229 B), disjointness preserved, countable additivity axiom, then termwise division by P(B); the two-set case is recovered by taking A_3 = A_4 = \u22ef = \u2205. This is what \u00a72.3's countably-infinite partitions actually need.",
+    "[4] \u00a72.5 \"Which tool? A decision guide\" now ends with practice, per the contract. Added Practice 2.G: four radar-model questions (P(B); P(A \u2229 B^c); P(A|B); P(A|B^c)) asking which of the three tools Fig. 2.5 selects and which formula to evaluate, with a full solution keyed to Steps 2\u20135 of Example 2.5. The \u00a72.6 practice boxes were renumbered 2.G\u21922.H and 2.H\u21922.I to keep the letters in document order.",
+    "[5] Provenance of the eight decimals in \u00a72 prose. Verified all eight are numerically correct; six were already emitted as print-only annotations and two (0.8555, 0.181818) were computed nowhere. Added computes/g1_s2.py section \"2.9 Decimal forms quoted verbatim in the \u00a72 prose\" with keys dec_die_P_B=0.3125, dec_die_P_M2_uncond=0.1875, dec_die_P_M4_uncond=0.4375, dec_dice_P_doubles=0.1667, dec_dice_P_atleast_one6=0.3056, dec_urn_allred=0.178571, dec_radar_P_Bc=0.8555, dec_mach_post_new=0.181818, plus prac_mach_post_new. Re-ran the script; all eight now land in computes/g1_s2.json (133 values) and match the prose exactly \u2014 no HTML numbers changed.",
+    "[6] Dead seedbump state in the Monty Hall widget (w-g1s2-monty). draw() now derives seed = 6041 + 7919*(s.seedbump||0) and drives the simulation from a mulberry32 PRNG instead of Math.random(), so each press of \"run games\" advances to a new but reproducible run. The seed is surfaced in the out.textContent readout and the widget note explains the behavior. Verified in node: seedbump 0 replays identically (0.3348/0.6652 over 20000 games), seeds 1 and 2 give distinct runs, all converging to 1/3 and 2/3.",
+    "[7] Fig. 2.4 (radar tree) leaf-box text collision. In computes/g1_s2_figs.py fig_radar(), leaf box height raised 0.60\u21920.90 and the two text lines moved from +0.09/\u22120.15 to +0.19/\u22120.19, giving ~0.55 of a line height of clearance between the event label and the numeric line and equal top/bottom padding. Regenerated notes/img/g1_s2_radartree.png and viewed it plus the rebuilt page shot (s2_p10.png): all four boxes read cleanly.",
+    "[8] Fig. 2.5 (which-tool chart) bottom annotation overflowed its grey box on both sides. In fig_flow() the string is now wrapped onto three lines and the rect resized from 8.2\u00d70.95 to 6.6\u00d71.30 at y=1.30. Regenerated notes/img/g1_s2_toolflow.png and verified in the rebuilt page shot (s2_p12.png): text sits inside with padding, matching the other boxes.",
+    "[11] rec02 problems had no navigational entry point. Added a \"Recitation 2, solved here\" note box directly under the \u00a72 intro mapping rec02 P1\u2192Example 2.3 (\u00a72.1), P2\u2192Example 2.2 (\u00a72.1), P3\u2192Examples 2.4 (\u00a72.3) and 2.6 (\u00a72.4), P4\u2192Example 2.7 (\u00a72.6). Used the reviewer's index-list option rather than a new h3 so the existing h3 numbering and section-local figure numbering stay intact. Verified rendering in s2_p01.png.",
+    "Rebuilt: uv run notes/_build/assemble_body.py g1 && uv run notes/_build/build_note.py 01_probability_basics \u2014 notes/01_probability_basics.html regenerated (32 figures, 8 widgets), then re-shot section 2 and viewed the affected pages."
+   ],
+   "skipped": [
+    "[4, \u00a71.6 half] The same missing-practice omission at \u00a71.6 \"Choosing the right law \u2014 a decision procedure\" is in fragment g1_s1.html, outside my assigned fragment (g1_s2.html). Left for the \u00a71 owner; only the \u00a72.5 half was fixed here.",
+    "[11, \u00a73 half] The parallel rec03 mapping belongs in fragment g1_s3.html and is outside my scope. Only the \u00a72/rec02 index was added.",
+    "[5, partial disagreement \u2014 fixed anyway] The reviewer stated all eight decimals appear in neither the JSON nor the print statements of computes/g1_s2.py. Six of them (0.3125, 0.1875, 0.4375, 0.1667, 0.3056, 0.178571) were in fact already printed as the trailing annotation of a show(...) call \u2014 e.g. die_P_B prints \\\"5/16   = 0.3125\\\" \u2014 they were just stored in the JSON as exact fractions rather than decimals. Only 0.8555 and 0.181818 were genuinely uncomputed. The finding's substance stands (the JSON did not carry the decimal forms), so I fixed all eight rather than partially skipping."
+   ]
+  },
+  {
+   "section": 3,
+   "fixed": [
+    "[critical/math-1] \u00a73.6 Example 3.13(d) \"Reading the numbers\": replaced the broken odds cross-check. It now works consistently in odds *in favour of 1*: prior odds P(S1)/P(S0)=0.4/0.6=0.666667, likelihood ratio 0.081/0.002375=34.105263, posterior odds 22.736842, P(S1|101)=22.736842/23.736842=0.957871, which matches 1-0.042129 exactly. Added the supporting keys to computes/g1_s3.py (ch_d_prior_odds_1_over_0, ch_d_likelihood_ratio_1_over_0, ch_d_posterior_odds_1_over_0, ch_d_P_1_given_101_from_odds) and re-ran it, so no number is hand-computed any more. The \u00a73.6 Recipe step 5 now points at a correct worked instance.",
+    "[major/render] Repetition-code widget y-axis title no longer collides with the tick labels: the Plot is now constructed with pad:{l:74,r:14,t:22,b:40} instead of the default l:52, so the rotated title sits clear of the tick-label column. Verified in the re-shot print page (s3_p15).",
+    "[minor/render] Repetition-code widget now uses a log10 vertical axis matching Fig. 3.10 (values plotted as log10 P(wrong), integer decade ticks, auto-ranged from the current eps). The geometric decay is now a visible straight descending line for all n up to 15 instead of stems pinned to zero. Switched stem->line+points because Plot.stem baselines at y=0, which is off-scale on a log axis; the widget note text was updated to describe the slope rather than stem heights. Readout still cross-checks against computes/g1_s3.py (n=5, eps=0.10 -> 8.5600e-3).",
+    "[minor/render] Fig. 3.3 (computes/g1_s3_figs.py fig_cond_venn): 'A \u2229 C' and 'B \u2229 C' are now placed in the white space above the sliver and attached with short leader lines whose heads land inside the sliver, so no glyph is crossed by the ellipse outline; the 'C' callout was moved to the right of the sliver's tip (xlim widened to 1.42) so its arrowhead is far from the 'B \u2229 C' text. Regenerated and viewed the PNG.",
+    "[minor/render] Fig. 3.8 (fig_walk): the green dashed 'target: +1' guide is now drawn with ax.plot from x=-0.45 to x=3.05 instead of axhline, so it stops at the last path node and never enters the annotation column; the three path labels were also restacked to y = 1.95 / 1.40 / 0.60 so none sits in the y = 1 band. Regenerated and viewed the PNG.",
+    "[minor/render] Page-break orphaning of run-in sub-headings: every <h3>/<h4> in the fragment now carries style=\"break-after:avoid;page-break-after:avoid\". Re-shot print pages confirm 'The classic trap: independent is not disjoint' now starts page 4 immediately above the Fig. 3.2 panel instead of being orphaned at the bottom of page 3.",
+    "[minor/render] Figure/caption splitting: all 10 img.fig + div.figcap pairs in the fragment are now wrapped in <div class=\"figblock\" style=\"break-inside:avoid;page-break-inside:avoid\">. Re-shot print pages confirm Fig. 3.5 and its caption now print together on one page (s3_p08).",
+    "[major/pedagogy] Broken cross-reference at the head of \u00a73.3: '(\u00a71.4)' changed to '(\u00a72.1)'. Verified that the thm box 'Property (conditional probabilities are a probability law)' lives at g1_s2.html \u00a72.1 and that g1_s1.html \u00a71.4 is 'Continuous models: probability = area'.",
+    "[minor/pedagogy] Practice 3.3b rewritten. The prompt now asks for (i) the numeric case a=b=0.5 and (ii) an exact characterization; the solution carries the symbolic computation through: with u = P(A\u222aB) = a+b-ab, P(A|C)=a/u, P(B|C)=b/u, P(A\u2229B|C)=ab/u, so conditional independence \u21d4 ab\u00b7u(1-u)=0 \u21d4 (for a,b>0) u=1 \u21d4 (1-a)(1-b)=0 \u21d4 P(A)=1 or P(B)=1. The unproved and false claim 'Conditioning on a union of the events is never innocent' is gone. Added computes/g1_s3.py keys prac33b_a* (checked cases a=b=0.5 and a=0.8,b=0.3 fail; a=1,b=0.3 holds) and quoted those values."
+   ],
+   "skipped": []
+  }
+ ]
+}

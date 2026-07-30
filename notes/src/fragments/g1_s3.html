@@ -1,0 +1,1091 @@
+<h2 id="g1-s3">§3 &nbsp; Independence</h2>
+<p class="srcref">Sources: L03 slides 1–8 (raster p01–p02) · rec03 problems 1–4 · Bertsekas–Tsitsiklis §1.5 (Examples 1.20–1.23, Problems 1.31, 1.43(a), 1.44). Every number on this page is recomputed in <code>computes/g1_s3.py</code>; figures in <code>computes/g1_s3_figs.py</code>.</p>
+
+<p>Conditioning is the machinery for updating beliefs when information arrives. Independence is the
+special case in which the information is <em>worthless</em>: learning that $B$ happened leaves your
+probability for $A$ exactly where it was. That sounds like a small footnote to §2, but it is the
+single most productive modeling assumption in the subject — it is what turns a coin into a sequence
+of coins, a bit into a codeword, and a step into a random walk. It is also the assumption most often
+asserted where it does not hold, so this section spends as much effort on the traps (disjoint is not
+independent; pairwise is not mutual; conditioning creates and destroys independence) as on the
+definition itself.</p>
+
+<h3 style="break-after:avoid;page-break-after:avoid">3.1 Warm-up: sequential models and the biased coin</h3>
+
+<p>Before defining independence we replay the tool it will simplify. Recall from §2 the four results
+that L03 slide 1 puts in red as the working set (all with $\mathbf{P}(B)&gt;0$ where a conditional
+appears):</p>
+
+$$\mathbf{P}(A\mid B)=\frac{\mathbf{P}(A\cap B)}{\mathbf{P}(B)},\qquad
+\mathbf{P}(A\cap B)=\mathbf{P}(B)\mathbf{P}(A\mid B)=\mathbf{P}(A)\mathbf{P}(B\mid A),$$
+
+$$\mathbf{P}(B)=\mathbf{P}(A)\mathbf{P}(B\mid A)+\mathbf{P}(A^c)\mathbf{P}(B\mid A^c),\qquad
+\mathbf{P}(A_i\mid B)=\frac{\mathbf{P}(A_i)\mathbf{P}(B\mid A_i)}{\mathbf{P}(B)}.$$
+
+<p>Here $A$, $B$, $A_i$ are events (subsets of the sample space $\Omega$), $A^c$ is the complement of
+$A$, and $\mathbf{P}$ is the probability law. The multiplication rule is what makes a tree diagram
+legal: the probability of a leaf is the product of the branch probabilities along the path to it
+(L03 slide 1; B&amp;T §1.3).</p>
+
+<div class="figblock" style="break-inside:avoid;page-break-inside:avoid">
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s3_tree3}}" alt="Binary probability tree for three tosses of a biased coin. From the root, upper branches are labeled p and lower branches 1 minus p, three levels deep, giving eight leaves HHH, HHT, HTH, HTT, THH, THT, TTH, TTT with probabilities 0.216, 0.144, 0.144, 0.096, 0.144, 0.096, 0.096, 0.064 at p = 0.6. The three leaves with exactly one head are highlighted in green." style="max-width:900px">
+<div class="figcap">Fig. 3.1 — Three tosses of a biased coin with $\mathbf{P}(H)=p$ (L03 slide 2). Branch labels: $p$ going up (heads), $1-p$ going down (tails). Leaf probabilities are shown for $p=0.6$; they sum to $1.000$.</div>
+</div>
+
+<div class="ex"><b>Example 3.1 (L03 slide 2 — solved).</b> A biased coin with $\mathbf{P}(H)=p$ and
+$\mathbf{P}(T)=1-p$ is tossed three times, the tosses being independent. Compute
+$\mathbf{P}(THT)$, $\mathbf{P}(1\text{ head})$, and
+$\mathbf{P}(\text{first toss is }H\mid 1\text{ head})$. The slide leaves all three blank; they are
+worked here in full, symbolically and then at $p=0.6$.
+
+<p><b>Step 0 — the model.</b> The sample space is
+$\Omega=\{H,T\}^3$, the eight length-3 strings shown as leaves in Fig. 3.1. Write $H_i$ for the
+event "toss $i$ is a head" and $T_i=H_i^c$. The problem statement gives us one probability per toss
+and the assumption that tosses are independent, which (anticipating §3.4) means every intersection
+of the $H_i$'s and $T_i$'s factors.</p>
+
+<p><b>Step 1 — probability of one leaf.</b> By the multiplication rule applied twice,</p>
+$$\mathbf{P}(T_1\cap H_2\cap T_3)=\mathbf{P}(T_1)\,\mathbf{P}(H_2\mid T_1)\,
+\mathbf{P}(T_3\mid T_1\cap H_2).$$
+<p>Independence of the tosses says the conditioning is irrelevant:
+$\mathbf{P}(H_2\mid T_1)=\mathbf{P}(H_2)=p$ and
+$\mathbf{P}(T_3\mid T_1\cap H_2)=\mathbf{P}(T_3)=1-p$. Hence</p>
+$$\mathbf{P}(THT)=(1-p)\cdot p\cdot (1-p)=p(1-p)^2
+=0.6\,(0.4)^2=0.6\cdot 0.16=0.096 .$$
+<p>Every leaf gets one factor $p$ per $H$ and one factor $1-p$ per $T$; the leaf probability depends
+only on the <em>number</em> of heads, not on their positions. That symmetry is the whole reason the
+binomial formula exists (L04 slide 6).</p>
+
+<p><b>Step 2 — "exactly one head" is a union of leaves.</b> The event
+$\{1\text{ head}\}=\{HTT,\,THT,\,TTH\}$ is a union of three distinct outcomes, which are disjoint
+(an outcome is a single sample point, so any two distinct ones are disjoint). The additivity axiom
+therefore lets us add:</p>
+$$\mathbf{P}(1\text{ head})=\mathbf{P}(HTT)+\mathbf{P}(THT)+\mathbf{P}(TTH)
+=p(1-p)^2+p(1-p)^2+p(1-p)^2=3p(1-p)^2,$$
+$$\mathbf{P}(1\text{ head})=3(0.096)=0.288 .$$
+
+<p><b>Step 3 — the conditional probability.</b> The event
+$\{\text{first toss }H\}\cap\{1\text{ head}\}$ is the single leaf $HTT$, because if the first toss is
+a head and there is exactly one head in total, the remaining two tosses must be tails. By the
+definition of conditional probability,</p>
+$$\mathbf{P}(H_1\mid 1\text{ head})=\frac{\mathbf{P}(H_1\cap\{1\text{ head}\})}{\mathbf{P}(1\text{ head})}
+=\frac{\mathbf{P}(HTT)}{3p(1-p)^2}=\frac{p(1-p)^2}{3p(1-p)^2}=\frac{1}{3}
+=\frac{0.096}{0.288}=0.3333\ldots$$
+<p>The $p$ cancels: given that exactly one head occurred, it is equally likely to have been toss 1,
+2 or 3, whatever the bias. Numerically $1/3$ for every $p\in(0,1)$.</p>
+</div>
+
+<div class="note"><b>Interpretation.</b> Conditioning on "exactly one head" destroys all information
+about the bias, because all three surviving leaves carry the identical weight $p(1-p)^2$. Once you
+restrict to a set of equally likely outcomes, the conditional law is uniform on that set and the
+problem becomes pure counting: $1$ favorable leaf out of $3$. This "condition first, then count"
+move reappears in the random walk of §3.5 and in the channel decoder of §3.6.</div>
+
+<div class="warn"><b>Gotcha.</b> $\mathbf{P}(THT)$ is <em>not</em> $\mathbf{P}(1\text{ head})$. The
+first is one ordered outcome ($0.096$); the second is the union of three of them ($0.288$). Whenever
+a problem says "one head", ask whether the positions are specified. Missing the factor
+$\binom{3}{1}=3$ is the single most common arithmetic slip in this material.</div>
+
+<div class="ex"><b>Practice 3.1.</b> Two independent rolls of a fair four-sided die. Let
+$A=\{\text{first roll is }1\text{ or }2\}$ and $B=\{\text{the two rolls sum to }5\}$. Is
+$\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\Omega$ has $4\cdot 4=16$ equally likely ordered pairs. $A$ contains the $2\cdot 4=8$ pairs whose
+first entry is $1$ or $2$, so $\mathbf{P}(A)=8/16=0.5$. The sum is $5$ for
+$(1,4),(2,3),(3,2),(4,1)$, so $\mathbf{P}(B)=4/16=0.25$. The intersection is
+$\{(1,4),(2,3)\}$, so $\mathbf{P}(A\cap B)=2/16=0.125$. Since
+$\mathbf{P}(A)\mathbf{P}(B)=0.5\cdot 0.25=0.125$, the product identity holds and the events are
+independent — even though $B$ mentions both rolls. Independence is an arithmetic fact about the law,
+not a statement about which coordinates an event "uses".</p></div></details></div>
+
+<div class="ex"><b>Practice 3.2.</b> Same two rolls. Let $A=\{\max=2\}$ and $B=\{\min=2\}$.
+Independent?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\{\max=2\}=\{(1,2),(2,1),(2,2)\}$, so $\mathbf{P}(A)=3/16=0.1875$.
+$\{\min=2\}=\{(2,2),(2,3),(3,2),(2,4),(4,2)\}$, so $\mathbf{P}(B)=5/16=0.3125$.
+$A\cap B=\{(2,2)\}$, so $\mathbf{P}(A\cap B)=1/16=0.0625$, while
+$\mathbf{P}(A)\mathbf{P}(B)=0.1875\cdot 0.3125=0.05859375$. These differ, so $A$ and $B$ are
+<em>dependent</em>: knowing the maximum is small makes a small minimum more likely.</p></div></details></div>
+
+<h3 style="break-after:avoid;page-break-after:avoid">3.2 Independence of two events</h3>
+
+<p>L03 slide 3 gives the definition twice and then declares which version is official.</p>
+
+<div class="defn"><b>Definition (intuitive form).</b> Events $A$ and $B$ are independent if
+$$\mathbf{P}(B\mid A)=\mathbf{P}(B),$$
+i.e. "occurrence of $A$ provides no information about $B$'s occurrence" (L03 slide 3). This form
+requires $\mathbf{P}(A)&gt;0$, otherwise the left side is undefined.</div>
+
+<div class="defn"><b>Definition (official, symmetric form).</b> Events $A$ and $B$ are
+<b>independent</b> if
+$$\mathbf{P}(A\cap B)=\mathbf{P}(A)\,\mathbf{P}(B).$$
+This is the definition used from now on (L03 slide 3, in red; B&amp;T §1.5).</div>
+
+<p>Why promote the product form? Three reasons, all on the slide.</p>
+
+<p><b>(i) It is symmetric in $A$ and $B$.</b> The right-hand side does not care which event is
+written first, so "$A$ is independent of $B$" and "$B$ is independent of $A$" are literally the same
+statement. The conditional form hides this: $\mathbf{P}(B\mid A)=\mathbf{P}(B)$ looks like a
+statement about $B$ given $A$.</p>
+
+<p><b>(ii) It applies even when $\mathbf{P}(A)=0$.</b> If $\mathbf{P}(A)=0$ the conditional
+$\mathbf{P}(B\mid A)$ is undefined (division by zero), but the product identity is still meaningful
+and in fact automatically true: $A\cap B\subseteq A$ forces
+$0\le\mathbf{P}(A\cap B)\le\mathbf{P}(A)=0$ by monotonicity, so
+$\mathbf{P}(A\cap B)=0=0\cdot\mathbf{P}(B)$. A null event is independent of everything.</p>
+
+<p><b>(iii) It implies the conditional form both ways.</b> Assume $\mathbf{P}(A\cap B)=
+\mathbf{P}(A)\mathbf{P}(B)$ and $\mathbf{P}(B)&gt;0$. Then by the definition of conditional
+probability,</p>
+$$\mathbf{P}(A\mid B)=\frac{\mathbf{P}(A\cap B)}{\mathbf{P}(B)}
+=\frac{\mathbf{P}(A)\mathbf{P}(B)}{\mathbf{P}(B)}=\mathbf{P}(A),$$
+<p>cancelling the nonzero factor $\mathbf{P}(B)$. Conversely, if $\mathbf{P}(B)&gt;0$ and
+$\mathbf{P}(A\mid B)=\mathbf{P}(A)$, multiply both sides by $\mathbf{P}(B)$ and use the
+multiplication rule $\mathbf{P}(A\cap B)=\mathbf{P}(B)\mathbf{P}(A\mid B)$ to get
+$\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$. So on the region where both make sense the two
+definitions agree, and the product form additionally covers the degenerate cases (L03 slide 3).</p>
+
+<div class="thm"><b>Property (rec03 P4(b) = B&amp;T §1.5, Problem 1.43(a)).</b> If $A$ and $B$ are
+independent, so are $A$ and $B^c$.</div>
+
+<div class="ex"><b>Example 3.2 (rec03 P4(b) — full proof; the handout defers it to the text).</b>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Goal.</b> Show $\mathbf{P}(A\cap B^c)=\mathbf{P}(A)\mathbf{P}(B^c)$, given
+$\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$.</p>
+<p><b>Step 1 — split $A$ along $B$.</b> Every outcome of $A$ either lies in $B$ or does not, so</p>
+$$A=(A\cap B)\cup(A\cap B^c),$$
+<p>and the two pieces are disjoint because $B$ and $B^c$ are. The additivity axiom gives</p>
+$$\mathbf{P}(A)=\mathbf{P}(A\cap B)+\mathbf{P}(A\cap B^c)
+\quad\Longrightarrow\quad
+\mathbf{P}(A\cap B^c)=\mathbf{P}(A)-\mathbf{P}(A\cap B).$$
+<p><b>Step 2 — use the hypothesis.</b> Substitute
+$\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$:</p>
+$$\mathbf{P}(A\cap B^c)=\mathbf{P}(A)-\mathbf{P}(A)\mathbf{P}(B)
+=\mathbf{P}(A)\big(1-\mathbf{P}(B)\big).$$
+<p><b>Step 3 — recognize the complement rule.</b> Since
+$\mathbf{P}(B^c)=1-\mathbf{P}(B)$ (normalization plus additivity applied to
+$\Omega=B\cup B^c$),</p>
+$$\mathbf{P}(A\cap B^c)=\mathbf{P}(A)\mathbf{P}(B^c),$$
+<p>which is exactly the definition of independence for the pair $(A,B^c)$. $\blacksquare$</p>
+<p><b>Corollary.</b> Applying the result twice, $A^c$ and $B^c$ are independent too:
+$\mathbf{P}(A^c\cap B^c)=\mathbf{P}(A^c)\mathbf{P}(B^c)$. With $\mathbf{P}(A)=0.5$ and
+$\mathbf{P}(B)=0.4$ this reads $\mathbf{P}(A^c\cap B^c)=0.5\cdot 0.6=0.3$, and indeed
+$\mathbf{P}(A\cup B)=1-0.3=0.7$, matching the inclusion–exclusion value
+$0.5+0.4-0.5\cdot 0.4=0.9-0.2=0.7$.</p></div></details></div>
+
+<div class="ex"><b>Example 3.3 (rec03 P4(a) — can an event be independent of itself?).</b>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Apply the definition with $B=A$. Independence of $A$ with itself means</p>
+$$\mathbf{P}(A\cap A)=\mathbf{P}(A)\mathbf{P}(A).$$
+<p>But $A\cap A=A$ (a set intersected with itself is itself), so the condition collapses to the
+scalar equation $\mathbf{P}(A)=\big(\mathbf{P}(A)\big)^2$. Write $x=\mathbf{P}(A)$ and solve — the
+recitation solution asserts the answer, so here is the missing algebra:</p>
+$$x=x^2\;\Longleftrightarrow\; x^2-x=0\;\Longleftrightarrow\; x(1-x)=0
+\;\Longleftrightarrow\; x=0\ \text{ or }\ x=1 .$$
+<p>So $A$ is independent of itself <em>if and only if</em> $\mathbf{P}(A)=0$ or $\mathbf{P}(A)=1$.</p>
+<p><b>What this means.</b> Independence of $A$ from $A$ would say that learning whether $A$ occurred
+tells you nothing about whether $A$ occurred — which can only be true if there was nothing to learn
+in the first place, i.e. if $A$ was already certain or already impossible. Deterministic events are
+the only self-independent ones.</p></div></details></div>
+
+<h4 style="break-after:avoid;page-break-after:avoid">The classic trap: independent is not disjoint</h4>
+
+<div class="figblock" style="break-inside:avoid;page-break-inside:avoid">
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s3_indep_disjoint}}" alt="Two panels. Left, labeled DISJOINT: a square sample space with two non-overlapping circles A with probability 0.3 and B with probability 0.25; below, P(A intersect B) = 0 while P(A)P(B) = 0.075, so not independent. Right, labeled INDEPENDENT: the unit square with A a vertical strip of width 0.4 and B a horizontal strip of height 0.5, their overlap the 0.4 by 0.5 rectangle of area 0.2, equal to the product 0.4 times 0.5." style="max-width:920px">
+<div class="figcap">Fig. 3.2 — Disjointness and independence are opposite kinds of relationship (L03 slide 3; B&amp;T §1.5). Left: no overlap at all. Right: the overlap is exactly the product of the two "widths" — independence is a statement about <em>proportion</em>, not about touching.</div>
+</div>
+
+<div class="warn"><b>Gotcha — the single most common error in this course.</b> <b>Disjoint does not mean
+independent. It means maximally dependent.</b> Suppose $\mathbf{P}(A)=0.3$, $\mathbf{P}(B)=0.25$
+and $A\cap B=\varnothing$. Then
+$$\mathbf{P}(A\cap B)=\mathbf{P}(\varnothing)=0,\qquad
+\mathbf{P}(A)\mathbf{P}(B)=0.3\cdot 0.25=0.075\neq 0,$$
+so the product identity fails and the events are dependent. In conditional language,
+$\mathbf{P}(B\mid A)=0\neq 0.25=\mathbf{P}(B)$: learning that $A$ occurred tells you $B$ definitely
+did <em>not</em> — that is an enormous amount of information. In fact, for events of positive
+probability, disjointness and independence are mutually exclusive: if $A\cap B=\varnothing$ and
+$\mathbf{P}(A)\mathbf{P}(B)&gt;0$, independence is impossible. Two disjoint events can be independent
+only in the degenerate case $\mathbf{P}(A)=0$ or $\mathbf{P}(B)=0$.</div>
+
+<div class="note"><b>Intuition — the rectangle picture.</b> Read the right panel of Fig. 3.2 as a
+unit-area sample space. $A$ is a vertical strip occupying a fraction $\mathbf{P}(A)=0.4$ of the
+width; $B$ is a horizontal strip occupying $\mathbf{P}(B)=0.5$ of the height. Independence says the
+fraction of $B$ that lies inside $A$ is the same as the fraction of the whole space that lies inside
+$A$: $B$ is a "representative sample" of $\Omega$ as far as $A$ is concerned. Disjointness says the
+opposite — $B$ is a maximally <em>unrepresentative</em> sample, containing none of $A$. Two events
+are independent when the picture factors into a product of a horizontal and a vertical fact.</div>
+
+<div class="warn"><b>Gotcha — independence is an assumption about the model, not a property you can
+see.</b> Nothing in a Venn diagram tells you whether two overlapping events are independent; you
+have to compare $\mathbf{P}(A\cap B)$ with the product. Conversely, independence is not "physically
+unrelated": in Practice 3.1 the event $B$ depends on both dice and is still independent of $A$,
+whereas in Practice 3.2 two events built from the same pair of dice are dependent. Compute.</div>
+
+<div class="ex"><b>Practice 3.3.</b> A fair six-sided die is rolled once. Let $A=\{1,2,3\}$ and
+$B=\{3,6\}$. Are $A$ and $B$ independent? What if $B$ is replaced by $B'=\{2,4,6\}$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Uniform law on $6$ outcomes: $\mathbf{P}(A)=3/6=0.5$, $\mathbf{P}(B)=2/6=1/3\approx 0.3333$, and
+$A\cap B=\{3\}$ so $\mathbf{P}(A\cap B)=1/6\approx 0.1667$. The product is
+$0.5\cdot(1/3)=1/6\approx 0.1667$ — equal, so $A$ and $B$ <em>are</em> independent.</p>
+<p>With $B'=\{2,4,6\}$: $\mathbf{P}(B')=3/6=0.5$ and $A\cap B'=\{2\}$, so
+$\mathbf{P}(A\cap B')=1/6\approx 0.1667$ while $\mathbf{P}(A)\mathbf{P}(B')=0.5\cdot 0.5=0.25$.
+These differ, so $A$ and $B'$ are dependent. Same die, same $A$, and the answer flips — independence
+is about the numbers, not about "different aspects of the experiment".</p></div></details></div>
+
+<div class="ex"><b>Practice 3.4.</b> $A$ and $B$ are independent with $\mathbf{P}(A)=0.5$ and
+$\mathbf{P}(B)=0.4$. Compute $\mathbf{P}(A\cup B)$, and compare with what the answer would be if
+instead $A$ and $B$ were disjoint.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Independent case: $\mathbf{P}(A\cap B)=0.5\cdot 0.4=0.2$, so by inclusion–exclusion
+$$\mathbf{P}(A\cup B)=\mathbf{P}(A)+\mathbf{P}(B)-\mathbf{P}(A\cap B)=0.5+0.4-0.2=0.7 .$$
+Equivalently, via complements and Example 3.2:
+$\mathbf{P}(A\cup B)=1-\mathbf{P}(A^c\cap B^c)=1-(0.5)(0.6)=1-0.3=0.7$.</p>
+<p>Disjoint case: $\mathbf{P}(A\cap B)=0$, so $\mathbf{P}(A\cup B)=0.5+0.4=0.9$. Note this is a
+different probabilistic model, not a different calculation of the same one — with these marginals
+both models are internally consistent, and they give different answers ($0.7$ vs $0.9$). The
+modeling assumption is doing real work.</p></div></details></div>
+
+<h3 style="break-after:avoid;page-break-after:avoid">3.3 Conditional independence</h3>
+
+<p>Conditional probabilities form a legitimate probability law: $\mathbf{P}(\cdot\mid C)$ satisfies
+the three axioms on $\Omega$ (§2.1). So every definition we make about probability laws can be made
+again "given $C$". Independence is no exception (L03 slide 4).</p>
+
+<div class="defn"><b>Definition.</b> Given an event $C$ with $\mathbf{P}(C)&gt;0$, events $A$ and $B$
+are <b>conditionally independent given $C$</b> if
+$$\mathbf{P}(A\cap B\mid C)=\mathbf{P}(A\mid C)\,\mathbf{P}(B\mid C).$$
+That is: they are independent under the law $\mathbf{P}(\cdot\mid C)$ (L03 slide 4; B&amp;T §1.5).</div>
+
+<div class="thm"><b>Equivalent form.</b> If in addition $\mathbf{P}(B\cap C)&gt;0$, conditional
+independence given $C$ is the same as
+$$\mathbf{P}(A\mid B\cap C)=\mathbf{P}(A\mid C).$$</div>
+
+<p><b>Derivation</b> (B&amp;T §1.5, filling in the algebra). Start from the left side of the definition and
+expand the conditional probability, then apply the multiplication rule to the numerator, splitting
+off $B\cap C$:</p>
+$$\mathbf{P}(A\cap B\mid C)=\frac{\mathbf{P}(A\cap B\cap C)}{\mathbf{P}(C)}
+=\frac{\mathbf{P}(C)\,\mathbf{P}(B\mid C)\,\mathbf{P}(A\mid B\cap C)}{\mathbf{P}(C)}
+=\mathbf{P}(B\mid C)\,\mathbf{P}(A\mid B\cap C).$$
+<p>Compare this with the definition's right-hand side
+$\mathbf{P}(A\mid C)\mathbf{P}(B\mid C)$. The two agree exactly when</p>
+$$\mathbf{P}(B\mid C)\,\mathbf{P}(A\mid B\cap C)=\mathbf{P}(B\mid C)\,\mathbf{P}(A\mid C),$$
+<p>and cancelling the common nonzero factor $\mathbf{P}(B\mid C)$ leaves
+$\mathbf{P}(A\mid B\cap C)=\mathbf{P}(A\mid C)$. In words: <em>once $C$ is known, the extra news
+that $B$ occurred does not change the probability of $A$.</em></p>
+
+<h4 style="break-after:avoid;page-break-after:avoid">Conditioning can destroy independence</h4>
+
+<div class="figblock" style="break-inside:avoid;page-break-inside:avoid">
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s3_cond_venn}}" alt="Venn diagram inside a rectangle: a blue circle A on the left and a red oval B on the right overlapping in a small lens at the bottom center; a long thin yellow sliver C runs horizontally across the top, cutting through the upper part of A on the left and the upper part of B on the right but passing above the A-intersect-B lens. Caption text states P(A intersect B given C) = 0 while P(A given C) times P(B given C) is positive." style="max-width:660px">
+<div class="figcap">Fig. 3.3 — Redrawing L03 slide 4. $A$ and $B$ overlap (they may well be independent), but the conditioning event $C$ is a thin sliver that meets $A$ and meets $B$ while missing $A\cap B$ entirely. Inside the new universe $C$ the two events are disjoint, hence maximally dependent.</div>
+</div>
+
+<div class="ex"><b>Example 3.4 (L03 slide 4 — solved). "Assume $A$ and $B$ are independent. If we are
+told that $C$ occurred, are $A$ and $B$ independent?"</b>
+<p><b>Answer: in general, no.</b> Independence is a property of a probability law, and conditioning
+on $C$ replaces the law $\mathbf{P}$ by the different law $\mathbf{P}(\cdot\mid C)$. There is no
+reason for a product identity under one law to survive under another.</p>
+<p><b>A conclusive counterexample</b> (the picture of Fig. 3.3, made exact — this is the
+generalization stated in B&amp;T §1.5 after Example 1.20). Let $A$ and $B$ be independent, let $C$ satisfy
+$\mathbf{P}(C)&gt;0$, $\mathbf{P}(A\mid C)&gt;0$, $\mathbf{P}(B\mid C)&gt;0$, and suppose
+$A\cap B\cap C=\varnothing$. Then</p>
+$$\mathbf{P}(A\cap B\mid C)=\frac{\mathbf{P}(A\cap B\cap C)}{\mathbf{P}(C)}
+=\frac{\mathbf{P}(\varnothing)}{\mathbf{P}(C)}=\frac{0}{\mathbf{P}(C)}=0,$$
+<p>while $\mathbf{P}(A\mid C)\mathbf{P}(B\mid C)&gt;0$ as a product of two positive numbers. So
+$$\mathbf{P}(A\cap B\mid C)=0\;\neq\;\mathbf{P}(A\mid C)\mathbf{P}(B\mid C)&gt;0,$$
+and $A,B$ are <em>not</em> conditionally independent given $C$. A concrete instance is worked in
+Example 3.6 below with $C=D=$ "the two tosses differ". The reverse implication fails too: Example
+3.5 exhibits events that are conditionally independent given each $C$ in a partition but dependent
+unconditionally.</p></div>
+
+<h4 style="break-after:avoid;page-break-after:avoid">Conditioning can create independence: two unfair coins</h4>
+
+<div class="figblock" style="break-inside:avoid;page-break-inside:avoid">
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s3_twocoin_tree}}" alt="Probability tree: root splits with probability 0.5 each into Coin A and Coin B. Under Coin A each toss is heads with probability 0.9 and tails 0.1; under Coin B heads 0.1 and tails 0.9. Two tosses give leaves HH, HT, TH, TT with probabilities 0.405, 0.045, 0.045, 0.005 under Coin A and 0.005, 0.045, 0.045, 0.405 under Coin B. Bottom line reads P(H1 intersect H2) = 0.5(0.81) + 0.5(0.01) = 0.41, not equal to 0.25 = P(H1)P(H2)." style="max-width:880px">
+<div class="figcap">Fig. 3.4 — Pick one of two unfair coins at random, then toss it twice (L03 slide 5). Given the coin, the tosses are independent; unconditionally they are not.</div>
+</div>
+
+<div class="ex"><b>Example 3.5 (L03 slide 5 — both unsolved questions, solved).</b> Two unfair coins:
+$\mathbf{P}(H\mid \text{coin }A)=0.9$ and $\mathbf{P}(H\mid \text{coin }B)=0.1$. One coin is chosen
+with probability $0.5$ each, then tossed repeatedly. Write $\mathcal{A}$ and $\mathcal{B}$ for the
+events "coin $A$ / coin $B$ was chosen" and $H_i$ for "toss $i$ is a head".
+
+<p><b>Question 1: once we know it is coin $A$, are the tosses independent?</b> <b>Yes — by
+assumption.</b> The model is defined by saying that, given the identity of the coin, successive
+tosses are independent tosses of a coin with a fixed bias. That is exactly the statement</p>
+$$\mathbf{P}(H_1\cap H_2\mid \mathcal{A})=\mathbf{P}(H_1\mid\mathcal{A})\,\mathbf{P}(H_2\mid\mathcal{A})
+=0.9\cdot 0.9=0.81,$$
+<p>and likewise $\mathbf{P}(H_1\cap H_2\mid\mathcal{B})=0.1\cdot 0.1=0.01$. So $H_1$ and $H_2$ are
+conditionally independent given $\mathcal{A}$, and also given $\mathcal{B}$. In the tree of Fig. 3.4
+this is visible as the fact that the toss-2 branch probabilities do not depend on what toss 1 did.</p>
+
+<p><b>Question 2: if we do not know which coin it is, are the tosses independent?</b> <b>No.</b>
+Compute all three quantities.</p>
+<p><em>Marginal.</em> By the total probability theorem with the partition
+$\{\mathcal{A},\mathcal{B}\}$,</p>
+$$\mathbf{P}(H_1)=\mathbf{P}(\mathcal{A})\mathbf{P}(H_1\mid\mathcal{A})
++\mathbf{P}(\mathcal{B})\mathbf{P}(H_1\mid\mathcal{B})
+=0.5(0.9)+0.5(0.1)=0.45+0.05=0.5 .$$
+<p>By the same computation $\mathbf{P}(H_2)=0.5$: the coin's bias is unknown and symmetric, so a
+single toss is fair.</p>
+<p><em>Joint.</em> Total probability again, now for the event $H_1\cap H_2$, using the conditional
+independence established above:</p>
+$$\mathbf{P}(H_1\cap H_2)=0.5(0.81)+0.5(0.01)=0.405+0.005=0.41 .$$
+<p><em>Compare.</em> $\mathbf{P}(H_1)\mathbf{P}(H_2)=0.5\cdot 0.5=0.25$ and
+$0.41-0.25=0.16\neq 0$, so</p>
+$$\mathbf{P}(H_1\cap H_2)=0.41\;\neq\;0.25=\mathbf{P}(H_1)\mathbf{P}(H_2):$$
+<p>the tosses are <b>dependent</b>. Equivalently
+$\mathbf{P}(H_2\mid H_1)=0.41/0.5=0.82\neq 0.5$.</p>
+
+<p><b>The slide's comparison: toss 11.</b> The slide asks us to compare
+$\mathbf{P}(\text{toss }11=H)$ with $\mathbf{P}(\text{toss }11=H\mid\text{first }10\text{ heads})$.
+Let $E_{10}=H_1\cap\cdots\cap H_{10}$.</p>
+<p><em>Unconditional.</em> Exactly as for $H_1$, total probability gives</p>
+$$\mathbf{P}(H_{11})=0.5(0.9)+0.5(0.1)=0.5 .$$
+<p><em>Conditional.</em> First find the posterior on the coin by Bayes' rule. Conditional on
+$\mathcal{A}$ the ten tosses are independent, so the likelihood is a product of ten identical
+factors:</p>
+$$\mathbf{P}(E_{10}\mid\mathcal{A})=(0.9)^{10}=0.3486784401,\qquad
+\mathbf{P}(E_{10}\mid\mathcal{B})=(0.1)^{10}=1\times 10^{-10}.$$
+<p>Total probability for the denominator:</p>
+$$\mathbf{P}(E_{10})=0.5(0.3486784401)+0.5(1\times 10^{-10})=0.1743392201 .$$
+<p>Bayes' rule:</p>
+$$\mathbf{P}(\mathcal{A}\mid E_{10})=\frac{0.5(0.3486784401)}{0.1743392201}
+=\frac{0.17433922005}{0.1743392201}=0.9999999997,\qquad
+\mathbf{P}(\mathcal{B}\mid E_{10})=2.868\times 10^{-10}.$$
+<p>Now total probability under the <em>posterior</em> law — legitimate because
+$\mathbf{P}(\cdot\mid E_{10})$ is a probability law and, given the coin, toss 11 is independent of
+the first ten:</p>
+$$\mathbf{P}(H_{11}\mid E_{10})=\mathbf{P}(\mathcal{A}\mid E_{10})(0.9)
++\mathbf{P}(\mathcal{B}\mid E_{10})(0.1)=0.9999999997(0.9)+2.868\times 10^{-10}(0.1)
+=0.8999999998 .$$
+<p><b>Conclusion.</b> $0.5$ versus $0.9$ — ten heads have moved the predictive probability of the
+next head from a fair coin to essentially the coin-$A$ bias. Past tosses are highly informative
+about future tosses, which is precisely the failure of independence.</p></div>
+
+<div class="figblock" style="break-inside:avoid;page-break-inside:avoid">
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s3_posterior}}" alt="Line chart with k, the number of heads observed, on the horizontal axis from 0 to 12. The blue curve, the posterior probability of coin A, rises from 0.5 at k = 0 to 0.9 at k = 1, 0.99 at k = 2 and essentially 1 from k = 3 onward. The orange curve, the probability that the next toss is heads, rises from 0.5 to 0.82 at k = 1, 0.89 at k = 2 and flattens at 0.9. A dashed horizontal line marks the unconditional value 0.5." style="max-width:700px">
+<div class="figcap">Fig. 3.5 — How fast evidence accumulates in the two-coin model (L03 slide 5). After $k$ heads in a row, $\mathbf{P}(\mathcal{A}\mid k\text{ heads})=0.9^k/(0.9^k+0.1^k)$ and the predictive probability of another head is $0.9\,\mathbf{P}(\mathcal{A}\mid\cdot)+0.1\,\mathbf{P}(\mathcal{B}\mid\cdot)$. Values: $k=1\to 0.82$, $k=3\to 0.8989$, $k=10\to 0.9000$.</div>
+</div>
+
+<div id="w-g1s3-twocoin"></div>
+<script>
+Widget.create({ el: '#w-g1s3-twocoin', height: 300,
+  title: 'Two unfair coins: how a run of heads makes future heads likelier',
+  note: 'Coin A has P(H)=q, coin B has P(H)=1-q, each chosen with probability 1/2. ' +
+        'After k heads in a row, posterior P(coin A) = q^k/(q^k+(1-q)^k) and the predictive ' +
+        'P(next toss = H) = q·P(A|k) + (1-q)·(1-P(A|k)). At q=0.5 the two coins coincide and ' +
+        'the tosses really are independent — the curves go flat. Cross-checked against ' +
+        'computes/g1_s3.py key widget_twocoin_check.',
+  controls: [
+    {type:'range', id:'q', label:'q = P(H | coin A)', min:0.5, max:0.99, step:0.01, value:0.9},
+    {type:'range', id:'k', label:'k = heads observed so far', min:0, max:12, step:1, value:3}
+  ],
+  draw(s, canvas, out) {
+    const q = s.q, K = 12;
+    const post = (k) => Math.pow(q,k) / (Math.pow(q,k) + Math.pow(1-q,k));
+    const pred = (k) => post(k)*q + (1-post(k))*(1-q);
+    const ks = [], a = [], b = [];
+    for (let k = 0; k <= K; k++) { ks.push(k); a.push(post(k)); b.push(pred(k)); }
+    const P = new Plot(canvas, { xlim:[-0.3, K+0.3], ylim:[0.4, 1.02], height:300,
+      xlabel:'k = number of heads observed in a row', ylabel:'probability',
+      xticks:[0,2,4,6,8,10,12] });
+    P.frame();
+    P.hline(0.5, {color:'#898781'});
+    P.line(ks, a, {label:'P(coin A | k heads)', color:0});
+    P.line(ks, b, {label:'P(next toss = H | k heads)', color:1});
+    P.points([s.k], [post(s.k)], {color:0, r:5.5});
+    P.points([s.k], [pred(s.k)], {color:1, r:5.5});
+    P.vline(s.k, {color:'#c3c2b7'});
+    P.legend('left');
+    out.textContent =
+      'k = ' + s.k + '   P(coin A | k heads) = ' + post(s.k).toFixed(6) +
+      '   P(next = H | k heads) = ' + pred(s.k).toFixed(6) +
+      '   [unconditional P(H) = 0.5]';
+  }});
+</script>
+
+<div class="note"><b>Interpretation — dependence through a hidden common cause.</b> Nothing physical
+links toss 1 to toss 2; they are separate flips of one physical coin. What links them is the
+<em>unknown bias</em>. Each toss is evidence about the bias, and the bias governs the next toss, so
+information flows from toss 1 to toss 2 through the hidden variable. Conditioning on the hidden
+variable (the coin's identity) cuts that channel and restores independence. This is the structural
+idea behind Markov chains, mixture models, and every "conditionally i.i.d. given the parameter"
+statement in statistics.</div>
+
+<div class="warn"><b>Gotcha.</b> "Independent tosses" in a problem statement almost always means
+<em>conditionally</em> independent given the coin. If the coin itself is random, do not multiply
+marginals: $\mathbf{P}(H_1\cap H_2)=0.41$, not $\mathbf{P}(H_1)\mathbf{P}(H_2)=0.25$. Multiply
+<em>inside</em> each scenario, then average over scenarios with the total probability theorem.</div>
+
+<div class="ex"><b>Example 3.6 (rec03 P1 = B&T Example 1.20, page 37 — the handout defers the whole
+solution to the text; worked here in full).</b> Two independent fair coin tosses, all four outcomes
+equally likely. Let $H_1=\{$1st toss is a head$\}$, $H_2=\{$2nd toss is a head$\}$,
+$D=\{$the two tosses produced different results$\}$. (a) Are $H_1,H_2$ unconditionally independent?
+(b) Given $D$, are they conditionally independent?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Model.</b> $\Omega=\{HH,HT,TH,TT\}$ with the uniform law, so each outcome has probability
+$1/4=0.25$. In the labels the first letter is toss 1. Then
+$H_1=\{HH,HT\}$, $H_2=\{HH,TH\}$, $D=\{HT,TH\}$.</p>
+<p><b>(a) Unconditional.</b> By the uniform law $\mathbf{P}(E)=|E|/|\Omega|$:</p>
+$$\mathbf{P}(H_1)=\tfrac{2}{4}=0.5,\qquad \mathbf{P}(H_2)=\tfrac{2}{4}=0.5,\qquad
+H_1\cap H_2=\{HH\}\Rightarrow \mathbf{P}(H_1\cap H_2)=\tfrac14=0.25 .$$
+<p>Since $\mathbf{P}(H_1)\mathbf{P}(H_2)=0.5\cdot 0.5=0.25=\mathbf{P}(H_1\cap H_2)$, the events
+<b>are independent</b>. (As they must be — the tosses were declared independent, and $H_1$, $H_2$
+are events about separate tosses.)</p>
+<p><b>(b) Conditional on $D$.</b> First $\mathbf{P}(D)=|\{HT,TH\}|/4=2/4=0.5&gt;0$, so conditioning
+is legal. Now compute the three conditional probabilities from the definition
+$\mathbf{P}(E\mid D)=\mathbf{P}(E\cap D)/\mathbf{P}(D)$:</p>
+$$H_1\cap D=\{HT\}:\quad \mathbf{P}(H_1\mid D)=\frac{1/4}{1/2}=\frac{0.25}{0.5}=0.5,$$
+$$H_2\cap D=\{TH\}:\quad \mathbf{P}(H_2\mid D)=\frac{1/4}{1/2}=\frac{0.25}{0.5}=0.5,$$
+$$H_1\cap H_2\cap D=\{HH\}\cap\{HT,TH\}=\varnothing:\quad
+\mathbf{P}(H_1\cap H_2\mid D)=\frac{0}{0.5}=0 .$$
+<p><b>Compare.</b> $\mathbf{P}(H_1\mid D)\mathbf{P}(H_2\mid D)=0.5\cdot 0.5=0.25$, but
+$\mathbf{P}(H_1\cap H_2\mid D)=0$. Since $0\neq 0.25$, $H_1$ and $H_2$ are <b>not</b> conditionally
+independent given $D$.</p>
+<p><b>Why, in words.</b> Inside the universe $D$ only two outcomes survive, $HT$ and $TH$, and in
+both of them exactly one toss is a head. So given $D$, learning $H_1$ forces $H_2^c$ — knowledge of
+one toss determines the other completely. Conditioning turned two independent events into two
+maximally dependent ones. This is the concrete version of Example 3.4 with $C=D$: indeed
+$H_1\cap H_2\cap D=\varnothing$ while $\mathbf{P}(H_1\mid D),\mathbf{P}(H_2\mid D)&gt;0$.</p></div></details></div>
+
+<div class="ex"><b>Example 3.7 (rec03 P4(c) = B&T Problem 1.44, page 64 — deferred in the handout;
+proved here).</b> Let $A,B,C$ be independent events with $\mathbf{P}(C)&gt;0$. Prove that $A$ and $B$
+are conditionally independent given $C$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>What we may use.</b> Independence of the <em>collection</em> $\{A,B,C\}$ means (§3.4 below,
+L03 slide 6) that <em>all</em> of these hold:</p>
+$$\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B),\quad
+\mathbf{P}(A\cap C)=\mathbf{P}(A)\mathbf{P}(C),\quad
+\mathbf{P}(B\cap C)=\mathbf{P}(B)\mathbf{P}(C),$$
+$$\mathbf{P}(A\cap B\cap C)=\mathbf{P}(A)\mathbf{P}(B)\mathbf{P}(C).$$
+<p><b>Step 1 — left-hand side.</b> By the definition of conditional probability and the
+four-event product identity,</p>
+$$\mathbf{P}(A\cap B\mid C)=\frac{\mathbf{P}(A\cap B\cap C)}{\mathbf{P}(C)}
+=\frac{\mathbf{P}(A)\mathbf{P}(B)\mathbf{P}(C)}{\mathbf{P}(C)}
+=\mathbf{P}(A)\mathbf{P}(B).$$
+<p><b>Step 2 — right-hand side.</b> By the definition of conditional probability applied to each
+factor, and the pairwise identities,</p>
+$$\mathbf{P}(A\mid C)=\frac{\mathbf{P}(A\cap C)}{\mathbf{P}(C)}
+=\frac{\mathbf{P}(A)\mathbf{P}(C)}{\mathbf{P}(C)}=\mathbf{P}(A),\qquad
+\mathbf{P}(B\mid C)=\frac{\mathbf{P}(B)\mathbf{P}(C)}{\mathbf{P}(C)}=\mathbf{P}(B).$$
+<p><b>Step 3 — compare.</b> Multiplying the two results of Step 2 gives
+$\mathbf{P}(A\mid C)\mathbf{P}(B\mid C)=\mathbf{P}(A)\mathbf{P}(B)$, which is exactly the value of
+$\mathbf{P}(A\cap B\mid C)$ found in Step 1. Therefore</p>
+$$\mathbf{P}(A\cap B\mid C)=\mathbf{P}(A\mid C)\,\mathbf{P}(B\mid C),$$
+<p>i.e. $A$ and $B$ are conditionally independent given $C$. $\blacksquare$</p>
+<p><b>Remark (where the strength is needed).</b> The proof used the triple identity in Step 1 and
+two pairwise identities in Step 2. Pairwise independence alone is <em>not</em> enough: in Example
+3.6, $H_1,H_2,D$ are pairwise independent (see §3.4) yet $H_1,H_2$ are not conditionally independent
+given $D$. Full independence of the collection is exactly what makes conditioning on one member
+harmless.</p></div></details></div>
+
+<div class="ex"><b>Example 3.8 (L03 slide 8 — the king's sibling; the slide gives only the
+question).</b> The king comes from a family of two children. What is the probability that his
+sibling is female?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Model.</b> Take the four birth-order compositions equally likely,
+$\Omega=\{BB,BG,GB,GG\}$, each of probability $1/4$ (letters in birth order; $B$ = boy,
+$G$ = girl). The answer depends entirely on how "the king comes from a family of two children" is
+turned into a conditioning event — the lecture's point.</p>
+<p><b>Reading 1 — "at least one of the two children is male" (a king exists in the family).</b>
+The conditioning event is $M=\{BB,BG,GB\}$ with $\mathbf{P}(M)=3/4$. The event of interest is
+$S=\{$the other child is female$\}$, which within $M$ is $\{BG,GB\}$, of probability $2/4$. Then</p>
+$$\mathbf{P}(S\mid M)=\frac{\mathbf{P}(S\cap M)}{\mathbf{P}(M)}=\frac{2/4}{3/4}=\frac{2}{3}
+\approx 0.6667 .$$
+<p><b>Reading 2 — "a child was picked at random from the family and turned out to be the (male)
+king".</b> Now the observation is not just "a boy exists" but "this particular randomly chosen
+child is a boy", and a $BB$ family is twice as likely to produce that observation as a $BG$ family.
+Use Bayes' rule with the prior $1/4$ on each composition and the likelihood
+$\mathbf{P}(\text{chosen child is a boy}\mid \text{composition})$, which is $1$ for $BB$, $1/2$ for
+$BG$ and for $GB$, and $0$ for $GG$:</p>
+$$\mathbf{P}(\text{picked a boy})=\tfrac14(1)+\tfrac14(\tfrac12)+\tfrac14(\tfrac12)+\tfrac14(0)
+=\tfrac14+\tfrac18+\tfrac18=\tfrac12 ,$$
+$$\mathbf{P}(BB\mid \text{picked a boy})=\frac{\tfrac14(1)}{\tfrac12}=\tfrac12,\qquad
+\mathbf{P}(\{BG,GB\}\mid\text{picked a boy})=\frac{\tfrac14(\tfrac12)+\tfrac14(\tfrac12)}{\tfrac12}
+=\tfrac12 .$$
+<p>The sibling is female exactly in the second case, so the answer is
+$\mathbf{P}=1/2=0.5$.</p>
+<p><b>Moral.</b> $2/3$ and $1/2$ are both correct — for different experiments. "The king is male" is
+data about the <em>family</em> under Reading 1 and data about a <em>sampled child</em> under Reading
+2, and the two conditioning events cut different subsets out of $\Omega$. Before conditioning, write
+down what was actually observed and how it was generated.</p></div></details></div>
+
+<div class="ex"><b>Practice 3.5.</b> Repeat the two-coin analysis with
+$\mathbf{P}(H\mid\text{coin }A)=0.8$, $\mathbf{P}(H\mid\text{coin }B)=0.3$, each coin chosen with
+probability $0.5$. Compute $\mathbf{P}(H_1)$, $\mathbf{P}(H_1\cap H_2)$, and $\mathbf{P}(H_2\mid H_1)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Total probability for one toss:
+$\mathbf{P}(H_1)=0.5(0.8)+0.5(0.3)=0.4+0.15=0.55$, and likewise $\mathbf{P}(H_2)=0.55$.</p>
+<p>Total probability for two tosses, using conditional independence given the coin:
+$$\mathbf{P}(H_1\cap H_2)=0.5(0.8)^2+0.5(0.3)^2=0.5(0.64)+0.5(0.09)=0.32+0.045=0.365 .$$
+Compare $\mathbf{P}(H_1)\mathbf{P}(H_2)=0.55^2=0.3025$. Since $0.365\neq 0.3025$ the tosses are
+dependent.</p>
+<p>Then $\mathbf{P}(H_2\mid H_1)=0.365/0.55=0.663636\ldots$, up from $0.55$. Equivalently, Bayes
+gives $\mathbf{P}(\mathcal{A}\mid H_1)=0.5(0.8)/0.55=0.727273$, and
+$0.727273(0.8)+0.272727(0.3)=0.663636$ — the same number by the two-step route.</p></div></details></div>
+
+<div class="ex"><b>Practice 3.6.</b> Let $A$ and $B$ be independent with
+$\mathbf{P}(A)=a$ and $\mathbf{P}(B)=b$. (i) Compute all three conditional probabilities given
+$C=A\cup B$ for $a=b=0.5$ and decide whether $A$ and $B$ are conditionally independent given $C$.
+(ii) Redo the computation symbolically and characterize <em>exactly</em> when conditional
+independence given $A\cup B$ does hold.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(i) The numeric case.</b> With $a=b=0.5$ and independence, $\mathbf{P}(A\cap B)=0.25$ and
+$\mathbf{P}(C)=\mathbf{P}(A\cup B)=0.5+0.5-0.25=0.75$. Since $A\subseteq C$ and $B\subseteq C$, the
+numerators are just $\mathbf{P}(A)$, $\mathbf{P}(B)$, $\mathbf{P}(A\cap B)$:</p>
+$$\mathbf{P}(A\mid C)=\frac{0.5}{0.75}=\frac{2}{3},\qquad
+\mathbf{P}(B\mid C)=\frac{2}{3},\qquad
+\mathbf{P}(A\cap B\mid C)=\frac{0.25}{0.75}=\frac{1}{3}.$$
+<p>The product is $(2/3)^2=4/9\approx 0.4444$, while the joint conditional is
+$1/3\approx 0.3333$; they differ by $-0.1111$, so here conditioning on the union
+<em>destroys</em> independence.</p>
+<p><b>(ii) The general case.</b> Write $u=\mathbf{P}(C)=\mathbf{P}(A\cup B)=a+b-ab$, which is
+$&gt;0$ whenever $a$ or $b$ is. Using $A\subseteq C$, $B\subseteq C$, $A\cap B\subseteq C$ and
+independence of $A,B$,</p>
+$$\mathbf{P}(A\mid C)=\frac{a}{u},\qquad \mathbf{P}(B\mid C)=\frac{b}{u},\qquad
+\mathbf{P}(A\cap B\mid C)=\frac{ab}{u}.$$
+<p>Conditional independence given $C$ therefore says</p>
+$$\frac{ab}{u}=\frac{a}{u}\cdot\frac{b}{u}=\frac{ab}{u^2}
+\;\Longleftrightarrow\; ab\,u = ab\,u^2 \;\Longleftrightarrow\; ab\,u\,(1-u)=0 .$$
+<p>So (excluding the trivial cases $a=0$ or $b=0$, where every event is independent of a null
+event) the condition is $u=1$, i.e.</p>
+$$a+b-ab=1\;\Longleftrightarrow\; 1-a-b+ab=0\;\Longleftrightarrow\;(1-a)(1-b)=0
+\;\Longleftrightarrow\; a=1\ \text{ or }\ b=1 .$$
+<p><b>Conclusion.</b> For independent $A,B$ with $a,b\in(0,1)$, conditioning on $C=A\cup B$
+<em>always</em> destroys independence; the only way it survives is the degenerate case
+$\mathbf{P}(A)=1$ or $\mathbf{P}(B)=1$, in which $C=\Omega$ up to a null set and conditioning does
+nothing at all. (Check: $a=1$, $b=0.3$ gives $u=1$ and
+$\mathbf{P}(A\cap B\mid C)=0.3=1\cdot 0.3=\mathbf{P}(A\mid C)\mathbf{P}(B\mid C)$ ✓, while
+$a=0.8$, $b=0.3$ gives $0.279070$ against $0.324500$ ✗.) Intuition: inside $A\cup B$, learning that
+$A$ failed <em>forces</em> $B$ to have occurred, so the events become negatively related — unless
+one of them was certain to begin with, so that "$A$ failed" was impossible.</p></div></details></div>
+
+<h3 style="break-after:avoid;page-break-after:avoid">3.4 Independence of a collection of events</h3>
+
+<p>For three or more events, "every pair is independent" is a strictly weaker statement than what we
+want. L03 slide 6 states the intuitive requirement first: information about some of the events tells
+us nothing about probabilities involving the others, e.g.</p>
+
+$$\mathbf{P}\big(A_1\cap(A_2^c\cup A_3)\mid A_5\cap A_6^c\big)=\mathbf{P}\big(A_1\cap(A_2^c\cup A_3)\big).$$
+
+<div class="defn"><b>Definition (L03 slide 6; B&amp;T §1.5).</b> Events $A_1,A_2,\ldots,A_n$ are
+<b>independent</b> if
+$$\mathbf{P}(A_i\cap A_j\cap\cdots\cap A_q)=\mathbf{P}(A_i)\mathbf{P}(A_j)\cdots\mathbf{P}(A_q)$$
+for <em>every</em> choice of distinct indices $i,j,\ldots,q$ from $\{1,\ldots,n\}$ — equivalently,
+$\mathbf{P}\big(\bigcap_{i\in S}A_i\big)=\prod_{i\in S}\mathbf{P}(A_i)$ for every subset
+$S\subseteq\{1,\ldots,n\}$.</div>
+
+<p>How many equations is that? Subsets of size $0$ and $1$ are automatic ($\mathbf{P}(\Omega)=1$ and
+$\mathbf{P}(A_i)=\mathbf{P}(A_i)$), so the number of genuine conditions is</p>
+$$2^n-n-1:\qquad n=3\to 2^3-3-1=4,\qquad n=4\to 2^4-4-1=11,\qquad n=5\to 2^5-5-1=26 .$$
+<p>For $n=3$ the four conditions are the three pairwise ones plus the triple product. <b>Neither
+implication between "the three pairwise conditions" and "the triple condition" holds</b>; the two
+examples below are counterexamples in opposite directions (B&amp;T §1.5, Examples 1.22 and 1.23).</p>
+
+<div class="figblock" style="break-inside:avoid;page-break-inside:avoid">
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s3_grid22}}" alt="Three copies of a two-by-two grid of the outcomes HH, HT, TH, TT, each cell labeled one quarter. In the first, the top row HH and HT is shaded for A = first toss heads. In the second, HH and TH are shaded for B = second toss heads. In the third, HH and TT are shaded for C = same result. Each panel is annotated P = 1/2." style="max-width:960px">
+<div class="figcap">Fig. 3.6 — The $2\times2$ grid of two fair coin tosses (L03 slide 7). Row = first toss, column = second toss; each cell has probability $1/4$. Each of $A$, $B$, $C$ occupies two cells, so each has probability $1/2$, but $A\cap B\cap C$ is the single cell $HH$.</div>
+</div>
+
+<div class="ex"><b>Example 3.9 (L03 slide 7 — all four blanks filled).</b> Two independent fair coin
+tosses. $A=\{$1st toss is $H\}$, $B=\{$2nd toss is $H\}$, $C=\{$1st and 2nd toss give the same
+result$\}$. The slide lists $\mathbf{P}(C)$, $\mathbf{P}(C\cap A)$, $\mathbf{P}(A\cap B\cap C)$ and
+$\mathbf{P}(C\mid A\cap B)$ with blank right-hand sides.
+
+<p><b>Setup.</b> $\Omega=\{HH,HT,TH,TT\}$, uniform, each cell $1/4=0.25$ (Fig. 3.6). Reading the
+grid: $A=\{HH,HT\}$, $B=\{HH,TH\}$, $C=\{HH,TT\}$, so
+$\mathbf{P}(A)=\mathbf{P}(B)=\mathbf{P}(C)=2/4=0.5$.</p>
+
+<p><b>1. $\mathbf{P}(C)$.</b> $C$ is the union of the two disjoint outcomes $HH$ and $TT$, so by
+additivity $\mathbf{P}(C)=0.25+0.25=0.5$.</p>
+
+<p><b>2. $\mathbf{P}(C\cap A)$.</b> $C\cap A=\{HH,TT\}\cap\{HH,HT\}=\{HH\}$, hence
+$\mathbf{P}(C\cap A)=0.25$. Compare with $\mathbf{P}(C)\mathbf{P}(A)=0.5\cdot 0.5=0.25$: equal, so
+$A$ and $C$ are independent. By the identical computation
+$B\cap C=\{HH\}$ gives $\mathbf{P}(B\cap C)=0.25=\mathbf{P}(B)\mathbf{P}(C)$, and $A,B$ are
+independent by assumption. <b>All three pairs are independent.</b></p>
+
+<p><b>3. $\mathbf{P}(A\cap B\cap C)$.</b> $A\cap B=\{HH\}$, and $HH\in C$, so
+$A\cap B\cap C=\{HH\}$ and $\mathbf{P}(A\cap B\cap C)=0.25$. But</p>
+$$\mathbf{P}(A)\mathbf{P}(B)\mathbf{P}(C)=0.5\cdot 0.5\cdot 0.5=0.125,$$
+$$0.25\neq 0.125 .$$
+<p>The triple condition <b>fails</b>, so $A,B,C$ are <em>not</em> independent as a collection even
+though they are pairwise independent.</p>
+
+<p><b>4. $\mathbf{P}(C\mid A\cap B)$.</b> By the definition of conditional probability,</p>
+$$\mathbf{P}(C\mid A\cap B)=\frac{\mathbf{P}(A\cap B\cap C)}{\mathbf{P}(A\cap B)}
+=\frac{0.25}{0.25}=1 .$$
+<p>Compare with $\mathbf{P}(C)=0.5$. Knowing the outcomes of <em>both</em> tosses tells you with
+certainty whether they matched — the flagrant violation of the intuitive definition, even though no
+single one of $A$, $B$ carries any information about $C$.</p>
+
+<p><b>Slide's conclusion.</b> Pairwise independence does not imply independence.</p></div>
+
+<div class="ex"><b>Example 3.10 (rec03 P1's events, as the standard counterexample — book Example
+1.22, page 39).</b> The same phenomenon with $D=\{$the two tosses produced different results$\}$
+instead of $C$. Note $D=C^c=\{HT,TH\}$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Marginals.</b> $\mathbf{P}(H_1)=\mathbf{P}(H_2)=\mathbf{P}(D)=2/4=0.5$.</p>
+<p><b>Pairwise checks (three of them).</b></p>
+$$H_1\cap H_2=\{HH\}:\ \mathbf{P}=0.25=\mathbf{P}(H_1)\mathbf{P}(H_2)=0.25\ \checkmark$$
+$$H_1\cap D=\{HT\}:\ \mathbf{P}=0.25=\mathbf{P}(H_1)\mathbf{P}(D)=0.5\cdot 0.5=0.25\ \checkmark$$
+$$H_2\cap D=\{TH\}:\ \mathbf{P}=0.25=\mathbf{P}(H_2)\mathbf{P}(D)=0.25\ \checkmark$$
+<p>Equivalently, as the textbook writes it,
+$\mathbf{P}(D\mid H_1)=\mathbf{P}(H_1\cap D)/\mathbf{P}(H_1)=(1/4)/(1/2)=1/2=\mathbf{P}(D)$.</p>
+<p><b>Triple check.</b> $H_1\cap H_2\cap D=\{HH\}\cap\{HT,TH\}=\varnothing$, so</p>
+$$\mathbf{P}(H_1\cap H_2\cap D)=0\;\neq\;\tfrac12\cdot\tfrac12\cdot\tfrac12=\tfrac18=0.125 .$$
+<p><b>Conclusion.</b> $H_1,H_2,D$ are pairwise independent but not independent. This is the same
+failure seen from the other side in Example 3.6: because $H_1\cap H_2\cap D=\varnothing$,
+conditioning on $D$ made $H_1$ and $H_2$ mutually exclusive.</p></div></details></div>
+
+<div class="ex"><b>Example 3.11 (the converse counterexample — B&T Example 1.23, page 39).</b> The
+triple product alone does not imply pairwise independence. Two independent rolls of a fair
+six-sided die; $A=\{$1st roll is $1,2$ or $3\}$, $B=\{$1st roll is $3,4$ or $5\}$,
+$C=\{$the sum of the two rolls is $9\}$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Marginals.</b> $|\Omega|=36$ equally likely ordered pairs.
+$\mathbf{P}(A)=18/36=0.5$ and $\mathbf{P}(B)=18/36=0.5$. The sum is $9$ for
+$(3,6),(4,5),(5,4),(6,3)$, so $\mathbf{P}(C)=4/36=1/9\approx 0.1111$.</p>
+<p><b>All three pairwise checks fail.</b></p>
+$$A\cap B=\{\text{1st roll}=3\}:\ \mathbf{P}(A\cap B)=\tfrac{6}{36}=\tfrac16\approx 0.1667
+\;\neq\;\tfrac12\cdot\tfrac12=0.25 ;$$
+$$A\cap C=\{(3,6)\}:\ \mathbf{P}(A\cap C)=\tfrac1{36}\approx 0.0278
+\;\neq\;\tfrac12\cdot\tfrac19=\tfrac1{18}\approx 0.0556 ;$$
+$$B\cap C=\{(3,6),(4,5),(5,4)\}:\ \mathbf{P}(B\cap C)=\tfrac{3}{36}=\tfrac1{12}\approx 0.0833
+\;\neq\;\tfrac1{18}\approx 0.0556 .$$
+<p><b>The triple product nevertheless holds.</b> $A\cap B\cap C$ requires the first roll to be $3$
+(the only value in both $A$ and $B$) and the sum to be $9$, i.e. the outcome $(3,6)$:</p>
+$$\mathbf{P}(A\cap B\cap C)=\tfrac1{36}\approx 0.02778,\qquad
+\mathbf{P}(A)\mathbf{P}(B)\mathbf{P}(C)=\tfrac12\cdot\tfrac12\cdot\tfrac19=\tfrac1{36}\approx 0.02778 .$$
+<p>Equal. So one can satisfy the $n$-fold product identity while failing every pairwise one:
+independence of a collection really does require checking all $2^n-n-1$ conditions, not just the
+biggest one.</p></div></details></div>
+
+<div class="figblock" style="break-inside:avoid;page-break-inside:avoid">
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s3_flow}}" alt="Flowchart. Top box: how many events? Left branch, two events A and B, leads to check one equation P(A intersect B) = P(A)P(B). Right branch, a collection A1 to An, leads to check all 2^n minus n minus 1 subsets, pairwise is not enough. Both feed into a box asking whether the question is conditional on some C, in which case redo the same check with P(dot given C) everywhere. Final box: never conclude independence from disjoint or from a picture, compute." style="max-width:760px">
+<div class="figcap">Fig. 3.7 — Decision guide for independence questions (L03 slides 3, 4, 6, 7).</div>
+</div>
+
+<div class="recipe"><b>Recipe — how to answer "are these events independent?"</b>
+<ol>
+<li><b>Count the events.</b> Two events: one equation,
+$\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$. Three or more: <em>all</em> $2^n-n-1$ subset
+equations ($4$ for $n=3$, $11$ for $n=4$).</li>
+<li><b>Get the marginals.</b> In a uniform model, count: $\mathbf{P}(E)=|E|/|\Omega|$. In a
+sequential model, use the tree and the total probability theorem.</li>
+<li><b>Get the joint by intersecting the outcome sets</b>, not by multiplying — multiplying is what
+you are trying to test. In a grid or a list of leaves, literally intersect.</li>
+<li><b>Compare.</b> Equal for every required subset $\Rightarrow$ independent. One failure
+$\Rightarrow$ not independent, and you should say <em>which</em> equation failed.</li>
+<li><b>If the question says "given $C$"</b>, replace every $\mathbf{P}(\cdot)$ by
+$\mathbf{P}(\cdot\mid C)$ and rerun the same check. Do not reuse the unconditional verdict — §3.3
+shows it can flip in either direction.</li>
+<li><b>Sanity flags.</b> Disjoint with positive probabilities $\Rightarrow$ dependent. One event
+contained in another with $0&lt;\mathbf{P}&lt;1$ $\Rightarrow$ dependent. $\mathbf{P}(A)\in\{0,1\}$
+$\Rightarrow$ $A$ is independent of everything.</li>
+</ol></div>
+
+<div class="warn"><b>Gotcha.</b> "Pairwise independent" is a genuine, weaker property with a name —
+if a problem says the events are pairwise independent, you may <em>not</em> factor a triple
+intersection. Conversely, verifying only $\mathbf{P}(A\cap B\cap C)=\mathbf{P}(A)\mathbf{P}(B)
+\mathbf{P}(C)$ proves nothing (Example 3.11). And note the asymmetry with §3.2: for two events there
+is only one equation, so for $n=2$ "pairwise" and "independent" coincide; the distinction is born at
+$n=3$.</div>
+
+<div class="ex"><b>Practice 3.7.</b> Two independent rolls of a fair six-sided die. Let
+$A=\{$1st roll is odd$\}$, $B=\{$2nd roll is odd$\}$, $C=\{$the sum is odd$\}$. Are these three
+events pairwise independent? Independent?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$\mathbf{P}(A)=18/36=0.5$, $\mathbf{P}(B)=18/36=0.5$; the sum is odd exactly when the two rolls
+have different parities, which happens in $18$ of the $36$ pairs, so $\mathbf{P}(C)=0.5$.</p>
+<p>Pairwise: $A\cap B$ = both odd = $9$ pairs, $\mathbf{P}=9/36=0.25=0.5\cdot 0.5$ ✓.
+$A\cap C$ = 1st odd and parities differ = 1st odd, 2nd even = $9$ pairs, $\mathbf{P}=0.25$ ✓.
+$B\cap C$ = 2nd odd, 1st even = $9$ pairs, $\mathbf{P}=0.25$ ✓. All three pairs are independent.</p>
+<p>Triple: if the first two rolls are both odd, the sum is even, so
+$A\cap B\cap C=\varnothing$ and $\mathbf{P}(A\cap B\cap C)=0$, whereas
+$\mathbf{P}(A)\mathbf{P}(B)\mathbf{P}(C)=0.125$. Not independent. (Structurally identical to
+Example 3.10: $C$ is a parity check on the other two.)</p></div></details></div>
+
+<div class="ex"><b>Practice 3.8.</b> How many product equations must be verified to certify that
+five events $A_1,\ldots,A_5$ are independent? How many of them are pairwise conditions?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Every subset $S\subseteq\{1,\ldots,5\}$ gives one equation, but the $\binom{5}{0}=1$ empty subset
+and the $\binom{5}{1}=5$ singletons are automatic, leaving
+$2^5-5-1=32-6=26$ conditions. Of these, $\binom{5}{2}=10$ are pairwise, $\binom{5}{3}=10$ are
+triples, $\binom{5}{4}=5$ are quadruples and $\binom{5}{5}=1$ is the full product:
+$10+10+5+1=26$ ✓. Checking only the $10$ pairwise ones certifies less than $40\%$ of the
+requirement.</p></div></details></div>
+
+<h3 style="break-after:avoid;page-break-after:avoid">3.5 Independent trials: the drunk tightrope walker</h3>
+
+<p>Independence turns a sequence of identical experiments into a model you can compute with by
+multiplication alone. rec03 P2 is the smallest interesting example: a random walk.</p>
+
+<div class="figblock" style="break-inside:avoid;page-break-inside:avoid">
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s3_walk}}" alt="Lattice plot of all eight three-step paths from position zero, step number on the horizontal axis and position on the vertical axis. Three paths end at plus one and are highlighted: FFB and FBF in blue, starting with a forward step, and BFF in orange, starting with a backward step; each has probability 0.6 squared times 0.4 equals 0.144. Annotations give P(plus one after three steps) = 3 times 0.144 = 0.432 and P(first step forward given plus one) = 2/3." style="max-width:900px">
+<div class="figcap">Fig. 3.8 — All $2^3=8$ paths of the three-step walk (rec03 P2). Each path has probability $p^{\#F}(1-p)^{\#B}$; the three ending at $+1$ each have probability $p^2(1-p)=0.144$ at $p=0.6$, of which two start with a forward step.</div>
+</div>
+
+<div class="ex"><b>Example 3.12 (rec03 P2 — statement).</b> A drunk tightrope walker in the middle of
+a very long tightrope keeps his balance but takes a step forward with probability $p$ and a step
+back with probability $1-p$, independently at each step.
+<p>(a) What is the probability that after two steps he will be at the same place on the rope?<br>
+(b) What is the probability that after three steps he is one step forward of where he began?<br>
+(c) Given that after three steps he has moved ahead one step, what is the probability that his
+first step was a step forward?</p>
+<details class="sol"><summary>Solution (official solution plus every step the handout omits)</summary><div class="body">
+<p><b>Model.</b> Let $F_i$ be the event "step $i$ is forward" and $B_i=F_i^c$ "step $i$ is back",
+with $\mathbf{P}(F_i)=p$ and $\mathbf{P}(B_i)=1-p$ for every $i$, and the steps independent. After
+$n$ steps the position is (number of $F$'s) $-$ (number of $B$'s). Numerically we use $p=0.6$,
+$1-p=0.4$. Because the steps are independent, the probability of any specific step sequence is the
+product of its per-step probabilities, and therefore depends only on how many $F$'s it contains:
+a sequence with $k$ forward steps out of $n$ has probability $p^k(1-p)^{n-k}$.</p>
+
+<p><b>(a) Same place after two steps.</b> Position $0$ after two steps requires one $F$ and one $B$,
+in either order: the outcomes are $FB$ and $BF$. The handout jumps straight to $2p(1-p)$; here are
+the two independence steps it skips:</p>
+$$\mathbf{P}(FB)=\mathbf{P}(F_1\cap B_2)=\mathbf{P}(F_1)\mathbf{P}(B_2)=p(1-p)=0.6(0.4)=0.24,$$
+$$\mathbf{P}(BF)=\mathbf{P}(B_1\cap F_2)=\mathbf{P}(B_1)\mathbf{P}(F_2)=(1-p)p=0.4(0.6)=0.24 .$$
+<p>The two outcomes are distinct sample points, hence disjoint, so additivity gives</p>
+$$\mathbf{P}(\text{same place after 2 steps})=0.24+0.24=2p(1-p)=0.48 .$$
+<p><em>Check.</em> The other possibilities are $+2$ (probability $p^2=0.36$) and $-2$ (probability
+$(1-p)^2=0.16$), and $0.36+0.48+0.16=1.00$ ✓.</p>
+
+<p><b>(b) One step forward after three steps.</b> Net displacement $+1$ from three steps means
+$k$ forward and $3-k$ back with $k-(3-k)=+1$, i.e. $2k-3=1$, $k=2$. So exactly two of the three
+steps are forward. The handout asserts the factor $3$; it is the binomial coefficient counting
+<em>which</em> step is the backward one:</p>
+$$\binom{3}{2}=\frac{3!}{2!\,1!}=\frac{6}{2}=3,\qquad
+\text{the sequences } FFB,\ FBF,\ BFF .$$
+<p>Each has two $F$'s and one $B$, so by independence each has probability</p>
+$$p^2(1-p)=(0.6)^2(0.4)=0.36\cdot 0.4=0.144 ,$$
+<p>and the three are disjoint, so additivity gives</p>
+$$\mathbf{P}(+1\text{ after 3 steps})=3p^2(1-p)=3(0.144)=0.432 .$$
+
+<p><b>(c) First step forward, given $+1$ after three steps.</b> The conditioning event is
+$G=\{FFB,FBF,BFF\}$ with $\mathbf{P}(G)=0.432$ from (b). The handout says the three sample points
+are "equally likely" and reads off $2/3$; the computation behind that claim is: each has the
+identical probability $p^2(1-p)=0.144$, so the conditional law
+$\mathbf{P}(\cdot\mid G)$ assigns each of them $0.144/0.432=1/3$ — the conditional law is uniform on
+$G$. The event "first step is forward" intersects $G$ in $\{FFB,FBF\}$, two of the three points.
+Explicitly,</p>
+$$\mathbf{P}(F_1\mid G)=\frac{\mathbf{P}(F_1\cap G)}{\mathbf{P}(G)}
+=\frac{\mathbf{P}(FFB)+\mathbf{P}(FBF)}{\mathbf{P}(G)}
+=\frac{2p^2(1-p)}{3p^2(1-p)}=\frac{2}{3}
+=\frac{2(0.144)}{0.432}=\frac{0.288}{0.432}=0.6667 .$$
+<p>The bias $p$ cancels completely: whatever the walker's drift, given that he ended at $+1$ after
+three steps, the backward step is equally likely to have been step 1, 2 or 3, so the first step was
+forward with probability $2/3$. (Same cancellation as Example 3.1 — for the same reason.)</p></div></details></div>
+
+<div class="note"><b>Interpretation.</b> Two ideas do all the work in every independent-trials
+problem. (1) <em>Path probability</em>: independence makes the probability of a specific sequence a
+product, and identical distribution makes that product depend only on the count of successes.
+(2) <em>Path counting</em>: the number of sequences with $k$ successes out of $n$ is
+$\binom{n}{k}$. Multiply them and you have the binomial probability
+$\binom{n}{k}p^k(1-p)^{n-k}$ (L04 slide 6). Once you condition on a fixed number of successes, all
+surviving paths have equal probability, so conditional questions reduce to counting and $p$
+disappears.</div>
+
+<div class="warn"><b>Gotcha.</b> "Back where he started after $n$ steps" is impossible for odd $n$ —
+the position after $n$ steps has the same parity as $n$. Similarly $+1$ after three steps requires
+$k=2$, not $k=1$: solve $2k-n=d$ for $k$ rather than guessing. And do not forget the
+$\binom{n}{k}$ factor: $\mathbf{P}(FFB)=0.144$ is one path, $\mathbf{P}(+1)=0.432$ is three.</div>
+
+<div class="ex"><b>Practice 3.9.</b> With $p=0.6$, what is the probability the walker is back at his
+starting point after four steps? Given that he is, what is the probability his first step was
+forward?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Back at $0$ after four steps needs $2k-4=0$, i.e. $k=2$ forward steps. The number of such
+sequences is $\binom{4}{2}=\frac{4!}{2!2!}=6$, and each has probability
+$p^2(1-p)^2=(0.36)(0.16)=0.0576$. Hence</p>
+$$\mathbf{P}(\text{back at }0\text{ after }4)=6(0.0576)=0.3456 .$$
+<p>Conditioning on that event, all six sequences have the same probability, so the conditional law
+is uniform on them. Those starting with $F$ have one more $F$ among the remaining three steps:
+$\binom{3}{1}=3$ of them. Therefore</p>
+$$\mathbf{P}(F_1\mid \text{back at }0)=\frac{3(0.0576)}{6(0.0576)}=\frac{3}{6}=0.5 .$$
+<p>By symmetry this had to be $1/2$: conditioned on two forwards and two backs, the first step is
+equally likely to be either.</p></div></details></div>
+
+<div class="ex"><b>Practice 3.10.</b> Still with $p=0.6$: compute the probability of being at $+2$
+after four steps, and of being at $+4$ after four steps.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$+2$ after four steps: $2k-4=2\Rightarrow k=3$. Count $\binom{4}{3}=4$, path probability
+$p^3(1-p)=(0.216)(0.4)=0.0864$, so $\mathbf{P}=4(0.0864)=0.3456$.</p>
+<p>$+4$: $k=4$, only one path $FFFF$, probability $p^4=0.1296$.</p>
+<p>Check the whole distribution after four steps. The remaining two cases are
+$\binom{4}{1}p(1-p)^3=4(0.6)(0.064)=0.1536$ (position $-2$) and $(1-p)^4=0.0256$ (position $-4$),
+so</p>
+$$0.1296+0.3456+0.3456+0.1536+0.0256=1.0000\ \checkmark$$</div></details></div>
+
+<h3 style="break-after:avoid;page-break-after:avoid">3.6 Independent trials in engineering: the noisy channel and repetition coding</h3>
+
+<div class="figblock" style="break-inside:avoid;page-break-inside:avoid">
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s3_channel}}" alt="Binary channel crossover diagram. On the left, transmitted symbols 0 (with prior p = 0.6) and 1 (with prior 1 minus p = 0.4). On the right, received symbols 0 and 1. A green horizontal arrow from left 0 to right 0 labeled 1 minus epsilon-zero = 0.95; a red diagonal arrow from left 0 to right 1 labeled epsilon-zero = 0.05; a red diagonal arrow from left 1 to right 0 labeled epsilon-one = 0.10; a green horizontal arrow from left 1 to right 1 labeled 1 minus epsilon-one = 0.90. Caption notes errors in different transmissions are independent." style="max-width:700px">
+<div class="figcap">Fig. 3.9 — The binary channel of rec03 P3 (= B&T Problem 1.31, page 60, Figure 1), with the working values $\epsilon_0=0.05$, $\epsilon_1=0.10$, $p=0.6$.</div>
+</div>
+
+<div class="ex"><b>Example 3.13 (rec03 P3 = B&T Problem 1.31 — statement).</b> A binary ($0$ or $1$)
+message transmitted through a noisy channel is received incorrectly with probability $\epsilon_0$
+(when a $0$ is sent) and $\epsilon_1$ (when a $1$ is sent). Errors in different symbol transmissions
+are independent. The source transmits a $0$ with probability $p$ and a $1$ with probability $1-p$.
+<p>(a) What is the probability that a randomly chosen symbol is received correctly?<br>
+(b) The string $1011$ is transmitted. What is the probability that all four symbols are received
+correctly?<br>
+(c) Each symbol is now sent three times ($0\to000$, $1\to111$) and decoded by majority rule. What is
+the probability that a transmitted $0$ is correctly decoded?<br>
+(d) Under the scheme of (c), what is the probability that a $0$ was transmitted, given that the
+received string is $101$?</p>
+<details class="sol"><summary>Solution (the handout defers all four parts to the text; worked here in full, symbolically and at $\epsilon_0=0.05$, $\epsilon_1=0.10$, $p=0.6$)</summary><div class="body">
+<p><b>Notation.</b> Let $S_0$ = "a $0$ is transmitted" and $S_1=S_0^c$ = "a $1$ is transmitted", so
+$\mathbf{P}(S_0)=p=0.6$ and $\mathbf{P}(S_1)=1-p=0.4$. Let $R$ = "the symbol is received
+correctly". The channel specification is the pair of conditional probabilities read off Fig. 3.9:</p>
+$$\mathbf{P}(R\mid S_0)=1-\epsilon_0=1-0.05=0.95,\qquad
+\mathbf{P}(R\mid S_1)=1-\epsilon_1=1-0.10=0.90 .$$
+
+<p><b>(a) A randomly chosen symbol is received correctly.</b> $\{S_0,S_1\}$ is a partition of
+$\Omega$, so the total probability theorem applies:</p>
+$$\mathbf{P}(R)=\mathbf{P}(S_0)\mathbf{P}(R\mid S_0)+\mathbf{P}(S_1)\mathbf{P}(R\mid S_1)
+=p(1-\epsilon_0)+(1-p)(1-\epsilon_1).$$
+$$\mathbf{P}(R)=0.6(0.95)+0.4(0.90)=0.57+0.36=0.93 .$$
+<p>The error probability per symbol is $1-0.93=0.07$. Note this is a weighted average of $0.05$ and
+$0.10$ with weights $0.6$ and $0.4$: $0.6(0.05)+0.4(0.10)=0.03+0.04=0.07$ ✓.</p>
+
+<p><b>(b) The string $1011$ arrives intact.</b> Here nothing is random about <em>which</em> symbols
+are sent — they are given as $1,0,1,1$. Let $C_i$ be the event "the $i$th symbol is received
+correctly". The problem states that errors in different transmissions are independent, so the
+four-fold intersection factors:</p>
+$$\mathbf{P}(C_1\cap C_2\cap C_3\cap C_4)=\mathbf{P}(C_1)\mathbf{P}(C_2)\mathbf{P}(C_3)\mathbf{P}(C_4).$$
+<p>Symbols $1,3,4$ are $1$'s, each correct with probability $1-\epsilon_1=0.90$; symbol $2$ is a $0$,
+correct with probability $1-\epsilon_0=0.95$. Therefore</p>
+$$\mathbf{P}=(1-\epsilon_1)(1-\epsilon_0)(1-\epsilon_1)(1-\epsilon_1)
+=(1-\epsilon_0)(1-\epsilon_1)^3=0.95(0.90)^3 .$$
+$$0.90^3=0.729,\qquad \mathbf{P}=0.95(0.729)=0.69255 .$$
+<p>Do <em>not</em> use $0.93$ here: $0.93$ averages over an unknown symbol, whereas here the symbols
+are known. ($0.93^4=0.7481$ would be the wrong answer to a different question.)</p>
+
+<p><b>(c) Majority decoding of a transmitted $0$.</b> The codeword $000$ is sent; each of the three
+bits is independently flipped with probability $\epsilon_0=0.05$. Let $N$ be the number of the three
+received bits that are wrong. Decoding is correct exactly when the received triple contains at least
+two $0$'s, i.e. when $N\le 1$. Split that into disjoint cases:</p>
+<p><em>No errors ($N=0$):</em> all three bits correct, and by independence</p>
+$$\mathbf{P}(N=0)=(1-\epsilon_0)^3=(0.95)^3=0.857375 .$$
+<p><em>Exactly one error ($N=1$):</em> choose which of the three positions is wrong —
+$\binom{3}{1}=3$ ways — and each such pattern has probability
+$\epsilon_0(1-\epsilon_0)^2$ by independence:</p>
+$$\mathbf{P}(N=1)=3\epsilon_0(1-\epsilon_0)^2=3(0.05)(0.9025)=3(0.045125)=0.135375 .$$
+<p>The two cases are disjoint, so additivity gives</p>
+$$\mathbf{P}(\text{a transmitted }0\text{ is decoded correctly})=(1-\epsilon_0)^3+3\epsilon_0(1-\epsilon_0)^2
+=0.857375+0.135375=0.992750 .$$
+<p>The failure probability is $1-0.992750=0.007250$, which also equals
+$3\epsilon_0^2(1-\epsilon_0)+\epsilon_0^3=3(0.0025)(0.95)+0.000125=0.007125+0.000125=0.007250$ ✓.
+Compare with the uncoded error $\epsilon_0=0.05$: repetition has cut the error rate by a factor
+$0.05/0.00725=6.90$, at the cost of tripling the transmission time.</p>
+<p>For completeness, a transmitted $1$ is decoded correctly with probability
+$(1-\epsilon_1)^3+3\epsilon_1(1-\epsilon_1)^2=0.729+3(0.10)(0.81)=0.729+0.243=0.972$.</p>
+
+<p><b>(d) Posterior probability that a $0$ was sent, given the received string $101$.</b> This is
+Bayes' rule with hypotheses $S_0$ ("$000$ was sent") and $S_1$ ("$111$ was sent").</p>
+<p><em>Likelihood under $S_0$.</em> If $000$ was sent and $101$ arrived, bits 1 and 3 were flipped
+and bit 2 was not. By independence of the three transmissions,</p>
+$$\mathbf{P}(101\mid S_0)=\epsilon_0\,(1-\epsilon_0)\,\epsilon_0=\epsilon_0^2(1-\epsilon_0)
+=(0.05)^2(0.95)=0.0025(0.95)=0.002375 .$$
+<p><em>Likelihood under $S_1$.</em> If $111$ was sent and $101$ arrived, only bit 2 was flipped:</p>
+$$\mathbf{P}(101\mid S_1)=(1-\epsilon_1)\,\epsilon_1\,(1-\epsilon_1)=\epsilon_1(1-\epsilon_1)^2
+=0.10(0.81)=0.081 .$$
+<p><em>Denominator by total probability.</em></p>
+$$\mathbf{P}(101)=p\,\mathbf{P}(101\mid S_0)+(1-p)\,\mathbf{P}(101\mid S_1)
+=0.6(0.002375)+0.4(0.081)=0.001425+0.032400=0.033825 .$$
+<p><em>Bayes' rule.</em></p>
+$$\mathbf{P}(S_0\mid 101)=\frac{p\,\mathbf{P}(101\mid S_0)}{\mathbf{P}(101)}
+=\frac{0.001425}{0.033825}=0.042129 ,$$
+<p>and consequently $\mathbf{P}(S_1\mid 101)=1-0.042129=0.957871$ (or directly
+$0.032400/0.033825$). The majority rule's verdict — decode as $1$ — is confirmed by the exact
+posterior: given $101$, a $1$ was sent with probability about $95.8\%$.</p>
+<p><b>Reading the numbers (odds form).</b> Work throughout with odds <em>in favor of $1$</em>, so that
+every ratio points the same way. The prior odds are</p>
+$$\frac{\mathbf{P}(S_1)}{\mathbf{P}(S_0)}=\frac{1-p}{p}=\frac{0.4}{0.6}=0.666667
+\quad(\text{the prior mildly favors }0),$$
+<p>and the evidence enters through the likelihood ratio for the same pair of hypotheses:</p>
+$$\frac{\mathbf{P}(101\mid S_1)}{\mathbf{P}(101\mid S_0)}=\frac{0.081}{0.002375}=34.105263 .$$
+<p>Multiplying the two (the denominator $\mathbf{P}(101)$ cancels in the ratio of the two Bayes
+formulas) gives the posterior odds and hence the posterior probability:</p>
+$$\frac{\mathbf{P}(S_1\mid 101)}{\mathbf{P}(S_0\mid 101)}=0.666667\times 34.105263=22.736842,
+\qquad
+\mathbf{P}(S_1\mid 101)=\frac{22.736842}{1+22.736842}=0.957871\ \checkmark$$
+<p>which is exactly the $1-0.042129=0.957871$ found above. The lesson is the bookkeeping one: a
+likelihood ratio of $34.1$ in favor of $1$ swamps prior odds of only $0.67$ against it.</p></div></details></div>
+
+<div class="recipe"><b>Recipe — decoding problems.</b>
+<ol>
+<li><b>Fix what is given and what is random.</b> If the transmitted symbols are stated
+("$1011$ is transmitted"), do not average over the source; use the per-symbol conditional
+probabilities directly (part b).</li>
+<li><b>Per-symbol reliability, unknown symbol</b> $\Rightarrow$ total probability over the source
+(part a).</li>
+<li><b>Block error, known codeword</b> $\Rightarrow$ count the error patterns that the decoder gets
+wrong, weight each by $\epsilon^{\#\text{errors}}(1-\epsilon)^{\#\text{correct}}$, multiply by
+$\binom{n}{k}$, and add (part c).</li>
+<li><b>"Given the received string, what was sent?"</b> $\Rightarrow$ Bayes. Likelihood of a received
+string = product over positions of $\epsilon$ (mismatch) or $1-\epsilon$ (match); multiply by the
+prior; normalize (part d).</li>
+<li><b>Sanity check</b> with the odds form: posterior odds = prior odds $\times$ likelihood
+ratio.</li>
+</ol></div>
+
+<h4 style="break-after:avoid;page-break-after:avoid">How much does repetition buy? The error curve</h4>
+
+<p>Generalize part (c). Send each bit $n$ times ($n$ odd, so there are no ties) through a channel
+that flips each bit independently with probability $\epsilon$, and decode by majority. The decoder
+is wrong exactly when more than half the bits are flipped, so with $K$ = number of flipped bits,</p>
+$$\mathbf{P}(\text{decoder wrong})=\mathbf{P}\Big(K\ge \tfrac{n+1}{2}\Big)
+=\sum_{k=(n+1)/2}^{n}\binom{n}{k}\,\epsilon^{k}(1-\epsilon)^{n-k},$$
+<p>where each term is (number of error patterns with exactly $k$ flips) $\times$ (probability of one
+such pattern), the terms being disjoint events. For $n=5$, $\epsilon=0.10$ the three terms are</p>
+$$\binom{5}{3}(0.1)^3(0.9)^2=10(0.001)(0.81)=0.00810,\quad
+\binom{5}{4}(0.1)^4(0.9)=5(0.0001)(0.9)=0.00045,\quad
+\binom{5}{5}(0.1)^5=0.00001,$$
+$$\mathbf{P}(\text{wrong})=0.00810+0.00045+0.00001=0.00856 .$$
+
+<div class="figblock" style="break-inside:avoid;page-break-inside:avoid">
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s3_repcode}}" alt="Semi-log chart of the probability that the majority decoder is wrong versus the odd number of repetitions n from 1 to 15, for crossover probabilities 0.45, 0.30, 0.20, 0.10 and 0.05. All curves decrease; for epsilon = 0.05 the error drops from 0.05 at n = 1 to about 2 times 10 to the minus 7 at n = 15, while for epsilon = 0.45 it barely falls from 0.45 to 0.35." style="max-width:720px">
+<div class="figcap">Fig. 3.10 — Majority-rule repetition coding. Logarithmic vertical axis: straight lines mean geometric decay in $n$. The decay rate collapses as $\epsilon\to 1/2$, and at $\epsilon=1/2$ the error is $0.5$ for every $n$ (rec03 P3(c) generalized; B&amp;T §1.5, §1.6).</div>
+</div>
+
+<div id="w-g1s3-repcode"></div>
+<script>
+Widget.create({ el: '#w-g1s3-repcode', height: 320,
+  title: 'Repetition code: how the majority-decoder error depends on n and on the channel',
+  note: 'Each bit is sent n times (n odd) through a channel that flips each copy independently ' +
+        'with probability eps; the decoder takes the majority. The vertical axis is ' +
+        'log10 P(wrong), matching Fig. 3.10, so the geometric decay shows up as a straight ' +
+        'descending line — move n and eps and watch the slope. Cross-checked against ' +
+        'computes/g1_s3.py key widget_repcode_check ' +
+        '(eps=0.10: n=3 gives 0.028, n=7 gives 0.002728, n=15 gives 3.362e-05).',
+  controls: [
+    {type:'range', id:'eps', label:'eps = crossover probability', min:0.01, max:0.49, step:0.01, value:0.10},
+    {type:'range', id:'n', label:'n = repetitions (odd)', min:1, max:15, step:2, value:5}
+  ],
+  draw(s, canvas, out) {
+    const binom = (n, k) => { let r = 1; for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1); return r; };
+    const majErr = (n, e) => { let t = 0;
+      for (let k = Math.floor(n / 2) + 1; k <= n; k++) t += binom(n, k) * Math.pow(e, k) * Math.pow(1 - e, n - k);
+      return t; };
+    const ns = [], ys = [];
+    for (let n = 1; n <= 15; n += 2) { ns.push(n); ys.push(majErr(n, s.eps)); }
+    // log10 vertical axis: geometric decay reads as a straight line at every eps
+    const lg = ys.map(v => Math.log10(Math.max(v, 1e-300)));
+    const lo = Math.floor(Math.min.apply(null, lg));
+    const hi = Math.ceil(Math.max(Math.log10(s.eps), Math.max.apply(null, lg))) + 0.35;
+    const yt = []; for (let v = lo; v <= hi; v++) yt.push(v);
+    const P = new Plot(canvas, { xlim:[0, 16], ylim:[lo, hi], height:320,
+      pad:{l:74, r:14, t:22, b:40},
+      xlabel:'n = number of repetitions (odd)',
+      ylabel:'log10 P(majority decoder wrong)',
+      xticks:[1,3,5,7,9,11,13,15], yticks:yt });
+    P.frame();
+    P.line(ns, lg, {label:'log10 P(wrong) at this eps', color:0});
+    P.points(ns, lg, {color:0, r:4});
+    P.vline(s.n, {color:'#e34948'});
+    const cur = majErr(s.n, s.eps);
+    P.points([s.n], [Math.log10(cur)], {color:7, r:6});
+    P.hline(Math.log10(s.eps), {color:'#898781'});
+    P.text('uncoded error = eps', 8, Math.log10(s.eps), {color:'#898781'});
+    P.legend();
+    const gain = s.eps / cur;
+    out.textContent =
+      'n = ' + s.n + ',  eps = ' + s.eps.toFixed(2) +
+      '   ->   P(majority decoder wrong) = ' + cur.toExponential(4) +
+      '   (improvement over uncoded: factor ' + (isFinite(gain) ? gain.toFixed(2) : '-') + ')';
+  }});
+</script>
+
+<div class="note"><b>Interpretation — why $\epsilon&lt;1/2$ is the whole story.</b> Each extra pair of
+repetitions multiplies the error probability by roughly a constant factor smaller than $1$, so the
+error decays geometrically and the curves in Fig. 3.10 are straight lines on a log axis. The decay
+rate depends on how far $\epsilon$ is from $1/2$: at $\epsilon=0.05$ fifteen repetitions buy a
+factor of about $2.7\times10^5$ ($0.05\to 1.83\times10^{-7}$), while at $\epsilon=0.45$ they buy
+only $0.45\to 0.3465$. At $\epsilon=1/2$ the channel output is independent of the input — the
+received bits are fair coin tosses — and no amount of repetition helps: $\mathbf{P}(\text{wrong})
+=0.5$ for every odd $n$. Reliability is bought with redundancy, and the exchange rate is set by how
+far the channel is from useless.</div>
+
+<div class="warn"><b>Gotcha.</b> Majority decoding is not the same as the Bayes-optimal decoder when
+the two crossover probabilities differ or the prior is skewed. In part (d), majority and Bayes agree
+(both say "$1$"), but they need not: with $\epsilon_0=0.05$, $\epsilon_1=0.10$, the received string
+$101$ would be decoded as $0$ by the posterior only if the prior $p$ exceeded
+$0.081/(0.081+0.002375)=0.9715$. Majority rule ignores the prior and the asymmetry entirely.</div>
+
+<div class="warn"><b>Gotcha.</b> The error events for different repetitions are independent, but the
+<em>decoding</em> errors are not "one per bit": the sum in the error formula runs from
+$(n+1)/2$, not from $1$. Writing $\mathbf{P}(\text{wrong})=n\epsilon$ or $\epsilon^n$ are both
+wrong — the first ignores that a single flip is harmless, the second ignores that you only need a
+bare majority to fail.</div>
+
+<div class="ex"><b>Practice 3.11.</b> With $\epsilon_0=0.05$, how much does going from three to five
+repetitions improve the decoding of a transmitted $0$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Three repetitions (part c): failure probability
+$3\epsilon_0^2(1-\epsilon_0)+\epsilon_0^3=0.007125+0.000125=0.007250$.</p>
+<p>Five repetitions: the decoder fails when at least three of the five copies flip,</p>
+$$\binom{5}{3}\epsilon_0^3(1-\epsilon_0)^2+\binom{5}{4}\epsilon_0^4(1-\epsilon_0)+\binom{5}{5}\epsilon_0^5
+=10(0.000125)(0.9025)+5(6.25\times10^{-6})(0.95)+3.125\times10^{-7},$$
+$$=0.001128125+0.0000296875+0.0000003125=0.001158125 .$$
+<p>Improvement factor $0.007250/0.001158125=6.26$. (Against uncoded transmission the factor is
+$0.05/0.001158125=43.2$.) Two extra copies buy roughly another factor of six — geometric decay, as
+Fig. 3.10 shows.</p></div></details></div>
+
+<div class="ex"><b>Practice 3.12.</b> Under the three-repetition scheme with $\epsilon_0=0.05$,
+$\epsilon_1=0.10$, $p=0.6$, compute $\mathbf{P}(\text{a }0\text{ was sent}\mid\text{received }000)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Likelihoods: if $000$ was sent, receiving $000$ means no flips, probability
+$(1-\epsilon_0)^3=(0.95)^3=0.857375$. If $111$ was sent, receiving $000$ means all three flipped,
+probability $\epsilon_1^3=(0.10)^3=0.001$.</p>
+<p>Total probability: $\mathbf{P}(000)=0.6(0.857375)+0.4(0.001)=0.514425+0.000400=0.514825$.</p>
+<p>Bayes: $\mathbf{P}(S_0\mid 000)=0.514425/0.514825=0.999223$. Receiving an unambiguous triple
+leaves essentially no doubt — contrast with the $0.042129$ of part (d), where the evidence pointed
+the other way.</p></div></details></div>
+
+<div class="ex"><b>Practice 3.13.</b> Show directly that at $\epsilon=1/2$ the majority decoder is
+wrong with probability $1/2$ for every odd $n$, and check it for $n=7$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>At $\epsilon=1/2$ every one of the $2^n$ error patterns has the same probability
+$(1/2)^k(1/2)^{n-k}=2^{-n}$. The decoder is wrong when more than half the bits flip. Map each
+pattern to its complement (flip every entry): this is a bijection of the $2^n$ patterns that
+exchanges "more than half flipped" with "fewer than half flipped", and for odd $n$ there is no tie
+case. So the two events have equal size, each $2^{n-1}$ patterns, and probability
+$2^{n-1}/2^{n}=1/2$.</p>
+<p>For $n=7$: $\sum_{k=4}^{7}\binom{7}{k}=35+21+7+1=64=2^{6}$, and $64/128=0.5$ ✓.</p>
+<p>This is why $\epsilon=1/2$ is the useless channel: the output carries no information about the
+input, i.e. the received bit is independent of the transmitted bit.</p></div></details></div>
+
+<div class="summary"><b>§3 cheatsheet — independence.</b>
+<ul>
+<li><b>Two events.</b> $A\perp B$ means $\mathbf{P}(A\cap B)=\mathbf{P}(A)\mathbf{P}(B)$;
+equivalently $\mathbf{P}(A\mid B)=\mathbf{P}(A)$ when $\mathbf{P}(B)&gt;0$. The product form is the
+official one because it is symmetric and survives $\mathbf{P}(A)=0$ (L03 slide 3).</li>
+<li><b>Closure.</b> $A\perp B$ $\Rightarrow$ $A\perp B^c$, $A^c\perp B$, $A^c\perp B^c$
+(rec03 P4(b)). $A\perp A$ iff $\mathbf{P}(A)\in\{0,1\}$ (rec03 P4(a)).</li>
+<li><b>Disjoint $\neq$ independent.</b> With $\mathbf{P}(A),\mathbf{P}(B)&gt;0$, disjointness makes
+$\mathbf{P}(A\cap B)=0&lt;\mathbf{P}(A)\mathbf{P}(B)$: maximal dependence, never independence.</li>
+<li><b>Conditional independence given $C$.</b>
+$\mathbf{P}(A\cap B\mid C)=\mathbf{P}(A\mid C)\mathbf{P}(B\mid C)$, equivalently
+$\mathbf{P}(A\mid B\cap C)=\mathbf{P}(A\mid C)$. Neither direction of implication with unconditional
+independence holds: two fair tosses are independent but not given $D$ (rec03 P1); the two-coin
+tosses are conditionally independent given the coin but dependent unconditionally (L03 slide 5:
+$0.41\neq 0.25$).</li>
+<li><b>Collections.</b> $A_1,\ldots,A_n$ independent iff every subset's intersection factors —
+$2^n-n-1$ equations ($4$ for $n=3$). Pairwise $\not\Rightarrow$ independent ($H_1,H_2,D$:
+$\mathbf{P}=0$ vs $0.125$); the triple product $\not\Rightarrow$ pairwise (die example: triple
+$1/36=1/36$ ✓ but every pair fails).</li>
+<li><b>Independent trials.</b> A specific sequence with $k$ successes in $n$ has probability
+$p^k(1-p)^{n-k}$; there are $\binom{n}{k}$ such sequences. Conditioned on the number of successes,
+all surviving sequences are equally likely and $p$ cancels ($1/3$ in Example 3.1, $2/3$ in rec03
+P2(c)).</li>
+<li><b>Channel numbers to remember</b> ($\epsilon_0=0.05$, $\epsilon_1=0.10$, $p=0.6$):
+per-symbol correct $0.93$; string $1011$ intact $0.69255$; $3$-fold majority decoding of a $0$
+correct $0.99275$; $\mathbf{P}(0\text{ sent}\mid 101\text{ received})=0.042129$.</li>
+<li><b>Repetition coding.</b> $\mathbf{P}(\text{wrong})=\sum_{k=(n+1)/2}^{n}\binom{n}{k}
+\epsilon^k(1-\epsilon)^{n-k}$; geometric decay in $n$ iff $\epsilon&lt;1/2$, constant $0.5$ at
+$\epsilon=1/2$.</li>
+</ul></div>

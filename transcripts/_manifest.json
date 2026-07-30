@@ -1,0 +1,539 @@
+{
+ "lectures": [
+  {
+   "tag": "L01",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L01_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L01_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L01_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L01_p04.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/fee036e2e13527166fb7f8bcd0647844_MIT6_041F10_L01.pdf.md"
+  },
+  {
+   "tag": "L02",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L02_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L02_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L02_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/1d1520a08a59780bd49a9f0f12bf9af8_MIT6_041F10_L02.pdf.md"
+  },
+  {
+   "tag": "L03",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L03_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L03_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L03_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/b200b6217af1cd5dbea8c659ebbf046a_MIT6_041F10_L03.pdf.md"
+  },
+  {
+   "tag": "L04",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L04_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L04_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L04_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/f25004e3104e9bb7cf51ed0111ed7cf2_MIT6_041F10_L04.pdf.md"
+  },
+  {
+   "tag": "L05",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L05_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L05_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L05_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/e1a787ffa7b7190e0870a4086e83b393_MIT6_041F10_L05.pdf.md"
+  },
+  {
+   "tag": "L06",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L06_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L06_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L06_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/bf6ead198213f24e3a3b33a231ccfed9_MIT6_041F10_L06.pdf.md"
+  },
+  {
+   "tag": "L07",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L07_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L07_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L07_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/3854a6efe837e817328caa1d0c81627f_MIT6_041F10_L07.pdf.md"
+  },
+  {
+   "tag": "L08",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L08_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L08_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L08_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/3a9ed254a0700f2c4f45bd16cb802fa9_MIT6_041F10_L08.pdf.md"
+  },
+  {
+   "tag": "L09",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L09_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L09_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L09_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/8965782009087ec138338b622b3d73ce_MIT6_041F10_L09.pdf.md"
+  },
+  {
+   "tag": "L10",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L10_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L10_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L10_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/93d7a640723d2fc29c43fe0433faeaed_MIT6_041F10_L10.pdf.md"
+  },
+  {
+   "tag": "L11",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L11_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L11_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L11_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/73da95f719ea00b59e21ce4f62f27426_MIT6_041F10_L11.pdf.md"
+  },
+  {
+   "tag": "L12",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L12_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L12_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L12_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/3d68defe35d6265a9b882ef0f655f230_MIT6_041F10_L12.pdf.md"
+  },
+  {
+   "tag": "L13",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L13_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L13_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L13_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/b7c698f937ccd172c2bcfe24503c3e3e_MIT6_041F10_L13.pdf.md"
+  },
+  {
+   "tag": "L14",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L14_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L14_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L14_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/c3a76a2ab596356f320c89740525aad3_MIT6_041F10_L14.pdf.md"
+  },
+  {
+   "tag": "L15",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L15_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L15_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L15_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/b397bae0e306370d11508849b61f79a6_MIT6_041F10_L15.pdf.md"
+  },
+  {
+   "tag": "L16",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L16_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L16_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L16_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/a4ea1a83fdba566f4014a3b476361455_MIT6_041F10_L16.pdf.md"
+  },
+  {
+   "tag": "L17",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L17_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L17_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L17_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/972fdae360329552b7bcb932325b734a_MIT6_041F10_L17.pdf.md"
+  },
+  {
+   "tag": "L18",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L18_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L18_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L18_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/5e411812d2aa2b34818a6df5ff0338b3_MIT6_041F10_L18.pdf.md"
+  },
+  {
+   "tag": "L19",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L19_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L19_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L19_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/b5e66a2316a5fb88ce9600b4da965c84_MIT6_041F10_L19.pdf.md"
+  },
+  {
+   "tag": "L20",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L20_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L20_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L20_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/dfa381abca77b1062590590c178cbeef_MIT6_041F10_L20.pdf.md"
+  },
+  {
+   "tag": "L21",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L21_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L21_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L21_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/7b4f32f22b20614b0e23cf30d08f8b19_MIT6_041F10_L21.pdf.md"
+  },
+  {
+   "tag": "L22",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L22_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L22_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L22_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/766a6000e4accc0b6975c4833b3646b5_MIT6_041F10_L22.pdf.md"
+  },
+  {
+   "tag": "L23",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L23_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L23_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L23_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/bb20611c21f46de01a15e9f7149b827a_MIT6_041F10_L23.pdf.md"
+  },
+  {
+   "tag": "L24",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L24_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L24_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L24_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/7b8627dec437699625f2c6bf2d198708_MIT6_041F10_L24.pdf.md"
+  },
+  {
+   "tag": "L25",
+   "pages": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/L25_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L25_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/L25_p03.png"
+   ],
+   "corpus": "d:/Python-UV/MIT_Applied_Prob/corpus/826ba78b433802f5aa74aa86bc596888_MIT6_041F10_L25.pdf.md"
+  }
+ ],
+ "recs": [
+  {
+   "tag": "rec01",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_f641a82c4c92a8bd5387ab24e5584661_MIT6_041F10_rec01.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_68565b5f2f8533ea887831623926304e_MIT6_041F10_rec01_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec01_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec01_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec01_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec01_sol_p02.png"
+   ]
+  },
+  {
+   "tag": "rec02",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_1916e8123da9d6a5f5fa106546316648_MIT6_041F10_rec02.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_70b08609ad338aae678cd2666d5aee74_MIT6_041F10_rec02_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec02_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec02_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec02_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec02_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec02_sol_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec02_sol_p04.png"
+   ]
+  },
+  {
+   "tag": "rec03",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_150d4f74e52b8820b8727512a414e57f_MIT6_041F10_rec03.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_eeaae1542402636023ff0cc63753b105_MIT6_041F10_rec03_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec03_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec03_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec03_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec03_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec03_sol_p02.png"
+   ]
+  },
+  {
+   "tag": "rec04",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_e3b96768f633b03514ae3599b9eb8ccb_MIT6_041F10_rec04.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_f86e38378452fa30e7583b26e7362be0_MIT6_041F10_rec04_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec04_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec04_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec04_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec04_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec04_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec04_sol_p03.png"
+   ]
+  },
+  {
+   "tag": "rec05",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_855330af7b790c271c2aeb2e5b428a15_MIT6_041F10_rec05.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_1c3bb2e08f5017ebf07a8b997559a1b2_MIT6_041F10_rec05_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec05_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec05_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec05_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec05_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec05_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec05_sol_p03.png"
+   ]
+  },
+  {
+   "tag": "rec06",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_f451d93e055f74c1ca3d6009845acdac_MIT6_041F10_rec06.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_ac3fb796cdff0080e18b1f116e03d6c4_MIT6_041F10_rec06_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec06_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec06_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec06_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec06_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec06_sol_p03.png"
+   ]
+  },
+  {
+   "tag": "rec07",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_7ee4d00d24f8309b704fd8db9056ee8b_MIT6_041F10_rec07.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_afcd2de89ab8c326329949519779e7f4_MIT6_041F10_rec07_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec07_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec07_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec07_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec07_sol_p02.png"
+   ]
+  },
+  {
+   "tag": "rec08",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_a99d1a4b642aebcf49d1ecafb26d4199_MIT6_041F10_rec08.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_c77965b604cc6f0d3e8f470513bfedb2_MIT6_041F10_rec08_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec08_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec08_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec08_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec08_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec08_sol_p03.png"
+   ]
+  },
+  {
+   "tag": "rec09",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_6dc96d81358c5f303132d798faaec303_MIT6_041F10_rec09.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_a139772acc84ce1d4a4257070046f232_MIT6_041F10_rec09_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec09_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec09_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec09_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec09_sol_p02.png"
+   ]
+  },
+  {
+   "tag": "rec10",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_a213f65e25630c66caf871244a7dd26b_MIT6_041F10_rec10.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_ccc2ed338490f27d7b0af25fce690de3_MIT6_041F10_rec10_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec10_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec10_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec10_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec10_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec10_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec10_sol_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec10_sol_p04.png"
+   ]
+  },
+  {
+   "tag": "rec11",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_55a05f2ff5cd9573508f64bb051d9b0b_MIT6_041F10_rec11.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_900d0b8b3ee9be8b5b6238fe24bb564e_MIT6_041F10_rec11_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec11_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec11_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec11_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec11_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec11_sol_p03.png"
+   ]
+  },
+  {
+   "tag": "rec12",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_5b47941e1bc1024de7aae982b104a87a_MIT6_041F10_rec12.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_0291b43b6cddde48f9ff134272d498d7_MIT6_041F10_rec12_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec12_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec12_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec12_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec12_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec12_sol_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec12_sol_p04.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec12_sol_p05.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec12_sol_p06.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec12_sol_p07.png"
+   ]
+  },
+  {
+   "tag": "rec13",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_9c35147c5f8fcb394e954dcc4414a311_MIT6_041F10_rec13.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_ed8a0116fcaf4c0bd79f5550454319ad_MIT6_041F10_rec13_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec13_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec13_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec13_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec13_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec13_sol_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec13_sol_p04.png"
+   ]
+  },
+  {
+   "tag": "rec14",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_4048e6b01c0d30aa3f1e88f0b7a576c4_MIT6_041F10_rec14.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_0ce3879f8d5fe9f487e0502c950b51df_MIT6_041F10_rec14_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec14_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec14_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec14_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec14_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec14_sol_p03.png"
+   ]
+  },
+  {
+   "tag": "rec15",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_6c89e63951bfc2256cea6203b59ca9c8_MIT6_041F10_rec15.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_faa5a9e6d2ca309a27385d8aa47144f2_MIT6_041F10_rec15_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec15_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec15_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec15_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec15_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec15_sol_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec15_sol_p04.png"
+   ]
+  },
+  {
+   "tag": "rec16",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_a15a927efd61521b408870f16ca4249d_MIT6_041F10_rec16.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_0a7fb69f249fac0324a1e7a49e593a81_MIT6_041F10_rec16_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec16_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec16_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec16_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec16_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec16_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec16_sol_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec16_sol_p04.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec16_sol_p05.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec16_sol_p06.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec16_sol_p07.png"
+   ]
+  },
+  {
+   "tag": "rec17",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_4f3cf5c5e338a050f84d1b08c2087dc9_MIT6_041F10_rec17.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_005cfcbec61f6422bcea9c7df6191f34_MIT6_041F10_rec17_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec17_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec17_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec17_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec17_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec17_sol_p03.png"
+   ]
+  },
+  {
+   "tag": "rec18",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_4e112d75a2c5242da18837447114c974_MIT6_041F10_rec18.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_6aeec039f46f21c7b94ab19c52d9cb38_MIT6_041F10_rec18_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec18_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec18_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec18_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec18_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec18_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec18_sol_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec18_sol_p04.png"
+   ]
+  },
+  {
+   "tag": "rec19",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_92893401a6455ede32bf723f1844a5a5_MIT6_041F10_rec19.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_6f55d90c2dac0f48c41d6e115b29d5bf_MIT6_041F10_rec19_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec19_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec19_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec19_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec19_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec19_sol_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec19_sol_p04.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec19_sol_p05.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec19_sol_p06.png"
+   ]
+  },
+  {
+   "tag": "rec20",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_44bcdd8261dedf60074b86706b946899_MIT6_041F10_rec20.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_9623ab63ef49131a9509a56e07253970_MIT6_041F10_rec20_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec20_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec20_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec20_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec20_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec20_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec20_sol_p03.png"
+   ]
+  },
+  {
+   "tag": "rec21",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_a54531ff48b25aa25908c392e7bf5fd9_MIT6_041F10_rec21.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_7d33ce7c78821535c11ab48316f16958_MIT6_041F10_rec21_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec21_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec21_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec21_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec21_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec21_sol_p03.png"
+   ]
+  },
+  {
+   "tag": "rec22",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_823438624d41b755da9c55ce3882bcfe_MIT6_041F10_rec22.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_f0601d8b3e6e907a09d894327220889a_MIT6_041F10_rec22_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec22_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec22_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec22_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec22_sol_p02.png"
+   ]
+  },
+  {
+   "tag": "rec23",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_91fd3c199d6961fbb54686a8c1aca38e_MIT6_041F10_rec23.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_19166cb94ca0fd540c4bcf8985db9c53_MIT6_041F10_rec23_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec23_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec23_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec23_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec23_sol_p02.png"
+   ]
+  },
+  {
+   "tag": "rec24",
+   "qmd": "d:/Python-UV/MIT_Applied_Prob/corpus/questions_dfd6e16cfb0e3012c829030d51e86ee0_MIT6_041F10_rec24.pdf.md",
+   "smd": "d:/Python-UV/MIT_Applied_Prob/corpus/solutions_a7bedaafad0b240c4ade88e559b831b1_MIT6_041F10_rec24_sol.pdf.md",
+   "rasters": [
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec24_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec24_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec24_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec24_sol_p01.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec24_sol_p02.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec24_sol_p03.png",
+    "d:/Python-UV/MIT_Applied_Prob/raster/rec24_sol_p04.png"
+   ]
+  }
+ ]
+}

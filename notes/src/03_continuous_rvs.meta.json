@@ -1,0 +1,7 @@
+{
+  "title": "G3 · Continuous Random Variables",
+  "subtitle": "PDFs and CDFs, joint densities, the four faces of Bayes' rule, derived distributions and convolution — MIT 6.041 Lectures 8–11, Recitations 8–11",
+  "prev": ["02_discrete_rvs.html", "G2 · Discrete Random Variables"],
+  "next": ["04_expectation_processes.html", "G4 · Iterated Expectations & Arrival Processes"],
+  "sources": "MIT 6.041/6.431 F10 L08–L11 slide handouts, recitations 8–11 (+ official solutions), Bertsekas–Tsitsiklis chs. 3–4"
+}

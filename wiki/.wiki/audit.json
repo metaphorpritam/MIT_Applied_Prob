@@ -1,0 +1,46 @@
+{
+  "generated": "2026-07-30T11:20:00+00:00",
+  "errors": {
+    "broken_links": [],
+    "missing_frontmatter": [],
+    "missing_sources": [],
+    "stale_pages": []
+  },
+  "warnings": {
+    "unhashed_sources": [],
+    "orphans": [],
+    "uncovered_sources": [
+      "corpus/01_probability_basics.html.md",
+      "corpus/02_discrete_rvs.html.md",
+      "corpus/03_continuous_rvs.html.md",
+      "corpus/04_expectation_processes.html.md",
+      "corpus/05_markov_chains.html.md",
+      "corpus/06_limits_bayesian.html.md",
+      "corpus/07_classical_inference.html.md",
+      "corpus/1d1520a08a59780bd49a9f0f12bf9af8_MIT6_041F10_L02.pdf.md",
+      "corpus/3854a6efe837e817328caa1d0c81627f_MIT6_041F10_L07.pdf.md",
+      "corpus/3a9ed254a0700f2c4f45bd16cb802fa9_MIT6_041F10_L08.pdf.md",
+      "corpus/3d68defe35d6265a9b882ef0f655f230_MIT6_041F10_L12.pdf.md",
+      "corpus/5e411812d2aa2b34818a6df5ff0338b3_MIT6_041F10_L18.pdf.md",
+      "corpus/73da95f719ea00b59e21ce4f62f27426_MIT6_041F10_L11.pdf.md",
+      "corpus/766a6000e4accc0b6975c4833b3646b5_MIT6_041F10_L22.pdf.md",
+      "corpus/7b4f32f22b20614b0e23cf30d08f8b19_MIT6_041F10_L21.pdf.md",
+      "corpus/7b8627dec437699625f2c6bf2d198708_MIT6_041F10_L24.pdf.md",
+      "corpus/826ba78b433802f5aa74aa86bc596888_MIT6_041F10_L25.pdf.md",
+      "corpus/8965782009087ec138338b622b3d73ce_MIT6_041F10_L09.pdf.md",
+      "corpus/93d7a640723d2fc29c43fe0433faeaed_MIT6_041F10_L10.pdf.md",
+      "corpus/972fdae360329552b7bcb932325b734a_MIT6_041F10_L17.pdf.md",
+      "... +224 more"
+    ],
+    "todos": [],
+    "duplicates": [],
+    "unknown_type": [],
+    "index_gaps": []
+  },
+  "counts": {
+    "errors": 0,
+    "warnings": 21,
+    "pages": 11,
+    "edges": 78
+  }
+}

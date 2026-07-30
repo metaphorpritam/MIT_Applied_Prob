@@ -1,0 +1,386 @@
+{
+ "grid.outcomes": {
+  "value": 16,
+  "note": "L01 s8: two rolls of a tetrahedral die"
+ },
+ "grid.p_each": {
+  "value": "1/16",
+  "note": "uniform law weight per outcome"
+ },
+ "grid.n_min2": {
+  "value": 5,
+  "note": "cells with min(X,Y)=2"
+ },
+ "grid.P_min2": {
+  "value": "5/16",
+  "note": "= |B|/|Omega|"
+ },
+ "radar.P_A_and_B": {
+  "value": 0.0495,
+  "note": "0.05*0.99 (multiplication rule)"
+ },
+ "radar.P_Ac_and_B": {
+  "value": 0.095,
+  "note": "0.95*0.10"
+ },
+ "radar.P_B": {
+  "value": 0.1445,
+  "note": "total probability theorem"
+ },
+ "radar.P_A_given_B": {
+  "value": 0.342561,
+  "note": "Bayes' rule"
+ },
+ "radar.P_A_given_B_pct": {
+  "value": 34.26,
+  "note": "percent"
+ },
+ "radar.prior_pct": {
+  "value": 5.0,
+  "note": "prior percent"
+ },
+ "radar.bayes_factor": {
+  "value": 0.346021,
+  "note": "P(A)/P(B): shrinks 0.99 to the posterior"
+ },
+ "radar.factor_times_like": {
+  "value": 0.342561,
+  "note": "0.99 * P(A)/P(B) = P(A|B) check"
+ },
+ "pw.P_A": {
+  "value": "1/2",
+  "note": "first toss H"
+ },
+ "pw.P_C": {
+  "value": "1/2",
+  "note": "same result on both tosses"
+ },
+ "pw.P_A_and_C": {
+  "value": "1/4",
+  "note": "= P(A)P(C) -> pairwise independent"
+ },
+ "pw.P_ABC": {
+  "value": "1/4",
+  "note": "A cap B cap C = {HH}"
+ },
+ "pw.P_A_P_B_P_C": {
+  "value": "1/8",
+  "note": "product of the three marginals"
+ },
+ "dj.P_A": {
+  "value": "1/2",
+  "note": "A = {H}"
+ },
+ "dj.P_B": {
+  "value": "1/2",
+  "note": "B = {T}, disjoint from A"
+ },
+ "dj.P_A_and_B": {
+  "value": "0",
+  "note": "A cap B empty"
+ },
+ "dj.P_A_times_P_B": {
+  "value": "1/4",
+  "note": "product -> 0 != 1/4, so NOT independent"
+ },
+ "coins.P_toss_H": {
+  "value": 0.5,
+  "note": "0.5*0.9+0.5*0.1, total probability"
+ },
+ "coins.post_A_given_10H": {
+  "value": 0.9999999997,
+  "note": "Bayes after 10 heads"
+ },
+ "coins.P_toss11_H_given_10H": {
+  "value": 0.9,
+  "note": "vs 0.5 unconditionally"
+ },
+ "cd.P_H1_given_D": {
+  "value": "1/2",
+  "note": "rec03 P1: P(H1|D)"
+ },
+ "cd.P_H2_given_D": {
+  "value": "1/2",
+  "note": "rec03 P1: P(H2|D)"
+ },
+ "cd.P_H1H2_given_D": {
+  "value": "0",
+  "note": "0: HH is not in D"
+ },
+ "cd.prod_given_D": {
+  "value": "1/4",
+  "note": "1/4 != 0 -> dependent given D"
+ },
+ "cnt.plates_rep": {
+  "value": 175760000,
+  "note": "26^3 * 10^4 license plates"
+ },
+ "cnt.plates_norep": {
+  "value": 78624000,
+  "note": "no repetition"
+ },
+ "cnt.six_diff_num": {
+  "value": 720,
+  "note": "6! favorable orderings"
+ },
+ "cnt.six_diff_den": {
+  "value": 46656,
+  "note": "6^6 outcomes"
+ },
+ "cnt.six_diff": {
+  "value": 0.015432,
+  "note": "P(six rolls all different)"
+ },
+ "cnt.six_multisets": {
+  "value": 462,
+  "note": "C(11,6)=C(11,5): unordered multisets of six die rolls (Gotcha 5 mismatch)"
+ },
+ "cnt.six_mismatch": {
+  "value": 1.558442,
+  "note": "720/462 > 1: not a probability"
+ },
+ "cnt.C10_3": {
+  "value": 120,
+  "note": "number of 3-head sequences in 10 tosses"
+ },
+ "cnt.C8_1": {
+  "value": 8,
+  "note": "3-head sequences starting HH"
+ },
+ "cnt.cond_first2H": {
+  "value": "1/15",
+  "note": "8/120 reduced"
+ },
+ "cnt.cond_first2H_dec": {
+  "value": 0.066667,
+  "note": "decimal"
+ },
+ "cards.P_each_ace": {
+  "value": 0.105498,
+  "note": "4!*(48!/12!^4) / (52!/13!^4)"
+ },
+ "bday.n": {
+  "value": 23,
+  "note": "people"
+ },
+ "bday.P_all_distinct": {
+  "value": 0.492703,
+  "note": "365!/(365-n)! / 365^n"
+ },
+ "bday.P_match": {
+  "value": 0.507297,
+  "note": "> 1/2 already at n=23"
+ },
+ "rooks.P_safe": {
+  "value": "9.109465e-06",
+  "note": "(8!)^2 / (64!/56!)"
+ },
+ "hyp.example": {
+  "value": 0.397317,
+  "note": "n=20,m=8,k=5,i=2: C(8,2)C(12,3)/C(20,5)"
+ },
+ "binom.normalization_check": {
+  "value": 1.0,
+  "note": "must be 1.0"
+ },
+ "binom.subset_identity": {
+  "value": true,
+  "note": "sum_k C(n,k) = 2^n"
+ },
+ "king.P_female_atleast1boy": {
+  "value": "2/3",
+  "note": "condition on >=1 boy"
+ },
+ "king.P_female_randomchild": {
+  "value": "1/2",
+  "note": "condition on a tagged child"
+ },
+ "monty.P_stick": {
+  "value": "1/3",
+  "note": "win iff first guess was right"
+ },
+ "monty.P_switch": {
+  "value": "2/3",
+  "note": "win iff first guess was wrong"
+ },
+ "chess.P_win": {
+  "value": 0.375,
+  "note": "0.5*0.3+0.25*0.4+0.25*0.5, total probability"
+ },
+ "chess.P_type1_given_win": {
+  "value": 0.4,
+  "note": "Bayes: 0.15/0.375"
+ },
+ "romeo.P_meet": {
+  "value": "7/16",
+  "note": "1-(1-w)^2 with w=1/4"
+ },
+ "romeo.P_meet_dec": {
+  "value": 0.4375,
+  "note": "decimal"
+ },
+ "die.c": {
+  "value": "1/9",
+  "note": "normalization 3c+3(2c)=9c=1"
+ },
+ "die.P_123": {
+  "value": "4/9",
+  "note": "c+2c+c = 4c"
+ },
+ "die.P_123_dec": {
+  "value": 0.444444,
+  "note": "decimal"
+ },
+ "p51.like_box1": {
+  "value": "1/2",
+  "note": "C(6,2)C(4,1)/C(10,3)"
+ },
+ "p51.like_box2": {
+  "value": "7/40",
+  "note": "C(3,2)C(7,1)/C(10,3)"
+ },
+ "p51.P_two_red": {
+  "value": "27/80",
+  "note": "total probability over the two boxes"
+ },
+ "p51.P_two_red_dec": {
+  "value": 0.3375,
+  "note": "decimal"
+ },
+ "p51.P_box1_given": {
+  "value": "20/27",
+  "note": "Bayes' rule"
+ },
+ "p51.P_box1_given_dec": {
+  "value": 0.740741,
+  "note": "decimal"
+ },
+ "p52.term_n2": {
+  "value": "1/4",
+  "note": "C(2,2)/2^2 = P(2 H | N=2)"
+ },
+ "p52.term_n3": {
+  "value": "3/8",
+  "note": "C(3,2)/2^3 = P(2 H | N=3)"
+ },
+ "p52.term_n4": {
+  "value": "3/8",
+  "note": "C(4,2)/2^4 = P(2 H | N=4)"
+ },
+ "p52.term_n5": {
+  "value": "5/16",
+  "note": "C(5,2)/2^5 = P(2 H | N=5)"
+ },
+ "p52.term_n6": {
+  "value": "15/64",
+  "note": "C(6,2)/2^6 = P(2 H | N=6)"
+ },
+ "p52.P_two_heads": {
+  "value": "33/128",
+  "note": "sum_n (1/6) C(n,2) 2^-n"
+ },
+ "p52.P_two_heads_dec": {
+  "value": 0.2578125,
+  "note": "decimal"
+ },
+ "p52.P_N2_given_2H": {
+  "value": "16/99",
+  "note": "Bayes: which N did I roll?"
+ },
+ "p52.P_N2_given_2H_dec": {
+  "value": 0.161616,
+  "note": "decimal"
+ },
+ "p53.P_H1_given_B": {
+  "value": "3/10",
+  "note": "C(9,2)/C(10,3), conditional uniform law"
+ },
+ "p53.P_H1_given_B_dec": {
+  "value": 0.3,
+  "note": "decimal"
+ },
+ "p53.P_H1H2_given_B": {
+  "value": "1/15",
+  "note": "C(8,1)/C(10,3)"
+ },
+ "p53.P_H1H2_given_B_dec": {
+  "value": 0.066667,
+  "note": "decimal"
+ },
+ "p53.product": {
+  "value": "9/100",
+  "note": "P(H1|B)P(H2|B) = 0.09 != 1/15 -> dependent"
+ },
+ "p53.product_dec": {
+  "value": 0.09,
+  "note": "decimal"
+ },
+ "p53.P_H2_given_H1B": {
+  "value": "2/9",
+  "note": "2/9: budget of 3 heads is now short one"
+ },
+ "p54.total": {
+  "value": 252,
+  "note": "C(10,5) committees"
+ },
+ "p54.P_all_women": {
+  "value": "1/42",
+  "note": "C(6,5)/C(10,5)"
+ },
+ "p54.P_atleast_one_man": {
+  "value": "41/42",
+  "note": "complement rule"
+ },
+ "p54.P_atleast_one_man_dec": {
+  "value": 0.97619,
+  "note": "decimal"
+ },
+ "p54.n_exactly2men": {
+  "value": 120,
+  "note": "C(6,3)C(4,2)"
+ },
+ "p54.n_B": {
+  "value": 246,
+  "note": "committees with at least one man"
+ },
+ "p54.P_2men_given": {
+  "value": "20/41",
+  "note": "conditional uniform law: recount inside B"
+ },
+ "p54.P_2men_given_dec": {
+  "value": 0.487805,
+  "note": "decimal"
+ },
+ "p54.P_2men_uncond": {
+  "value": "10/21",
+  "note": "120/252 = 10/21, for comparison"
+ },
+ "p54.P_2men_uncond_dec": {
+  "value": 0.47619,
+  "note": "decimal"
+ },
+ "p55.multinom_count": {
+  "value": 7484400,
+  "note": "12!/(2!)^6 arrangements with each face twice"
+ },
+ "p55.den": {
+  "value": 2176782336,
+  "note": "6^12 ordered outcomes"
+ },
+ "p55.P_each_face_twice": {
+  "value": 0.003438,
+  "note": "multinomial probability"
+ },
+ "p55.P_six_exactly_twice": {
+  "value": 0.296094,
+  "note": "binomial C(12,2)(1/6)^2(5/6)^10"
+ },
+ "p55.ratio": {
+  "value": 86.1,
+  "note": "(b)/(a): how far below the product of marginals (a) sits"
+ },
+ "p51.likelihood_ratio": {
+  "value": 2.857143,
+  "note": "20/7 = 2.857..."
+ }
+}

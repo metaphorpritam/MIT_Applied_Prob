@@ -1,0 +1,118 @@
+<h2 id="g1-s0">§0 &nbsp; How to read these notes; the landscape of probability</h2>
+<p class="srcref">Sources: L01 slides 3–5, 7, 9–11 (raster p01–p03) · L02–L04 lecture outlines · rec01–rec04 problem sets · Bertsekas–Tsitsiklis (cited throughout as <b>B&amp;T</b>) §1.1–1.6. A bare "§N.k" always means <em>this note's</em> own subsection; every reference to the textbook carries the "B&amp;T" prefix.</p>
+
+<p>Probability is a mathematical framework for reasoning about uncertainty (L01 slide 3). Nothing in this note is about "randomness" as a philosophical notion; everything is about a specific, small piece of mathematics: you build a <em>model</em>, you check it against three axioms, and from then on all questions are answered by manipulating that model. This section says what the model is, how the four topics of this note assemble into one machine, and what notation the rest of the note uses. It is orientation only — no derivations start until §1.</p>
+
+<h3>0.1 What a probabilistic model is</h3>
+
+<p>A probabilistic model has exactly two ingredients, and a "problem" in this course is almost always the task of writing them down correctly (L01 slide 3; B&amp;T §1.1–1.2).</p>
+
+<div class="defn"><b>Definition (probabilistic model).</b> A <b>probabilistic model</b> is a pair:
+<ul>
+<li><b>A sample space $\Omega$</b> — the set of all possible outcomes of the experiment. Its elements $\omega \in \Omega$ are the individual outcomes. The list must be <b>mutually exclusive</b> (at most one outcome can occur — no two can occur together) and <b>collectively exhaustive</b> (at least one outcome occurs — some element of $\Omega$ always does). Taken together the two conditions say <em>exactly one</em> $\omega$ occurs. Choosing its <em>granularity</em> — how much detail an outcome records — is, in the lecture's word, an art (L01 slide 4).</li>
+<li><b>A probability law $\mathbf{P}$</b> — a rule that assigns to each <b>event</b> $A$ (an event is a subset $A \subseteq \Omega$) a number $\mathbf{P}(A)$, subject to the three axioms: nonnegativity $\mathbf{P}(A) \ge 0$, normalization $\mathbf{P}(\Omega) = 1$, and additivity $\mathbf{P}(A \cup B) = \mathbf{P}(A) + \mathbf{P}(B)$ whenever $A \cap B = \varnothing$ (L01 slide 7).</li>
+</ul>
+</div>
+
+<p>Two structural facts follow immediately from that definition and are worth flagging before you meet them in §1. First, probabilities attach to <em>sets</em>, not to numbers: $\mathbf{P}$ takes an event as input. Second, once $\Omega$ and $\mathbf{P}$ are fixed, every question — conditional probabilities, independence, counting arguments — is a question <em>about that one pair</em>. There is never a second, competing notion of probability floating around in a problem.</p>
+
+<div class="note"><b>Interpretation.</b> Think of $\Omega$ as the answer to "what could happen?" and $\mathbf{P}$ as the answer to "how much belief/weight do I put on each of those things?". The axioms are not deep truths about the world; they are the minimal bookkeeping rules that make the weights behave like proportions of a whole of size $1$. Every theorem in this note — the multiplication rule, total probability, Bayes' rule, the counting formulas — is a consequence of those bookkeeping rules plus one definition (conditional probability). There is nothing else in the box.</div>
+
+<div class="warn"><b>Gotcha.</b> Most wrong answers in this material are not arithmetic errors — they are model errors made before any arithmetic starts. The three classic ones: (i) a sample space whose outcomes are <em>not</em> mutually exclusive, so events overlap invisibly and additivity is applied illegally; (ii) a sample space at the wrong granularity, e.g. recording only the <em>sum</em> of two dice when the problem asks about the individual rolls, which loses information you cannot recover later; (iii) assuming outcomes are equally likely because they were listed as a set, when the model never said so. Write $\Omega$ down explicitly, count it, and state where the numbers in $\mathbf{P}$ came from.</div>
+
+<div class="recipe"><b>Recipe (setting up any problem in this note).</b>
+<ol>
+<li>Name the experiment and write $\Omega$ — as a grid, a tree, a region of the plane, or a list. If the experiment has stages, a tree is usually the right picture (L01 slide 5).</li>
+<li>Decide whether $\Omega$ is finite, countably infinite, or continuous. This picks the tool: counting (§4), a countably additive series (L01 slide 11), or area/length (L01 slide 10).</li>
+<li>Assign $\mathbf{P}$: equally likely outcomes give the <b>discrete uniform law</b> $\mathbf{P}(A) = |A| / |\Omega|$ (L01 slide 9); a continuous uniform model gives probability $=$ area (L01 slide 10); staged experiments give branch probabilities that you multiply along paths (§2).</li>
+<li>Translate the question into an event $A \subseteq \Omega$ — literally, which outcomes belong to it.</li>
+<li>Compute, then sanity-check: is the answer in $[0,1]$? Do the pieces of a partition sum to $1$?</li>
+</ol>
+</div>
+
+<div class="ex"><b>Practice 0.1.</b> A fair tetrahedral die (faces $1,2,3,4$) is rolled twice. Four sample spaces are proposed. For each, say whether it is mutually exclusive and collectively exhaustive, and whether the uniform law $\mathbf{P}(A) = |A|/|\Omega|$ is legitimate for it.
+<br>(a) $\Omega_a = \{(x,y) : x,y \in \{1,2,3,4\}\}$, the ordered pair of rolls.
+<br>(b) $\Omega_b = \{2,3,4,5,6,7,8\}$, the sum of the two rolls.
+<br>(c) $\Omega_c = \{\text{“at least one roll is a }4\text{”}, \text{“the sum is }5\text{”}, \text{“neither”}\}$.
+<br>(d) $\Omega_d = \{\text{“both rolls even”}, \text{“both rolls odd”}\}$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Legal, and uniform is legitimate.</b> Every pair of rolls lands in exactly one cell, so the list is mutually exclusive and collectively exhaustive, and $|\Omega_a| = 4 \times 4 = 16$. Symmetry of a fair die plus the two rolls being handled alike makes all $16$ cells equally likely, each of probability $1/16$ (L01 slide 5).</p>
+<p><b>(b) Legal, but uniform is <em>not</em> legitimate.</b> The sum is a well-defined number, exactly one of $2,\ldots,8$ occurs, so the list is mutually exclusive and collectively exhaustive. But the numbers of cells of $\Omega_a$ that produce each sum are $1,2,3,4,3,2,1$ for $s = 2,3,\ldots,8$, so e.g. $\mathbf{P}(\text{sum} = 5) = 4/16 = 1/4$, whereas the uniform law on the $7$ values would give $1/7$. This is gotcha (iii): listing a set does not make its elements equally likely.</p>
+<p><b>(c) Not mutually exclusive.</b> The outcome $(1,4)$ has a $4$ <em>and</em> sum $5$, so it belongs to two of the three listed elements at once. Additivity applied to this list would double-count $(1,4)$ and $(4,1)$. It is exhaustive, but that does not rescue it.</p>
+<p><b>(d) Not collectively exhaustive.</b> The outcome $(1,2)$ is neither "both even" nor "both odd", so no element of $\Omega_d$ occurs; normalization $\mathbf{P}(\Omega_d) = 1$ then fails. (Adding a third element "one of each" repairs it — and the repaired three-element space is still not uniform.)</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 0.2.</b> Run the recipe on this experiment: the tetrahedral die is rolled three times and the outcome records all three rolls in order. (a) Which step of the recipe fixes $|\Omega|$, and what is it? (b) Compute $\mathbf{P}(\text{all three rolls equal})$. (c) A classmate instead takes $\Omega' = \{\text{“all equal”}, \text{“exactly two equal”}, \text{“all different”}\}$ and answers $1/3$. Which recipe step did they break?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) Step 1 (write $\Omega$) together with step 2 (decide finite/countable/continuous): the outcome is a triple $(x_1,x_2,x_3)$ with each $x_i \in \{1,2,3,4\}$, so $\Omega = \{1,2,3,4\}^3$ is finite with $|\Omega| = 4^3 = 64$.</p>
+<p>(b) Step 3 assigns the discrete uniform law, legitimate here by symmetry, so $\mathbf{P}(A) = |A|/64$. Step 4: the event is $A = \{(x,x,x) : x \in \{1,2,3,4\}\}$, which has $|A| = 4$ elements — one per face. Hence $\mathbf{P}(A) = 4/64 = 1/16 = 0.0625$. Step 5: the value lies in $[0,1]$ ✓.</p>
+<p>(c) $\Omega'$ is a perfectly legal sample space — its three elements are mutually exclusive and collectively exhaustive — so step 1 is fine. The break is at step 3: the uniform law was assumed on $\Omega'$ without justification. The three groups contain $4$, $36$ and $24$ of the $64$ triples respectively, so their probabilities are $1/16$, $9/16$ and $3/8$, not $1/3$ each.</p>
+</div></details></div>
+
+<h3>0.2 Roadmap of this note</h3>
+
+<p>This note (G1) covers lectures L01–L04 and recitations rec01–rec04, i.e. the whole of Chapter 1 of the text (B&amp;T §1.1–§1.6). The four topics are not four separate subjects; they form a chain, with counting feeding back in as the computational engine for equally likely models.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s0_roadmap}}" alt="Concept map: models and axioms feed conditioning, which specializes to independence, which leads on to random variables in note G2; counting supplies the discrete uniform law for section 1 and binomial probabilities for section 3." style="max-width:500px;max-height:400px">
+<div class="figcap">Fig. 0.1 — How the four G1 topics feed each other (built from the lecture outlines of L01 slide 3, L02 slide 1, L03 slide 1, L04 slide 1).</div>
+
+<ul>
+<li><b>§1 — Probability models and axioms</b> (L01, rec01, B&amp;T §1.1–1.2). The pair $(\Omega, \mathbf{P})$, the three axioms and their consequences (complement rule, union bound, inclusion–exclusion), discrete uniform and continuous uniform laws, and countable additivity. <em>Hook:</em> the model on $\{1,2,\ldots\}$ with $\mathbf{P}(n) = 2^{-n}$ has $\mathbf{P}(\text{outcome is even}) = 1/3$ — a fact that finite additivity alone cannot deliver (L01 slide 11).</li>
+<li><b>§2 — Conditional probability, total probability, Bayes' rule</b> (L02, rec02, B&amp;T §1.3–1.4). Conditioning is <em>revision of a model in light of information</em>: $\mathbf{P}(A \mid B)$ is again a legitimate probability law, now living on $B$. Out of it come the multiplication rule, the total probability theorem, and Bayes' rule for inference. <em>Hook:</em> in Monty Hall (rec02 P4), staying wins with probability $1/3$ and switching wins with probability $2/3$ — the whole disagreement is about which model the host's action induces.</li>
+<li><b>§3 — Independence</b> (L03, rec03, B&amp;T §1.5). The special case $\mathbf{P}(A \mid B) = \mathbf{P}(A)$, equivalently $\mathbf{P}(A \cap B) = \mathbf{P}(A)\mathbf{P}(B)$; conditional independence; independence of a collection versus mere pairwise independence; independent trials and Bernoulli/binomial models. <em>Hook:</em> independence is an <em>assumption about the model</em>, not a visual property of a Venn diagram, and conditioning can create it or destroy it (L03 slides 4–5).</li>
+<li><b>§4 — Counting</b> (L04, rec04, B&amp;T §1.6). When outcomes are equally likely, "computing probabilities $\equiv$ counting" (L01 slide 9): the basic counting principle, permutations, combinations $\binom{n}{k}$, binomial probabilities, and partitions/multinomial coefficients. <em>Hook:</em> with $23$ people and $365$ equally likely birthdays, the probability of a shared birthday is $0.5073$ (rec04 P1).</li>
+<li><b>§5 — Synthesis, cheatsheet, and the bridge to random variables</b> (all four lectures). No new material: one page that assembles §1–§4 into a single decision procedure, a master cheatsheet of every formula in G1, the top gotchas collected in one place, and the hand-off to note G2.</li>
+</ul>
+
+<p>The four topics occupy §1–§4 one-for-one, in the order above, and §5 is the synthesis; the sidebar table of contents lists the sub-sections of each.</p>
+
+<p>The arrow out of the bottom of Fig. 0.1 is the sequel: note <b>G2</b> introduces <em>random variables</em>, functions $X : \Omega \to \mathbb{R}$ that summarize an outcome by a number, together with PMFs and expectation. Everything in G1 stays true there — a random variable is defined on top of a model $(\Omega, \mathbf{P})$, never instead of one.</p>
+
+<div class="ex"><b>Practice 0.3.</b> Match each question to the section of this note that supplies its tool, and name the tool. (a) "A test is $99\%$ accurate and the disease affects $1$ in $10{,}000$; given a positive test, what is the chance of disease?" (b) "How many $5$-card hands contain exactly two aces?" (c) "Two coins are flipped; is 'first is heads' independent of 'the two agree'?" (d) "Points are dropped uniformly on a square; what is the chance of landing in a given triangle?"
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) <b>§2</b> — Bayes' rule, fed by the total probability theorem for the denominator. (b) <b>§4</b> — counting: the basic counting principle applied to the choice of aces and of non-aces, i.e. a product of binomial coefficients, then the discrete uniform law of §1 to turn the count into a probability. (c) <b>§3</b> — the independence test $\mathbf{P}(A \cap B) = \mathbf{P}(A)\mathbf{P}(B)$, checked on the four-outcome model. (d) <b>§1</b> — the continuous uniform law, probability $=$ area. Note that (b) needs two sections: counting produces $|A|$ and $|\Omega|$, §1 supplies the law that divides them. That dependency is the arrow from counting into §1 in Fig. 0.1.</p>
+</div></details></div>
+
+<h3>0.3 How lectures, recitations, and the book interleave — and the notation used here</h3>
+
+<p>Each topic in this note appears three times, in this order, and the three passes do different jobs. <b>Lecture</b> (L01–L04) states the definitions and theorems and works one or two short examples, often leaving the arithmetic blank on the slide to be filled in live — those blanks appear in these notes as fully solved examples. <b>Recitation</b> (rec01–rec04) is where the multi-step problems live: rec01 (axioms, set algebra, Romeo &amp; Juliet, continuity of $\mathbf{P}$), rec02 (conditioning, chess tournament, Monty Hall), rec03 (independence, random walk, noisy channel), rec04 (birthday problem, rooks, hypergeometric, multinomial). Every recitation problem is reproduced here with its statement and a fully expanded solution behind a <em>Solution</em> toggle. The <b>book</b> (Bertsekas–Tsitsiklis, 2nd ed.) supplies the careful general statements: B&amp;T §1.1–1.2 for models and axioms, B&amp;T §1.3–1.4 for conditioning and Bayes, B&amp;T §1.5 for independence, B&amp;T §1.6 for counting. Citations to all three appear inline throughout, in the small grey source lines and in the example headers.</p>
+
+<p>Notation follows the course, not any one textbook. The table below lists every symbol used in G1.</p>
+
+<table>
+<tr><th class="l">Symbol</th><th class="l">Read as</th><th class="l">Meaning</th></tr>
+<tr><td class="l">$\Omega$, $\omega$</td><td class="l">"omega"</td><td class="l">Sample space; a single outcome $\omega \in \Omega$.</td></tr>
+<tr><td class="l">$A, B, C$</td><td class="l">events</td><td class="l">Subsets of $\Omega$. "Event $A$ occurs" means the realized outcome lies in $A$.</td></tr>
+<tr><td class="l">$\mathbf{P}(A)$</td><td class="l">"P of $A$"</td><td class="l">Probability of event $A$. Input is a <em>set</em>; output is a number in $[0,1]$.</td></tr>
+<tr><td class="l">$\mathbf{P}(\omega)$</td><td class="l">—</td><td class="l">Shorthand for $\mathbf{P}(\{\omega\})$, the probability of a single-outcome event (L01 slide 7).</td></tr>
+<tr><td class="l">$A \cap B$</td><td class="l">"$A$ and $B$"</td><td class="l">Intersection: outcomes in both. Often written $A B$ inside longer formulas.</td></tr>
+<tr><td class="l">$A \cup B$</td><td class="l">"$A$ or $B$"</td><td class="l">Union: outcomes in at least one (inclusive "or").</td></tr>
+<tr><td class="l">$A^c$</td><td class="l">"$A$ complement"</td><td class="l">$\Omega \setminus A$: the event that $A$ does <em>not</em> occur. $\mathbf{P}(A^c) = 1 - \mathbf{P}(A)$.</td></tr>
+<tr><td class="l">$\varnothing$</td><td class="l">"empty set"</td><td class="l">The impossible event. $A \cap B = \varnothing$ means $A$ and $B$ are <b>disjoint</b> (mutually exclusive).</td></tr>
+<tr><td class="l">$A \subseteq B$</td><td class="l">"$A$ implies $B$"</td><td class="l">Every outcome of $A$ is an outcome of $B$; then $\mathbf{P}(A) \le \mathbf{P}(B)$.</td></tr>
+<tr><td class="l">$|A|$</td><td class="l">"size of $A$"</td><td class="l">Number of elements of a finite event $A$; used with the discrete uniform law.</td></tr>
+<tr><td class="l">$\mathbf{P}(A \mid B)$</td><td class="l">"$A$ given $B$"</td><td class="l">Conditional probability of $A$ given that $B$ occurred (§2). The bar $\mid$ never means division.</td></tr>
+<tr><td class="l">$n!$</td><td class="l">"$n$ factorial"</td><td class="l">$n \cdot (n-1) \cdots 2 \cdot 1$, the number of orderings of $n$ distinct items; $0! = 1$ (§4).</td></tr>
+<tr><td class="l">${n \choose k}$</td><td class="l">"$n$ choose $k$"</td><td class="l">$\dfrac{n!}{k!\,(n-k)!}$, the number of $k$-element subsets of an $n$-element set (§4). Written interchangeably ${n \choose k}$ and $\binom{n}{k}$ — same symbol.</td></tr>
+<tr><td class="l">$\dfrac{n!}{n_1!\,n_2!\cdots n_r!}$</td><td class="l">multinomial coefficient</td><td class="l">Number of ways to split $n$ distinct items into labeled groups of sizes $n_1,\ldots,n_r$ with $n_1 + \cdots + n_r = n$ (§4).</td></tr>
+<tr><td class="l">i.i.d.</td><td class="l">—</td><td class="l">Independent and identically distributed: repeated trials that neither influence each other nor change their probabilities (§3).</td></tr>
+<tr><td class="l">$\mathbb{E}[X]$, $\operatorname{var}(X)$</td><td class="l">—</td><td class="l">Expectation and variance of a random variable. Not used in G1; they arrive in note G2.</td></tr>
+</table>
+
+<div class="warn"><b>Gotcha.</b> Two notational traps that cause real errors later. (1) $\mathbf{P}(A \mid B)$ and $\mathbf{P}(A \cap B)$ are different objects: the first re-normalizes to the world where $B$ happened, the second stays in the original world. Writing $\mathbf{P}(A/B)$ or reading the bar as a slash is the fastest route to a wrong Bayes computation. (2) "Disjoint" and "independent" are unrelated, almost opposite, conditions: disjoint means $\mathbf{P}(A \cap B) = 0$, independent means $\mathbf{P}(A \cap B) = \mathbf{P}(A)\mathbf{P}(B)$. Two events with positive probability that are disjoint are <em>never</em> independent — knowing $B$ occurred tells you $A$ certainly did not.</div>
+
+<div class="note"><b>How to use these notes.</b> Read a section's definitions and theorem boxes first, then the worked examples with a pencil: every derivation here shows each substitution with its intermediate numeric value and names the axiom or rule used, so you can cover the right-hand side and reproduce it. Recitation solutions are hidden behind toggles on purpose — attempt the statement before opening one. Every number printed in these notes was produced by a compute script in <code>computes/</code>, not by hand, so if a number disagrees with your own calculation, the disagreement is real and worth chasing.</div>
+
+<div class="ex"><b>Practice 0.4.</b> Two dice are rolled; $\Omega$ is the set of ordered pairs. Write each event in the notation of the table, using only $A = \{\text{first roll is even}\}$ and $B = \{\text{sum is } 7\}$ where possible. (a) Both happen. (b) Neither happens. (c) At least one happens. (d) The sum is $7$ but the first roll is odd. (e) Now say which of these two statements is a claim about the <em>model's numbers</em> and which is a claim about the <em>sets</em>: "$A$ and $B$ are disjoint" versus "$A$ and $B$ are independent".
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) $A \cap B$ (also written $AB$). (b) $A^c \cap B^c$, which equals $(A \cup B)^c$ by De Morgan. (c) $A \cup B$, the inclusive "or". (d) $B \cap A^c$, i.e. $B \setminus A$ — note this is <em>not</em> $B^c$.</p>
+<p>(e) Both are ultimately statements about $\mathbf{P}$, but they live at different levels. "Disjoint" is a statement you can check by looking at the <em>sets alone</em>: $A \cap B = \varnothing$, no outcome lies in both — here it is false, since $(2,5)$ has an even first roll and sum $7$. "Independent" is a statement about the <em>numbers</em> the law assigns: it holds iff $\mathbf{P}(A \cap B) = \mathbf{P}(A)\mathbf{P}(B)$, and two models on the same $\Omega$ with the same sets can disagree about it. That is why no Venn diagram can show independence (§3).</p>
+</div></details></div>
+
+<div class="summary">
+<b>§0 in one screen.</b>
+A probabilistic model $= (\Omega, \mathbf{P})$: a mutually exclusive, collectively exhaustive sample space, plus a probability law obeying nonnegativity, normalization, and (countable) additivity.
+Everything else in G1 is derived from those: <b>§1</b> axioms and uniform laws → <b>§2</b> conditioning, multiplication rule, total probability, Bayes → <b>§3</b> independence as the special case $\mathbf{P}(A \mid B) = \mathbf{P}(A)$ → <b>§4</b> counting, which computes $\mathbf{P}(A) = |A|/|\Omega|$ for equally likely models and supplies binomial probabilities; <b>§5</b> collects the whole chain into one cheatsheet.
+Next note (G2): random variables $X : \Omega \to \mathbb{R}$, PMFs, expectation.
+Set up the model before computing; keep $\mid$ (conditioning) distinct from $\cap$; keep "disjoint" distinct from "independent".
+</div>

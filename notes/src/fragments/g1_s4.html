@@ -1,0 +1,1038 @@
+<h2 id="g1-s4">§4 &nbsp; Counting</h2>
+<p class="srcref">Sources: L04 slides 1–8 (raster p01–p02) · rec04 P1–P5 and the "Recitation 4: Extra Handout" · Bertsekas–Tsitsiklis §1.6 and Problems 1.50, 1.60, 1.61. Every number on this page is recomputed in <code>computes/g1_s4.py</code> (JSON: <code>computes/g1_s4.json</code>); the figures come from <code>computes/g1_s4_figs.py</code>.</p>
+
+<p>Counting is not probability. It becomes probability the instant you are entitled to say
+"all outcomes are equally likely," because then the entire probability law collapses to a ratio of
+two integers. L04 is therefore organized backwards from most of the course: first the one
+probabilistic statement (the discrete uniform law, L04 slide 2), then a toolbox of pure arithmetic
+— the counting principle, permutations, $k$-permutations, combinations, partitions — and finally
+one genuinely probabilistic payoff, the binomial formula, which needs counting <em>and</em>
+independence (L04 slides 3–8). Recitation 4 then stress-tests the toolbox on five problems: the
+birthday problem (P1), non-attacking rooks (P2), the hypergeometric urn (P3), the slot derivation of
+the multinomial coefficient (P4), and multinomial probabilities (P5). The two combinatorial ones,
+P4 and P5, are solved where they belong, alongside the multinomial coefficient in §4.6 (Examples 4.9
+and 4.11); the three probability problems P1–P3 are solved in §4.7.</p>
+
+<p>The recurring difficulty is never the arithmetic. It is deciding <em>what</em> to count: a sequence,
+a subset, or a partition. §4.8 turns that decision into an explicit recipe and flowchart.</p>
+
+<h3>4.1 The discrete uniform law: probability by counting</h3>
+
+<p>Let $\Omega$ be a <em>finite</em> sample space — the set of possible outcomes of the experiment —
+and let $A \subseteq \Omega$ be an event. Write $|S|$ for the number of elements of a set $S$.</p>
+
+<div class="defn"><b>Definition (discrete uniform law, L04 slide 2; B&amp;T §1.2).</b> A probability model on a
+finite $\Omega$ is <em>uniform</em> (all sample points equally likely) if every one-element event has
+the same probability. In such a model
+$$\mathbf{P}(A) \;=\; \frac{\text{number of elements of } A}{\text{total number of sample points}} \;=\; \frac{|A|}{|\Omega|}.$$
+</div>
+
+<p>The formula is not an axiom; it follows from the three axioms of L01 in two lines. Let
+$N = |\Omega|$ and enumerate the outcomes $\Omega = \{\omega_1,\dots,\omega_N\}$, where $\omega_j$ is the
+$j$-th outcome. Let $c$ denote the common value $\mathbf{P}(\{\omega_j\})$, which by assumption does not
+depend on $j$.</p>
+
+<p><b>Step 1 — pin down $c$.</b> The one-element events $\{\omega_1\},\dots,\{\omega_N\}$ are disjoint
+and their union is $\Omega$, so <em>finite additivity</em> gives
+$$\mathbf{P}(\Omega) \;=\; \sum_{j=1}^{N}\mathbf{P}(\{\omega_j\}) \;=\; \sum_{j=1}^{N} c \;=\; Nc .$$
+By the <em>normalization</em> axiom $\mathbf{P}(\Omega)=1$, so $Nc = 1$, i.e. $c = 1/N$.</p>
+
+<p><b>Step 2 — add up over $A$.</b> The event $A$ is the disjoint union of its own one-element
+subsets, $|A|$ of them, so additivity again gives
+$$\mathbf{P}(A) \;=\; \sum_{\omega_j \in A}\mathbf{P}(\{\omega_j\}) \;=\; |A|\cdot c \;=\; \frac{|A|}{N} \;=\; \frac{|A|}{|\Omega|}. \qquad \blacksquare$$
+</p>
+
+<div class="note"><b>Interpretation.</b> The uniform law is a <em>translation device</em>. It converts every
+probability question into two counting questions — how big is $A$, how big is $\Omega$ — and nothing
+else about probability is used afterwards. This is why L04 spends seven slides on combinatorics and
+only two on probability: once you have licensed the translation, all the work is arithmetic. The
+license is granted by words in the problem statement such as "fair," "at random," "well shuffled,"
+"randomly placed," or "equally likely."</div>
+
+<div class="warn"><b>Gotcha — the uniform law is a property of a <em>chosen</em> sample space, not of the
+experiment.</b> Toss two fair coins. On $\Omega_1=\{HH,HT,TH,TT\}$ the law is uniform and
+$\mathbf{P}(\text{one head})=2/4=1/2$. On the coarser $\Omega_2=\{0\text{ heads},1,2\}$ the outcomes are
+<em>not</em> equally likely, and "counting" would give the wrong answer $1/3$. Before dividing $|A|$ by
+$|\Omega|$, check that the outcomes you are counting are the symmetric, indivisible ones. A safe habit:
+build $\Omega$ as a set of full sequences of elementary actions (which toss, which card, which ball),
+never as a set of summary statistics.</div>
+
+<div class="warn"><b>Gotcha — count $A$ and $\Omega$ in the <em>same</em> currency.</b> If the denominator
+counts ordered placements, the numerator must too. Mixing an unordered numerator with an ordered
+denominator is the single most common counting error; you will see it neutralized twice below, in
+the rooks problem (§4.7) where both views are carried out in full and shown to agree.</div>
+
+<div class="ex"><b>Practice 4.1.</b> A fair die is rolled three times. What is the probability that
+the three numbers are all different?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Take $\Omega$ = ordered triples $(a_1,a_2,a_3)$ with $a_i \in \{1,\dots,6\}$ the outcome of roll $i$;
+these $6^3 = 216$ sequences are equally likely because the die is fair and the rolls are separate
+physical actions. Favorable outcomes are the triples with distinct entries: $6$ choices for $a_1$,
+then $5$ (anything but $a_1$) for $a_2$, then $4$ for $a_3$, giving $6\cdot 5\cdot 4 = 120$ by the
+counting principle of §4.2. Hence
+$$\mathbf{P}(\text{all different}) = \frac{120}{216} = \frac{5}{9} \approx 0.555556 .$$
+</p></div></details></div>
+
+<div class="ex"><b>Practice 4.2.</b> Explain why the uniform law cannot be applied to the sample
+space $\Omega=\{\text{sum}=2,\text{sum}=3,\dots,\text{sum}=12\}$ for the roll of two fair dice, and give
+the correct probability of a sum of $4$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The eleven sums are mutually exclusive and collectively exhaustive, so $\Omega$ is a legitimate
+sample space — but its elements are not symmetric: the sum $2$ arises from one ordered pair
+$(1,1)$ while the sum $7$ arises from six. Nothing in the physics of the dice makes the sums
+equally likely, so the hypothesis of the uniform law fails and $|A|/|\Omega| = 1/11$ is wrong.
+Work instead on the $36$ equally likely ordered pairs. The event "sum $=4$" is
+$\{(1,3),(2,2),(3,1)\}$, of size $3$, so $\mathbf{P} = 3/36 = 1/12 \approx 0.083333$.</p></div></details></div>
+
+<h3>4.2 The basic counting principle</h3>
+
+<p>Everything countable in this section is counted with one tool.</p>
+
+<div class="thm"><b>Basic counting principle (L04 slide 3; B&amp;T §1.6).</b> Consider a selection made in $r$
+stages, where $r$ is the number of stages. Suppose there are $n_i$ choices at stage $i$, and suppose
+this number $n_i$ does not depend on <em>which</em> choices were made at stages $1,\dots,i-1$. Then the
+total number of distinct selections is
+$$n_1 n_2 \cdots n_r .$$
+</div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s4_stages}}" alt="Left-to-right tree: one root fans into 4 stage-1 branches, each into 3 stage-2 branches, each into 2 stage-3 branches, giving 24 leaves; stages labeled n1 = 4, n2 = 3, n3 = 2." style="max-width:760px">
+<div class="figcap">Fig. 4.1 — The counting principle as a tree, redrawn from the unlabeled schematic on L04 slide 3 (branching factors 4, then 3, then 2, read off the raster). Each stage multiplies the number of nodes; the leaves number $n_1n_2n_3 = 4\cdot 3\cdot 2 = 24$.</div>
+
+<p><b>Derivation (the slide states the product rule with no proof — L04 slide 3 [derivation gap]).</b>
+Argue by induction on the number of stages $r$, counting the leaves of the tree in Fig. 4.1.</p>
+<ul>
+<li><em>Base case $r=1$.</em> A one-stage selection is just a choice among $n_1$ alternatives, so there
+are $n_1$ selections, which is the claimed product.</li>
+<li><em>Induction step.</em> Assume the result for $r-1$ stages: there are $n_1\cdots n_{r-1}$ distinct
+partial selections through stage $r-1$, i.e. $n_1\cdots n_{r-1}$ nodes at depth $r-1$ of the tree.
+Each such node is extended in exactly $n_r$ ways — exactly, by hypothesis, because $n_r$ does not
+depend on the earlier choices — and two complete selections are different whenever they differ at
+some stage. So the complete selections are partitioned into $n_1\cdots n_{r-1}$ groups of $n_r$
+each, and their number is $(n_1\cdots n_{r-1})\cdot n_r = n_1n_2\cdots n_r$. $\blacksquare$</li>
+</ul>
+
+<div class="warn"><b>Gotcha — the hypothesis that matters is "same <em>number</em> of choices," not "same
+choices."</b> In the no-repetition plate below, the second letter's available set changes with the
+first letter, but its <em>size</em> is always $25$; that is all the principle needs. The principle fails
+when the count itself varies: "pick two cards whose values differ by at most one" has a
+second-stage count that depends on the first card, so the product rule does not apply directly.</div>
+
+<div class="ex"><b>Example 4.1 (L04 slide 3, unsolved on the slide).</b> How many license plates
+consist of 3 letters followed by 4 digits?
+<p><b>Solution.</b> Model a plate as a $7$-stage selection: stages $1$–$3$ choose the letters, stages
+$4$–$7$ the digits. There are $n_1=n_2=n_3=26$ choices (the letters of the alphabet) and
+$n_4=\cdots=n_7=10$ (the digits $0$–$9$), and none of these counts depends on earlier choices since
+repetition is allowed. By the counting principle,
+$$26\cdot 26\cdot 26\cdot 10\cdot 10\cdot 10\cdot 10 \;=\; 26^3\cdot 10^4 \;=\; 17{,}576 \cdot 10{,}000 \;=\; 175{,}760{,}000 .$$
+</p></div>
+
+<div class="ex"><b>Example 4.2 (L04 slide 3, unsolved on the slide).</b> Same question if repetition is
+prohibited (all three letters distinct and all four digits distinct).
+<p><b>Solution.</b> The stages are the same; only the counts change, because each stage must avoid the
+symbols already used. Letters: $26$, then $25$, then $24$. Digits: $10$, then $9$, then $8$, then $7$.
+Each count is independent of <em>which</em> symbols were used, so the principle applies:
+$$26\cdot 25\cdot 24 \;=\; 15{,}600, \qquad 10\cdot 9\cdot 8\cdot 7 \;=\; 5{,}040,$$
+$$26\cdot 25\cdot 24\cdot 10\cdot 9\cdot 8\cdot 7 \;=\; 15{,}600 \cdot 5{,}040 \;=\; 78{,}624{,}000 .$$
+As a check on plausibility, the ratio to Example 4.1 is $78{,}624{,}000/175{,}760{,}000 \approx 0.447337$:
+forbidding repetition removes about $55\%$ of the plates.</p></div>
+
+<div class="ex"><b>Example 4.3 (L04 slide 3, unsolved on the slide).</b> How many subsets does
+$\{1,2,\dots,n\}$ have?
+<p><b>Solution.</b> Specify a subset $S$ by an $n$-stage process: at stage $i$ decide whether the element
+$i$ belongs to $S$. Each stage has $n_i = 2$ choices ("in" or "out"), independently of the earlier
+decisions, and distinct decision sequences give distinct subsets while every subset is produced by
+exactly one sequence — the map (decision sequence) $\mapsto$ (subset) is a bijection. Hence the
+number of subsets is
+$$\underbrace{2\cdot 2\cdots 2}_{n \text{ stages}} \;=\; 2^n .$$
+For $n=3$ this gives $2^3 = 8$, and indeed $\varnothing,\{1\},\{2\},\{3\},\{1,2\},\{1,3\},\{2,3\},\{1,2,3\}$
+are eight sets. Note that the empty set and the full set are both counted — a frequent off-by-two
+slip. <em>(This closes the [derivation gap] on L04 slide 3, which asserted the subset count without
+saying that subset selection is an $n$-stage binary process.)</em></p></div>
+
+<div class="note"><b>Intuition.</b> The tree in Fig. 4.1 is the entire content of §4.2: the number of
+leaves multiplies stage by stage. Every later formula — $n!$, $n!/(n-k)!$, $\binom{n}{k}$, the
+multinomial coefficient — is this one product rule applied to a cleverly chosen sequence of stages,
+sometimes followed by a division to undo an overcount. Keep asking two questions: <em>what are my
+stages?</em> and <em>did I count each object once or several times?</em></div>
+
+<div class="ex"><b>Practice 4.3.</b> How many four-letter "words" (any string of letters) can be
+formed from the $26$-letter alphabet if no letter may repeat?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Four stages, with $26$, $25$, $24$, $23$ choices: $26\cdot 25\cdot 24\cdot 23 = 358{,}800$. This is the
+$4$-permutation count $26!/22!$ of §4.3.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.4.</b> A menu offers $3$ starters, $5$ mains, $4$ desserts, and lets you
+skip any course. How many meals are possible, including the empty meal?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Treat "skip" as an extra choice in each course, giving $3+1=4$, $5+1=6$, $4+1=5$ options and
+$4\cdot 6\cdot 5 = 120$ meals. Exactly one of them is the empty meal, so there are $119$ non-empty
+meals. The lesson: an option to abstain is folded into the product by adding $1$ to that stage's
+count — the same device that turns the subset count into $2^n$ ("take it" or "leave it").</p></div></details></div>
+
+<h3>4.3 Permutations and $k$-permutations</h3>
+
+<div class="defn"><b>Definition.</b> A <em>permutation</em> of $n$ distinct elements is an ordering of all
+$n$ of them. A <em>$k$-permutation</em> is an ordered sequence of $k$ distinct elements chosen from the
+$n$ (so a permutation is the case $k=n$).</div>
+
+<div class="ex"><b>Example 4.4 (L04 slide 3, unsolved on the slide) — in how many ways can $n$ elements
+be ordered, and how many $k$-permutations are there?</b>
+<p><b>(i) Orderings of all $n$ elements.</b> Build an
+ordering in $n$ stages, where stage $i$ names the element that occupies position $i$. Stage $1$ has
+$n$ candidates. Stage $2$ has $n-1$: every element except the one already placed — again, <em>which</em>
+element is excluded depends on stage $1$, but the <em>count</em> $n-1$ does not, so the counting principle
+applies. Continuing, stage $i$ has $n-i+1$ candidates and the last stage has $1$. Therefore
+$$\#\{\text{orderings of } n \text{ elements}\} \;=\; n(n-1)(n-2)\cdots 2\cdot 1 \;=\; n! ,$$
+with the convention $0! = 1$ (the empty sequence is the unique ordering of nothing). For $n=4$ this
+is $4! = 24$. <em>(This closes the second half of the L04 slide 3 [derivation gap].)</em></p>
+<p><b>(ii) $k$-permutations (L04 slide 5).</b> Stop the same process after $k$ stages. The
+counts are $n, n-1, \dots, n-k+1$ — there are exactly $k$ factors, the last being $n-k+1$ because
+$k-1$ elements have already been used. Hence
+$$\#\{k\text{-permutations}\} \;=\; n(n-1)\cdots(n-k+1) \;=\; \frac{n(n-1)\cdots(n-k+1)\cdot (n-k)!}{(n-k)!} \;=\; \frac{n!}{(n-k)!},$$
+where the middle step multiplies and divides by $(n-k)! = (n-k)(n-k-1)\cdots 1$ so that the numerator
+telescopes into the full factorial $n!$. Example: the number of ways to award gold, silver and
+bronze among $7$ runners is $7!/4! = 7\cdot 6\cdot 5 = 210$.</p></div>
+
+<div class="ex"><b>Example 4.5 (L04 slide 4, all three blanks unsolved on the slide).</b> A six-sided
+die is rolled six times. What is the probability that all six rolls give different numbers?
+<p><b>Solution.</b> Three quantities are needed; the slide gives only their labels.</p>
+<p><b>(i) Sample space.</b> An outcome is the ordered sequence $(a_1,\dots,a_6)$ of the six results,
+$a_i \in\{1,\dots,6\}$. This is a $6$-stage selection with $6$ choices each, so
+$$|\Omega| \;=\; 6\cdot 6\cdot 6\cdot 6\cdot 6\cdot 6 \;=\; 6^6 \;=\; 46{,}656 .$$
+Because the die is fair and the rolls are separate, all $46{,}656$ sequences are equally likely, which
+licenses the uniform law of §4.1.</p>
+<p><b>(ii) Favorable outcomes.</b> The event $A$ = "all six results different" consists of the sequences
+whose six entries are distinct. Since there are exactly six possible values and six positions, such a
+sequence uses every value exactly once — it <em>is</em> a permutation of $\{1,\dots,6\}$. Hence
+$$|A| \;=\; 6! \;=\; 720 .$$</p>
+<p><b>(iii) Answer.</b> By the discrete uniform law,
+$$\mathbf{P}(A) \;=\; \frac{|A|}{|\Omega|} \;=\; \frac{6!}{6^6} \;=\; \frac{720}{46{,}656} \;=\; \frac{5}{324} \;\approx\; 0.015432 ,$$
+about $1.543\%$.</p>
+<p><b>Cross-check by the multiplication rule</b> (L02 slide 6), which needs no counting at all: the
+first roll is unconstrained, the second must avoid $1$ value out of $6$, the third must avoid $2$, and
+so on, so
+$$\mathbf{P}(A) = \frac{6}{6}\cdot\frac{5}{6}\cdot\frac{4}{6}\cdot\frac{3}{6}\cdot\frac{2}{6}\cdot\frac{1}{6}
+= 1 \cdot 0.833333 \cdot 0.666667 \cdot 0.5 \cdot 0.333333 \cdot 0.166667 = 0.015432 ,$$
+the same value. The two routes are the same arithmetic reorganized: $6!/6^6 = \prod_{i=0}^{5}(6-i)/6$.</p></div>
+
+<div class="note"><b>Interpretation.</b> $n!$ grows ferociously — $6!=720$ against $6^6 = 46{,}656$ — so
+"all distinct" is rare as soon as the number of draws approaches the number of available values.
+This is precisely the mechanism behind the birthday problem of §4.7, where $n$ draws are made from
+$365$ values and the same ratio $\frac{365\cdot 364\cdots}{365^n}$ appears.</div>
+
+<div class="warn"><b>Gotcha — $n!/(n-k)!$ counts <em>ordered</em> selections.</b> "How many three-person
+committees can be formed from ten people?" is <em>not</em> $10!/7! = 720$; that number counts
+(chair, secretary, treasurer) assignments. Committees are unordered, so the answer is
+$720/3! = 120 = \binom{10}{3}$. Ask yourself whether relabeling the chosen items produces a different
+object; if not, divide by $k!$.</div>
+
+<div class="ex"><b>Practice 4.5.</b> Twelve sprinters run a final. In how many ways can the three
+medals be awarded (gold, silver, bronze, no ties)?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Medals are distinguishable, so the answer is a $3$-permutation of $12$:
+$12!/9! = 12\cdot 11\cdot 10 = 1{,}320$.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.6.</b> In how many ways can $5$ people be seated in a row so that two
+particular people, A and B, sit next to each other?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Glue A and B into a single block. There are then $4$ objects to order, giving $4! = 24$ orderings,
+and the block itself can be internally arranged in $2! = 2$ ways (AB or BA). By the counting
+principle the answer is $24 \cdot 2 = 48$ out of the $5! = 120$ unrestricted seatings, i.e. a
+proportion $48/120 = 2/5$. The "glue" trick is the standard way to convert an adjacency constraint
+into a plain permutation count.</p></div></details></div>
+
+<h3>4.4 Combinations $\binom{n}{k}$ — two derivations</h3>
+
+<div class="defn"><b>Definition (L04 slide 5).</b> $\binom{n}{k}$, read "$n$ choose $k$," is the number
+of $k$-element subsets of a given $n$-element set. Here $n \ge 0$ is the size of the ground set and
+$0\le k\le n$ the size of the subset; a subset is <em>unordered</em>, so $\{1,3\}$ and $\{3,1\}$ are the same
+object and are counted once.</div>
+
+<p><b>Derivation 1 — via $k$-permutations (the slide's argument, L04 slide 5).</b> Count in two ways
+the same collection $\mathcal{T}$ of objects: ordered sequences of $k$ <em>distinct</em> items drawn from
+the $n$. The slide asserts that the two constructions produce the same set without saying so
+explicitly — that is the [derivation gap] we now fill.</p>
+<ul>
+<li><em>Way A — choose the items one at a time.</em> This is exactly the $k$-permutation count of §4.3:
+$$|\mathcal{T}| \;=\; n(n-1)\cdots(n-k+1) \;=\; \frac{n!}{(n-k)!}.$$</li>
+<li><em>Way B — choose first, order later.</em> A two-stage construction: stage 1 picks the <em>set</em> of $k$
+items that will appear, which can be done in $\binom{n}{k}$ ways by definition; stage 2 arranges those
+$k$ chosen items in a row, which can be done in $k!$ ways by the permutation count. The number of
+stage-2 choices is $k!$ whatever set was chosen at stage 1, so the counting principle gives
+$$|\mathcal{T}| \;=\; \binom{n}{k}\cdot k! .$$</li>
+<li><em>Why these count the same thing.</em> Way B's output is a $k$-element set together with an ordering
+of it, which is the same data as an ordered sequence of $k$ distinct items; conversely every such
+sequence determines its underlying set and its order. The correspondence is one-to-one in both
+directions, so the two counts are equal.</li>
+</ul>
+<p>Equating them,
+$$\binom{n}{k}\cdot k! \;=\; \frac{n!}{(n-k)!} \qquad\Longrightarrow\qquad
+\boxed{\;\binom{n}{k} \;=\; \frac{n!}{k!\,(n-k)!}\;}$$
+after dividing both sides by $k! &gt; 0$.</p>
+
+<p><b>Derivation 2 — via choosing positions (the "slot" argument).</b> This second route is worth
+having because it generalizes directly to the multinomial coefficient in §4.6. Line up all $n$ items
+in a row; there are $n!$ such lineups. Declare the items in the first $k$ positions to be "chosen"
+and the rest "not chosen." Every lineup thus produces a $k$-subset, and every $k$-subset is produced
+by some lineup. How many lineups give the <em>same</em> subset? The $k$ chosen items can be permuted among
+the first $k$ slots in $k!$ ways and the $n-k$ unchosen items among the remaining slots in $(n-k)!$
+ways, and by the counting principle these can be combined freely: exactly $k!\,(n-k)!$ lineups per
+subset — the <em>same</em> number for every subset, which is what makes the division legal. Hence
+$$n! \;=\; \binom{n}{k}\cdot k!\,(n-k)! \qquad\Longrightarrow\qquad \binom{n}{k} = \frac{n!}{k!\,(n-k)!},$$
+in agreement with Derivation 1. Equivalently: $\binom{n}{k}$ is the number of binary strings of length
+$n$ with exactly $k$ ones — read "chosen" as a $1$ — a reading used in the binomial derivation of §4.5.</p>
+
+<p>Two immediate consequences. <em>Symmetry:</em>
+$\binom{n}{k} = \frac{n!}{k!(n-k)!} = \frac{n!}{(n-k)!\,k!} = \binom{n}{n-k}$, because choosing the $k$
+members is the same act as choosing the $n-k$ non-members. <em>Small cases:</em>
+$\binom{n}{0}=\binom{n}{n}=1$ and $\binom{n}{1}=n$. For instance $\binom{5}{2} = 5!/(2!\,3!) = 120/12 = 10$,
+which also equals the $2$-permutation count $5\cdot4=20$ divided by $2! = 2$, i.e. $20/2 = 10$; and the number of
+$5$-card poker hands from a $52$-card deck is $\binom{52}{5} = 2{,}598{,}960$.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s4_pascal}}" alt="Pascal's triangle of binomial coefficients for n = 0 to 8, cells shaded by magnitude, with each row's sum shown on the right as 1, 2, 4, 8, 16, 32, 64, 128, 256." style="max-width:740px">
+<div class="figcap">Fig. 4.2 — The $\binom{n}{k}$ table for $n=0,\dots,8$ (values recomputed in <code>computes/g1_s4.py</code>, key <code>pascal_rows_0_8</code>). Row sums on the right illustrate $\sum_k \binom{n}{k} = 2^n$ (L04 slide 5).</div>
+
+<div class="ex"><b>Example 4.6 (L04 slide 5, right-hand side blank on the slide).</b> Evaluate
+$\displaystyle\sum_{k=0}^{n}\binom{n}{k}$.
+<p><b>Solution — by double counting.</b> Let $\mathcal{S}$ be the collection of <em>all</em> subsets of
+$\{1,\dots,n\}$.</p>
+<p><em>Count 1.</em> Classify the subsets by their size. For each $k \in \{0,1,\dots,n\}$ there are
+$\binom{n}{k}$ subsets of size exactly $k$; the classes are disjoint (a set has one size) and
+exhaustive (every subset has some size between $0$ and $n$), so
+$|\mathcal{S}| = \sum_{k=0}^{n}\binom{n}{k}$.</p>
+<p><em>Count 2.</em> By Example 4.3, $|\mathcal{S}| = 2^n$.</p>
+<p>The two counts refer to the same collection, hence
+$$\sum_{k=0}^{n}\binom{n}{k} \;=\; 2^n .$$
+Check at $n=5$: $1+5+10+10+5+1 = 32 = 2^5$, and the identity was verified numerically for all
+$n \le 12$ in the compute script (key <code>sum_identity_check_n_0_12</code>).</p></div>
+
+<div class="note"><b>Interpretation.</b> Fig. 4.2 shows the two faces of $\binom{n}{k}$. Along a row it
+is a <em>distribution of sizes</em>: subsets of a set are overwhelmingly of middling size, since the
+central entries dwarf the extremes ($\binom{8}{4}=70$ against $\binom{8}{0}=1$). Divided by $2^n$, a
+row becomes a genuine probability distribution — the binomial PMF with $p = 1/2$ of §4.5, since a
+uniformly random subset is the set of heads in $n$ fair tosses.</div>
+
+<div class="warn"><b>Gotcha — "at least" is not a combination.</b> $\binom{n}{k}$ counts subsets of size
+<em>exactly</em> $k$. A question about "at least $k$" requires a sum, $\sum_{j\ge k}\binom{n}{j}$, or the
+complement trick. Similarly, $\binom{n}{k}$ presumes the $n$ items are <em>distinct</em>; if some are
+identical, the count is smaller and needs the multinomial correction of §4.6.</div>
+
+<div class="ex"><b>Practice 4.7.</b> From $12$ candidates a committee of $5$ is chosen. (a) How many
+committees? (b) How many committees with a designated chair drawn from the committee?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) The committee is an unordered $5$-subset: $\binom{12}{5} = 12!/(5!\,7!) = 792$.</p>
+<p>(b) Two stages: choose the committee ($792$ ways), then choose its chair among its $5$ members
+($5$ ways, the same count for every committee). By the counting principle,
+$792\cdot 5 = 3{,}960$. Equivalently, choose the chair first ($12$ ways) and then the other four
+members from the remaining $11$: $12\cdot\binom{11}{4} = 12\cdot 330 = 3{,}960$ — the same answer by a
+different staging, which is a useful self-check.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.8.</b> Prove $\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$ (the rule
+behind Fig. 4.2) by a counting argument, and verify it at $n=8,k=4$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Fix the element $n$ and split the $k$-subsets of $\{1,\dots,n\}$ into two disjoint, exhaustive
+classes. Class 1: those containing $n$. Removing $n$ leaves a $(k-1)$-subset of the remaining $n-1$
+elements, and this correspondence is a bijection, so class 1 has $\binom{n-1}{k-1}$ members. Class 2:
+those not containing $n$ — these are exactly the $k$-subsets of $\{1,\dots,n-1\}$, so class 2 has
+$\binom{n-1}{k}$ members. Adding the two disjoint classes gives the identity. Numerically,
+$\binom{7}{3} + \binom{7}{4} = 35 + 35 = 70 = \binom{8}{4}$, matching the last row of Fig. 4.2.</p></div></details></div>
+
+<h3>4.5 Binomial probabilities</h3>
+
+<p>Now counting meets independence. Toss a coin $n$ times independently, with $\mathbf{P}(H)=p$ on each
+toss, where $p\in[0,1]$ is the head probability and $n\ge 1$ the number of tosses (L04 slide 6). The
+sample space is the set of $2^n$ head–tail sequences of length $n$; unless $p=1/2$ it is <em>not</em>
+uniform, so §4.1 does not apply directly and we must weight sequences individually.</p>
+
+<div class="ex"><b>Example 4.7 (L04 slide 6, blank on the slide).</b> Compute
+$\mathbf{P}(HTTHHH)$ for $n=6$.
+<p><b>Solution.</b> Let $A_i$ be the event that toss $i$ gives the letter demanded by the sequence. The
+tosses are independent, so the probability of the intersection is the product of the individual
+probabilities (L03 slide 3):
+$$\mathbf{P}(HTTHHH) = p\cdot(1-p)\cdot(1-p)\cdot p\cdot p\cdot p = p^4 (1-p)^2 ,$$
+since the sequence $HTTHHH$ contains $4$ heads and $2$ tails. Only the <em>counts</em> survive, not the
+order. In general
+$$\mathbf{P}(\text{a specified sequence}) = p^{\#\text{heads}}(1-p)^{\#\text{tails}} . $$</p></div>
+
+<div class="thm"><b>Binomial probability (L04 slide 6; B&amp;T §1.6).</b> For $k = 0,1,\dots,n$,
+$$\mathbf{P}(k \text{ heads in } n \text{ tosses}) \;=\; \binom{n}{k} p^k (1-p)^{n-k}.$$
+</div>
+
+<p><b>Derivation, every step (the slide compresses this — L04 slide 6 [derivation gap]).</b> Let
+$B_k \subseteq \Omega$ be the event "exactly $k$ heads."</p>
+<p><em>Step 1 (additivity).</em> $B_k$ is the disjoint union of its one-element subsets, so by the
+additivity axiom
+$$\mathbf{P}(B_k) \;=\; \sum_{\text{sequences } s \text{ with } k \text{ heads}} \mathbf{P}(s).$$</p>
+<p><em>Step 2 (every term is the same).</em> By Example 4.7, a sequence with $k$ heads has $n-k$ tails and
+probability $p^k(1-p)^{n-k}$ — a value depending only on $k$, not on where the heads sit. A sum of
+$M$ equal terms is $M$ times the common term, so
+$$\mathbf{P}(B_k) \;=\; \big(\#\text{ of } k\text{-head sequences}\big)\cdot p^k(1-p)^{n-k}.$$</p>
+<p><em>Step 3 (the count).</em> A $k$-head sequence is completely determined by the <em>set of positions</em>
+occupied by the heads, a $k$-element subset of the $n$ toss indices $\{1,\dots,n\}$; conversely each
+such subset yields one sequence. The correspondence is a bijection, so by §4.4 the count is
+$\binom{n}{k}$. Substituting,
+$$\mathbf{P}(B_k) \;=\; \binom{n}{k}p^k(1-p)^{n-k}. \qquad \blacksquare$$</p>
+<p><em>Sanity check.</em> Summing over $k$ must give $1$: indeed
+$\sum_{k=0}^n \binom{n}{k}p^k(1-p)^{n-k} = \big(p+(1-p)\big)^n = 1$ by the binomial theorem — and at
+$p=1/2$ this reduces to $\sum_k\binom{n}{k}=2^n$, Example 4.6. Numerically, with $n=10$: at $p=0.3$,
+$\mathbf{P}(4\text{ heads}) = \binom{10}{4}(0.3)^4(0.7)^6 = 210 \cdot 0.0081 \cdot 0.117649 = 0.200121$; at
+$p=0.5$, $\mathbf{P}(5\text{ heads}) = \binom{10}{5}(0.5)^{10} = 252/1024 = 0.246094$.</p>
+
+<div class="ex"><b>Example 4.8 (L04 slide 7 — the coin-tossing conditional problem; three blanks on the
+slide).</b> Ten independent tosses with $\mathbf{P}(H)=p$. Let $B$ be the event that exactly $3$ of the
+$10$ tosses were heads. Given that $B$ occurred, what is the conditional probability that the first
+two tosses were heads?
+<p><b>(i) Why the conditional law on $B$ is uniform.</b> Every outcome $\omega \in B$ is a $10$-toss
+sequence with $3$ heads and $7$ tails, so by Example 4.7 it has the <em>same</em> unconditional probability
+$\mathbf{P}(\omega) = p^3(1-p)^7$. By the definition of conditional probability (L02 slide 3), for
+$\omega\in B$,
+$$\mathbf{P}(\omega \mid B) = \frac{\mathbf{P}(\{\omega\}\cap B)}{\mathbf{P}(B)} = \frac{p^3(1-p)^7}{\mathbf{P}(B)},$$
+which is the same number for all $\omega \in B$. So the conditional law <em>is</em> uniform on $B$ and §4.1
+applies inside $B$: for any event $A$, $\mathbf{P}(A\mid B) = |A\cap B| / |B|$.</p>
+<p><b>(ii) Number of outcomes in $B$.</b> By Step 3 above, a $3$-head sequence is determined by the
+$3$-element set of head positions among $10$, so
+$$|B| = \binom{10}{3} = \frac{10!}{3!\,7!} = \frac{10\cdot 9\cdot 8}{6} = 120 .$$
+(Consistency check: $\mathbf{P}(B) = 120\,p^3(1-p)^7$, so
+$\mathbf{P}(\omega\mid B) = p^3(1-p)^7 / \big(120\,p^3(1-p)^7\big) = 1/120$, confirming uniformity.)</p>
+<p><b>(iii) How many outcomes of $B$ start with $HH$?</b> Fix tosses $1$ and $2$ to be heads. Since the
+sequence must contain $3$ heads in total, exactly $1$ head remains to be placed among the $8$
+remaining positions $3,\dots,10$, and the other $7$ positions are tails. The number of ways to choose
+that one position is
+$$\binom{8}{1} = 8 .$$</p>
+<p><b>(iv) The answer</b> (the slide stops before this division):
+$$\mathbf{P}(\text{first two tosses are heads}\mid B) \;=\; \frac{\binom{8}{1}}{\binom{10}{3}} \;=\; \frac{8}{120} \;=\; \frac{1}{15} \;\approx\; 0.066667 .$$
+<b>Verification.</b> The compute script evaluates the ratio
+$\sum_{\omega\in B,\ \omega_1=\omega_2=H}\mathbf{P}(\omega) \big/ \sum_{\omega\in B}\mathbf{P}(\omega)$ by brute force
+over all $2^{10}$ sequences at $p = 0.2$, $0.5$ and $0.77$, obtaining $0.066666667$ in all three cases —
+the answer really is free of $p$.</p></div>
+
+<div class="note"><b>Interpretation — why $p$ disappears.</b> Conditioning on the <em>number</em> of heads
+destroys all information about $p$, because $p$ enters every element of $B$ through the identical
+factor $p^3(1-p)^7$, which cancels between numerator and denominator. Once the head count is known,
+the head <em>positions</em> are uniformly distributed over all $\binom{10}{3}$ possibilities, whatever the
+coin's bias. Compare with the unconditional probability of the same event,
+$\mathbf{P}(\text{first two heads}) = p^2$, which of course does depend on $p$: knowing the total
+changed the question from "how biased is the coin" to "where did the heads land."</div>
+
+<div class="warn"><b>Gotcha — do not multiply by $\binom{n}{k}$ twice.</b> $p^k(1-p)^{n-k}$ is the
+probability of <em>one specified pattern</em>; $\binom{n}{k}p^k(1-p)^{n-k}$ is the probability of the whole
+event "$k$ heads." Asking for "the probability that the first $k$ tosses are heads and the rest
+tails" is the former, with no binomial coefficient at all.</div>
+
+<div class="ex"><b>Practice 4.9.</b> A basketball player makes each free throw independently with
+probability $0.25$. In $8$ attempts, what is the probability of at least $2$ successes?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Use the complement, which needs two binomial terms instead of seven. With $n=8$, $p=0.25$:
+$$\mathbf{P}(0) = \binom{8}{0}(0.25)^0(0.75)^8 = (0.75)^8 = 0.100113,$$
+$$\mathbf{P}(1) = \binom{8}{1}(0.25)^1(0.75)^7 = 8\cdot 0.25\cdot 0.133484 = 0.266968,$$
+$$\mathbf{P}(\ge 2) = 1 - 0.100113 - 0.266968 = 0.632919 .$$</p></div></details></div>
+
+<div class="ex"><b>Practice 4.10.</b> Twelve independent tosses of a fair coin produce exactly $6$
+heads. Given that, what is the probability that toss $1$ was a head? Answer without computing a
+binomial coefficient, then confirm with one.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>By the argument of Example 4.8 the conditional law is uniform over the $\binom{12}{6}$ arrangements
+of $6$ heads among $12$ slots, and by symmetry each slot is equally likely to hold one of the $6$
+heads, so the answer is $6/12 = 1/2$. Confirming by counting: the favorable arrangements have a head
+in slot $1$ and $5$ more heads among the remaining $11$ slots, i.e. $\binom{11}{5} = 462$, and
+$\binom{12}{6} = 924$, so the probability is $462/924 = 1/2$. If instead $7$ heads had been observed
+the answer would be $7/12$ — the conditional probability tracks the observed frequency, not the
+coin's $p$.</p></div></details></div>
+
+<h3>4.6 Partitions and the multinomial coefficient</h3>
+
+<p>The last counting object generalizes the subset. Instead of splitting $n$ distinct items into two
+groups of sizes $k$ and $n-k$, split them into $r$ labeled groups of prescribed sizes.</p>
+
+<div class="defn"><b>Definition.</b> Let $n_1,\dots,n_r$ be nonnegative integers with
+$n_1+n_2+\cdots+n_r = n$ — the constraint is essential, since every item must land in exactly one
+group. The number of ways to partition $n$ distinct items into an ordered list of $r$ groups, with
+group $i$ receiving exactly $n_i$ items, is the <em>multinomial coefficient</em>
+$$\binom{n}{n_1,n_2,\dots,n_r} \;=\; \frac{n!}{n_1!\,n_2!\cdots n_r!}.$$
+The groups are <em>labeled</em> (player 1's hand differs from player 2's); $\binom{n}{k}$ is the special
+case $r=2$ with sizes $(k, n-k)$.</div>
+
+<p><b>Derivation A — sequential choice of groups (the argument used in lecture).</b> Build the
+partition in $r$ stages, stage $i$ deciding which items form group $i$.</p>
+<ul>
+<li>Stage $1$: choose $n_1$ items out of the $n$ available: $\binom{n}{n_1}$ ways.</li>
+<li>Stage $2$: choose $n_2$ items out of the $n-n_1$ that remain: $\binom{n-n_1}{n_2}$ ways — and this
+count is the same whatever stage 1 chose, so the counting principle applies.</li>
+<li>Stage $i$: $\binom{n-n_1-\cdots-n_{i-1}}{n_i}$ ways; the last stage has
+$\binom{n_r}{n_r}=1$ way, since only $n_r$ items are left.</li>
+</ul>
+<p>Multiplying and writing each coefficient out,
+$$\binom{n}{n_1}\binom{n-n_1}{n_2}\cdots\binom{n_r}{n_r}
+= \frac{n!}{n_1!\,(n-n_1)!}\cdot\frac{(n-n_1)!}{n_2!\,(n-n_1-n_2)!}\cdots\frac{n_r!}{n_r!\,0!}.$$
+Every "remainder" factorial $(n-n_1)!,\ (n-n_1-n_2)!,\ \dots$ appears once in a numerator and once in
+a denominator and cancels — the product telescopes — leaving
+$$\frac{n!}{n_1!\,n_2!\cdots n_r!}. \qquad\blacksquare$$
+<em>(This closes the L04 slide 8 [derivation gap], which stated $52!/(13!)^4$ with no derivation.)</em></p>
+
+<div class="ex"><b>Example 4.9 (rec04 P4 — multinomial coefficient by the slot argument).</b>
+<p><b>Statement.</b> Derive the multinomial coefficient — the number of partitions of $n$ distinct
+items into groups of sizes $n_1,\dots,n_r$ — by a different argument than the one used in class.
+Consider $n$ items placed into $n$ slots, and divide the group of $n$ slots into consecutive segments
+of lengths $n_1,\dots,n_r$. Show how many different ways the $n$ items can be arranged into the $r$
+segments.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Fix a row of $n$ slots and cut it, once and for all, into $r$ consecutive segments:
+slots $1,\dots,n_1$ form segment $1$; slots $n_1+1,\dots,n_1+n_2$ form segment $2$; and so on, with
+segment $i$ having length $n_i$. The cut is possible precisely because
+$n_1+\cdots+n_r=n$ — a constraint the official solution leaves implicit.</p>
+<p><b>Step 1 — count arrangements.</b> Place the $n$ distinct items into the $n$ slots, one per slot.
+This is an ordering of $n$ distinct objects, so by §4.3 there are $n!$ arrangements.</p>
+<p><b>Step 2 — each arrangement induces a partition.</b> Read off, for each $i$, the set of items sitting
+in segment $i$. That produces a partition into groups of the prescribed sizes $n_1,\dots,n_r$, and
+every such partition arises this way (put the members of group $i$ into segment $i$ in any order).</p>
+<p><b>Step 3 — the map is exactly $n_1!\cdots n_r!$-to-one.</b> This is the step the official solution
+asserts rather than verifies. Fix a target partition $(G_1,\dots,G_r)$. An arrangement induces it if
+and only if the items of $G_i$ occupy segment $i$, for every $i$. Within segment $i$ its $n_i$ items
+may be ordered in $n_i!$ ways, and the choices in different segments are unconstrained, so by the
+counting principle the number of arrangements mapping to this particular partition is
+$$n_1!\,n_2!\cdots n_r! ,$$
+a number that does <em>not</em> depend on which partition was chosen. This uniformity is what licenses
+dividing rather than merely bounding.</p>
+<p><b>Step 4 — divide.</b> The $n!$ arrangements are thereby split into groups of equal size
+$n_1!\cdots n_r!$, one group per partition, so
+$$\#\text{partitions} \;=\; \frac{\text{ways to arrange } n \text{ items}}{(\text{ways within segment }1)\cdots(\text{ways within segment } r)}
+\;=\; \frac{n!}{n_1!\,n_2!\cdots n_r!} \;=\; \binom{n}{n_1,\dots,n_r},$$
+in the notation the recitation solution does not introduce. This agrees with Derivation A.</p>
+<p><b>Numerical check.</b> Partition $6$ distinct items into groups of $3,2,1$:
+$6!/(3!\,2!\,1!) = 720/12 = 60$; the sequential derivation gives
+$\binom{6}{3}\binom{3}{2}\binom{1}{1} = 20\cdot 3\cdot 1 = 60$. A second use: the number of distinguishable
+arrangements of the letters of MISSISSIPPI ($1$ M, $4$ I, $4$ S, $2$ P) is
+$11!/(1!\,4!\,4!\,2!) = 39{,}916{,}800/1{,}152 = 34{,}650$ — here the "groups" are the sets of positions
+assigned to each letter.</p>
+</div></details></div>
+
+<div class="ex"><b>Example 4.10 (L04 slide 8 — a $52$-card deck dealt to $4$ players; find
+$\mathbf{P}$(each player gets an ace); also B&amp;T §1.6 and B&amp;T Problem 1.60).</b>
+<p><b>Model.</b> An outcome is a deal: a partition of the $52$ distinct cards into four labeled
+$13$-card hands. "Well shuffled" makes all deals equally likely, so the uniform law applies.</p>
+<p><b>(i) Size of the sample space.</b> By the multinomial coefficient with $n=52$, $r=4$ and
+$n_1=n_2=n_3=n_4=13$,
+$$|\Omega| = \frac{52!}{13!\,13!\,13!\,13!} \approx 5.364474\times 10^{28}.$$</p>
+<p><b>(ii) Favorable deals, stage 1 — distribute the aces.</b> Deal the four aces to players by a
+$4$-stage process: the first ace can go to any of the $4$ players; the second, which must go to a
+different player, to any of the remaining $3$; the third to either of the remaining $2$; the fourth to
+the single player left. Hence
+$$4\cdot 3\cdot 2\cdot 1 = 4! = 24$$
+ways. <em>(The slide writes "$4\cdot 3\cdot 2$", omitting the trailing factor $1$; the value $24$ is
+unchanged. This spells out the stage-by-stage reasoning the slide leaves verbal.)</em></p>
+<p><b>(iii) Favorable deals, stage 2 — distribute the other $48$ cards.</b> After the aces, each player
+still needs $12$ more cards, so the $48$ non-ace cards are partitioned into four labeled groups of
+$12$:
+$$\frac{48!}{12!\,12!\,12!\,12!} \approx 2.358093\times 10^{26}$$
+ways, again by the multinomial coefficient. The count is the same regardless of how the aces were
+distributed, so the counting principle multiplies the two stages.</p>
+<p><b>(iv) Answer.</b>
+$$\mathbf{P}(\text{each gets an ace}) \;=\; \frac{4!\cdot \dfrac{48!}{(12!)^4}}{\dfrac{52!}{(13!)^4}} .$$
+Simplify — the slide stops here. Rewrite the ratio as
+$$24\cdot\frac{48!}{(12!)^4}\cdot\frac{(13!)^4}{52!}
+= 24\cdot\left(\frac{13!}{12!}\right)^{4}\cdot\frac{48!}{52!}
+= 24\cdot 13^4\cdot\frac{1}{52\cdot 51\cdot 50\cdot 49},$$
+using $13!/12! = 13$ and $52!/48! = 52\cdot51\cdot50\cdot49$. Numerically,
+$$= \frac{24\cdot 28{,}561}{6{,}497{,}400} = \frac{685{,}464}{6{,}497{,}400} = \frac{2197}{20825} \approx 0.105498 .$$
+So roughly one deal in ten spreads the aces one per player. The compute script confirms that the
+exact rational from the unsimplified expression equals $2197/20825$ (key
+<code>cards_ace_prob_closedform_matches</code>).</p>
+<p><b>Reading the closed form.</b> $24\cdot 13^4/(52\cdot51\cdot50\cdot49)$ is exactly the probability that
+four cards drawn without replacement land in four different $13$-card blocks — a reminder that the
+enormous factorials were never necessary; only the aces' fates matter.</p></div>
+
+<div class="ex"><b>Example 4.11 (rec04 P5 — multinomial probabilities).</b>
+<p><b>Statement.</b> At each draw there is a probability $p_i$ ($i=1,\dots,r$) of getting a ball of
+color $i$. Draw $n$ objects. What is the probability of obtaining exactly $n_i$ balls of each color
+$i$?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Standing assumptions</b> (left implicit in the official solution): the draws are
+<em>independent</em> and identically distributed — as in drawing with replacement — the color
+probabilities satisfy $p_1+\cdots+p_r = 1$, and the target counts satisfy $n_1+\cdots+n_r = n$ with
+$n_i \ge 0$. If the $n_i$ do not sum to $n$ the probability is $0$.</p>
+<p><b>Step 1 — probability of one particular sequence.</b> An outcome is the ordered sequence of $n$
+colors drawn. Fix a sequence containing exactly $n_i$ balls of color $i$. By independence, the
+probability of the intersection of the $n$ single-draw events is the product of their probabilities,
+and grouping equal factors,
+$$\mathbf{P}(\text{that sequence}) = p_1^{n_1}p_2^{n_2}\cdots p_r^{n_r},$$
+a value depending only on the counts, not on the order — the same phenomenon as in Example 4.7.</p>
+<p><b>Step 2 — how many such sequences.</b> A sequence with the prescribed counts is determined by
+deciding which of the $n$ draw positions (slots) receive color $1$, which receive color $2$, and so
+on: that is exactly a partition of $n$ distinct slots into labeled groups of sizes
+$n_1,\dots,n_r$. By Example 4.9 there are
+$$\binom{n}{n_1,\dots,n_r} = \frac{n!}{n_1!\cdots n_r!}$$
+such sequences.</p>
+<p><b>Step 3 — add up.</b> The event "exactly $n_i$ of color $i$" is the disjoint union of those
+sequences, all of the same probability, so by additivity
+$$\mathbf{P}(n_1 \text{ of color }1,\dots,n_r\text{ of color }r) = \binom{n}{n_1,\dots,n_r}p_1^{n_1}\cdots p_r^{n_r}
+= \frac{n!}{n_1!\cdots n_r!}\,p_1^{n_1}\cdots p_r^{n_r}.$$
+For $r=2$ this is the binomial formula of §4.5, with $(p_1,p_2)=(p,1-p)$ and $(n_1,n_2)=(k,n-k)$.</p>
+<p><b>Numerical illustration and sanity check.</b> With $n=10$, $r=3$, $p=(0.5,0.3,0.2)$ and counts
+$(5,3,2)$: the coefficient is $10!/(5!\,3!\,2!) = 2{,}520$ and
+$$\mathbf{P} = 2520\cdot (0.5)^5(0.3)^3(0.2)^2 = 0.085050 .$$
+Summing the formula over all $66$ triples $(n_1,n_2,n_3)$ of nonnegative integers with sum $10$ gives
+exactly $1.0$ (key <code>mnprob_sums_to_one</code>) — the distribution is properly normalized.</p>
+</div></details></div>
+
+<div class="note"><b>Interpretation.</b> The multinomial coefficient answers "how many ways can labeled
+outcomes be laid out in time?" — it is the number of <em>orders</em> in which a given tally could have
+occurred. Multiplying it by the probability of any single such order gives the tally's probability.
+Every "probability of a specific count vector" question in this course has this shape:
+(number of arrangements) $\times$ (probability of one arrangement).</div>
+
+<div class="warn"><b>Gotcha — labeled vs unlabeled groups.</b> $\frac{n!}{n_1!\cdots n_r!}$ counts
+partitions into <em>distinguishable</em> groups (player 1, player 2, …). If the groups are interchangeable
+— "split $12$ people into $3$ teams of $4$," with no team names — you must further divide by $3!$,
+since any relabeling of the three teams gives the same split. $12!/(4!)^3 = 34{,}650$ becomes
+$34{,}650/6 = 5{,}775$. Read the problem for team names, table numbers, or player identities.</div>
+
+<div class="ex"><b>Practice 4.11.</b> In how many ways can $12$ distinct people be split into three
+labeled teams (Red, Green, Blue) of $4$ each? And into three unlabeled teams?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Labeled: $\dfrac{12!}{4!\,4!\,4!} = \dfrac{479{,}001{,}600}{13{,}824} = 34{,}650$.
+Unlabeled: divide by $3! = 6$ because the $6$ color assignments of a given split all give the same
+unlabeled split, yielding $5{,}775$.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.12.</b> A fair die is rolled $12$ times. What is the probability that
+each face appears exactly twice?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>This is Example 4.11 with $r=6$, $n=12$, all $p_i = 1/6$, all $n_i = 2$:
+$$\mathbf{P} = \frac{12!}{(2!)^6}\left(\frac16\right)^{12} = \frac{479{,}001{,}600}{64}\cdot\frac{1}{2{,}176{,}782{,}336}
+= \frac{7{,}484{,}400}{2{,}176{,}782{,}336} \approx 0.003438 .$$
+Equivalently by the uniform law: $|\Omega| = 6^{12}$ sequences, and the favorable ones are the
+arrangements of the multiset $\{1,1,2,2,3,3,4,4,5,5,6,6\}$, of which there are $12!/(2!)^6$. Perfect
+balance is rare even for a fair die — a useful antidote to the intuition that "fair" means "even."</p></div></details></div>
+
+<h3>4.7 Recitation 4: the three probability problems, fully solved</h3>
+
+<p>Recitation 4 has five problems. The two purely combinatorial ones were needed earlier and were
+solved there: <b>P4</b> (the slot derivation of the multinomial coefficient) is Example 4.9 in §4.6,
+and <b>P5</b> (multinomial probabilities) is Example 4.11 in §4.6. The remaining three — P1, P2, P3 —
+are genuine probability problems and are solved below.</p>
+
+<h4>Problem 1 — the birthday problem (rec04 P1; B&T Problem 1.50, p. 67)</h4>
+
+<div class="ex"><b>Example 4.12 (rec04 P1).</b>
+<p><b>Statement.</b> Consider $n$ people attending a party. Assume every person is equally likely to be
+born on any day of the year, independently of everyone else, and ignore leap years (nobody is born on
+February 29). What is the probability that each person has a distinct birthday?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 — sample space.</b> An outcome records the birthday of each person, so it is an ordered
+$n$-tuple $(b_1,\dots,b_n)$ with $b_j \in \{1,\dots,365\}$ the birthday of person $j$. Person $j$ has
+$365$ choices, independently of the others, so by the counting principle
+$$|\Omega| = \underbrace{365\cdot 365\cdots 365}_{n} = 365^n .$$
+By the equal-likelihood and independence assumptions all these tuples are equally likely, so the
+uniform law applies.</p>
+<p><b>Step 2 — favorable outcomes.</b> Let $A$ be the event "no two birthdays coincide," i.e. the
+tuple has $n$ distinct entries. Build such a tuple in $n$ stages: person $1$ has $365$ choices;
+person $2$ must avoid person $1$'s day, so $364$; person $3$ must avoid two days, so $363$; and in
+general person $j$ has $365-(j-1)$ choices. The counts do not depend on which days were used, so
+$$|A| = 365\cdot 364\cdot 363\cdots (365-n+1) = \frac{365!}{(365-n)!},$$
+valid for $n \le 365$; for $n &gt; 365$ we have $|A| = 0$, since $366$ people cannot have distinct days
+(the pigeonhole principle).</p>
+<p><b>Step 3 — the probability.</b> By the uniform law,
+$$P(n) \;\equiv\; \mathbf{P}(\text{no two birthdays coincide}) \;=\; \frac{365\cdot 364\cdots(365-n+1)}{365^n}
+\;=\; \prod_{i=0}^{n-1}\left(1-\frac{i}{365}\right).$$
+The product form comes from dividing the $j$-th numerator factor $365-(j-1)$ by one copy of $365$; it
+is also exactly the multiplication rule applied sequentially (each new person must miss the birthdays
+already taken).</p>
+<p><b>Step 4 — the $n=23$ crossing.</b> Evaluating exactly (compute key <code>birthday_table</code>):</p>
+<table>
+<thead><tr><th class="l">$n$</th><th>$P(n)$ = all distinct</th><th>$1-P(n)$ = some match</th></tr></thead>
+<tbody>
+<tr><td class="l">5</td><td>0.972864</td><td>0.027136</td></tr>
+<tr><td class="l">10</td><td>0.883052</td><td>0.116948</td></tr>
+<tr><td class="l">15</td><td>0.747099</td><td>0.252901</td></tr>
+<tr><td class="l">20</td><td>0.588562</td><td>0.411438</td></tr>
+<tr><td class="l">22</td><td>0.524305</td><td>0.475695</td></tr>
+<tr><td class="l"><b>23</b></td><td><b>0.492703</b></td><td><b>0.507297</b></td></tr>
+<tr><td class="l">24</td><td>0.461656</td><td>0.538344</td></tr>
+<tr><td class="l">30</td><td>0.293684</td><td>0.706316</td></tr>
+<tr><td class="l">40</td><td>0.108768</td><td>0.891232</td></tr>
+<tr><td class="l">50</td><td>0.029626</td><td>0.970374</td></tr>
+<tr><td class="l">57</td><td>0.009878</td><td>0.990122</td></tr>
+<tr><td class="l">80</td><td>0.000086</td><td>0.999914</td></tr>
+</tbody>
+</table>
+<p>At $n=22$ the collision probability is $0.475695 &lt; 1/2$; at $n=23$ it is $0.507297 &gt; 1/2$. So $23$ is
+the smallest group size for which a shared birthday is more likely than not — the remark the
+recitation solution makes without computation. The threshold $99\%$ is first exceeded at $n=57$.</p>
+<p><b>Step 5 — why so few people (the approximation).</b> Use $1-x \le e^{-x}$, exact to first order for
+small $x$:
+$$P(n) = \prod_{i=0}^{n-1}\left(1-\frac{i}{365}\right) \approx \exp\left(-\sum_{i=0}^{n-1}\frac{i}{365}\right)
+= \exp\left(-\frac{n(n-1)}{2\cdot 365}\right),$$
+using $\sum_{i=0}^{n-1} i = n(n-1)/2$. At $n=23$ this gives $0.499998$ against the exact $0.492703$.
+Setting the approximation to $1/2$ and solving,
+$n^2 \approx 2\cdot 365\cdot\ln 2$, i.e. $n \approx \sqrt{2\cdot 365\cdot \ln 2} = 22.494$ — rounding up to
+$23$. The key structural fact: what matters is the number of <em>pairs</em>, $\binom{n}{2} = n(n-1)/2$,
+which is quadratic in $n$; with $23$ people there are already $253$ pairs, each having a $1/365$
+chance of matching.</p>
+<p><b>Step 6 — the log panel (rec04 Extra Handout).</b> The handout's second panel plots $P(n)$ on a
+logarithmic axis out to $P \approx 10^{-10}$ near $n \approx 122$. Our exact computation gives
+$P(121) = 1.6372\times 10^{-10}$ and $P(122) = 1.0945\times 10^{-10}$, with $P(n)$ first dropping below
+$10^{-10}$ at $n = 123$ — consistent with the handout's curve ending around $n\approx 122$. On a log
+axis the curve is concave-decreasing because $\ln P(n) \approx -n(n-1)/730$ is quadratic in $n$.</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s4_birthday}}" alt="Top panel: probability all birthdays distinct and probability of a match versus n from 0 to 100, crossing at 0.5 near n = 23, with the crossing annotated 0.4927 and 0.5073. Bottom panel: the same distinct-probability curve on a logarithmic axis from n = 0 to 130, falling to about 1e-10 near n = 122." style="max-width:760px">
+<div class="figcap">Fig. 4.3 — The birthday curve, redrawn from the two-panel plot in the rec04 Extra Handout and the official rec04 solution. Values from <code>computes/g1_s4.py</code>; the marked crossing is $P(23) = 0.492703$, so $\mathbf{P}(\text{match}) = 0.507297$.</div>
+
+<div id="w-g1s4-birthday"></div>
+<script>
+Widget.create({
+  el: '#w-g1s4-birthday',
+  title: 'Birthday collisions: drag n',
+  note: 'Exact product P(all distinct) = (365/365)(364/365)···((365−n+1)/365), evaluated term by term — the same formula verified in computes/g1_s4.py. The dashed horizontal line is 1/2; the vertical line is the current n. Change the number of equally likely "days" to see how the threshold scales like the square root of that number.',
+  height: 330,
+  controls: [
+    { type: 'range', id: 'n', label: 'people n', min: 2, max: 80, step: 1, value: 23 },
+    { type: 'range', id: 'D', label: 'days in year D', min: 12, max: 730, step: 1, value: 365 }
+  ],
+  draw(s, canvas, out) {
+    const D = s.D, nCur = s.n;
+    function pdist(n) { let x = 1; for (let i = 0; i < n; i++) { x *= (D - i) / D; if (x <= 0) return 0; } return x; }
+    const xs = [], yd = [], yc = [];
+    for (let n = 1; n <= 80; n++) { const p = pdist(n); xs.push(n); yd.push(p); yc.push(1 - p); }
+    const P = new Plot(canvas, { xlim: [0, 80], ylim: [0, 1.02], xlabel: 'n  (number of people)',
+      ylabel: 'probability', title: 'P(all distinct) and P(at least one match)', height: 330 });
+    P.frame();
+    P.line(xs, yd, { label: 'P(all distinct)', color: 0, width: 2.4 });
+    P.line(xs, yc, { label: 'P(some match)', color: 1, width: 2.4, dash: [7, 5] });
+    P.hline(0.5, { color: '#898781' });
+    P.vline(nCur, { color: '#008300', dash: [4, 3], width: 1.6 });
+    const pc = pdist(nCur);
+    P.points([nCur, nCur], [pc, 1 - pc], { color: 5, r: 5 });
+    P.legend('right');
+    let nStar = 1; while (nStar < 4000 && pdist(nStar) >= 0.5) nStar++;
+    out.textContent =
+      'n = ' + nCur + ',  D = ' + D +
+      '   |   P(all distinct) = ' + pc.toFixed(6) +
+      '   P(at least one match) = ' + (1 - pc).toFixed(6) +
+      '   |   smallest n with match probability > 1/2:  ' + nStar +
+      '   (approx sqrt(2 D ln2) = ' + Math.sqrt(2 * D * Math.LN2).toFixed(2) + ')';
+  }
+});
+</script>
+
+<div class="note"><b>Interpretation — why the answer feels wrong.</b> Intuition silently answers a
+different question: "how many people must be present before someone shares <em>my</em> birthday?" That
+event involves only the $n-1$ pairs containing you, and even odds there need $253$ <em>other</em> people,
+i.e. a party of $254$ (solve $1-(364/365)^{n-1} &gt; 1/2$, which first holds at $n-1 = 253$). The
+birthday problem asks about <em>all</em> $\binom{n}{2}$ pairs, and pair count grows quadratically: at
+$n=23$ there are $\binom{23}{2}=253$ pairs. Whenever a problem says "some two of them," count pairs,
+not people.</div>
+
+<div class="warn"><b>Gotcha — "distinct" is a product, not a power.</b> Writing $365^n/365^n$-style
+expressions or $\binom{365}{n}/365^n$ (which forgets that the people are distinguishable and ordered)
+both fail. The clean check: the numerator must have exactly $n$ decreasing factors starting at $365$,
+matching the $n$ factors of $365$ in the denominator. Also note the answer is $0$ for $n &gt; 365$ — a
+formula that does not produce this is wrong.</div>
+
+<div class="ex"><b>Practice 4.13.</b> Five friends were each born in a uniformly random month
+(12 equally likely months, independent). What is the probability that at least two share a birth
+month? What is the smallest group size for which a shared month is more likely than not?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Replace $365$ by $12$: $P(5) = \frac{12\cdot11\cdot10\cdot9\cdot8}{12^5} = 0.381944$, so a shared
+month has probability $1 - 0.381944 = 0.618056$. Scanning $n$, the collision probability first
+exceeds $1/2$ at $n=5$ — consistent with the rule of thumb
+$n \approx \sqrt{2\cdot 12\cdot\ln 2} \approx 4.08$, rounded up. Set the widget's $D$ slider to $12$ to
+see this.</p></div></details></div>
+
+<h4>Problem 2 — eight non-attacking rooks (rec04 P2)</h4>
+
+<div class="ex"><b>Example 4.13 (rec04 P2).</b>
+<p><b>Statement.</b> Eight rooks are placed at random on a chessboard. Find the probability that all
+the rooks are safe from one another, i.e. that no row and no column contains more than one rook.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>View 1 — the official one-by-one (ordered) count.</b> Treat the rooks as distinguishable and place
+them one at a time; both numerator and denominator will then count <em>ordered</em> placements, so the
+labeling cancels.</p>
+<p><em>Denominator.</em> With no restriction, rook $1$ has $64$ squares available, rook $2$ has $63$ (the
+occupied square is gone), and so on down to $57$ for rook $8$:
+$$|\Omega| = 64\cdot 63\cdot 62\cdots 57 = \frac{64!}{56!} = 178{,}462{,}987{,}637{,}760 .$$
+(The official solution switches between the phrase "$64\cdot 63\cdots 57$" and the symbol $64!/56!$
+without comment; they are the same $8$-permutation count of §4.3.)</p>
+<p><em>Numerator.</em> Place safe rooks one at a time. Rook $1$: all $64$ squares. Placing it kills one
+entire row and one entire column, leaving an effective $7\times 7$ board, so rook $2$ has
+$49 = 7^2$ squares. Rook $3$ has $36=6^2$, rook $4$ has $25$, then $16$, $9$, $4$, and finally
+$1 = 1^2$ for rook $8$. Therefore
+$$|A| = 64\cdot 49\cdot 36\cdot 25\cdot 16\cdot 9\cdot 4\cdot 1 = (8\cdot 7\cdot 6\cdot 5\cdot 4\cdot 3\cdot 2\cdot 1)^2 = (8!)^2 = 1{,}625{,}702{,}400 .$$
+<em>(The recitation solution prints only seven factors, stopping at $4$; the eighth factor is $1$, so the
+value is unaffected, but the pattern $8^2\,7^2\cdots 1^2 = (8!)^2$ is worth completing — see the
+[source typo] note in the transcript.)</em></p>
+<p><em>Probability.</em>
+$$\mathbf{P}(\text{all safe}) = \frac{(8!)^2}{64!/56!} = \frac{1{,}625{,}702{,}400}{178{,}462{,}987{,}637{,}760}
+= \frac{560}{61{,}474{,}519} \approx 9.109465\times 10^{-6},$$
+about one chance in $109{,}776$.</p>
+<p><b>View 2 — the unordered "permutation" count (the argument the official solution omits).</b> Rooks
+are in reality indistinguishable, so count <em>sets</em> of eight squares.</p>
+<p><em>Denominator.</em> The number of $8$-element subsets of the $64$ squares is
+$\binom{64}{8} = 4{,}426{,}165{,}368$.</p>
+<p><em>Numerator.</em> A safe configuration has at most one rook per row and per column; with $8$ rooks on
+an $8\times 8$ board, every row and every column must contain exactly one. So a safe configuration is
+completely described by the function $\sigma$ sending each row $i$ to the column $\sigma(i)$ of its
+rook, and safety says $\sigma$ is injective, hence a permutation of $\{1,\dots,8\}$. Conversely every
+permutation gives a safe configuration. By §4.3 there are $8! = 40{,}320$ of them.</p>
+<p><em>Probability.</em> $\dfrac{8!}{\binom{64}{8}} = \dfrac{40{,}320}{4{,}426{,}165{,}368} \approx 9.109465\times 10^{-6}$
+— identical to View 1, as the compute script verifies exactly with rational arithmetic (key
+<code>rooks_two_views_agree</code>). The two views differ by the factor $8!$ in both numerator and
+denominator, which cancels: $\frac{(8!)^2}{64!/56!} = \frac{8!\cdot 8!}{\binom{64}{8}\cdot 8!} = \frac{8!}{\binom{64}{8}}$.</p>
+<p><b>Closed form.</b> $\mathbf{P} = \dfrac{8!}{\binom{64}{8}} = \dfrac{(8!)^2\,56!}{64!}$ — the compact answer
+the official solution never writes down.</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s4_rooks}}" alt="Two 8x8 chessboards side by side. Left: eight blue rooks, exactly one per row and per column, labeled safe with column pattern a permutation. Right: same placement but the last two rooks share a column, highlighted in red, labeled not safe." style="max-width:820px">
+<div class="figcap">Fig. 4.4 — Safe vs unsafe placements (rec04 P2). Left: a safe configuration; reading the column of each row gives a permutation of $1..8$, which is why there are exactly $8! = 40{,}320$ safe configurations. Right: two rooks in the same column, so the column pattern repeats a value and is not a permutation.</div>
+
+<div class="note"><b>Interpretation.</b> The bijection "safe placements $\leftrightarrow$ permutations"
+is the whole problem. It also explains the answer's tininess: $8!$ safe sets against
+$\binom{64}{8} \approx 4.4\times 10^9$ arbitrary sets. Note how View 1 and View 2 illustrate the §4.1
+gotcha in action — you may count ordered or unordered, but you must be consistent, and both roads
+lead to $9.109465\times 10^{-6}$.</div>
+
+<div class="warn"><b>Gotcha — "randomly placed" needs a definition.</b> Here it means the eight
+occupied squares form a uniformly random $8$-subset (equivalently, rooks dropped one at a time onto
+distinct squares). A different mechanism — say, one rook per row, each in a uniformly random column —
+gives a different model, with answer $8!/8^8 \approx 0.002403$: about $264$ times larger, because the
+row constraint is satisfied by construction.</div>
+
+<div class="ex"><b>Practice 4.14.</b> Three rooks are placed on a $4\times 4$ board, on distinct
+squares chosen uniformly at random. What is the probability that no two attack each other?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Unordered view. Denominator: $\binom{16}{3} = 560$ placements. Numerator: choose the $3$ rows used,
+$\binom{4}{3} = 4$ ways; choose the $3$ columns used, $\binom{4}{3}=4$ ways; match rows to columns by
+a bijection, $3! = 6$ ways. Total $4\cdot4\cdot6 = 96$. Hence
+$\mathbf{P} = 96/560 = 6/35 \approx 0.171429$. Note that when the number of rooks is smaller than the
+board size you must <em>choose</em> which rows and columns are used — the pure-permutation shortcut of
+Example 4.13 is the special case where all rows and columns are forced.</p></div></details></div>
+
+<h4>Problem 3 — hypergeometric probabilities (rec04 P3; B&T Problem 1.61, p. 69)</h4>
+
+<div class="ex"><b>Example 4.14 (rec04 P3).</b>
+<p><b>Statement.</b> An urn contains $n$ balls, of which exactly $m$ are red. We select $k$ of the balls
+at random, without replacement (selected balls are not returned before the next selection). What is
+the probability that $i$ of the selected balls are red?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><em>The recitation solution defers entirely to the textbook [solution gap]; the derivation below is
+the book's argument (B&amp;T §1.6, Problem 1.61) expanded step by step.</em></p>
+<p><b>Variables.</b> $n$ = total number of balls, $m$ = number of red balls ($0\le m\le n$),
+$k$ = number of balls selected ($0\le k\le n$), $i$ = number of red balls among the selected ones.
+The $n-m$ non-red balls are treated as distinguishable objects too.</p>
+<p><b>Step 1 — sample space.</b> Because the balls are drawn without replacement and we only care which
+balls end up selected, take an outcome to be the <em>set</em> of $k$ selected balls. There are
+$$|\Omega| = \binom{n}{k}$$
+such sets, and "at random" makes them equally likely, so the uniform law applies. (Sampling one at a
+time in random order produces every $k$-set with the same probability, so this unordered model is
+legitimate — an instance of the consistency rule of §4.1.)</p>
+<p><b>Step 2 — favorable outcomes.</b> Let $A_i$ be the event "exactly $i$ of the selected balls are
+red." Construct such a selection in two stages:</p>
+<ul>
+<li>Stage 1: choose which $i$ of the $m$ red balls are selected — $\binom{m}{i}$ ways.</li>
+<li>Stage 2: choose which $k-i$ of the $n-m$ non-red balls are selected — $\binom{n-m}{k-i}$ ways, a
+count independent of stage 1's outcome.</li>
+</ul>
+<p>By the counting principle, and because the two stages together determine the selected set uniquely
+(and every favorable set arises exactly once),
+$$|A_i| = \binom{m}{i}\binom{n-m}{k-i}.$$</p>
+<p><b>Step 3 — the PMF.</b> By the uniform law,
+$$\mathbf{P}(i \text{ red selected}) \;=\; \frac{\dbinom{m}{i}\dbinom{n-m}{k-i}}{\dbinom{n}{k}},$$
+valid for integers $i \ge 0$ satisfying $i \le m$, $i \le k$ and $k-i \le n-m$; for all other $i$ the
+probability is $0$ (there are not enough red or not enough non-red balls). Equivalently
+$\max(0,\,k-(n-m)) \le i \le \min(k,m)$.</p>
+<p><b>Sanity check 1 — it sums to one.</b> Summing the numerator over $i$ must reproduce
+$\binom{n}{k}$; that is Vandermonde's identity
+$\sum_i \binom{m}{i}\binom{n-m}{k-i} = \binom{n}{k}$, which is itself a counting statement: classify
+the $k$-subsets of the urn by how many red balls they contain. Verified numerically (key
+<code>vandermonde_check</code>).</p>
+<p><b>Sanity check 2 — edge cases.</b> If $m=n$ (all balls red) the formula gives probability $1$ at
+$i=k$ and $0$ elsewhere. If $k=n$ (draw everything) it gives probability $1$ at $i=m$. Both verified
+in the compute script.</p>
+<p><b>Sanity check 3 — a worked instance.</b> Take $n=20$, $m=8$, $k=5$. Then $\binom{20}{5} = 15{,}504$,
+and for $i=2$: $\binom{8}{2}\binom{12}{3} = 28\cdot 220 = 6{,}160$, so
+$$\mathbf{P}(2\text{ red}) = \frac{6{,}160}{15{,}504} = \frac{385}{969} \approx 0.397317 .$$
+The full PMF is $0.051084,\ 0.255418,\ 0.397317,\ 0.238390,\ 0.054180,\ 0.003612$ for
+$i=0,\dots,5$; it sums to $1.000000$ and has mean $2.000000$, matching the general formula
+$\mathbb{E}[i] = km/n = 5\cdot 8/20 = 2$ (a result proved in G2; here it is a numerical check).</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s4_hyper}}" alt="Bar chart of the hypergeometric PMF for n = 20 balls, m = 8 red, k = 5 drawn, with bars at i = 0 through 5 of heights 0.0511, 0.2554, 0.3973, 0.2384, 0.0542, 0.0036 and a dashed line at the mean 2." style="max-width:680px">
+<div class="figcap">Fig. 4.5 — Hypergeometric PMF for $n=20$, $m=8$, $k=5$ (rec04 P3, B&amp;T §1.6). Bar heights from <code>computes/g1_s4.py</code>, key <code>hyper_pmf</code>; the dashed line marks $km/n = 2$.</div>
+
+<div id="w-g1s4-hyper"></div>
+<script>
+Widget.create({
+  el: '#w-g1s4-hyper',
+  title: 'Hypergeometric explorer: urn of n balls, m red, draw k without replacement',
+  note: 'Stems show P(i red) = C(m,i)C(n−m,k−i)/C(n,k). Sliders are clamped so that m ≤ n and k ≤ n. The dashed vertical line is the mean km/n. Compare with the binomial C(k,i)(m/n)^i(1−m/n)^(k−i), which is the with-replacement version: the two nearly coincide when k is small relative to n.',
+  height: 320,
+  controls: [
+    { type: 'range', id: 'n', label: 'balls n', min: 4, max: 60, step: 1, value: 20 },
+    { type: 'range', id: 'm', label: 'red m', min: 0, max: 60, step: 1, value: 8 },
+    { type: 'range', id: 'k', label: 'draw k', min: 1, max: 60, step: 1, value: 5 }
+  ],
+  draw(s, canvas, out) {
+    const n = s.n, m = Math.min(s.m, n), k = Math.min(s.k, n);
+    function lgamma(z) {
+      const g = [676.5203681218851, -1259.1392167224028, 771.32342877765313,
+        -176.61502916214059, 12.507343278686905, -0.13857109526572012,
+        9.9843695780195716e-6, 1.5056327351493116e-7];
+      if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - lgamma(1 - z);
+      z -= 1; let x = 0.99999999999980993;
+      for (let i = 0; i < g.length; i++) x += g[i] / (z + i + 1);
+      const t = z + g.length - 0.5;
+      return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+    }
+    function lchoose(a, b) {
+      if (b < 0 || b > a) return -Infinity;
+      return lgamma(a + 1) - lgamma(b + 1) - lgamma(a - b + 1);
+    }
+    function hyp(i) {
+      if (i < 0 || i > m || i > k || k - i > n - m) return 0;
+      return Math.exp(lchoose(m, i) + lchoose(n - m, k - i) - lchoose(n, k));
+    }
+    const xs = [], ys = [], yb = [];
+    const q = m / n;
+    for (let i = 0; i <= k; i++) {
+      xs.push(i); ys.push(hyp(i));
+      yb.push(Math.exp(lchoose(k, i)) * Math.pow(q, i) * Math.pow(1 - q, k - i));
+    }
+    let ymax = 0; for (let i = 0; i <= k; i++) ymax = Math.max(ymax, ys[i], yb[i]);
+    const P = new Plot(canvas, { xlim: [-0.5, k + 0.5], ylim: [0, Math.max(0.05, ymax * 1.18)],
+      xlabel: 'i  (red balls drawn)', ylabel: 'probability',
+      title: 'hypergeometric PMF vs its with-replacement (binomial) cousin', height: 320 });
+    P.frame();
+    P.stem(xs, ys, { label: 'hypergeometric (no replacement)', color: 0 });
+    P.points(xs, yb, { label: 'binomial (with replacement)', color: 1, r: 4 });
+    P.vline(k * m / n, { color: '#008300', dash: [4, 3] });
+    P.legend('right');
+    let tot = 0, mean = 0;
+    for (let i = 0; i <= k; i++) { tot += ys[i]; mean += i * ys[i]; }
+    out.textContent =
+      'n = ' + n + ', m = ' + m + ', k = ' + k +
+      '   |   support: i from ' + Math.max(0, k - (n - m)) + ' to ' + Math.min(k, m) +
+      '   |   sum of PMF = ' + tot.toFixed(6) +
+      '   mean = ' + mean.toFixed(4) + '  (km/n = ' + (k * m / n).toFixed(4) + ')' +
+      '   |   P(i = ' + Math.min(k, m) + ') = ' + hyp(Math.min(k, m)).toExponential(3);
+  }
+});
+</script>
+
+<div class="note"><b>Interpretation.</b> The hypergeometric is the "sampling without replacement"
+sibling of the binomial. Each draw changes the composition of the urn, so the draws are dependent;
+yet the answer stays a ratio of binomial coefficients because the unordered sample space keeps every
+$k$-set equally likely. When $k$ is small relative to $n$ the depletion is negligible and the
+hypergeometric is close to the binomial with success probability $m/n$ — toggle the widget's $n$
+slider upward with $k$ fixed and watch the two marker sets converge.</div>
+
+<div class="warn"><b>Gotcha — the support is not all of $0..k$.</b> You cannot draw more red balls than
+exist ($i\le m$), nor more non-red than exist ($k-i \le n-m$, i.e. $i \ge k-(n-m)$). Formulas that
+ignore these bounds produce nonsense terms; the convention $\binom{a}{b}=0$ for $b &lt; 0$ or $b &gt; a$
+handles them automatically.</div>
+
+<div class="ex"><b>Practice 4.15.</b> Five cards are dealt from a well-shuffled $52$-card deck. What
+is the probability of exactly two aces?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Hypergeometric with $n=52$, $m=4$ (aces), $k=5$, $i=2$:
+$$\mathbf{P} = \frac{\binom{4}{2}\binom{48}{3}}{\binom{52}{5}} = \frac{6\cdot 17{,}296}{2{,}598{,}960}
+= \frac{103{,}776}{2{,}598{,}960} \approx 0.039930 .$$</p></div></details></div>
+
+<div class="ex"><b>Practice 4.16.</b> A batch of $20$ components contains $3$ defectives. Four are
+inspected. What is the probability of finding exactly one defective?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$n=20$, $m=3$, $k=4$, $i=1$:
+$$\mathbf{P} = \frac{\binom{3}{1}\binom{17}{3}}{\binom{20}{4}} = \frac{3\cdot 680}{4{,}845} = \frac{2{,}040}{4{,}845}
+\approx 0.421053 .$$
+For comparison, the binomial (with-replacement) approximation gives
+$\binom{4}{1}(0.15)(0.85)^3 = 0.368475$ — a $12.5\%$ relative error, because $k=4$ is not small compared
+with $n=20$.</p></div></details></div>
+
+<h3>4.8 Which counting object? A decision recipe</h3>
+
+<p>Almost every counting error in this material is a misidentification of the object being counted,
+not an arithmetic slip. Three questions settle it.</p>
+
+<div class="recipe"><b>Recipe — choosing the counting formula (L04 slides 3–8; B&amp;T §1.6).</b>
+<ol>
+<li><b>Fix the sample space first, and check symmetry.</b> Write down what a single outcome is, as a
+concrete object (a sequence of $7$ symbols; a set of $8$ squares; a partition into $4$ hands). Confirm
+that the model makes these objects equally likely. If it does not, do not count — weight instead
+(§4.5).</li>
+<li><b>Are the items split into $r$ labeled groups of prescribed sizes?</b> If yes, the object is a
+<em>partition</em>: $\dfrac{n!}{n_1!\cdots n_r!}$. If the groups are interchangeable, divide further by the
+number of ways to permute equally sized groups.</li>
+<li><b>If not — does order matter?</b> Would swapping two chosen items give a different object?
+<ul>
+<li><em>Yes, and repetition is allowed</em> $\Rightarrow$ <em>sequence</em>: $n^k$ (each of $k$ slots
+independently takes one of $n$ values).</li>
+<li><em>Yes, no repetition</em> $\Rightarrow$ <em>$k$-permutation</em>: $\dfrac{n!}{(n-k)!}$; with $k=n$ this
+is $n!$.</li>
+<li><em>No</em> $\Rightarrow$ <em>subset</em>: $\dbinom{n}{k}$; summed over all $k$ this gives $2^n$.</li>
+</ul></li>
+<li><b>Count numerator and denominator in the same currency</b> (both ordered, or both unordered), then
+divide.</li>
+<li><b>Sanity-check.</b> Is the answer in $[0,1]$? Do the counts sum correctly over a partition of the
+event space? Does an extreme case ($k=0$, $k=n$, $p=0$, $p=1$) give the obvious answer?</li>
+</ol></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g1_s4_flowchart}}" alt="Flowchart: start from counting a selection from n distinct items; first decision, are items split into r labeled groups, yes leads to partition n!/(n1!...nr!); no leads to does order matter; yes leads to repetition allowed, yes gives sequence n^k, no gives k-permutation n!/(n-k)!, with k=n giving permutation n!; order no gives subset n choose k, which sums over k to 2^n subsets." style="max-width:820px">
+<div class="figcap">Fig. 4.6 — The counting decision tree of the recipe above (L04 slides 3, 5, 8). Orange boxes are questions; blue boxes are the formula to use; green boxes are the special cases that fall out.</div>
+
+<div class="note"><b>Interpretation.</b> The three formulas $n^k$, $n!/(n-k)!$ and $\binom{n}{k}$ form a
+descending chain, each obtained from the one before by removing a freedom:
+$n^k \to n!/(n-k)!$ removes repetition, and $n!/(n-k)! \to \binom{n}{k}$ removes order (divide by
+$k!$). The multinomial coefficient sits above them all: $\binom{n}{k}$ is its $r=2$ case, and $n!$ is
+its case $n_1=\cdots=n_n=1$.</div>
+
+<div class="warn"><b>Gotcha — the same words can describe different models.</b> "Choose $3$ of $10$"
+means a subset; "line up $3$ of $10$" means a $3$-permutation; "assign each of $10$ people to one of
+$3$ rooms" is neither — it is a sequence, $3^{10}$, because the mapping direction is reversed. Always
+ask what is being chosen and what is doing the choosing.</div>
+
+<div class="ex"><b>Practice 4.17.</b> Classify each of the following and give the count. (a) Number of
+ways to seat $6$ people around $6$ numbered chairs. (b) Number of $5$-digit PIN codes. (c) Number of
+ways to pick $4$ pizza toppings from $12$. (d) Number of ways to deal $9$ distinct cards to $3$
+labeled players, $3$ cards each.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) Permutation ($k=n$, order matters, no repetition): $6! = 720$.
+(b) Sequence (order matters, repetition allowed): $10^5 = 100{,}000$.
+(c) Subset (order irrelevant, no repetition): $\binom{12}{4} = 495$.
+(d) Partition into labeled groups: $\dfrac{9!}{3!\,3!\,3!} = \dfrac{362{,}880}{216} = 1{,}680$.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.18.</b> A drawer holds $10$ distinct pairs of socks ($20$ socks). Four
+socks are drawn at random without replacement. What is the probability that they contain at least one
+matching pair?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Use the complement. The sample space is the set of $4$-subsets of the $20$ socks:
+$\binom{20}{4} = 4{,}845$. "No matching pair" means the four socks come from four different pairs, and
+one sock is chosen from each: choose the $4$ pairs, $\binom{10}{4} = 210$ ways, then one sock from
+each pair, $2^4 = 16$ ways, giving $210\cdot 16 = 3{,}360$ favorable subsets. Hence
+$$\mathbf{P}(\text{no pair}) = \frac{3{,}360}{4{,}845} \approx 0.693498, \qquad
+\mathbf{P}(\text{at least one pair}) \approx 0.306502 .$$
+This combines all three objects from the recipe: a subset (which pairs), a sequence (which sock from
+each pair), and a complement.</p></div></details></div>
+
+<div class="summary"><b>§4 cheatsheet — counting.</b>
+<table>
+<thead><tr><th class="l">Object / result</th><th class="l">Formula</th><th class="l">Trigger</th><th class="l">Source</th></tr></thead>
+<tbody>
+<tr><td class="l">Discrete uniform law</td><td class="l">$\mathbf{P}(A)=|A|/|\Omega|$</td><td class="l">"fair", "at random", "well shuffled" on a finite $\Omega$</td><td class="l">L04 s2; B&amp;T §1.2</td></tr>
+<tr><td class="l">Basic counting principle</td><td class="l">$n_1n_2\cdots n_r$</td><td class="l">selection describable as $r$ stages with fixed per-stage counts</td><td class="l">L04 s3; B&amp;T §1.6</td></tr>
+<tr><td class="l">Sequences (repetition ok)</td><td class="l">$n^k$</td><td class="l">$k$ slots, each freely one of $n$ values</td><td class="l">L04 s3</td></tr>
+<tr><td class="l">Subsets of an $n$-set</td><td class="l">$2^n$</td><td class="l">each element independently in or out</td><td class="l">L04 s3, s5</td></tr>
+<tr><td class="l">Permutations</td><td class="l">$n!$</td><td class="l">order all $n$ distinct items</td><td class="l">L04 s3</td></tr>
+<tr><td class="l">$k$-permutations</td><td class="l">$n!/(n-k)!$</td><td class="l">ordered selection of $k$ distinct items</td><td class="l">L04 s5</td></tr>
+<tr><td class="l">Combinations</td><td class="l">$\binom{n}{k}=\dfrac{n!}{k!(n-k)!}$</td><td class="l">unordered $k$-subset; positions of $k$ heads</td><td class="l">L04 s5; B&amp;T §1.6</td></tr>
+<tr><td class="l">Subset-sum identity</td><td class="l">$\sum_{k=0}^n\binom{n}{k}=2^n$</td><td class="l">classify all subsets by size</td><td class="l">L04 s5</td></tr>
+<tr><td class="l">Partitions (multinomial)</td><td class="l">$\dfrac{n!}{n_1!\cdots n_r!}$, $\sum_i n_i=n$</td><td class="l">$r$ labeled groups of prescribed sizes</td><td class="l">L04 s8; rec04 P4</td></tr>
+<tr><td class="l">Binomial probability</td><td class="l">$\binom{n}{k}p^k(1-p)^{n-k}$</td><td class="l">$k$ successes in $n$ independent trials</td><td class="l">L04 s6; B&amp;T §1.6</td></tr>
+<tr><td class="l">Conditional uniformity</td><td class="l">$\mathbf{P}(A\mid B)=|A\cap B|/|B|$ when all $\omega\in B$ share a probability</td><td class="l">"given exactly $k$ heads …"; answer free of $p$</td><td class="l">L04 s7</td></tr>
+<tr><td class="l">Multinomial probability</td><td class="l">$\dfrac{n!}{n_1!\cdots n_r!}p_1^{n_1}\cdots p_r^{n_r}$</td><td class="l">count vector over $r$ categories, i.i.d. trials</td><td class="l">rec04 P5</td></tr>
+<tr><td class="l">Hypergeometric</td><td class="l">$\dfrac{\binom{m}{i}\binom{n-m}{k-i}}{\binom{n}{k}}$</td><td class="l">sampling $k$ without replacement from $m$ red, $n-m$ other</td><td class="l">rec04 P3; B&amp;T §1.6 Prob. 1.61</td></tr>
+<tr><td class="l">Birthday probability</td><td class="l">$\dfrac{365\cdot364\cdots(365-n+1)}{365^n}$</td><td class="l">"do any two of $n$ coincide?" — count pairs, not people</td><td class="l">rec04 P1; B&amp;T §1.6 Prob. 1.50</td></tr>
+</tbody>
+</table>
+<p><b>Numbers to remember.</b> Six die rolls all different: $6!/6^6 = 5/324 \approx 0.015432$. Given $3$
+heads in $10$ tosses, first two heads: $\binom{8}{1}/\binom{10}{3} = 1/15 \approx 0.066667$, free of $p$.
+Four players each get an ace: $2197/20825 \approx 0.105498$. Birthday: $n=23$ gives collision
+probability $0.507297$; $n=57$ exceeds $99\%$. Eight safe rooks: $8!/\binom{64}{8} \approx 9.109465\times 10^{-6}$.</p>
+</div>

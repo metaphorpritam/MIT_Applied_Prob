@@ -1,0 +1,234 @@
+{
+ "die_omega_size": 16,
+ "die_B_cells": [
+  [
+   2,
+   2
+  ],
+  [
+   2,
+   3
+  ],
+  [
+   2,
+   4
+  ],
+  [
+   3,
+   2
+  ],
+  [
+   4,
+   2
+  ]
+ ],
+ "die_B_size": 5,
+ "die_P_B": "5/16",
+ "die_M1_and_B_cells": [],
+ "die_P_M1_given_B": "0",
+ "die_P_M1_uncond": "1/16",
+ "die_M2_and_B_cells": [
+  [
+   2,
+   2
+  ]
+ ],
+ "die_P_M2_given_B": "1/5",
+ "die_P_M2_uncond": "3/16",
+ "die_M3_and_B_cells": [
+  [
+   2,
+   3
+  ],
+  [
+   3,
+   2
+  ]
+ ],
+ "die_P_M3_given_B": "2/5",
+ "die_P_M3_uncond": "5/16",
+ "die_M4_and_B_cells": [
+  [
+   2,
+   4
+  ],
+  [
+   4,
+   2
+  ]
+ ],
+ "die_P_M4_given_B": "2/5",
+ "die_P_M4_uncond": "7/16",
+ "prac_max3_cells": 5,
+ "prac_max3_min1_cells": [
+  [
+   1,
+   3
+  ],
+  [
+   3,
+   1
+  ]
+ ],
+ "prac_P_min1_given_max3": "2/5",
+ "prac_min_le2_cells": 12,
+ "prac_min_le2_X1_cells": 4,
+ "prac_P_X1_given_min_le2": "1/3",
+ "alice_A": [
+  "HH",
+  "HT"
+ ],
+ "alice_B": [
+  "HH",
+  "TH"
+ ],
+ "alice_AandB": [
+  "HH"
+ ],
+ "alice_AorB": [
+  "HH",
+  "HT",
+  "TH"
+ ],
+ "alice_P_A": "1/2",
+ "alice_P_AB": "1/4",
+ "alice_P_AuB": "3/4",
+ "alice_fair_given_A": "1/2",
+ "alice_fair_given_AuB": "1/3",
+ "alice_p_unfair": 0.6,
+ "alice_unfair_given_A": 0.6,
+ "alice_unfair_given_AuB": 0.428571,
+ "alice_unfair_P_AB": 0.36,
+ "alice_unfair_P_AuB": 0.84,
+ "dice_omega": 36,
+ "dice_doubles_n": 6,
+ "dice_a_P_doubles": "1/6",
+ "dice_sum_le4_cells": [
+  [
+   1,
+   1
+  ],
+  [
+   1,
+   2
+  ],
+  [
+   1,
+   3
+  ],
+  [
+   2,
+   1
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   3,
+   1
+  ]
+ ],
+ "dice_sum_le4_n": 6,
+ "dice_sum_le4_doubles": [
+  [
+   1,
+   1
+  ],
+  [
+   2,
+   2
+  ]
+ ],
+ "dice_b_cond": "1/3",
+ "dice_atleast_one6_n": 11,
+ "dice_c_P": "11/36",
+ "dice_diff_n": 30,
+ "dice_six_and_diff_n": 10,
+ "dice_d_cond": "1/3",
+ "chess_joint_A1": 0.15,
+ "chess_joint_A2": 0.1,
+ "chess_joint_A3": 0.125,
+ "chess_P_win": 0.375,
+ "chess_post_A1": 0.4,
+ "chess_post_A2": 0.266667,
+ "chess_post_A3": 0.333333,
+ "chess_post_sum": 1.0,
+ "chess_P_lose": 0.625,
+ "chess_post_A1_given_loss": 0.56,
+ "radar_P_A": 0.05,
+ "radar_P_Ac": 0.95,
+ "radar_P_B_given_A": 0.99,
+ "radar_P_Bc_given_A": 0.01,
+ "radar_P_B_given_Ac": 0.1,
+ "radar_P_Bc_given_Ac": 0.9,
+ "radar_P_A_and_B": 0.0495,
+ "radar_P_A_and_Bc": 0.0005,
+ "radar_P_Ac_and_B": 0.095,
+ "radar_P_Ac_and_Bc": 0.855,
+ "radar_leaf_sum": 1.0,
+ "radar_P_B": 0.1445,
+ "radar_P_A_given_B": 0.342561,
+ "radar_P_A_given_B_4dp": 0.3426,
+ "radar_P_Ac_given_B": 0.657439,
+ "radar_P_A_given_Bc": 0.000584,
+ "radar_prior_odds": 0.052632,
+ "radar_LR": 9.9,
+ "radar_post_odds": 0.521053,
+ "radar_post_from_odds": 0.342561,
+ "radar_boost_factor": 6.8512,
+ "radar_prior_for_post_half": 0.091743,
+ "widget_post_prior0.01": 0.090909,
+ "widget_post_prior0.05": 0.342561,
+ "widget_post_prior0.1": 0.52381,
+ "widget_post_prior0.25": 0.767442,
+ "widget_post_prior0.5": 0.908257,
+ "widget_post_prior0.75": 0.967427,
+ "widget_post_prior0.95": 0.994712,
+ "widget_default_post": 0.342561,
+ "widget_default_PB": 0.1445,
+ "widget_monotone_increasing": true,
+ "widget_post_eq_prior_when_se_eq_fa": 0.3,
+ "monty_P_stick": "1/3",
+ "monty_P_switch": "2/3",
+ "monty_c_host_always_2": "2/3",
+ "monty_c_host_random": "1/2",
+ "monty_c_general": "(1/3)*(P(O2|P1,C1) + 1)",
+ "monty_enum_stick": "1/3",
+ "monty_enum_switch": "2/3",
+ "monty_enum_strategyC_hostrandom": "1/2",
+ "monty_enum_strategyC_host2": "2/3",
+ "monty_sim_N": 200000,
+ "monty_sim_stick_freq": 0.33372,
+ "monty_sim_switch_freq": 0.66628,
+ "monty_post_P1_given_O3_q_half": "1/3",
+ "monty_post_P2_given_O3_q_half": "2/3",
+ "monty_post_P1_given_O3_q_one": "0",
+ "monty_post_P2_given_O3_q_one": "1",
+ "monty_post_P1_given_O2_q_half": "1/3",
+ "monty_post_P3_given_O2_q_half": "2/3",
+ "prac_monty4_stick": "1/4",
+ "prac_monty4_switch": "3/8",
+ "prac_urn_allred": "5/28",
+ "prac_urn_f1": "5/8",
+ "prac_urn_f2": "4/7",
+ "prac_urn_f3": "1/2",
+ "prac_mach_joint_old": 0.018,
+ "prac_mach_joint_new": 0.004,
+ "prac_mach_P_defect": 0.022,
+ "prac_mach_post_old": 0.818182,
+ "prac_fp_joint_pos_disease": 0.00095,
+ "prac_fp_joint_pos_healthy": 0.04995,
+ "prac_fp_P_pos": 0.0509,
+ "prac_fp_post": 0.018664,
+ "prac_alice_gen_check": "B subset C and A∩B = A∩C  =>  P(A|B) >= P(A|C)",
+ "prac_mach_post_new": 0.181818,
+ "dec_die_P_B": 0.3125,
+ "dec_die_P_M2_uncond": 0.1875,
+ "dec_die_P_M4_uncond": 0.4375,
+ "dec_dice_P_doubles": 0.1667,
+ "dec_dice_P_atleast_one6": 0.3056,
+ "dec_urn_allred": 0.178571,
+ "dec_radar_P_Bc": 0.8555,
+ "dec_mach_post_new": 0.181818
+}

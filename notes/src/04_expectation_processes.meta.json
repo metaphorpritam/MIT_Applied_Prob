@@ -1,0 +1,7 @@
+{
+  "title": "G4 · Iterated Expectations & Arrival Processes",
+  "subtitle": "Conditional expectation as a random variable, random sums, and the Bernoulli & Poisson processes — MIT 6.041 Lectures 12–15, Recitations 12–15",
+  "prev": ["03_continuous_rvs.html", "G3 · Continuous Random Variables"],
+  "next": ["05_markov_chains.html", "G5 · Markov Chains"],
+  "sources": "MIT 6.041/6.431 F10 L12–L15 slide handouts, recitations 12–15 (+ official solutions), Bertsekas–Tsitsiklis chs. 4 & 6"
+}

@@ -1,0 +1,425 @@
+{
+ "unif_height_w1.0": 1.0,
+ "unif_height_w0.5": 2.0,
+ "unif_height_w0.1": 10.0,
+ "unif_height_w0.02": 50.0,
+ "delta_slab_exact_d0.5": 0.238651219,
+ "delta_slab_approx_d0.5": 0.30326533,
+ "delta_slab_relerr_d0.5": 0.270747,
+ "delta_slab_exact_d0.1": 0.057719024,
+ "delta_slab_approx_d0.1": 0.060653066,
+ "delta_slab_relerr_d0.1": 0.050833,
+ "delta_slab_exact_d0.01": 0.006035081,
+ "delta_slab_approx_d0.01": 0.006065307,
+ "delta_slab_relerr_d0.01": 0.005008,
+ "delta_slab_exact_d0.001": 0.000606227,
+ "delta_slab_approx_d0.001": 0.000606531,
+ "delta_slab_relerr_d0.001": 0.0005,
+ "p11_c": "1/2",
+ "p11_P_X_le_1": "1/4",
+ "p11_P_X_le_1_dec": 0.25,
+ "p12_val": 0.117,
+ "recP1_G_at_1": "4/3",
+ "recP1_G_at_m2": "-14/3",
+ "recP1_integral_no_gamma": "6",
+ "recP1_gamma": "1/6",
+ "recP1_gamma_dec": 0.166667,
+ "recP1_scipy_norm_check": [
+  1.0,
+  "1.11e-14"
+ ],
+ "recP1_cdf_constant": "14/3",
+ "recP1_FZ_-2": 0.0,
+ "recP1_FZ_-1": 0.555556,
+ "recP1_FZ_0": 0.777778,
+ "recP1_FZ_0.5": 0.868056,
+ "recP1_FZ_1": 1.0,
+ "recP1_FZ_frac_at_0": "7/9",
+ "recP1_FZ_frac_at_m1": "5/9",
+ "recP1_density_max_at_m2": 0.833333,
+ "recP1_density_min_at_0": 0.166667,
+ "recP1_P_m1_to_1": "4/9",
+ "recP1_P_m1_to_1_dec": 0.444444,
+ "recP1_mean_scipy": -0.875,
+ "recP1_mean_exact": "-7/8",
+ "recP1_mean_exact_dec": -0.875,
+ "recP1_mean_bracket": "-21/4",
+ "p2a_mean": "2/3",
+ "p2a_EX2": "1/2",
+ "p2a_var": "1/18",
+ "p2a_var_dec": 0.055556,
+ "p2a_scipy": [
+  0.66666667,
+  0.05555556
+ ],
+ "p2b_Eg": "1/3",
+ "unif_0_1_height": 1.0,
+ "unif_0_1_mean": [
+  0.5,
+  0.5
+ ],
+ "unif_0_1_var": [
+  0.08333333,
+  0.08333333
+ ],
+ "unif_0_1_sd": 0.288675,
+ "unif_0_10_height": 0.1,
+ "unif_0_10_mean": [
+  5.0,
+  5.0
+ ],
+ "unif_0_10_var": [
+  8.33333333,
+  8.33333333
+ ],
+ "unif_0_10_sd": 2.886751,
+ "unif_2_7_height": 0.2,
+ "unif_2_7_mean": [
+  4.5,
+  4.5
+ ],
+ "unif_2_7_var": [
+  2.08333333,
+  2.08333333
+ ],
+ "unif_2_7_sd": 1.443376,
+ "unif_-1_3_height": 0.25,
+ "unif_-1_3_mean": [
+  1.0,
+  1.0
+ ],
+ "unif_-1_3_var": [
+  1.33333333,
+  1.33333333
+ ],
+ "unif_-1_3_sd": 1.154701,
+ "unif_0_5_height": 0.2,
+ "unif_0_5_mean": [
+  2.5,
+  2.5
+ ],
+ "unif_0_5_var": [
+  2.08333333,
+  2.08333333
+ ],
+ "unif_0_5_sd": 1.443376,
+ "unif_2_7_var_frac": "25/12",
+ "unif_var_algebra": "2*((b-a)/2)^3/3/(b-a) = (b-a)^2/12",
+ "unif_var_check_symbolic": 2.08333333,
+ "unif_25_over_12": 2.083333,
+ "stair_pmf": {
+  "1": "1/6",
+  "2": "3/6",
+  "4": "2/6"
+ },
+ "stair_cdf_levels": {
+  "1": "1/6",
+  "2": "4/6",
+  "4": "6/6 = 1"
+ },
+ "stair_cdf_dec": {
+  "1": 0.166667,
+  "2": 0.666667,
+  "4": 1.0
+ },
+ "mix_slab_height": 0.5,
+ "mix_cdf_at_half_minus": "1/4",
+ "mix_cdf_at_half_plus": "3/4",
+ "mix_cdf_at_1": 1.0,
+ "mix_mean": "1/2",
+ "taxi_p_wait": "1/3",
+ "taxi_p_taxi_gt5": "1/2",
+ "taxi_p_bus_branch": "1/6",
+ "taxi_PA": "5/6",
+ "taxi_PA_dec": 0.833333,
+ "taxi_pY0": [
+  "4/5",
+  "4/5"
+ ],
+ "taxi_pY5": [
+  "1/5",
+  "1/5"
+ ],
+ "taxi_pY_sum": "1",
+ "taxi_1_minus_PA": "1/6",
+ "taxi_fZ_height": "1/5",
+ "taxi_F_const_term": "2/3",
+ "taxi_F_slope": "1/30",
+ "taxi_FX_-1": 0.0,
+ "taxi_FX_0": 0.666667,
+ "taxi_FX_1": 0.7,
+ "taxi_FX_2.5": 0.75,
+ "taxi_FX_4.999": 0.8333,
+ "taxi_FX_5": 1.0,
+ "taxi_FX_7": 1.0,
+ "taxi_FX_at_5_minus_frac": "5/6",
+ "taxi_jump_at_0": "2/3",
+ "taxi_jump_at_5": "1/6",
+ "taxi_EY": "1",
+ "taxi_EZ": "5/2",
+ "taxi_EX": [
+  "5/4",
+  "5/4"
+ ],
+ "taxi_EX_dec": 1.25,
+ "taxi_MC_mean": 1.25058,
+ "taxi_MC_F_2.5": 0.74986,
+ "taxi_MC_F_5minus": 0.83325,
+ "taxi_F_2.5_exact": 0.75,
+ "exp_lam0.5_mean": [
+  2.0,
+  2.0
+ ],
+ "exp_lam0.5_EX2": [
+  8.0,
+  8.0
+ ],
+ "exp_lam0.5_var": [
+  4.0,
+  4.0
+ ],
+ "exp_lam0.5_sd": 2.0,
+ "exp_lam1.0_mean": [
+  1.0,
+  1.0
+ ],
+ "exp_lam1.0_EX2": [
+  2.0,
+  2.0
+ ],
+ "exp_lam1.0_var": [
+  1.0,
+  1.0
+ ],
+ "exp_lam1.0_sd": 1.0,
+ "exp_lam2.0_mean": [
+  0.5,
+  0.5
+ ],
+ "exp_lam2.0_EX2": [
+  0.5,
+  0.5
+ ],
+ "exp_lam2.0_var": [
+  0.25,
+  0.25
+ ],
+ "exp_lam2.0_sd": 0.5,
+ "exp_lam0.2_mean": [
+  5.0,
+  5.0
+ ],
+ "exp_lam0.2_EX2": [
+  50.0,
+  50.0
+ ],
+ "exp_lam0.2_var": [
+  25.0,
+  25.0
+ ],
+ "exp_lam0.2_sd": 5.0,
+ "exp_bdry_x_e_1_at_100": "3.720e-42",
+ "exp_bdry_x2_e_1_at_100": "3.720e-40",
+ "exp_lam02_mean": 5.0,
+ "exp_lam02_P_gt_10": 0.135335,
+ "exp_lam02_P_gt_5": 0.367879,
+ "exp_lam02_P_le_5": 0.632121,
+ "exp_lam02_median": 3.465736,
+ "ln2": 0.693147,
+ "exp_P_within_1sd": 0.632121,
+ "exp_lam1_P_1_to_2": 0.232544,
+ "mem_lam0.4_t0_x0.5": [
+  0.81873075,
+  0.81873075
+ ],
+ "mem_lam0.4_t0_x2": [
+  0.44932896,
+  0.44932896
+ ],
+ "mem_lam0.4_t0_x5": [
+  0.13533528,
+  0.13533528
+ ],
+ "mem_lam0.4_t1_x0.5": [
+  0.81873075,
+  0.81873075
+ ],
+ "mem_lam0.4_t1_x2": [
+  0.44932896,
+  0.44932896
+ ],
+ "mem_lam0.4_t1_x5": [
+  0.13533528,
+  0.13533528
+ ],
+ "mem_lam0.4_t3_x0.5": [
+  0.81873075,
+  0.81873075
+ ],
+ "mem_lam0.4_t3_x2": [
+  0.44932896,
+  0.44932896
+ ],
+ "mem_lam0.4_t3_x5": [
+  0.13533528,
+  0.13533528
+ ],
+ "mem_lam0.4_t10_x0.5": [
+  0.81873075,
+  0.81873075
+ ],
+ "mem_lam0.4_t10_x2": [
+  0.44932896,
+  0.44932896
+ ],
+ "mem_lam0.4_t10_x5": [
+  0.13533528,
+  0.13533528
+ ],
+ "mem_max_abs_dev": 2.3314683517128287e-15,
+ "mem_residual_mean_lam0.4": 2.5,
+ "mem_bulb_P200_more": 0.818731,
+ "mem_bulb_P_fresh_200": 0.818731,
+ "mem_bulb_E_remaining": 1000,
+ "max3_pdf_integrates_to": 1.0,
+ "max3_mean_quad": 1.83333333,
+ "max3_mean_formula": 1.83333333,
+ "max3_mean_frac": "11/6",
+ "max3_mode": 1.098612,
+ "max3_F_at_1": 0.25258,
+ "min2_pdf_integrates_to": 1.0,
+ "min2_mean": [
+  0.5,
+  0.5
+ ],
+ "min2_var": 0.25,
+ "min_general_rates": [
+  0.5,
+  1.5,
+  2.0
+ ],
+ "min_general_sum": 4.0,
+ "min_general_mean": 0.25,
+ "max3_MC_mean": 1.83341,
+ "min2_MC_mean": 0.50013,
+ "min_general_MC_mean": 0.24995,
+ "p_min_machines_rate": 0.18333333,
+ "p_min_machines_mean": 5.454545,
+ "p_min_machines_frac": "60/11",
+ "gauss_integral": 2.5066282746,
+ "sqrt_2pi": 2.5066282746,
+ "gauss_integral_matches": true,
+ "one_over_sqrt_2pi": 0.398942,
+ "stdnormal_mean": 0.0,
+ "stdnormal_var": 1.0,
+ "normal_mu2_sig4_mean": [
+  2.0,
+  2
+ ],
+ "normal_mu2_sig4_var": [
+  16.0,
+  16
+ ],
+ "normal_mu2_sig4_peak": 0.099736,
+ "normal_mu-1_sig0.5_mean": [
+  -1.0,
+  -1
+ ],
+ "normal_mu-1_sig0.5_var": [
+  0.25,
+  0.25
+ ],
+ "normal_mu-1_sig0.5_peak": 0.797885,
+ "normal_mu10_sig3_mean": [
+  10.0,
+  10
+ ],
+ "normal_mu10_sig3_var": [
+  9.0,
+  9
+ ],
+ "normal_mu10_sig3_peak": 0.132981,
+ "slide7_sigma": 4.0,
+ "slide7_z": 0.25,
+ "slide7_Phi_0.25_scipy": 0.598706,
+ "slide7_Phi_0.25_table": 0.5987,
+ "slide7_direct": 0.598706,
+ "Phi_0.0": 0.5,
+ "Phi_0.25": 0.598706,
+ "Phi_0.5": 0.691462,
+ "Phi_0.71": 0.761148,
+ "Phi_1.0": 0.841345,
+ "Phi_1.5": 0.933193,
+ "Phi_1.71": 0.956367,
+ "Phi_1.96": 0.975002,
+ "Phi_2.0": 0.97725,
+ "Phi_2.5": 0.99379,
+ "Phi_3.0": 0.99865,
+ "Phi_minus_0.5": 0.308538,
+ "Phi_minus_0.5_via_symmetry": 0.308538,
+ "Phi_1.71_table": 0.9564,
+ "normal_P_gt_1sigma": 0.158655,
+ "normal_P_abs_gt_1sigma": 0.317311,
+ "normal_P_within_1sigma": 0.682689,
+ "normal_odds_abs_gt_1sigma": 3.2,
+ "normal_odds_gt_1sigma": 6.3,
+ "normal_P_gt_2sigma": 0.02275,
+ "normal_P_abs_gt_2sigma": 0.0455,
+ "normal_P_within_2sigma": 0.9545,
+ "normal_odds_abs_gt_2sigma": 22.0,
+ "normal_odds_gt_2sigma": 44.0,
+ "normal_P_gt_3sigma": 0.00135,
+ "normal_P_abs_gt_3sigma": 0.0027,
+ "normal_P_within_3sigma": 0.9973,
+ "normal_odds_abs_gt_3sigma": 370.4,
+ "normal_odds_gt_3sigma": 740.8,
+ "pnorm_z_lo": -1.0,
+ "pnorm_z_hi": 2.0,
+ "pnorm_Phi_2": 0.97725,
+ "pnorm_Phi_m1": 0.158655,
+ "pnorm_answer": 0.818595,
+ "pnorm_answer_table": 0.8185,
+ "pY_mean": 7,
+ "pY_var": 144,
+ "pY_sd": 12.0,
+ "pY_P_le_19": 0.841345,
+ "pY_z": 1.0,
+ "pY_Phi_1": 0.841345,
+ "widget_Phi_max_abs_err": "7.452e-08",
+ "widget_Phi_worst_z": -0.717,
+ "widget_Phi_spotcheck": {
+  "-2.0": [
+   0.0227501,
+   0.0227501
+  ],
+  "-0.5": [
+   0.3085375,
+   0.3085375
+  ],
+  "0.0": [
+   0.5,
+   0.5
+  ],
+  "0.25": [
+   0.5987063,
+   0.5987063
+  ],
+  "1.0": [
+   0.8413447,
+   0.8413447
+  ],
+  "1.96": [
+   0.9750022,
+   0.9750021
+  ],
+  "3.0": [
+   0.99865,
+   0.9986501
+  ]
+ },
+ "widget_default_prob": 0.682689,
+ "widget_example_mu2_sig4_a0_b6": 0.532807,
+ "widget_peak_sig1": 0.398942,
+ "widget_peak_sig0.4": 0.997356,
+ "widget_mem_check": 2.220446049250313e-16
+}

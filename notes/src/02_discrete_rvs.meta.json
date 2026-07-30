@@ -1,0 +1,7 @@
+{
+  "title": "G2 · Discrete Random Variables",
+  "subtitle": "PMFs, expectation, variance, conditioning, and joint distributions — MIT 6.041 Lectures 5–7, Recitations 5–7",
+  "prev": ["01_probability_basics.html", "G1 · Probability Fundamentals"],
+  "next": ["03_continuous_rvs.html", "G3 · Continuous Random Variables"],
+  "sources": "MIT 6.041/6.431 F10 L05–L07 slide handouts, recitations 5–7 (+ official solutions), Bertsekas–Tsitsiklis ch. 2"
+}

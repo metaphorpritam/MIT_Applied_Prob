@@ -1,0 +1,461 @@
+<h2 id="g2-s2">§2 &nbsp; Expectation</h2>
+<p class="srcref">Sources: L05 slides 6–7 (raster p02) · rec05 problems 1–4 (+ official solutions and the "Extra Handout") · B&amp;T §2.4 (printed pp. 81–88), B&amp;T Example 2.4, B&amp;T Problem 2.21 (p. 123)</p>
+
+<p>A PMF is a complete description of a random variable, and that is exactly its weakness: it is a whole table of numbers when what you often want is <em>one</em> number. Expectation is that one number. L05 slide 6 defines it in a single line and then immediately offers two readings of it — "center of gravity of the PMF" and "average in a large number of repetitions of the experiment". The first reading is a fact about the definition and is available now; the second is a theorem (the weak law of large numbers) that the course proves much later. This section takes the first reading seriously, because it explains every result that follows, including the two paradoxes at the end.</p>
+
+<p>The plan: §2.1 defines $\mathbb{E}[X]$ and solves the uniform example that L05 slide 6 leaves blank. §2.2 proves the <b>expected value rule</b> — how to average a function of $X$ without ever building the PMF of that function (rec05 P1a). §2.3 fills in the three blanks of L05 slide 7 (linearity) and, with them, the variance identities of rec05 P1b–c. §2.4 works the marksman problem (rec05 P2) end to end. §2.5 and §2.6 are the two famous traps: the <b>bus/student paradox</b> (rec05 P3), where two perfectly reasonable averages of the same bus sizes disagree, and the <b>St. Petersburg paradox</b> (rec05 P4), where the average is infinite and yet nobody would pay $\$100$ to play.</p>
+
+<h3>2.1 The definition, and the center of gravity</h3>
+
+<div class="defn"><b>Definition (expectation; L05 slide 6, B&amp;T §2.4 p. 82).</b> Let $X$ be a discrete random variable with PMF $p_X$. The <b>expected value</b> (also called the <b>expectation</b>, or the <b>mean</b>) of $X$ is
+$$\mathbb{E}[X] \;=\; \sum_x x\, p_X(x),$$
+where the sum runs over every value $x$ that $X$ can take — i.e. every $x$ with $p_X(x) &gt; 0$. Each term is a value of $X$ weighted by the probability of getting that value. Notation: $X$ is the random variable (a function on the sample space $\Omega$), $x$ is a plain number, $p_X(x) = \mathbf{P}(X = x)$ is the mass at $x$, and $\mathbb{E}[X]$ is a <em>number</em>, not a random variable — the randomness has been summed away.</div>
+
+<p>Two immediate remarks. First, if $X$ takes finitely many values the sum is finite and $\mathbb{E}[X]$ always exists. If $X$ takes countably many values the sum is an infinite series and may fail to converge; the textbook's convention (footnote, B&amp;T §2.4 p. 82) is that the expectation is <b>well-defined only when $\sum_x |x| p_X(x) &lt; \infty$</b>, and it names as its counterexample precisely the random variable "$2^k$ with probability $2^{-k}$" — the St. Petersburg payout of §2.6. Second, the weights $p_X(x)$ sum to $1$, so $\mathbb{E}[X]$ is a <em>weighted average</em> of the possible values: when $X$ takes finitely many values, $\mathbb{E}[X]$ lies between the smallest and the largest of them. (For a countably infinite range the bound can fail on the upper end — there need not <em>be</em> a largest value; the St. Petersburg payout of §2.6, whose values $2^k$ are unbounded, has $\mathbb{E}[W] = \infty$.)</p>
+
+<p><b>Why "center of gravity".</b> Put a physical point mass of size $p_X(x)$ at position $x$ on a weightless rod, for every $x$. Total mass is $\sum_x p_X(x) = 1$. Place a fulcrum at position $c$. The torque exerted by the mass at $x$ is $(x-c)\,p_X(x)$ — positive if the mass is to the right of the fulcrum, negative if to the left — and the rod balances exactly when the torques cancel:
+$$\sum_x (x - c)\,p_X(x) \;=\; 0 .$$
+Expand the sum, using $\sum_x x\,p_X(x) = \mathbb{E}[X]$ and $\sum_x c\,p_X(x) = c\sum_x p_X(x) = c\cdot 1 = c$:
+$$\sum_x x\,p_X(x) \;-\; c\sum_x p_X(x) \;=\; \mathbb{E}[X] - c \;=\; 0
+\quad\Longleftrightarrow\quad c = \mathbb{E}[X].$$
+So the balance point is unique and it is the mean. This is the content of the balance-beam figure in the text (B&amp;T §2.4 p. 83, Figure 2.7 there) and of the phrase on L05 slide 6.</p>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s2_centermass}}" alt="Top panel: a stem plot of an asymmetric PMF with masses 0.10, 0.50, 0.25, 0.15 at x = 1, 2, 3, 6, and a dashed vertical line at the mean 2.75. Bottom panel: the same masses drawn as blocks resting on a horizontal beam, with an orange triangular fulcrum placed at 2.75; a green arrow marks the left torque of minus 0.55 and a red arrow the right torque of plus 0.55." style="max-width:620px">
+<div class="figcap">Fig. 2.1 — The mean as the balance point (L05 slide 6, "center of gravity of PMF"; B&amp;T §2.4 p. 83). The PMF puts mass $0.10, 0.50, 0.25, 0.15$ at $x = 1,2,3,6$; its mean is $\mathbb{E}[X] = 1(0.10)+2(0.50)+3(0.25)+6(0.15) = 0.10+1.00+0.75+0.90 = 2.75$. Masses left of the fulcrum contribute torque $(1-2.75)(0.10)+(2-2.75)(0.50) = -0.175-0.375 = -0.55$; masses to the right contribute $(3-2.75)(0.25)+(6-2.75)(0.15) = 0.0625+0.4875 = +0.55$. The net torque is $0$, so the beam balances. Values from <code>computes/g2_s2.py</code> keys <code>cm_*</code>.</div>
+
+<div class="note"><b>Interpretation.</b> The picture explains something the formula hides: <b>the mean is pulled hard by far-away values, even improbable ones</b>. In Fig. 2.1 the single mass of only $0.15$ sitting at $x=6$ contributes torque $+0.4875$, more than the mass of $0.50$ at $x=2$ contributes in the other direction ($-0.375$). Distance is a linear multiplier in the torque, so a rare but extreme value can drag the balance point far from where most of the mass sits. That single sentence is the whole explanation of both §2.5 (size bias) and §2.6 (infinite expectation).</div>
+
+<div class="ex"><b>Example 2.1 (uniform on $\{0,1,\dots,n\}$ — L05 slide 6 leaves the right-hand side blank).</b> Let $X$ be uniform on $\{0,1,\dots,n\}$: every one of the $n+1$ values is equally likely, so
+$$p_X(k) = \frac{1}{n+1}, \qquad k = 0,1,\dots,n,$$
+and $p_X(x)=0$ otherwise. (Check of normalization: there are $n+1$ values each of mass $1/(n+1)$, and $(n+1)\cdot\frac{1}{n+1}=1$.) The slide writes
+$$\mathbb{E}[X] = 0\times\tfrac{1}{n+1} + 1\times\tfrac{1}{n+1} + \cdots + n\times\tfrac{1}{n+1} \;=\; \text{(blank on the slide)}$$
+and stops. Here is the missing right-hand side.
+
+<p><b>Step 1 — pull the common factor out.</b> Every term carries the same weight $1/(n+1)$, so by distributivity
+$$\mathbb{E}[X] \;=\; \sum_{k=0}^{n} k\cdot\frac{1}{n+1} \;=\; \frac{1}{n+1}\sum_{k=0}^{n} k .$$
+The problem is now pure arithmetic: what is $S = 0+1+2+\cdots+n$?</p>
+
+<p><b>Step 2 — the arithmetic series, written out (Gauss's pairing).</b> Write $S$ forwards and backwards and add the two rows column by column:
+$$\begin{array}{rcccccccl}
+S &amp;=&amp; 0 &amp;+&amp; 1 &amp;+&amp; \cdots &amp;+&amp; n\\
+S &amp;=&amp; n &amp;+&amp; (n-1) &amp;+&amp; \cdots &amp;+&amp; 0\\ \hline
+2S &amp;=&amp; n &amp;+&amp; n &amp;+&amp; \cdots &amp;+&amp; n
+\end{array}$$
+Each column sums to $n$, because the $k$-th column contributes $k + (n-k) = n$; and there are $n+1$ columns, one per value of $k$ from $0$ to $n$. Hence
+$$2S = (n+1)\,n \qquad\Longrightarrow\qquad S = \frac{n(n+1)}{2}.$$</p>
+
+<p><b>Step 3 — substitute.</b>
+$$\mathbb{E}[X] \;=\; \frac{1}{n+1}\cdot\frac{n(n+1)}{2} \;=\; \frac{n}{2},$$
+the factor $(n+1)$ cancelling top and bottom. So <b>$\mathbb{E}[X] = n/2$</b> — the midpoint of the range, which is what symmetry demands: the PMF is symmetric about $n/2$, and a symmetric mass distribution balances at its axis of symmetry.</p>
+
+<p><b>Step 4 — numerical checks</b> (all from <code>computes/g2_s2.py</code>, keys <code>unif_*</code>). For $n=4$: $S = 0+1+2+3+4 = 10$, and $\mathbb{E}[X] = \frac{1}{5}\cdot 10 = 2 = \frac42$. ✓ For $n=6$: $S = 21$, $\mathbb{E}[X] = \frac{21}{7} = 3 = \frac62$. ✓ For $n=10$: $S=55$, $\mathbb{E}[X]=\frac{55}{11}=5$. ✓ For $n=100$: $\mathbb{E}[X]=50$. ✓</p>
+
+<p><b>Step 5 — a warning built into the answer.</b> When $n$ is odd, say $n=1$, the mean is $\mathbb{E}[X] = 1/2$, which is <em>not</em> one of the values $X$ can take ($X \in \{0,1\}$). The mean is a balance point, not an outcome.</p>
+</div>
+
+<div class="warn"><b>Gotcha.</b> Three confusions to kill early.
+<ol>
+<li><b>The mean need not be a possible value.</b> Example 2.1 with $n=1$ gives $\mathbb{E}[X]=0.5$ for a variable that only ever equals $0$ or $1$. "The average family has 2.3 children" is not a statement about any family.</li>
+<li><b>The mean is not the most likely value.</b> In Fig. 2.1 the most likely value (the <em>mode</em>) is $x=2$ with mass $0.50$, and the <em>median</em> is also $2$ (since $p_X(1)+p_X(2)=0.60 \ge 0.5$), but $\mathbb{E}[X]=2.75$. Skewness — a long right tail — separates the three.</li>
+<li><b>$\mathbb{E}[X]$ is a number, not a random variable.</b> So $\mathbb{E}\big[\mathbb{E}[X]\big] = \mathbb{E}[X]$, and expressions like "$\mathbf{P}(\mathbb{E}[X] = 3)$" are meaningless.</li>
+</ol></div>
+
+<div class="ex"><b>Practice 2.1.</b> Let $X$ be uniform on $\{5,6,\dots,15\}$. Find $\mathbb{E}[X]$ — twice: once directly from the definition, once by writing $X = 5 + U$ with $U$ uniform on $\{0,1,\dots,10\}$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Direct.</b> There are $15-5+1 = 11$ values, each of mass $1/11$, so
+$$\mathbb{E}[X] = \frac{1}{11}\sum_{k=5}^{15} k = \frac{1}{11}\Big(\underbrace{\tfrac{15\cdot16}{2}}_{=120} - \underbrace{\tfrac{4\cdot 5}{2}}_{=10}\Big) = \frac{110}{11} = 10,$$
+using $\sum_{k=5}^{15} k = \sum_{k=0}^{15}k - \sum_{k=0}^{4}k = 120 - 10 = 110$.</p>
+<p><b>By shifting.</b> If $U$ is uniform on $\{0,\dots,10\}$ then $X = 5+U$ has exactly the values $5,\dots,15$, each with mass $1/11$ — the same PMF. Example 2.1 gives $\mathbb{E}[U] = 10/2 = 5$, and the shift rule of §2.3 gives $\mathbb{E}[X] = \mathbb{E}[U] + 5 = 5+5 = 10$. ✓ Both routes agree ($\texttt{pq\_unif\_EX} = 10$). Sanity: $10$ is the midpoint of $[5,15]$, as symmetry requires.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 2.2.</b> For the PMF of Fig. 2.1 (mass $0.10,0.50,0.25,0.15$ at $x=1,2,3,6$), compute the net torque about the fulcrum positions $c=2$ and $c=3$, and say which way the beam tips in each case.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Net torque about $c$ is $T(c) = \sum_x (x-c)p_X(x) = \mathbb{E}[X] - c = 2.75 - c$.</p>
+<p>At $c=2$: $T(2) = (1-2)(0.10)+(2-2)(0.50)+(3-2)(0.25)+(6-2)(0.15) = -0.10+0+0.25+0.60 = +0.75$, matching $2.75-2$. Positive net torque means the right side is heavier, so the beam <b>tips to the right</b> — the fulcrum is too far left.</p>
+<p>At $c=3$: $T(3) = (1-3)(0.10)+(2-3)(0.50)+(3-3)(0.25)+(6-3)(0.15) = -0.20-0.50+0+0.45 = -0.25 = 2.75-3$. Negative, so the beam <b>tips to the left</b> — the fulcrum is too far right. The balance point is strictly between $2$ and $3$, namely $2.75$ (keys <code>cm_torque_at_c2</code>, <code>cm_torque_at_c3</code>).</p>
+</div></details></div>
+
+<h3>2.2 The expected value rule for $\mathbb{E}[g(X)]$</h3>
+
+<p>Random variables get transformed: a marksman's hits become dollars, a bus size becomes a squared bus size. If $X$ is a random variable and $g$ is a function, then $Y = g(X)$ is another random variable — it assigns the number $g(X(\omega))$ to the outcome $\omega$. To average it, L05 slide 7 offers two routes and labels them bluntly:</p>
+
+<div class="thm"><b>Property (expected value rule; L05 slide 7, rec05 P1a, B&amp;T §2.4 pp. 84–85).</b> Let $X$ have PMF $p_X$ and let $Y = g(X)$. Then
+$$\underbrace{\mathbb{E}[Y] = \sum_y y\,p_Y(y)}_{\text{“hard”: needs } p_Y}
+\qquad\text{and}\qquad
+\underbrace{\mathbb{E}[g(X)] = \sum_x g(x)\,p_X(x)}_{\text{“easy”: uses only } p_X}.$$
+Both are correct and give the same number; the second never requires you to compute the PMF of $Y$.</div>
+
+<p><b>Derivation (rec05 P1a; the recitation solution says only "see the textbook pp. 84–85", so here it is in full).</b> The only input is the PMF-of-a-function formula from the PMF section: the event $\{Y = y\}$ is the union of the disjoint events $\{X = x\}$ over all $x$ that $g$ maps to $y$, so by additivity
+$$p_Y(y) \;=\; \sum_{\{x\,:\,g(x)=y\}} p_X(x). \tag{$\ast$}$$
+Now compute, one step at a time:
+$$\begin{aligned}
+\mathbb{E}[g(X)] &amp;= \mathbb{E}[Y] &amp;&amp;\text{definition of } Y\\[2pt]
+&amp;= \sum_y y\,p_Y(y) &amp;&amp;\text{definition of expectation applied to } Y\\[2pt]
+&amp;= \sum_y y \sum_{\{x\,:\,g(x)=y\}} p_X(x) &amp;&amp;\text{substitute } (\ast)\\[2pt]
+&amp;= \sum_y \ \sum_{\{x\,:\,g(x)=y\}} y\,p_X(x) &amp;&amp;y \text{ is constant inside the inner sum, so it may be pushed in}\\[2pt]
+&amp;= \sum_y \ \sum_{\{x\,:\,g(x)=y\}} g(x)\,p_X(x) &amp;&amp;\text{inside that inner sum every } x \text{ satisfies } g(x)=y\\[2pt]
+&amp;= \sum_x g(x)\,p_X(x) &amp;&amp;\text{the inner sums partition all } x\text{'s: each } x \text{ appears exactly once, in the group } y=g(x).
+\end{aligned}$$
+The last step is the crux and deserves a sentence of its own. The sets $\{x : g(x) = y\}$, as $y$ ranges over the values of $Y$, are disjoint (a function assigns one output per input) and their union is the whole set of values of $X$. So the double sum is a re-bracketing of a single sum. The terms $g(x)p_X(x)$ need not be nonnegative — Example 2.2 just below has $X$ uniform on $\{-2,\dots,2\}$, and §2.4 uses $Y = 2X-3$ — so the licence to regroup is not positivity but <em>absolute summability</em>: $\sum_x |g(x)|p_X(x) &lt; \infty$, which is exactly the standing well-definedness hypothesis stated in §2.1. (When $X$ takes finitely many values the sum is finite and the regrouping is plain associativity.) $\blacksquare$</p>
+
+<div class="ex"><b>Example 2.2 (both routes on the same variable — a numerical audit of the rule).</b> Let $X$ be uniform on $\{-2,-1,0,1,2\}$ (mass $1/5$ each) and let $g(x) = x^2$, so $Y = X^2$.
+
+<p><b>Easy route.</b> Apply $g$ to each value of $X$ and weight by $p_X$:
+$$\mathbb{E}[X^2] = 4\cdot\tfrac15 + 1\cdot\tfrac15 + 0\cdot\tfrac15 + 1\cdot\tfrac15 + 4\cdot\tfrac15 = \frac{4+1+0+1+4}{5} = \frac{10}{5} = 2 .$$</p>
+
+<p><b>Hard route.</b> First build $p_Y$ using $(\ast)$. The value $y=0$ comes only from $x=0$, so $p_Y(0)=\frac15$; the value $y=1$ comes from $x=-1$ and $x=1$, so $p_Y(1)=\frac15+\frac15=\frac25$; likewise $p_Y(4)=\frac15+\frac15=\frac25$. (Check: $\frac15+\frac25+\frac25=1$. ✓) Then
+$$\mathbb{E}[Y] = 0\cdot\tfrac15 + 1\cdot\tfrac25 + 4\cdot\tfrac25 = 0 + 0.4 + 1.6 = 2 . \ \checkmark$$
+Same answer, twice the work — and the second route required inventing a new PMF (keys <code>evr_easy</code>, <code>evr_hard</code>, <code>evr_pY</code>).</p>
+
+<p><b>And the trap.</b> $\mathbb{E}[X] = \frac{-2-1+0+1+2}{5} = 0$ by symmetry, so $g(\mathbb{E}[X]) = 0^2 = 0$, while $\mathbb{E}[g(X)] = 2$. They are not equal, and not even close.</p>
+</div>
+
+<div class="warn"><b>Gotcha (L05 slide 7, "Caution").</b> <b>In general $\mathbb{E}[g(X)] \ne g(\mathbb{E}[X])$.</b> B&amp;T Example 2.4 (B&amp;T §2.4 pp. 87–88) is the standard illustration and is worth memorizing. Alice walks $2$ miles to class at $V=5$ mph in good weather (probability $0.6$) and rides at $V=30$ mph otherwise (probability $0.4$). The travel time is $T = 2/V$, a nonlinear function of $V$. Correctly:
+$$\mathbb{E}[T] = 0.6\cdot\frac{2}{5} + 0.4\cdot\frac{2}{30} = 0.6(0.4) + 0.4(0.0666\overline{6}) = 0.24 + 0.0266\overline{6} = \frac{4}{15} \approx 0.2667\ \text{hours} = 16\ \text{minutes}.$$
+Incorrectly averaging the speed first: $\mathbb{E}[V] = 0.6(5)+0.4(30) = 3+12 = 15$ mph, then $2/\mathbb{E}[V] = 2/15 \approx 0.1333$ hours $= 8$ minutes — off by a factor of exactly two. Averaging inside a nonlinear function is not the same as averaging outside it (keys <code>alice_*</code>). The one safe case is a linear $g$, which is the subject of §2.3.</div>
+
+<div class="note"><b>Interpretation.</b> The expected value rule says something stronger than "here is a shortcut". It says that <b>a mean is a property of the mass, not of the labels</b>: to average $g(X)$ you never need to know how $g$ collapses different $x$'s onto the same $y$ — you only need to walk the values of $X$ once, carrying $g(x)$ along. The "hard" route rebuilds a whole PMF just to throw all but one number away. Two consequences worth holding on to. (i) Every moment of $X$ — $\mathbb{E}[X]$, $\mathbb{E}[X^2]$, $\operatorname{var}(X)$, and the whole of §2.3 — is a single instance of this one rule with a different $g$. (ii) The rule is the exact reason $\mathbb{E}[g(X)]$ and $g(\mathbb{E}[X])$ differ: the rule applies $g$ <em>before</em> the weighted sum, and for nonlinear $g$ the order matters, since $g$ then bends the spacing between values and so re-weights the torques of Fig. 2.1. Linear $g$ is precisely the class that preserves that spacing — which is why §2.3 exists as a separate, easy story.</div>
+
+<div class="ex"><b>Practice 2.3.</b> Let $X$ be uniform on $\{0,1,2,3\}$ and let $g(x) = 1/(x+1)$. Compute $\mathbb{E}[g(X)]$ and $g(\mathbb{E}[X])$, and say which is larger.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>By the expected value rule, with $p_X(k) = 1/4$ for $k=0,1,2,3$:
+$$\mathbb{E}\!\left[\frac{1}{X+1}\right] = \frac{1}{1}\cdot\frac14 + \frac{1}{2}\cdot\frac14 + \frac{1}{3}\cdot\frac14 + \frac{1}{4}\cdot\frac14
+= \frac14\Big(1 + \tfrac12 + \tfrac13 + \tfrac14\Big) = \frac14\cdot\frac{12+6+4+3}{12} = \frac{25}{48} \approx 0.520833 .$$
+Meanwhile $\mathbb{E}[X] = \frac{0+1+2+3}{4} = \frac32 = 1.5$, so
+$$g(\mathbb{E}[X]) = \frac{1}{1.5+1} = \frac{1}{2.5} = \frac{2}{5} = 0.4 .$$
+So $\mathbb{E}[g(X)] = 0.5208 &gt; 0.4 = g(\mathbb{E}[X])$ (keys <code>pq_recip_E</code>, <code>pq_recip_g_of_EX</code>). The gap is in this direction because $g(x)=1/(x+1)$ is convex on $x\ge 0$ — a fact that gets a name (Jensen's inequality) later; for now the point is only that the two quantities differ.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 2.4.</b> $X$ has $p_X(-1) = 0.5$, $p_X(0)=0.2$, $p_X(1)=0.3$. Let $Y = |X|$. Find $\mathbb{E}[Y]$ by both routes.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Easy:</b> $\mathbb{E}[|X|] = |-1|(0.5) + |0|(0.2) + |1|(0.3) = 0.5 + 0 + 0.3 = 0.8$.</p>
+<p><b>Hard:</b> $p_Y(0) = p_X(0) = 0.2$ and $p_Y(1) = p_X(-1)+p_X(1) = 0.5+0.3 = 0.8$ (both $x=\pm1$ map to $y=1$; add their masses by $(\ast)$). Then $\mathbb{E}[Y] = 0(0.2) + 1(0.8) = 0.8$. ✓</p>
+<p>Note $\mathbb{E}[X] = -0.5+0+0.3 = -0.2$, so $|\mathbb{E}[X]| = 0.2 \neq 0.8$: absolute value is nonlinear, so the rule of §2.3 does not apply to it.</p>
+</div></details></div>
+
+<h3>2.3 Linearity: the three blanks on L05 slide 7</h3>
+
+<p>Slide 7 poses three fill-in-the-blank identities for constants $\alpha,\beta$ and prints no answers. Each is a one-line consequence of the expected value rule, and together they are the single most-used fact in the course.</p>
+
+<div class="thm"><b>Property (L05 slide 7 — the three blanks, filled).</b> For any random variable $X$ and any constants $\alpha,\beta$:
+$$\mathbb{E}[\alpha] = \alpha, \qquad \mathbb{E}[\alpha X] = \alpha\,\mathbb{E}[X], \qquad \mathbb{E}[\alpha X + \beta] = \alpha\,\mathbb{E}[X] + \beta .$$
+</div>
+
+<p><b>Blank 1: $\mathbb{E}[\alpha] = \alpha$.</b> Here $\alpha$ means the <em>constant random variable</em> $g(X) = \alpha$ — it takes the value $\alpha$ whatever the outcome. By the expected value rule with $g(x)\equiv\alpha$,
+$$\mathbb{E}[\alpha] = \sum_x \alpha\,p_X(x) = \alpha \sum_x p_X(x) = \alpha \cdot 1 = \alpha,$$
+where the last step uses the normalization property $\sum_x p_X(x)=1$ from L05 slide 3. Interpretation: something that is never random averages to itself.</p>
+
+<p><b>Blank 2: $\mathbb{E}[\alpha X] = \alpha\mathbb{E}[X]$.</b> Take $g(x) = \alpha x$:
+$$\mathbb{E}[\alpha X] = \sum_x \alpha x\,p_X(x) = \alpha \sum_x x\,p_X(x) = \alpha\,\mathbb{E}[X],$$
+pulling the constant $\alpha$ out of the sum (distributivity) and recognizing the definition of $\mathbb{E}[X]$. Interpretation: change the units of $X$ (dollars to cents, $\alpha = 100$) and the mean changes units the same way.</p>
+
+<p><b>Blank 3: $\mathbb{E}[\alpha X + \beta] = \alpha\mathbb{E}[X] + \beta$.</b> Take $g(x) = \alpha x + \beta$ and split the sum:
+$$\mathbb{E}[\alpha X + \beta] = \sum_x (\alpha x + \beta)\,p_X(x)
+= \underbrace{\sum_x \alpha x\,p_X(x)}_{=\ \alpha\mathbb{E}[X]\ \text{by Blank 2}} + \underbrace{\sum_x \beta\,p_X(x)}_{=\ \beta\ \text{by Blank 1}}
+= \alpha\,\mathbb{E}[X] + \beta .$$
+This is exactly the derivation on B&amp;T p. 86 that rec05 P1b defers to. Note where each hypothesis is used: splitting the sum needs only additivity, but the second piece collapses to $\beta$ <em>only because the masses total $1$</em>. Numerical audit: for $X$ uniform on $\{-2,\dots,2\}$ ($\mathbb{E}[X]=0$) with $\alpha=3$, $\beta=-7$, direct summation gives $\mathbb{E}[3X-7] = -7$ and the formula gives $3(0)-7 = -7$ ✓ (keys <code>lin_direct</code>, <code>lin_formula</code>).</p>
+
+<div class="ex"><b>Example 2.3 (rec05 P1 in full — all three derivations the official solution defers to the textbook).</b> The recitation asks: (a) derive the expected value rule; (b) derive $\mathbb{E}[Y] = a\mathbb{E}[X]+b$ and $\operatorname{var}(Y) = a^2\operatorname{var}(X)$ for $Y = aX+b$; (c) derive $\operatorname{var}(X) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$. The official solution reads, in its entirety: "(a) See derivation in textbook pp. 84–85. (b) See derivation in textbook p. 86. (c) See derivation in textbook p. 87."
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a)</b> Done above, in §2.2 — the grouping argument from $p_Y(y) = \sum_{\{x:g(x)=y\}} p_X(x)$ to $\mathbb{E}[g(X)] = \sum_x g(x)p_X(x)$.</p>
+
+<p><b>(b) Mean.</b> Done just above (Blank 3), with $\alpha = a$, $\beta = b$:
+$$\mathbb{E}[aX+b] = \sum_x (ax+b)p_X(x) = a\sum_x x\,p_X(x) + b\sum_x p_X(x) = a\,\mathbb{E}[X] + b .$$</p>
+
+<p><b>(b) Variance.</b> Recall $\operatorname{var}(Z) = \mathbb{E}\big[(Z - \mathbb{E}[Z])^2\big]$ (L05 slide 8; §3 of this note develops variance properly). Put $Y = aX+b$ and use the expected value rule with $g(x) = (ax+b-\mathbb{E}[Y])^2$:
+$$\operatorname{var}(Y) = \sum_x \big(ax + b - \mathbb{E}[aX+b]\big)^2 p_X(x).$$
+Substitute $\mathbb{E}[aX+b] = a\mathbb{E}[X]+b$ from the first half, and watch the $b$'s cancel:
+$$ax + b - \big(a\mathbb{E}[X] + b\big) = ax - a\mathbb{E}[X] = a\big(x - \mathbb{E}[X]\big).$$
+Therefore
+$$\operatorname{var}(Y) = \sum_x a^2\big(x - \mathbb{E}[X]\big)^2 p_X(x) = a^2 \sum_x \big(x-\mathbb{E}[X]\big)^2 p_X(x) = a^2 \operatorname{var}(X),$$
+squaring the factor $a$ out of the bracket and then pulling the constant $a^2$ out of the sum. Two readings: an additive shift $b$ does not change spread (it moves the whole picture), and a scaling by $a$ multiplies spread by $a^2$ — hence by $|a|$ in standard-deviation units.</p>
+
+<p><b>(c) The variance identity.</b> Start from the definition and expand the square. Write $\mu = \mathbb{E}[X]$ for brevity — a fixed number, not a random quantity:
+$$\begin{aligned}
+\operatorname{var}(X) &amp;= \sum_x (x-\mu)^2 p_X(x) &amp;&amp;\text{expected value rule with } g(x)=(x-\mu)^2\\
+&amp;= \sum_x \big(x^2 - 2\mu x + \mu^2\big) p_X(x) &amp;&amp;\text{algebraic expansion of the square}\\
+&amp;= \sum_x x^2 p_X(x) \;-\; 2\mu\sum_x x\,p_X(x) \;+\; \mu^2\sum_x p_X(x) &amp;&amp;\text{split into three sums; } \mu \text{ is constant}\\
+&amp;= \mathbb{E}[X^2] \;-\; 2\mu\cdot\mu \;+\; \mu^2 \cdot 1 &amp;&amp;\text{definitions of } \mathbb{E}[X^2],\ \mathbb{E}[X],\ \text{and normalization}\\
+&amp;= \mathbb{E}[X^2] - 2\mu^2 + \mu^2 \;=\; \mathbb{E}[X^2] - \mu^2 \;=\; \mathbb{E}[X^2] - \big(\mathbb{E}[X]\big)^2 .
+\end{aligned}$$
+Rearranged, this is the form used constantly for second moments:
+$$\boxed{\ \mathbb{E}[X^2] = \operatorname{var}(X) + \big(\mathbb{E}[X]\big)^2\ }$$
+which is how rec05 P2(f) gets $\mathbb{E}[X^2]$ from two numbers already computed. Note also that since $\operatorname{var}(X)\ge 0$ (it is a sum of nonnegative terms), the identity forces $\mathbb{E}[X^2] \ge (\mathbb{E}[X])^2$ — the second moment is <em>always</em> at least the square of the mean, with equality only if $X$ is constant.</p>
+</div></details></div>
+
+<div class="recipe"><b>Recipe (computing $\mathbb{E}[g(X)]$).</b>
+<ol>
+<li><b>Is $g$ linear</b>, i.e. $g(x) = \alpha x + \beta$? Then stop thinking and write $\mathbb{E}[g(X)] = \alpha\mathbb{E}[X]+\beta$. No sum needed. (Special cases: $g(x)=x+\beta$ shifts the mean; $g(x)=\alpha x$ rescales it.)</li>
+<li><b>Otherwise, do you have $p_X$?</b> Then use the expected value rule directly: tabulate $x$, $g(x)$, $p_X(x)$, multiply across, add the column. Never build $p_Y$.</li>
+<li><b>Is $g(x)=x^2$?</b> Either sum $\sum_x x^2 p_X(x)$, or — if you already know the mean and variance — use $\mathbb{E}[X^2] = \operatorname{var}(X) + (\mathbb{E}[X])^2$.</li>
+<li><b>Only if you actually need the distribution of $Y$</b> (not just its mean) should you compute $p_Y(y) = \sum_{\{x:g(x)=y\}}p_X(x)$.</li>
+<li><b>Never</b> write $\mathbb{E}[g(X)] = g(\mathbb{E}[X])$ for nonlinear $g$. Check step 1 before you are tempted.</li>
+</ol></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s2_flowchart}}" alt="Flowchart. Top box: want the expected value of Y equals g of X. First diamond asks whether g is linear; yes leads to a green box with E[Y] = alpha E[X] + beta. No leads to a second diamond asking whether the PMF of X is available and the sum is doable; yes leads to a green box with the expected value rule, which leads down to a purple box on the second moment; no leads to a red box describing the hard route via the PMF of Y. Both branches end at a red warning box saying never write E[g(X)] = g(E[X]) unless g is linear." style="max-width:680px">
+<div class="figcap">Fig. 2.2 — Decision guide for $\mathbb{E}[g(X)]$, assembled from L05 slide 7 ("hard"/"easy"/caution) and rec05 P1a. The left column is the cheap route; the right column is the route you take only when you genuinely need $p_Y$.</div>
+
+<div class="warn"><b>Gotcha.</b> Linearity of expectation is about a linear function of <em>one</em> random variable here — that is all L05 slide 7 claims. It is <b>not</b> a licence to write $\mathbb{E}[XY] = \mathbb{E}[X]\mathbb{E}[Y]$ (false in general; true under independence — see §4.5 for independence of random variables and §4.6 for the product rule), and the far stronger fact $\mathbb{E}[X+Y] = \mathbb{E}[X]+\mathbb{E}[Y]$ <em>for arbitrary, even dependent, $X$ and $Y$</em> arrives with joint PMFs. Also note the asymmetry between mean and variance: $\mathbb{E}[aX+b] = a\mathbb{E}[X]+b$ keeps the $b$, whereas $\operatorname{var}(aX+b) = a^2\operatorname{var}(X)$ drops it and squares the $a$.</div>
+
+<div class="ex"><b>Practice 2.5.</b> A thermostat reading in Celsius has mean $\mathbb{E}[C] = 20$ and $\operatorname{var}(C) = 9$. Fahrenheit is $F = \frac95 C + 32$. Find $\mathbb{E}[F]$, $\operatorname{var}(F)$, and $\mathbb{E}[F^2]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$g$ is linear with $\alpha = 9/5 = 1.8$, $\beta = 32$, so
+$$\mathbb{E}[F] = \tfrac95(20) + 32 = 36 + 32 = 68\ ^\circ\text{F}, \qquad
+\operatorname{var}(F) = \big(\tfrac95\big)^2 (9) = \tfrac{81}{25}\cdot 9 = \tfrac{729}{25} = 29.16 .$$
+The $+32$ shifts the mean but leaves the variance alone. Then by the identity of Example 2.3(c),
+$$\mathbb{E}[F^2] = \operatorname{var}(F) + (\mathbb{E}[F])^2 = 29.16 + 68^2 = 29.16 + 4624 = 4653.16 .$$
+(Key <code>pq_temp_EF</code> $=68$.) Notice you could <em>not</em> have obtained $\mathbb{E}[F^2]$ as $(9/5)^2\mathbb{E}[C^2]$ — squaring is nonlinear, and the cross term matters.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 2.6.</b> True or false, with a one-line reason: (i) $\mathbb{E}[3X] = 3\mathbb{E}[X]$; (ii) $\mathbb{E}[X^3] = (\mathbb{E}[X])^3$; (iii) $\operatorname{var}(X+7) = \operatorname{var}(X)+7$; (iv) $\mathbb{E}[X^2] \ge (\mathbb{E}[X])^2$ always.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(i) <b>True</b> — Blank 2 of L05 slide 7, $g(x)=3x$ is linear. (ii) <b>False</b> — cubing is nonlinear; e.g. $X = \pm 1$ with probability $1/2$ each gives $\mathbb{E}[X^3] = 0 = (\mathbb{E}[X])^3$ by accident, but $X$ uniform on $\{0,2\}$ gives $\mathbb{E}[X^3] = 4$ while $(\mathbb{E}[X])^3 = 1$. (iii) <b>False</b> — $\operatorname{var}(aX+b) = a^2\operatorname{var}(X)$ with $a=1,b=7$ gives $\operatorname{var}(X)$; adding a constant shifts, never spreads. (iv) <b>True</b> — rearranging Example 2.3(c), $\mathbb{E}[X^2]-(\mathbb{E}[X])^2 = \operatorname{var}(X) \ge 0$, with equality exactly when $X$ is constant.</p>
+</div></details></div>
+
+<h3>2.4 Worked recitation problem: the marksman (rec05 P2)</h3>
+
+<div class="ex"><b>Example 2.4 (rec05 P2).</b> A marksman takes $10$ shots at a target and has probability $0.2$ of hitting the target with each shot, independently of all other shots. Let $X$ be the number of hits.
+<br>(a) Calculate and sketch the PMF of $X$.
+<br>(b) What is the probability of scoring no hits?
+<br>(c) What is the probability of scoring more hits than misses?
+<br>(d) Find the expectation and the variance of $X$.
+<br>(e) Suppose the marksman has to pay $\$3$ to enter the shooting range and he gets $\$2$ for each hit. Let $Y$ be his profit. Find the expectation and the variance of $Y$.
+<br>(f) Now assume the marksman enters for free and gets the number of dollars equal to the <em>square</em> of the number of hits. Let $Z$ be his profit. Find the expectation of $Z$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The model and the PMF.</b> Each shot is an independent trial with two outcomes, hit (probability $p=0.2$) or miss (probability $1-p=0.8$), and $X$ counts the hits in $n=10$ trials. That is exactly the binomial setup of L05 slide 5, so
+$$p_X(k) = \binom{10}{k}(0.2)^k (0.8)^{10-k}, \qquad k = 0,1,\dots,10,$$
+and $p_X(k)=0$ otherwise. Reading the formula: $(0.2)^k(0.8)^{10-k}$ is the probability of one specific sequence with $k$ hits and $10-k$ misses (multiply per-shot probabilities, by independence), and $\binom{10}{k}$ counts how many such sequences there are (choose which $k$ of the $10$ shots are hits). The numerical table (key <code>mk_pmf_*</code>; total $=1$ exactly):</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>$k$</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr>
+<tr><td>$\binom{10}{k}$</td><td>1</td><td>10</td><td>45</td><td>120</td><td>210</td><td>252</td><td>210</td><td>120</td><td>45</td><td>10</td><td>1</td></tr>
+<tr><td>$p_X(k)$</td><td>0.10737</td><td>0.26844</td><td>0.30199</td><td>0.20133</td><td>0.08808</td><td>0.02642</td><td>0.005505</td><td>0.000786</td><td>7.37e-5</td><td>4.10e-6</td><td>1.02e-7</td></tr>
+</table>
+</div>
+<p>The peak is at $k=2$, which here coincides with the mean $\mathbb{E}[X]=np=2$ computed in (d) — see Fig. 2.3, which reproduces the scatter sketch of the official solution with the numbers filled in.</p>
+
+<p><b>(b) No hits.</b> Set $k=0$: $\binom{10}{0}=1$ and $(0.2)^0 = 1$, so
+$$\mathbf{P}(\text{no hits}) = p_X(0) = (0.8)^{10} = 0.1073741824 \approx \boxed{0.1074},$$
+matching the official answer. (Directly: all ten shots must miss, and by independence the ten probabilities $0.8$ multiply.) It is worth noticing how large this is — a marksman who expects $2$ hits still comes away empty-handed about $11\%$ of the time.</p>
+
+<p><b>(c) More hits than misses.</b> With $10$ shots, hits $=k$ and misses $=10-k$, so "more hits than misses" means
+$$k &gt; 10 - k \iff 2k &gt; 10 \iff k &gt; 5 \iff k \ge 6 \quad (k \text{ is an integer}).$$
+(At $k=5$ there are five of each — a tie, not "more", so $k=5$ is excluded.) The events $\{X=k\}$ are disjoint, so by additivity we add the five masses. <em>The official solution prints only the total $0.0064$; here is the sum term by term</em> (key <code>mk_tail_terms</code>):
+$$\begin{aligned}
+\mathbf{P}(X \ge 6) &amp;= \textstyle\sum_{k=6}^{10}\binom{10}{k}(0.2)^k(0.8)^{10-k}\\
+&amp;= \underbrace{210(0.2)^6(0.8)^4}_{0.00550502} + \underbrace{120(0.2)^7(0.8)^3}_{0.00078643} + \underbrace{45(0.2)^8(0.8)^2}_{0.00007373} + \underbrace{10(0.2)^9(0.8)^1}_{0.00000410} + \underbrace{1(0.2)^{10}}_{0.00000010}\\
+&amp;= 0.0063693824 \;\approx\; \boxed{0.0064}. \ \checkmark
+\end{aligned}$$
+The first term alone is $86\%$ of the total: the tail collapses geometrically, each further hit costing a factor of roughly $\frac{0.2}{0.8}=\frac14$ times a shrinking binomial coefficient.</p>
+
+<p><b>(d) Mean and variance.</b> The official solution quotes the binomial formulas $\mathbb{E}[X]=np$ and $\operatorname{var}(X)=np(1-p)$ without derivation. Those formulas are proved cleanly once expectations of <em>sums</em> are available (write $X = X_1+\cdots+X_{10}$ with $X_i$ the indicator of a hit on shot $i$; that is §4.6 and §4.8 machinery). With only §2 tools we can still get the numbers honestly, straight from the definition (keys <code>mk_EX_terms</code>, <code>mk_EX2_terms</code>):
+$$\mathbb{E}[X] = \sum_{k=0}^{10} k\,p_X(k) = 0 + 0.268435 + 0.603980 + 0.603980 + 0.352322 + 0.132121 + 0.033030 + 0.005505 + 0.000590 + 0.000037 + 0.000001 = 2 .$$
+The sum is exactly $2$, confirming $np = 10(0.2) = \boxed{2}$. For the variance, first the second moment by the expected value rule with $g(x)=x^2$:
+$$\mathbb{E}[X^2] = \sum_{k=0}^{10} k^2 p_X(k) = 0 + 0.268435 + 1.207960 + 1.811939 + 1.409286 + 0.660603 + 0.198181 + 0.038535 + 0.004719 + 0.000332 + 0.000010 = 5.6 ,$$
+then the identity of Example 2.3(c):
+$$\operatorname{var}(X) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2 = 5.6 - 2^2 = 5.6 - 4 = \boxed{1.6},$$
+confirming $np(1-p) = 10(0.2)(0.8) = 1.6$. The standard deviation is $\sigma_X = \sqrt{1.6} = 1.2649$ hits.</p>
+
+<p><b>(e) Profit $Y = 2X - 3$.</b> Each hit pays $\$2$ and the entry fee of $\$3$ is paid regardless, so the profit is a <em>linear</em> function of $X$ — exactly the case L05 slide 7 covers. With $\alpha = 2$, $\beta = -3$:
+$$\mathbb{E}[Y] = 2\,\mathbb{E}[X] - 3 = 2(2) - 3 = 4 - 3 = \boxed{1}\ \text{dollar},$$
+$$\operatorname{var}(Y) = 2^2 \operatorname{var}(X) = 4(1.6) = \boxed{6.4}, \qquad \sigma_Y = \sqrt{6.4} = 2.5298\ \text{dollars}.$$
+Cross-check by brute force, summing $(2k-3)p_X(k)$ over all $k$: the answer is again exactly $1$ (key <code>mk_EY_direct</code>). Note the fee shifts the mean profit but leaves the variance untouched, while the $\$2$-per-hit rate multiplies the standard deviation by $2$. Interpretation: on average the marksman makes a dollar, but with $\sigma_Y \approx \$2.53$ he loses money whenever $X \le 1$, which happens with probability $p_X(0)+p_X(1) = 0.1074 + 0.2684 = 0.3758$ — better than a one-in-three chance of walking away poorer.</p>
+
+<p><b>(f) Squared profit $Z = X^2$.</b> Now $g$ is <b>not</b> linear, so $\mathbb{E}[Z] \ne (\mathbb{E}[X])^2 = 4$. Use the expected value rule; and rather than resumming, reuse the rearranged variance identity — <em>the step the official solution performs silently</em>:
+$$\mathbb{E}[Z] = \mathbb{E}[X^2] = \operatorname{var}(X) + \big(\mathbb{E}[X]\big)^2 = 1.6 + 2^2 = 1.6 + 4 = \boxed{5.6}\ \text{dollars},$$
+in agreement with the direct sum $\sum_k k^2 p_X(k) = 5.6$ computed in (d). The gap between $5.6$ and the naive $4$ is precisely $\operatorname{var}(X) = 1.6$: paying for the <em>square</em> of the hit count rewards the marksman for his variability.</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s2_marksman}}" alt="Left panel: stem plot of the binomial PMF with n = 10 and p = 0.2. Stems at k = 0 through 5 are blue and labeled 0.1074, 0.2684, 0.3020, 0.2013, 0.0881, 0.0264; an orange triangle on the axis at k = 2 marks the mean. Stems for k = 6 through 10 are red inside a pink shaded region annotated with the tail probability 0.006369. Right panel: the same five tail masses on a logarithmic scale, labeled 5.51e-03, 7.86e-04, 7.37e-05, 4.10e-06 and 1.02e-07." style="max-width:700px">
+<div class="figcap">Fig. 2.3 — PMF of the marksman's hit count, $X \sim \text{Binomial}(10,\,0.2)$ (rec05 P2a; the official solution sketches the same points as bare circles). The shaded region is the event "more hits than misses", $X \ge 6$, of probability $0.006369$ (part c); the fulcrum marks $\mathbb{E}[X]=2$ (part d). The right panel is a log-scale magnification showing that the five tail masses fall by roughly a factor of $7$–$40$ at each step.</div>
+
+<div class="note"><b>Interpretation — what parts (e) and (f) are really testing.</b> The marksman problem is built so that its last two parts contrast, and the contrast is the point. Part (e) has a <em>linear</em> payout $Y = 2X-3$, and linearity lets you answer without ever touching $p_X$ again: $\mathbb{E}[Y] = 2(2)-3 = 1$ and $\operatorname{var}(Y) = 4(1.6) = 6.4$ come straight from the two numbers of part (d). Part (f) has a <em>quadratic</em> payout $Z = X^2$, and the naive move gives $(\mathbb{E}[X])^2 = 4$ while the truth is $\mathbb{E}[X^2] = 5.6$. The discrepancy is not noise: it is exactly $\operatorname{var}(X) = 1.6$, because $\mathbb{E}[X^2] - (\mathbb{E}[X])^2$ <em>is</em> the variance. So part (f) is a disguised measurement of the spread of the marksman's hit count — a convex payout pays for variability — and it is the reason the identity $\mathbb{E}[X^2] = \operatorname{var}(X)+(\mathbb{E}[X])^2$ is worth memorizing in both directions: read left-to-right it computes a second moment, read right-to-left it computes a variance, which is how §3 will use it throughout.</div>
+
+<div class="ex"><b>Practice 2.7.</b> The same marksman now takes $20$ shots (still $p=0.2$, independent). Find $\mathbb{E}[X]$, $\operatorname{var}(X)$, $\mathbb{E}[X^2]$, and $\mathbf{P}(\text{no hits})$. Did the probability of an empty scorecard go up or down, and by what factor?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>With $n=20$, $p=0.2$: $\mathbb{E}[X] = np = 20(0.2) = 4$ and $\operatorname{var}(X) = np(1-p) = 20(0.2)(0.8) = 3.2$ (both confirmed by direct summation over the $21$ masses, keys <code>pq_mk20_EX</code>, <code>pq_mk20_var</code>). Then
+$$\mathbb{E}[X^2] = \operatorname{var}(X) + (\mathbb{E}[X])^2 = 3.2 + 16 = 19.2 .$$
+$$\mathbf{P}(\text{no hits}) = (0.8)^{20} = 0.01152922 .$$
+Compared with $(0.8)^{10} = 0.10737$ this is smaller by the factor $(0.8)^{10} = 0.1074$ — i.e. about $9.3$ times less likely, since $\mathbf{P}(\text{no hits in }20) = \big(\mathbf{P}(\text{no hits in }10)\big)^2$ by independence.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 2.8.</b> Redesign the payout in rec05 P2(e): the range now charges an entry fee $f$ and pays $\$2$ per hit. What fee makes the game fair (expected profit zero)? With that fee, what is the probability the marksman actually loses money?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Profit is $Y = 2X - f$, a linear function, so $\mathbb{E}[Y] = 2\mathbb{E}[X] - f = 2(2) - f = 4 - f$. Fairness means $\mathbb{E}[Y]=0$, i.e. $f = \$4$ — the expected number of hits times the price per hit.</p>
+<p>He loses money when $2X - 4 &lt; 0$, i.e. $X &lt; 2$, i.e. $X \in \{0,1\}$:
+$$\mathbf{P}(X \le 1) = p_X(0)+p_X(1) = 0.107374 + 0.268436 = 0.375810 .$$
+He breaks exactly even when $X=2$ (probability $0.301990$) and profits only when $X\ge 3$ (probability $1 - 0.375810 - 0.301990 = 0.322200$). So a "fair" game is one he loses more often than he wins — the mean is balanced by the big payouts in the thin right tail, exactly the torque picture of Fig. 2.1.</p>
+</div></details></div>
+
+<h3>2.5 The bus paradox: size-biased versus uniform sampling (rec05 P3)</h3>
+
+<div class="ex"><b>Example 2.5 (rec05 P3).</b> Four buses carrying $148$ job-seeking MIT students arrive at a job convention. The buses carry $40$, $33$, $25$, and $50$ students, respectively. One of the students is randomly selected; let $X$ denote the number of students that were on the bus carrying this randomly selected student. One of the $4$ bus drivers is also randomly selected; let $Y$ denote the number of students on his bus.
+<br>(a) Which of $\mathbb{E}[X]$ or $\mathbb{E}[Y]$ do you think is larger? Give your reasoning in words.
+<br>(b) Compute $\mathbb{E}[X]$ and $\mathbb{E}[Y]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The verbal answer.</b> $\mathbb{E}[X]$ is larger. The two experiments sample the <em>same four buses</em> but through different doors. Picking a driver gives each bus one ticket in the lottery. Picking a student gives each bus as many tickets as it has students — so the $50$-student bus is twice as likely to be selected as the $25$-student bus. Large buses are over-represented when you sample through the passengers, and since "large bus" is exactly the quantity being averaged, the average comes out high. The official solution puts it in one line: "we expect $\mathbb{E}[X]$ to be higher than $\mathbb{E}[Y]$ since if we choose the student, we are more likely to pick a bus with more students."</p>
+
+<p><b>(b) Step 1 — the PMF of $Y$ (driver sampled).</b> There are $4$ drivers, one per bus, chosen uniformly, so each bus is picked with probability $1/4$:
+$$p_Y(y) = \begin{cases} 1/4, &amp; y = 40,\,33,\,25,\,50,\\ 0, &amp; \text{otherwise.}\end{cases}$$
+Then
+$$\mathbb{E}[Y] = 40\cdot\tfrac14 + 33\cdot\tfrac14 + 25\cdot\tfrac14 + 50\cdot\tfrac14 = \frac{40+33+25+50}{4} = \frac{148}{4} = \boxed{37}.$$
+This is the plain average of the four bus sizes — total students divided by number of buses.</p>
+
+<p><b>Step 2 — the PMF of $X$ (student sampled). <em>The official solution states this PMF without justifying it; here is the justification.</em></b> The experiment is: pick one of the $148$ students uniformly at random, so each student has probability $1/148$. The event $\{X = x\}$ — "the chosen student's bus carried $x$ students" — consists of exactly those students who rode a bus of size $x$; there are $x$ of them (all four sizes here are distinct, so exactly one bus has size $x$). By the discrete uniform law, probability = (number of favorable outcomes)/(total outcomes):
+$$p_X(x) = \frac{\#\{\text{students on the bus of size } x\}}{148} = \frac{x}{148}, \qquad x \in \{40,33,25,50\}.$$
+Explicitly,
+$$p_X(40) = \tfrac{40}{148} = 0.2703,\quad p_X(33) = \tfrac{33}{148}=0.2230,\quad p_X(25)=\tfrac{25}{148}=0.1689,\quad p_X(50)=\tfrac{50}{148}=0.3378,$$
+and these sum to $\frac{40+33+25+50}{148} = \frac{148}{148} = 1$ ✓ (normalization is automatic because every student is on exactly one bus). A PMF proportional to the value itself is called <b>size-biased</b>.</p>
+
+<p><b>Step 3 — $\mathbb{E}[X]$, with the arithmetic the solution omits.</b>
+$$\begin{aligned}
+\mathbb{E}[X] &amp;= 40\cdot\frac{40}{148} + 33\cdot\frac{33}{148} + 25\cdot\frac{25}{148} + 50\cdot\frac{50}{148}\\
+&amp;= \frac{40^2 + 33^2 + 25^2 + 50^2}{148}
+= \frac{1600 + 1089 + 625 + 2500}{148}
+= \frac{5814}{148} = \frac{2907}{74} = 39.283784 \approx \boxed{39.28}.
+\end{aligned}$$
+(Key <code>bus_EX</code>; the recitation prints $39.28$.) So indeed
+$$\mathbb{E}[X] = 39.28 \;&gt;\; 37 = \mathbb{E}[Y], \qquad \text{gap } = \frac{169}{74} = 2.283784 .$$
+Note the structural fact hiding in the algebra: $\mathbb{E}[X] = \frac{\sum_i n_i^2}{\sum_i n_i}$ — a ratio of the second moment to the first — while $\mathbb{E}[Y] = \frac{\sum_i n_i}{4}$ is the plain mean, where $n_i$ denotes the size of bus $i$.</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s2_busbias}}" alt="Left: four rounded rectangles whose widths are proportional to bus loads of 40, 33, 25 and 50 students, each annotated with its share of the 148 students. Right, upper: stem plot of the PMF of Y, four equal masses of 0.250 at bus sizes 25, 33, 40, 50, with a dashed line at the mean 37.00. Right, lower: stem plot of the PMF of X with unequal masses 0.169, 0.223, 0.270 and 0.338 rising with bus size, and a dashed line at the mean 39.28." style="max-width:720px">
+<div class="figcap">Fig. 2.4 — Size-biased versus uniform sampling (rec05 P3). Same four buses, two sampling schemes. Sampling a driver gives the uniform PMF $p_Y \equiv 1/4$ with mean $37$; sampling a student gives $p_X(x) = x/148$, which tilts mass toward the big buses and pushes the mean up to $39.28$. Numbers from <code>computes/g2_s2.py</code> keys <code>bus_*</code>.</div>
+
+<div class="note"><b>Interpretation — why the sampled-bus mean must exceed the driver-sampled mean.</b> The gap is not an accident of these four numbers; it is an identity. Write $n_1,\dots,n_4$ for the bus sizes and let $Y$ be a uniformly chosen one of them. Then
+$$\mathbb{E}[X] = \frac{\sum_i n_i^2}{\sum_i n_i} = \frac{\frac14\sum_i n_i^2}{\frac14\sum_i n_i} = \frac{\mathbb{E}[Y^2]}{\mathbb{E}[Y]}
+= \frac{\operatorname{var}(Y) + (\mathbb{E}[Y])^2}{\mathbb{E}[Y]} = \mathbb{E}[Y] + \frac{\operatorname{var}(Y)}{\mathbb{E}[Y]},$$
+using the identity $\mathbb{E}[Y^2] = \operatorname{var}(Y) + (\mathbb{E}[Y])^2$ from Example 2.3(c). Numerically, $\mathbb{E}[Y^2] = \frac{5814}{4} = 1453.5$, so $\operatorname{var}(Y) = 1453.5 - 37^2 = 1453.5 - 1369 = 84.5$, and
+$$\mathbb{E}[Y] + \frac{\operatorname{var}(Y)}{\mathbb{E}[Y]} = 37 + \frac{84.5}{37} = 37 + 2.283784 = 39.283784 = \mathbb{E}[X]. \ \checkmark$$
+Since $\operatorname{var}(Y)\ge 0$ and $\mathbb{E}[Y] &gt; 0$, we get $\mathbb{E}[X] \ge \mathbb{E}[Y]$ <b>always</b>, with equality if and only if all buses are the same size ($\operatorname{var}(Y)=0$; check: four buses of $37$ give $\mathbb{E}[X] = \frac{4\cdot 37^2}{148} = 37$, key <code>bus_equal_EX</code>). The <em>excess is exactly the variance-to-mean ratio</em>: the more unequal the bus loads, the worse the bias.</div>
+
+<div class="warn"><b>Gotcha — this is everywhere, and it is usually invisible.</b> The same arithmetic explains a long list of "paradoxes", all of which are the same computation:
+<ul>
+<li><b>Class sizes.</b> A university advertises an average class size of $37$ (that is $\mathbb{E}[Y]$, averaging over classes). Survey <em>students</em> and the average class they sit in is $39.28$ — nobody lied.</li>
+<li><b>Waiting for a bus.</b> Arrive at random and you are more likely to land inside a long gap between buses than a short one, so your average wait exceeds half the average headway.</li>
+<li><b>"Your friends have more friends than you do."</b> Sampling a person through a friendship link is sampling proportional to degree.</li>
+</ul>
+The error to avoid: <b>quoting a mean without saying what was sampled uniformly</b>. Both $37$ and $39.28$ are correct means of the same four numbers $\{40,33,25,50\}$; they answer different questions. Note also that adding an <em>empty</em> bus changes $\mathbb{E}[Y]$ (to $148/5 = 29.6$) but leaves $\mathbb{E}[X]$ at $39.28$ — no student is ever sampled from it (key <code>bus_alt_EX</code>).</div>
+
+<div class="ex"><b>Practice 2.9.</b> Three buses carry $10$, $20$, and $60$ students. Compute $\mathbb{E}[Y]$ (driver sampled) and $\mathbb{E}[X]$ (student sampled), and verify the identity $\mathbb{E}[X] = \mathbb{E}[Y] + \operatorname{var}(Y)/\mathbb{E}[Y]$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Total students $= 10+20+60 = 90$; three buses.
+$$\mathbb{E}[Y] = \frac{10+20+60}{3} = \frac{90}{3} = 30 .$$
+$$\mathbb{E}[X] = \frac{10^2+20^2+60^2}{90} = \frac{100+400+3600}{90} = \frac{4100}{90} = \frac{410}{9} = 45.5556 .$$
+Check the identity: $\mathbb{E}[Y^2] = \frac{4100}{3} = 1366.667$, so $\operatorname{var}(Y) = 1366.667 - 30^2 = 466.667$, and
+$$\mathbb{E}[Y] + \frac{\operatorname{var}(Y)}{\mathbb{E}[Y]} = 30 + \frac{466.667}{30} = 30 + 15.5556 = 45.5556 . \ \checkmark$$
+(Keys <code>pq_bus_EY</code>, <code>pq_bus_EX</code>.) The bias is far worse here ($+51.9\%$) than in rec05 P3 ($+6.2\%$) because the loads are far more unequal.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 2.10.</b> Suppose all you are told is that $\mathbb{E}[Y] = 37$ and $\mathbb{E}[X] = 39.28$ for some collection of buses. What can you deduce about the spread of the bus sizes?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Rearranging the identity, $\operatorname{var}(Y) = \mathbb{E}[Y]\big(\mathbb{E}[X]-\mathbb{E}[Y]\big) = 37 \times 2.2838 = 84.5$ (the gap must be carried unrounded: $\mathbb{E}[X]-\mathbb{E}[Y] = \frac{169}{74} = 2.283784$, and $37\times\frac{169}{74} = \frac{169}{2} = 84.5$; the rounded $37\times 2.28 = 84.36$ is off by $0.14$), so the standard deviation of the bus sizes is $\sqrt{84.5} = 9.19$ students. The two means <em>determine</em> the variance of the sizes — the excess of the size-biased mean over the plain mean is a direct readout of dispersion. (Cross-check with the actual sizes $\{40,33,25,50\}$: their variance is $84.5$, key <code>bus_varY</code>. ✓)</p>
+</div></details></div>
+
+<h3>2.6 The St. Petersburg paradox: infinite expectation (rec05 P4)</h3>
+
+<div class="ex"><b>Example 2.6 (rec05 P4 = B&amp;T Problem 2.21, p. 123).</b> You toss independently a fair coin and count the number of tosses until the first tail appears. If this number is $n$, you receive $2^n$ dollars. What is the expected amount that you will receive? How much would you be willing to pay to play this game?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 — the PMF of the toss count. <em>(The official solution writes the sum down directly; this is the missing derivation.)</em></b> Let $N$ be the toss on which the first tail appears. The event $\{N = k\}$ is one specific sequence: heads on tosses $1,\dots,k-1$, then a tail on toss $k$. The tosses are independent and fair, so multiply the per-toss probabilities:
+$$\mathbf{P}(N = k) = \underbrace{\tfrac12 \cdot \tfrac12 \cdots \tfrac12}_{k-1 \text{ heads}} \cdot \underbrace{\tfrac12}_{\text{one tail}} = \Big(\frac12\Big)^{k-1}\cdot\frac12 = \Big(\frac12\Big)^{k} = 2^{-k}, \qquad k = 1,2,\dots$$
+This is the geometric PMF of L05 slide 3 with $p = 1/2$ (with "success" $=$ tail). Sanity check on normalization, using the geometric series $\sum_{k\ge1} r^k = \frac{r}{1-r}$ with $r=\frac12$:
+$$\sum_{k=1}^{\infty} 2^{-k} = \frac{1/2}{1 - 1/2} = 1 . \ \checkmark$$
+The payout is the random variable $W = 2^{N}$, so $W$ takes the value $2^k$ with probability $2^{-k}$: $\$2$ with probability $\tfrac12$, $\$4$ with probability $\tfrac14$, $\$8$ with probability $\tfrac18$, and so on.</p>
+
+<p><b>Step 2 — the expectation.</b> By the expected value rule with $g(n) = 2^n$ (§2.2), or equivalently by the definition applied to $W$:
+$$\mathbb{E}[W] = \sum_{k=1}^{\infty} 2^k\,\mathbf{P}(N=k) = \sum_{k=1}^{\infty} 2^k \cdot 2^{-k} = \sum_{k=1}^{\infty} 1 = 1 + 1 + 1 + \cdots = \boxed{\infty}.$$
+Every single term equals exactly $\$1$: doubling the prize precisely offsets halving the probability, so no term ever decays and the series diverges. The partial sums are $\sum_{k=1}^{m} 1 = m$ — after accounting for the first $m$ possible stopping tosses you have accumulated exactly $\$m$ of expected payout, and this grows without bound (keys <code>sp_partial_m*</code>).</p>
+
+<p><b>Step 3 — how much would you pay?</b> The official solution's answer: "if you are faced with the choice of playing for a given fee $f$ or not playing at all, and your objective is to maximize your expected net gain, you would be willing to pay <em>any</em> value of $f$" — because $\mathbb{E}[W - f] = \infty - f = \infty$ for every finite $f$. "However, this is in strong disagreement with the behavior of individuals. In fact experiments have shown that most people are willing to pay only about $\$20$ to $\$30$ to play the game. The discrepancy is due to a presumption that the amount one is willing to pay is determined by the expected gain. However, expected gain does not take into account a person's attitude towards risk taking."</p>
+
+<p><b>Step 4 — what the infinity actually means (an honest reading).</b> Three separate observations, all computable:</p>
+<ul>
+<li><b>Typical payouts are tiny.</b> $\mathbf{P}(W = 2) = \tfrac12$, $\mathbf{P}(W \le 4) = \tfrac34 = 0.75$, $\mathbf{P}(W\le 8) = \tfrac78 = 0.875$, $\mathbf{P}(W \le 16) = \tfrac{15}{16} = 0.9375$. The <em>median</em> payout is $\$2$. Paying the "reasonable" $\$20$ fee, you lose money on $93.75\%$ of plays (keys <code>sp_P_payout_le_2pow*</code>).</li>
+<li><b>The infinity lives entirely in a vanishing tail.</b> $\mathbf{P}(W \ge 1024) = \mathbf{P}(N \ge 10) = 2^{-9} = 0.00195$. Those rare plays carry all the expectation — the torque picture of Fig. 2.1 taken to its limit, with mass going to zero exactly as fast as distance goes to infinity.</li>
+<li><b>Sample averages do not settle down.</b> The recitation's Extra Handout shows histograms of simulated play: "$20$ simulations, observed average $=\$19.20$" and "$200$ simulations, observed average $=\$11.16$" — the larger experiment produced the <em>smaller</em> average, which cannot happen systematically for a variable with a finite mean. Our own simulation (seed $6041$, key <code>sp_sim_*</code>) gives averages $\$7.00$ ($20$ plays), $\$11.98$ ($200$), $\$274.95$ ($2000$), $\$32.60$ ($20{,}000$), $\$16.25$ ($200{,}000$): no convergence, just occasional enormous jumps whenever a long head-run occurs. The law of large numbers does not apply, because it requires a finite mean.</li>
+<li><b>The bank is not infinite.</b> No counterparty can pay $2^{100}$ dollars. Cap the payout and the expectation becomes small and finite — see the derivation below and the widget.</li>
+</ul>
+
+<p><b>Step 5 — the truncated game (the fix, derived).</b> Suppose the house can afford at most $m$ doublings, i.e. it pays $\min(2^N, 2^m)$: you get $2^N$ if the first tail comes on toss $N \le m$, and the cap $2^m$ if the coin produces $m$ heads in a row. Split the expectation over the two cases:
+$$\mathbb{E}\big[2^{\min(N,m)}\big] = \underbrace{\sum_{k=1}^{m} 2^k\,2^{-k}}_{\text{game ends by toss } m} + \underbrace{2^m\,\mathbf{P}(N &gt; m)}_{\text{cap paid}} .$$
+The first sum has $m$ terms each equal to $1$, so it equals $m$. For the second, $\{N &gt; m\}$ means the first $m$ tosses were all heads, which has probability $(1/2)^m = 2^{-m}$, so the term is $2^m \cdot 2^{-m} = 1$. Therefore
+$$\boxed{\ \mathbb{E}\big[\text{capped payout}\big] = m + 1\ }$$
+— <b>exactly one dollar per additional doubling the house can cover</b>. (If instead the house simply forfeits and pays $\$0$ when the run exceeds $m$, the same split gives $m + 0 = m$.) Numbers: a house able to pay $2^{10} = \$1{,}024$ has a game worth $\$11$; $2^{20} = \$1{,}048{,}576$ makes it worth $\$21$; $2^{30} \approx \$1.07$ billion makes it worth $\$31$ (keys <code>sp_cap_m10</code>, <code>sp_cap_m20</code>, <code>sp_cap_m30</code>). The experimentally observed willingness to pay of $\$20$–$\$30$ corresponds to believing your counterparty is good for somewhere between a million and a billion dollars — which is a perfectly rational belief.</p>
+</div></details></div>
+
+<img class="fig" src="data:image/png;base64,{{IMG:g2_s2_petersburg}}" alt="Left panel: twelve blue bars all of height 1 dollar, one per value of k, with an orange line rising linearly through the points 1 through 12 showing the partial sums. Right panel: four running-average curves from simulated play on log-log axes, each drifting upward with sudden large jumps and never flattening out." style="max-width:720px">
+<div class="figcap">Fig. 2.5 — Why the St. Petersburg expectation diverges, and what that looks like in data (rec05 P4 and Extra Handout). Left: each possible stopping toss $k$ contributes $2^k \cdot 2^{-k} = \$1$ to the expectation, so the partial sums grow linearly and never converge. Right: running average payout for four independent simulated sequences of $20{,}000$ plays (seed $6041$, log–log axes). Each vertical jump is a single lucky play; between jumps the average decays like $1/n$. Compare the handout's two runs, which averaged $\$19.20$ over $20$ plays and $\$11.16$ over $200$.</div>
+
+<div id="w-g2s2-petersburg"></div>
+<script>
+Widget.create({ el: '#w-g2s2-petersburg', height: 320,
+  title: 'St. Petersburg with a bankroll cap: what is the game actually worth?',
+  note: 'The house can cover at most m doublings, i.e. a maximum payout of 2^m dollars. ' +
+        'Cap rule (house pays the cap 2^m if the coin gives m heads in a row): ' +
+        'E = (sum over k from 1 to m of 2^k·2^-k) + 2^m·2^-m = m + 1. ' +
+        'Forfeit rule (house pays 0 on that event): E = m. ' +
+        'Derived in §2.6 Step 5 and cross-checked exactly in computes/g2_s2.py keys sp_cap_m* ' +
+        '(m=10 gives USD 11, m=20 gives USD 21, m=30 gives USD 31). The uncapped game has E = infinity.',
+  controls: [
+    {type:'range', id:'m', label:'m = maximum number of doublings the house can cover', min:1, max:40, step:1, value:10}
+  ],
+  draw(s, canvas, out) {
+    const M = 40;
+    const ms = [], cap = [], forf = [];
+    for (let m = 1; m <= M; m++) { ms.push(m); cap.push(m + 1); forf.push(m); }
+    const P = new Plot(canvas, { xlim:[0, M + 1], ylim:[0, M + 3], height:320,
+      xlabel:'m = doublings the house can cover  (max payout $2^m)',
+      ylabel:'expected payout, dollars',
+      xticks:[0,5,10,15,20,25,30,35,40] });
+    P.frame();
+    P.line(ms, cap, {label:'cap rule:  E = m + 1', color:0});
+    P.line(ms, forf, {label:'forfeit rule:  E = m', color:1, dash:[5,4]});
+    P.vline(s.m, {color:'#c3c2b7'});
+    P.points([s.m], [s.m + 1], {color:0, r:5.5});
+    P.points([s.m], [s.m], {color:1, r:5.5});
+    P.legend('left');
+    const maxpay = Math.pow(2, s.m);
+    const phit = Math.pow(2, -s.m);
+    out.textContent =
+      'm = ' + s.m + '   max payout = USD ' + maxpay.toLocaleString('en-US') +
+      '   E[payout | cap] = USD ' + (s.m + 1) +
+      '   (forfeit rule: USD ' + s.m + ')' +
+      '   P(cap is reached) = 2^-' + s.m + ' = ' + phit.toExponential(3) +
+      '   |  median payout = USD 2 regardless of m';
+  }});
+</script>
+
+<div class="warn"><b>Gotcha — infinite expectation does not mean large typical winnings.</b> The mean is a torque balance, not a forecast. Here the balance point runs off to infinity because mass $2^{-k}$ sits at distance $2^k$, yet the outcome you will actually see is small: $\$2$ half the time, at most $\$16$ with probability $0.9375$. Three practical corollaries:
+<ol>
+<li><b>Never quote a mean without a spread</b> (or a quantile). "Expected payout $=\infty$" and "median payout $=\$2$" describe the same game.</li>
+<li><b>Check that the mean exists</b> before using it. B&amp;T §2.4 (footnote p. 82) requires $\sum_x |x|p_X(x) &lt; \infty$, and offers this exact variable — value $2^k$ with probability $2^{-k}$ — as its counterexample. Averages of samples from such a variable do not converge (Fig. 2.5, right).</li>
+<li><b>Maximizing expected money is not the same as rational choice.</b> The recitation's own conclusion: "expected gain does not take into account a person's attitude towards risk taking." Replace dollars by utility (e.g. $\log$ of wealth) and the expectation becomes finite; or, more prosaically, cap the bankroll and the game is worth $m+1$ dollars.</li>
+</ol></div>
+
+<div class="ex"><b>Practice 2.11.</b> Same game, but the coin is biased with $\mathbf{P}(\text{tail}) = 3/4$ on each toss (so the run of heads ends sooner). Is the expected payout still infinite? Compute it.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Now $\mathbf{P}(N=k) = (1/4)^{k-1}(3/4)$ — $k-1$ heads, each of probability $1/4$, then a tail of probability $3/4$. The payout is still $2^k$, so
+$$\mathbb{E}[W] = \sum_{k=1}^{\infty} 2^k \Big(\frac14\Big)^{k-1}\frac34
+= \frac34\sum_{k=1}^{\infty} 2^k \Big(\frac14\Big)^{k-1}
+= \frac34 \cdot 2 \sum_{j=0}^{\infty} \Big(\frac{2}{4}\Big)^{j}
+= \frac32 \cdot \frac{1}{1 - \frac12} = \frac32 \cdot 2 = 3 ,$$
+substituting $j = k-1$ so that $2^k(1/4)^{k-1} = 2\cdot(2/4)^{j} = 2(1/2)^j$, and summing the geometric series with ratio $1/2 &lt; 1$. So the expectation is <b>finite: $\$3$</b> (verified numerically, key <code>pq_sp_variant_E</code> $=3.000000$). The divergence in the original game was a knife's edge: it needs the payout to double exactly as fast as the probability halves. Any faster decay of the probability (ratio $2(1-q) &lt; 1$, i.e. $q &gt; 1/2$) makes the series converge.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 2.12.</b> A casino offers the fair-coin St. Petersburg game but can pay at most $\$1{,}048{,}576 = 2^{20}$. It charges $\$25$ to play. Is the game favorable to the player? What is the probability the cap is actually reached?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>With $m = 20$ the capped expectation is $\mathbb{E}[\text{payout}] = m+1 = \$21$ (Step 5). The expected net gain is $21 - 25 = -\$4$ per play, so the game is <b>unfavorable</b> — despite the uncapped version having infinite expectation. The cap is reached when the first $20$ tosses are all heads, with probability $2^{-20} = 9.537\times 10^{-7}$, about one play in a million (keys <code>sp_cap_m20</code>, <code>sp_P_hit_cap_m20</code>). Note how little it takes to flip the verdict: at a $\$20$ fee the game would be favorable by $\$1$ per play, and the player would still lose on $93.75\%$ of plays.</p>
+</div></details></div>
+
+<div class="summary"><b>§2 cheatsheet.</b>
+<ul>
+<li><b>Definition</b> (L05 slide 6): $\mathbb{E}[X] = \sum_x x\,p_X(x)$ — a weighted average, and the <b>balance point</b> of the PMF: $\sum_x (x - \mathbb{E}[X])p_X(x) = 0$. Well-defined only when $\sum_x|x|p_X(x) &lt; \infty$ (B&amp;T §2.4 footnote p. 82).</li>
+<li><b>Uniform on $\{0,\dots,n\}$</b>: $\mathbb{E}[X] = \frac{1}{n+1}\cdot\frac{n(n+1)}{2} = n/2$ (slide 6 blank, filled).</li>
+<li><b>Expected value rule</b> (slide 7, rec05 P1a): $\mathbb{E}[g(X)] = \sum_x g(x)p_X(x)$ — never build $p_Y$ just to get a mean.</li>
+<li><b>Linearity</b> (slide 7 blanks): $\mathbb{E}[\alpha]=\alpha$; $\mathbb{E}[\alpha X] = \alpha\mathbb{E}[X]$; $\mathbb{E}[\alpha X+\beta] = \alpha\mathbb{E}[X]+\beta$. And $\operatorname{var}(\alpha X+\beta) = \alpha^2\operatorname{var}(X)$.</li>
+<li><b>Caution</b>: $\mathbb{E}[g(X)] \ne g(\mathbb{E}[X])$ unless $g$ is linear (Alice's speed vs. time: $16$ min correct, $8$ min wrong).</li>
+<li><b>Second moment</b>: $\mathbb{E}[X^2] = \sum_x x^2p_X(x) = \operatorname{var}(X) + (\mathbb{E}[X])^2 \ \ge (\mathbb{E}[X])^2$.</li>
+<li><b>Marksman</b> (rec05 P2), $X\sim\text{Bin}(10,0.2)$: $p_X(0) = 0.8^{10} = 0.1074$; $\mathbf{P}(X\ge6) = 0.006369$; $\mathbb{E}[X]=2$, $\operatorname{var}(X)=1.6$; $Y=2X-3 \Rightarrow \mathbb{E}[Y]=1$, $\operatorname{var}(Y)=6.4$; $Z=X^2 \Rightarrow \mathbb{E}[Z]=5.6$.</li>
+<li><b>Size bias</b> (rec05 P3): sample a student and $p_X(x) = x/148$, giving $\mathbb{E}[X] = 5814/148 = 39.28$; sample a driver and $p_Y \equiv 1/4$, giving $\mathbb{E}[Y]=37$. Always $\mathbb{E}[X] = \mathbb{E}[Y] + \operatorname{var}(Y)/\mathbb{E}[Y] \ge \mathbb{E}[Y]$.</li>
+<li><b>St. Petersburg</b> (rec05 P4): $\mathbf{P}(N=k)=2^{-k}$, payout $2^k$, every term contributes $\$1$, so $\mathbb{E}[W]=\infty$ — while the median payout is $\$2$. Cap the house at $2^m$ and the game is worth exactly $m+1$ dollars.</li>
+</ul></div>

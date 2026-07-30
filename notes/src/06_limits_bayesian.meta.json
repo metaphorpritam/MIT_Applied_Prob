@@ -1,0 +1,7 @@
+{
+  "title": "G6 · Limit Theorems & Bayesian Inference",
+  "subtitle": "Chebyshev, the weak law, the central limit theorem; Bayesian estimation, MAP, LMS and linear LMS — MIT 6.041 Lectures 19–22, Recitations 20–22",
+  "prev": ["05_markov_chains.html", "G5 · Markov Chains"],
+  "next": ["07_classical_inference.html", "G7 · Classical Statistical Inference"],
+  "sources": "MIT 6.041/6.431 F10 L19–L22 slide handouts, recitations 20–22 (+ official solutions), Bertsekas–Tsitsiklis chs. 5 & 8"
+}

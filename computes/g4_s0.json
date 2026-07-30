@@ -1,0 +1,68 @@
+{
+ "pY1": "1/3",
+ "pY2": "2/3",
+ "EX": 70.0,
+ "E_of_EXY": 70.0,
+ "iterated_check": true,
+ "var_EXY": 200.0,
+ "E_varXY_frac": "50/3",
+ "E_varXY": 16.6667,
+ "varX_frac": "650/3",
+ "varX": 216.6667,
+ "within_share": 0.0769,
+ "between_share": 0.9231,
+ "lam": 5.0,
+ "t": 0.5,
+ "lam_t": 2.5,
+ "pois0": 0.082085,
+ "pois1": 0.205212,
+ "binom_to_poisson": [
+  {
+   "n": 5,
+   "delta_hours": 0.1,
+   "p": 0.5,
+   "binom0": 0.03125,
+   "binom1": 0.15625,
+   "err0": 0.050835,
+   "err1": 0.048962
+  },
+  {
+   "n": 25,
+   "delta_hours": 0.02,
+   "p": 0.1,
+   "binom0": 0.07179,
+   "binom1": 0.199416,
+   "err0": 0.010295,
+   "err1": 0.005796
+  },
+  {
+   "n": 250,
+   "delta_hours": 0.002,
+   "p": 0.01,
+   "binom0": 0.081059,
+   "binom1": 0.204693,
+   "err0": 0.001026,
+   "err1": 0.000519
+  },
+  {
+   "n": 2500,
+   "delta_hours": 0.0002,
+   "p": 0.001,
+   "binom0": 0.081982,
+   "binom1": 0.205161,
+   "err0": 0.000103,
+   "err1": 5.1e-05
+  }
+ ],
+ "binom_var_n5": 1.25,
+ "binom_var_n250": 2.475,
+ "lam2": 0.6,
+ "delta_min": 1.0,
+ "p2": 0.01,
+ "geo_mean_slots": 100.0,
+ "geo_mean_hours": 1.666667,
+ "exp_mean_hours": 1.666667,
+ "interarrival_match": true,
+ "geo_var_hours2": 2.75,
+ "exp_var_hours2": 2.777778
+}
