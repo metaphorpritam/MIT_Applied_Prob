@@ -152,6 +152,25 @@ h1 .dot { color: var(--s1); }
 a.dl { color: var(--link); text-decoration: none; border-bottom: 1px solid currentColor; }
 a.dl:hover { color: var(--s2); }
 
+/* ---------- feedback ---------- */
+.fb { border: 1px solid var(--rule); border-radius: 8px; padding: 16px 18px; background: var(--card); }
+.fblead { font-size: 13px; color: var(--muted); margin: 0 0 10px; }
+#fbtext {
+  width: 100%; border: 1px solid var(--rule); border-radius: 7px; background: var(--paper);
+  color: var(--ink); font: 13.5px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding: 9px 11px; resize: vertical; margin-bottom: 10px;
+}
+#fbtext:focus { outline: none; border-color: var(--s1); }
+.fbrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.fbbtn {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 12.5px; font-weight: 600;
+  border: 1px solid var(--rule); border-radius: 999px; padding: 6px 15px; cursor: pointer;
+  background: none; color: var(--ink); text-decoration: none; transition: border-color .15s, background .15s;
+}
+.fbbtn:hover { border-color: var(--accent); background: var(--chip); }
+.fbbtn.primary { background: var(--s1); border-color: var(--s1); color: #fff; }
+.fbbtn.primary:hover { filter: brightness(1.08); }
+.fbhint { font-family: system-ui, sans-serif; font-size: 11px; color: var(--muted); }
 /* ---------- footer ---------- */
 footer {
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11.5px; line-height: 1.6;
@@ -329,6 +348,26 @@ footer .disc { font-style: italic; }
     <p>Each note is one self-contained file. Grab the <a class="dl" href="mit6041_interactive_notes_offline.zip" title="Offline bundle — shipped in the repository's dist/ folder and attached to GitHub Releases">offline zip</a> and read on a plane.</p>
   </div>
 </div>
+
+<div class="sec">Feedback &amp; corrections</div>
+
+<div class="fb">
+  <p class="sans fblead">Found an error, a broken widget, or something confusing? Two ways to tell me:</p>
+  <textarea id="fbtext" rows="4" placeholder="Describe the issue — which note, which section, what looks wrong&hellip;"></textarea>
+  <div class="fbrow">
+    <button id="fbmail" class="fbbtn primary">&#9993; Send by email</button>
+    <a class="fbbtn" href="https://github.com/metaphorpritam/MIT_Applied_Prob/issues/new" target="_blank" rel="noopener">&#9873; Open a GitHub issue</a>
+    <span class="fbhint">email opens your mail app addressed to metaphorpritam@gmail.com</span>
+  </div>
+</div>
+<script>
+document.getElementById('fbmail').addEventListener('click', function () {
+  var t = document.getElementById('fbtext').value.trim();
+  var su = encodeURIComponent('MIT 6.041 notes - feedback');
+  var bo = encodeURIComponent((t || '(describe the issue here)') + '\n\n--\nsent from the MIT 6.041 study-notes site');
+  location.href = 'mailto:metaphorpritam@gmail.com?subject=' + su + '&body=' + bo;
+});
+</script>
 
 <footer>
   <p>Compiled from <a href="https://ocw.mit.edu/courses/6-041-probabilistic-systems-analysis-and-applied-probability-fall-2010/">MIT OpenCourseWare 6.041/6.431 Fall 2010</a>, John Tsitsiklis; textbook: Bertsekas &amp; Tsitsiklis, <i>Introduction to Probability</i> (2nd ed.).</p>

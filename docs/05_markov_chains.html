@@ -916,6 +916,22 @@ canvas.plot { width: 100%; display: block; }
       if (nav.classList.contains("crumb")) nav.insertAdjacentElement("afterend", btn);
       else nav.appendChild(btn);
     }
+
+    // feedback links (email pre-filled with this note's title + GitHub issues)
+    const links = document.querySelector("#sidebar .navlinks");
+    if (links) {
+      const su = encodeURIComponent("MIT 6.041 notes - feedback: " + document.title);
+      const bo = encodeURIComponent("(describe the issue - which section, what looks wrong)\n\n--\nsent from: " + document.title);
+      const mail = document.createElement("a");
+      mail.href = "mailto:metaphorpritam@gmail.com?subject=" + su + "&body=" + bo;
+      mail.textContent = "✉ Send feedback";
+      const issue = document.createElement("a");
+      issue.href = "https://github.com/metaphorpritam/MIT_Applied_Prob/issues/new";
+      issue.target = "_blank"; issue.rel = "noopener";
+      issue.textContent = "⚑ Report an issue";
+      links.appendChild(mail);
+      links.appendChild(issue);
+    }
   });
   // apply saved theme ASAP (before DOMContentLoaded to reduce flash)
   try {
