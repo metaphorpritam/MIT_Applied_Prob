@@ -462,3 +462,5 @@ canvas.plot { width: 100%; display: block; }
   transition: background-color .13s ease, border-color .13s ease;
 }
 #themetoggle:hover { background: var(--btnHover); border-color: var(--rule); }
+
+#sidebar #themetoggle { display: block; width: 100%; margin: 4px 0 10px 0; text-align: center; }

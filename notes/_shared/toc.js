@@ -77,8 +77,10 @@
     const tg = document.getElementById("sbtoggle");
     if (tg) tg.addEventListener("click", () => document.getElementById("sidebar").classList.toggle("open"));
 
-    // dark mode toggle (persisted; overrides OS preference both ways)
-    const nav = document.querySelector("#sidebar .navlinks");
+    // dark mode toggle (persisted; overrides OS preference both ways).
+    // Inserted right after the breadcrumb at the TOP of the sidebar so it is
+    // always visible without scrolling the (long) TOC.
+    const nav = document.querySelector("#sidebar .crumb") || document.querySelector("#sidebar .navlinks");
     if (nav) {
       const btn = document.createElement("button");
       btn.id = "themetoggle";
@@ -92,7 +94,8 @@
         label();
       });
       label();
-      nav.appendChild(btn);
+      if (nav.classList.contains("crumb")) nav.insertAdjacentElement("afterend", btn);
+      else nav.appendChild(btn);
     }
   });
   // apply saved theme ASAP (before DOMContentLoaded to reduce flash)
