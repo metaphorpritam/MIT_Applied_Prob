@@ -1,0 +1,1056 @@
+<h2 id="qb-s7">&sect;7 &nbsp; Classical statistical inference</h2>
+
+<p>Sixteen problems on the classical half of the course: treating the unknown as a
+fixed constant and letting the <em>data</em> be the only random thing. They drill the
+four skills G7 builds &mdash; judging a proposed estimator by bias, consistency and
+mean squared error (including the case where a deliberately biased estimator wins);
+building a confidence interval, reading it correctly, and using the conservative
+$\tfrac14$ bound when the variance is unknown; maximizing a likelihood, including
+the corner solution where setting a derivative to zero is exactly the wrong move,
+and pinning down what "ML $=$ MAP under a flat prior" does and does not buy you;
+running least squares from the closed forms and refusing the three claims a fitted
+line never makes; and calibrating a likelihood ratio test to a target $\alpha$,
+paying the resulting $\beta$, and saying honestly what "not rejected" means.
+Every number below is recomputed in <code>computes/qb_s7.py</code>; the subtler ones
+are cross-checked by simulation.</p>
+
+<!-- ============================================================ Q135 -->
+<div class="ex qcard" id="q135" data-diff="1" data-topic="estimators">
+<p><b>Q135.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Bias, consistency, MSE &middot; <span class="ref">G7 &sect;1.1&ndash;1.2</span></span></p>
+<p>A thermometer returns i.i.d. readings $X_1,\dots,X_n$ with unknown mean $\theta$
+and known standard deviation $\sigma=2$ degrees. Let $M_n=(X_1+\cdots+X_n)/n$ be the
+sample mean. Two engineers propose calibrated estimators:
+$$\hat A_n = M_n + \frac{3}{n},\qquad\qquad \hat B_n = M_n + 3 .$$
+Take $n=25$. (a) Find the bias of each. (b) Find the MSE of each. (c) Which, if
+either, is unbiased? asymptotically unbiased? consistent? (d) Recompute the MSE of
+$\hat A_n$ at $n=100$ and say what drives the improvement.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Both estimators are the sample mean plus a deterministic constant, so
+adding the constant shifts the mean but leaves the variance alone. From G7 &sect;1.3,
+$\mathbb{E}[M_n]=\theta$ and $\operatorname{var}(M_n)=\sigma^2/n$. With $\sigma=2$,
+$\sigma^2=4$, and at $n=25$
+$$\operatorname{var}(M_n)=\frac{4}{25}=0.16 .$$
+Both $\hat A_n$ and $\hat B_n$ have this same variance, since
+$\operatorname{var}(M_n+c)=\operatorname{var}(M_n)$ for a constant $c$.</p>
+<p><b>Step 1 &mdash; biases.</b> By linearity of expectation,
+$$\mathbb{E}[\hat A_n]=\theta+\frac3n=\theta+\frac{3}{25}=\theta+0.12,
+\qquad \mathbb{E}[\hat B_n]=\theta+3 .$$
+So $\mathrm{bias}(\hat A_{25})=0.12$ and $\mathrm{bias}(\hat B_{25})=3$.</p>
+<p><b>Step 2 &mdash; MSEs.</b> Use the decomposition of G7 &sect;1.2,
+$\mathrm{MSE}=\mathrm{bias}^2+\operatorname{var}$:
+$$\mathrm{MSE}(\hat A_{25}) = (0.12)^2+0.16 = 0.0144+0.16 = 0.1744,$$
+$$\mathrm{MSE}(\hat B_{25}) = 3^2+0.16 = 9+0.16 = 9.16 .$$
+$\hat B_{25}$ is worse by a factor $9.16/0.1744 = 52.5229$.</p>
+<p><b>Step 3 &mdash; the three properties.</b> Neither is unbiased at finite $n$: both
+biases are nonzero. $\hat A_n$ is <em>asymptotically</em> unbiased, since
+$3/n\to0$; $\hat B_n$ is not, since its bias stays at $3$ forever. For consistency
+we need $\hat\Theta_n\to\theta$ in probability. Write
+$\hat A_n-\theta=(M_n-\theta)+3/n$: the first term $\to0$ in probability by the weak
+law (G6 &sect;1), the second is a deterministic sequence $\to0$, so $\hat A_n$ is
+consistent. For $\hat B_n$, $\hat B_n-\theta=(M_n-\theta)+3\to3\neq0$, so
+$\hat B_n$ converges in probability to $\theta+3$ &mdash; the wrong number. It is
+<b>not</b> consistent, and no amount of data fixes it.</p>
+<p><b>Step 4 &mdash; $n=100$.</b> Bias $=3/100=0.03$, variance $=4/100=0.04$, so
+$$\mathrm{MSE}(\hat A_{100})=0.03^2+0.04=0.0009+0.04=0.0409 .$$
+Both parts shrank, but at different rates: the variance falls like $1/n$ while the
+squared bias falls like $1/n^2$. At $n=25$ the bias contributed
+$0.0144/0.1744=8.3\%$ of the MSE; at $n=100$ it contributes $0.0009/0.0409=2.2\%$.
+Asymptotically the bias term is negligible &mdash; which is exactly why a
+$O(1/n)$ bias is a venial sin and a constant bias is a mortal one.</p>
+<p><b>Answer.</b> $\;$(a) $0.12$ and $3$. (b) $\mathrm{MSE}(\hat A_{25})=0.1744$,
+$\mathrm{MSE}(\hat B_{25})=9.16$. (c) Neither unbiased; only $\hat A_n$ is
+asymptotically unbiased and consistent. (d)
+$\mathrm{MSE}(\hat A_{100})=0.0409$; the variance drops like $1/n$, the squared
+bias like $1/n^2$.</p>
+<p><i>Trap.</i> "$\hat B_n$ has small variance, so it is a good estimator." Variance
+alone is not quality: the constant estimator $\hat\Theta_n\equiv0$ has variance $0$
+and is useless. MSE is the honest scorecard because it charges you for bias too.</p>
+<p class="srcref">Tool: G7 &sect;1.1 (bias, consistency), &sect;1.2 (MSE decomposition),
+&sect;1.3 (sample mean) &middot; B&amp;T &sect;9.1</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q136 -->
+<div class="ex qcard" id="q136" data-diff="2" data-topic="estimators">
+<p><b>Q136.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Weighted estimators and efficiency &middot; <span class="ref">G7 &sect;1.2&ndash;1.3</span></span></p>
+<p>A sensor logs i.i.d. readings $X_1,\dots,X_n$ with unknown mean $\theta$ and known
+variance $v$. A colleague argues that later readings are "fresher" and proposes the
+linearly weighted estimator
+$$\hat\Theta_n=\frac{2}{n(n+1)}\sum_{i=1}^{n} i\,X_i .$$
+(a) Show it is unbiased for every $n$. (b) Derive $\operatorname{var}(\hat\Theta_n)$
+in closed form. (c) With $n=10$ and $v=9$, compare its variance and MSE with those of
+the sample mean $M_n$. (d) Is $\hat\Theta_n$ consistent? (You may use
+$\sum_{i=1}^{n} i = n(n+1)/2$ and $\sum_{i=1}^{n} i^2 = n(n+1)(2n+1)/6$.)</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Write $\hat\Theta_n=\sum_i w_i X_i$ with weights
+$w_i = \dfrac{2i}{n(n+1)}$. Every estimator of this "linear in the data" form is
+handled by two facts: expectation is linear, and variances of independent terms add
+with the coefficients squared.</p>
+<p><b>Step 1 &mdash; unbiasedness.</b> The weights sum to one:
+$$\sum_{i=1}^n w_i=\frac{2}{n(n+1)}\sum_{i=1}^n i
+=\frac{2}{n(n+1)}\cdot\frac{n(n+1)}{2}=1 .$$
+Hence, by linearity of expectation and $\mathbb{E}[X_i]=\theta$ for every $i$,
+$$\mathbb{E}[\hat\Theta_n]=\sum_i w_i\,\mathbb{E}[X_i]=\theta\sum_i w_i=\theta .$$
+Unbiased for every $n$ and every $\theta$. (Numerically at $n=10$ the weights are
+$2/110,4/110,\dots,20/110$, summing to $110/110=1$.)</p>
+<p><b>Step 2 &mdash; variance.</b> The $X_i$ are independent, so
+$$\operatorname{var}(\hat\Theta_n)=\sum_i w_i^2\operatorname{var}(X_i)
+= v\sum_{i=1}^n\frac{4i^2}{n^2(n+1)^2}
+= \frac{4v}{n^2(n+1)^2}\cdot\frac{n(n+1)(2n+1)}{6}
+= \frac{2(2n+1)}{3n(n+1)}\,v .$$</p>
+<p><b>Step 3 &mdash; the comparison at $n=10$, $v=9$.</b> The closed form gives
+$$\operatorname{var}(\hat\Theta_{10})=\frac{2(21)}{3(10)(11)}v=\frac{42}{330}v
+=0.1272727\,v = 0.1272727\times 9 = 1.1454545 .$$
+(Direct check: $\sum_{i=1}^{10} i^2=385$, and $4(385)/(10\cdot11)^2=1540/12100=0.1272727$.
+A $300{,}000$-run simulation with $\theta=5$, $v=9$ gives sample mean $4.99980$ and
+sample variance $1.14867$ &mdash; matching both claims.) For the sample mean,
+$$\operatorname{var}(M_{10})=\frac{v}{n}=\frac{9}{10}=0.9 .$$
+Both estimators are unbiased, so MSE $=$ variance for both, and the ratio is
+$$\frac{0.1272727}{0.1}=1.2727 .$$
+The weighted estimator has $27.3\%$ more MSE. Getting the same precision from it
+would need about $27\%$ more data.</p>
+<p><b>Step 4 &mdash; consistency.</b> $\hat\Theta_n$ is unbiased and
+$\operatorname{var}(\hat\Theta_n)=\frac{2(2n+1)}{3n(n+1)}v\to0$ as $n\to\infty$
+(the numerator grows like $n$, the denominator like $n^2$; at $n=100$ the coefficient
+is already $0.0132673$). By the mean-squared-error criterion for consistency
+(G7 &sect;1.1: $\mathrm{MSE}\to0$ implies convergence in probability, via Chebyshev),
+$\hat\Theta_n$ is consistent.</p>
+<p><b>Answer.</b> $\;$Unbiased for all $n$;
+$\operatorname{var}(\hat\Theta_n)=\dfrac{2(2n+1)}{3n(n+1)}v$; at $n=10,v=9$ its
+variance is $1.1454545$ against $0.9$ for $M_{10}$, i.e. $1.2727$ times larger; it is
+consistent.</p>
+<p><i>Trap.</i> "Unbiased and consistent, so it is as good as the sample mean."
+Unbiasedness is a statement about the center of the sampling distribution, not its
+width. Among all unbiased linear estimators $\sum w_iX_i$ with $\sum w_i=1$, the
+variance $v\sum w_i^2$ is minimized by the <em>equal</em> weights $w_i=1/n$ &mdash;
+so any nonconstant weighting strictly loses. "Fresher data" is only a reason to
+reweight if the data are <em>not</em> identically distributed.</p>
+<p class="srcref">Tool: G7 &sect;1.2 (MSE), &sect;1.3 (variance of the sample mean)
+&middot; G2 &sect;3 (variance of a sum of independents) &middot; B&amp;T &sect;9.1</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q137 -->
+<div class="ex qcard" id="q137" data-diff="3" data-topic="estimators">
+<p><b>Q137.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; When a biased estimator wins &middot; <span class="ref">G7 &sect;1.2</span></span></p>
+<p>Let $X_1,\dots,X_n$ be i.i.d. uniform on $[0,\theta]$ with $\theta&gt;0$ unknown, and
+let $M=\max\{X_1,\dots,X_n\}$. You may use, without rederiving them,
+$$\mathbb{E}[M]=\frac{n}{n+1}\theta,\qquad \mathbb{E}[M^2]=\frac{n}{n+2}\theta^2 .$$
+Consider the whole family of rescalings $\hat\Theta(c)=cM$, $c&gt;0$.
+(a) Write $\mathrm{MSE}(c)$ and minimize it over $c$; show the minimizer is
+$c^\star=\frac{n+2}{n+1}$, which is <em>not</em> the unbiasing constant.
+(b) At $n=8$, evaluate the MSE (in units of $\theta^2$) of the raw ML estimator
+$M$, of the unbiased estimator, and of $\hat\Theta(c^\star)$. (c) State precisely
+what this does and does not say about unbiasedness as a design goal.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Everything is a rescaling of one random variable $M$, so the MSE is a
+quadratic in $c$ and can be minimized by one derivative. At $n=8$ the two moments are
+$$\mathbb{E}[M]=\tfrac{8}{9}\theta=0.8888889\,\theta,\qquad
+\mathbb{E}[M^2]=\tfrac{8}{10}\theta^2=0.8\,\theta^2,$$
+so $\operatorname{var}(M)=0.8\theta^2-(0.8888889\theta)^2=0.8\theta^2-0.7901235\theta^2
+=0.0098765\,\theta^2 .$</p>
+<p><b>Step 1 &mdash; the MSE as a quadratic in $c$.</b> By definition
+$\mathrm{MSE}(c)=\mathbb{E}[(cM-\theta)^2]$. Expand the square and use linearity:
+$$\mathrm{MSE}(c)=c^2\,\mathbb{E}[M^2]-2c\theta\,\mathbb{E}[M]+\theta^2 .$$
+This is an upward parabola in $c$ (the coefficient $\mathbb{E}[M^2]&gt;0$), so it has a
+unique minimum.</p>
+<p><b>Step 2 &mdash; minimize.</b> Differentiate and set to zero:
+$$\frac{d}{dc}\mathrm{MSE}(c)=2c\,\mathbb{E}[M^2]-2\theta\,\mathbb{E}[M]=0
+\;\Longrightarrow\;
+c^\star=\frac{\theta\,\mathbb{E}[M]}{\mathbb{E}[M^2]}
+=\frac{\theta\cdot\frac{n}{n+1}\theta}{\frac{n}{n+2}\theta^2}
+=\frac{n+2}{n+1}.$$
+The $\theta$'s cancel completely &mdash; which is the only reason this constant is
+usable in practice. The unbiasing constant is different: $\mathbb{E}[cM]=\theta$
+requires $c_{\text{unb}}=\frac{n+1}{n}$. At $n=8$,
+$$c^\star=\tfrac{10}{9}=1.1111111,\qquad c_{\text{unb}}=\tfrac98=1.125 .$$
+So the MSE-optimal rescaling deliberately <em>undershoots</em> the unbiasing one.</p>
+<p><b>Step 3 &mdash; the three MSEs at $n=8$ (units of $\theta^2$).</b></p>
+<p><i>Raw ML estimator $M$ ($c=1$).</i> Substituting $c=1$:
+$\mathrm{MSE}(1)=0.8-2(0.8888889)+1=0.0222222$, which matches the closed form
+$\frac{2}{(n+1)(n+2)}=\frac{2}{9\cdot 10}=0.0222222 .$</p>
+<p><i>Unbiased ($c=1.125$).</i> Bias is zero, so MSE is pure variance:
+$$\mathrm{MSE}=c_{\text{unb}}^2\operatorname{var}(M)=(1.125)^2(0.0098765)
+=1.265625\times0.0098765=0.0125 .$$</p>
+<p><i>Optimal ($c=c^\star$).</i> Substituting $c^\star=\mathbb{E}[M]/\mathbb{E}[M^2]$
+into Step 1 collapses the expression:
+$$\mathrm{MSE}(c^\star)=\theta^2\left(1-\frac{\mathbb{E}[M]^2}{\mathbb{E}[M^2]}\right)
+=\theta^2\left(1-\frac{0.7901235}{0.8}\right)=\theta^2(1-0.9876543)=0.0123457\,\theta^2 .$$</p>
+<p>Ranking: $0.0123457 &lt; 0.0125 &lt; 0.0222222$. The biased $c^\star$ beats the
+unbiased estimator by a factor $0.9876543$ &mdash; a $1.2346\%$ MSE saving &mdash; and both
+beat the raw ML estimator, whose MSE is $1/0.5625=1.78$ times the unbiased one.
+(A $400{,}000$-run simulation at $\theta=3$ returns $0.022148$, $0.012418$ and
+$0.012264$ for the three, and $\mathbb{E}[M]/\theta=0.888932$, confirming all of it.)</p>
+<p><b>Step 4 &mdash; the moral, stated carefully.</b> Unbiasedness is a constraint, not
+an objective. Imposing it removes one degree of freedom from the search, and the
+optimum of a constrained problem cannot beat the optimum of the unconstrained one.
+Here the constrained answer ($c=1.125$) sits just to the right of the unconstrained
+answer ($c=1.1111$), and pays $1.2\%$ for it. What the example does <em>not</em> say
+is that bias is free: the gap between $c^\star$ and $c_{\text{unb}}$ shrinks like
+$1/n^2$, so the two agree for large samples, and a bias that does not vanish (as in
+Q135's $\hat B_n$) destroys consistency outright.</p>
+<p><b>Answer.</b> $\;c^\star=\frac{n+2}{n+1}$; at $n=8$,
+$\mathrm{MSE}(M)=0.0222222\theta^2$,
+$\mathrm{MSE}(\text{unbiased})=0.0125\theta^2$,
+$\mathrm{MSE}(c^\star M)=0.0123457\theta^2$ &mdash; the biased estimator wins.</p>
+<p><i>Trap.</i> A careless reader sets $c^\star=\mathbb{E}[M]/\mathbb{E}[M^2]$ and
+stops, worried that the answer depends on $\theta$. It does not: the numerator carries
+$\theta^2$ and so does the denominator. Had they not cancelled, $c^\star$ would be an
+oracle quantity, not an estimator &mdash; exactly the failure that sinks the
+"optimal $c$" of G7 Practice 1.3, where the minimizer $c=\frac{n\theta^2}{n\theta^2+v}$
+genuinely needs the unknown $\theta$.</p>
+<p class="srcref">Tool: G7 &sect;1.2 (MSE $=$ bias$^2$ $+$ variance; a biased estimator
+beating the unbiased one) &middot; G7 &sect;2.4 (the uniform ML estimator)
+&middot; B&amp;T Example 9.5, &sect;9.1</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q138 -->
+<div class="ex qcard" id="q138" data-diff="1" data-topic="confidence-intervals">
+<p><b>Q138.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; The conservative $\tfrac14$ bound &middot; <span class="ref">G7 &sect;1.6</span></span></p>
+<p>An auditor samples $n=900$ shipped units at random and finds $108$ with a defect.
+Let $\theta$ be the unknown population defect rate, estimated by
+$\hat\theta_n=$ (defects)$/n$. (a) Show that $\theta(1-\theta)\le\tfrac14$ for every
+$\theta\in[0,1]$, with equality only at $\theta=\tfrac12$. (b) Give the $95\%$
+confidence interval for $\theta$ using the conservative bound, and the one using the
+plug-in variance $\hat\theta_n(1-\hat\theta_n)$. (c) Management wants a $95\%$ margin
+of error of at most $2$ percentage points <em>before</em> any data are collected.
+How many units must be sampled?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The indicator of "defective" is Bernoulli($\theta$) with variance
+$\theta(1-\theta)$, so by G7 &sect;1.4 the CLT-based $95\%$ interval is
+$\hat\theta_n\pm z\sqrt{\theta(1-\theta)/n}$ with $z=1.9599640$ (the $97.5$th
+standard normal percentile). The variance depends on the very unknown we are
+estimating, so &sect;1.6 offers two ways out: bound it, or plug in.
+Here $\hat\theta_n=108/900=0.12$.</p>
+<p><b>Step 1 &mdash; the bound.</b> Write $g(\theta)=\theta(1-\theta)=\theta-\theta^2$.
+Then $g'(\theta)=1-2\theta$, zero only at $\theta=\tfrac12$, and $g''=-2&lt;0$, so this
+is the unique maximum. Its value is $g(\tfrac12)=\tfrac12\cdot\tfrac12=\tfrac14=0.25$.
+(Equivalently, $\tfrac14-\theta(1-\theta)=(\theta-\tfrac12)^2\ge0$, which is zero only
+at $\theta=\tfrac12$.) So $\sqrt{\theta(1-\theta)/n}\le\sqrt{1/(4n)}$ <em>whatever</em>
+$\theta$ is &mdash; a bound that needs no data at all.</p>
+<p><b>Step 2 &mdash; the two intervals.</b></p>
+<p><i>Conservative.</i> $\sqrt{1/(4\cdot900)}=\sqrt{1/3600}=0.0166667$, so the margin is
+$$1.9599640\times0.0166667=0.0326661,$$
+giving $[0.12-0.0326661,\;0.12+0.0326661]=[0.0873339,\;0.1526661]$.</p>
+<p><i>Plug-in.</i> $\hat\theta_n(1-\hat\theta_n)=0.12\times0.88=0.1056$, so the standard
+error is $\sqrt{0.1056/900}=\sqrt{0.00011733}=0.0108321$ and the margin is
+$$1.9599640\times0.0108321=0.0212304,$$
+giving $[0.0987696,\;0.1412304]$.</p>
+<p>The conservative interval is $0.0326661/0.0212304=1.5386$ times wider, because the
+true variance $0.1056$ is far below the worst case $0.25$: $\theta=0.12$ is nowhere near
+$\tfrac12$. Simulation at $\theta=0.12$ confirms the asymmetry: the conservative interval
+covers $99.74\%$ of the time, the plug-in one $94.62\%$ &mdash; the first over-delivers on
+its $95\%$ promise, the second lands on it.</p>
+<p><b>Step 3 &mdash; sample size for a $2$-point margin.</b> Nothing is known yet, so the
+conservative bound is the only honest choice. Require
+$$z\sqrt{\frac{1}{4n}}\le0.02
+\;\Longleftrightarrow\; n\ \ge\ \frac{z^2}{4(0.02)^2}
+=\frac{(1.9599640)^2\times0.25}{0.0004}=\frac{3.8414588\times 0.25}{0.0004}=2400.9118 .$$
+Sample sizes are integers and the inequality must hold, so round <em>up</em>:
+$n=2401$. Check: $1.9599640\sqrt{0.25/2401}=0.0199996\le0.02$. $\checkmark$</p>
+<p><b>Answer.</b> $\;$(a) $\max_\theta\theta(1-\theta)=\tfrac14$ at $\theta=\tfrac12$.
+(b) conservative $[0.0873,\,0.1527]$, plug-in $[0.0988,\,0.1412]$.
+(c) $n=2401$.</p>
+<p><i>Trap.</i> Rounding $2400.91$ down to $2400$, or &mdash; worse &mdash; using the
+plug-in variance for the design calculation. You do not have $\hat\theta_n$ before you
+sample; using a guessed $\theta=0.12$ would give $n=\lceil z^2(0.1056)/0.0004\rceil=1015$,
+and if the true rate turned out to be near $\tfrac12$ the delivered margin would be
+$1.96\sqrt{0.25/1015}=0.0308$, half again the promise.</p>
+<p class="srcref">Tool: G7 &sect;1.4 (CI construction), &sect;1.6 (three ways to handle an
+unknown $\sigma$; the conservative $\theta(1-\theta)\le1/4$ bound)
+&middot; B&amp;T &sect;9.1, Example 9.8</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q139 -->
+<div class="ex qcard" id="q139" data-diff="2" data-topic="confidence-intervals">
+<p><b>Q139.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; What a CI means &middot; <span class="ref">G7 &sect;1.5</span></span></p>
+<p>A lab reports: "the $95\%$ confidence interval for the catalyst yield $\theta$ is
+$[12.1,\ 14.3]$ mg." Four statements are made about it. Mark each true or false and
+justify in one or two sentences.</p>
+<p>(i) $\mathbf{P}(12.1\le\theta\le14.3)=0.95$.<br>
+(ii) If the experiment were repeated many times and an interval computed the same way
+each time, about $95\%$ of those intervals would contain $\theta$.<br>
+(iii) $95\%$ of future individual yield measurements will fall in $[12.1,14.3]$.<br>
+(iv) A $99\%$ interval from the same data would be narrower, because it is more confident.</p>
+<p>Then: the lab runs $20$ such experiments, independently, each producing its own $95\%$
+interval. (v) What is the expected number of the $20$ intervals that contain $\theta$?
+(vi) What is the probability that <em>all</em> $20$ contain $\theta$?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The definition in G7 &sect;1.4 is
+$\mathbf{P}_\theta(\hat\Theta_n^-\le\theta\le\hat\Theta_n^+)\ge1-\alpha$, where the
+probability is over the <em>data</em> and $\theta$ is a fixed constant. Once the data are
+in hand, $\hat\Theta_n^\pm$ are realized numbers: $12.1$ and $14.3$.</p>
+<p><b>(i) False.</b> In the classical framework $\theta$ is a constant, not a random
+variable, and $12.1$ and $14.3$ are constants too. The event $\{12.1\le\theta\le14.3\}$
+therefore has probability $1$ (if $\theta$ happens to lie there) or $0$ (if it does not);
+there is nothing left random to carry a $0.95$. The $0.95$ attaches to the
+<em>procedure</em>, before the data were seen. Only a Bayesian &mdash; who makes $\Theta$
+random by putting a prior on it &mdash; may write a statement like (i), and then it is a
+credible interval, not a confidence interval (G7 &sect;5.2).</p>
+<p><b>(ii) True.</b> This is the definition, read as a long-run frequency. Note the
+subtlety: each repetition produces a <em>different</em> interval, and the claim is about
+the ensemble of intervals, not about the one printed above.</p>
+<p><b>(iii) False.</b> The interval is built from the standard error
+$\sigma/\sqrt n$ of the <em>sample mean</em>, which shrinks with $n$; individual
+measurements have spread $\sigma$, which does not. As $n\to\infty$ the CI collapses to a
+point, while the spread of individual yields is unchanged. (The interval that would
+contain $95\%$ of future observations is a prediction interval, roughly
+$\hat\theta_n\pm1.96\sigma$ &mdash; wider by a factor $\sqrt n$.)</p>
+<p><b>(iv) False, and backwards.</b> At fixed data the half-width is $z\sigma/\sqrt n$,
+and $z$ solves $\Phi(z)=1-\alpha/2$; raising the confidence from $95\%$ to $99\%$ raises
+$z$ from $1.9599640$ to $2.5758293$, so the interval gets <em>wider</em> by a factor
+$1.3142$. Higher confidence is bought with vagueness; the only way to have both is more
+data.</p>
+<p><b>(v)</b> Let $N$ be the number of the $20$ intervals that cover $\theta$. The
+experiments are independent and each covers with probability $0.95$, so
+$N\sim\text{Binomial}(20,0.95)$ and
+$$\mathbb{E}[N]=20\times0.95=19 .$$</p>
+<p><b>(vi)</b> By independence,
+$$\mathbf{P}(N=20)=0.95^{20}=0.3584859 .$$
+So it is <em>more likely than not</em> ($1-0.3584859=0.6415141$) that at least one of the
+twenty intervals misses &mdash; and there is no way to tell which. For reference,
+$\mathbf{P}(N=19)=0.3773536$ and $\mathbf{P}(N\le18)=0.2641605$.</p>
+<p><b>Answer.</b> $\;$(i) F, (ii) T, (iii) F, (iv) F; (v) $\mathbb{E}[N]=19$;
+(vi) $0.95^{20}=0.3584859$.</p>
+<p><i>Trap.</i> Reading (vi) as "$95\%$ of $20$ intervals contain $\theta$, so the answer
+is certain to be $19$." $19$ is the <em>expected</em> count; the standard deviation is
+$\sqrt{20(0.95)(0.05)}=0.9747$, and the single most likely outcome ($0.3774$) is
+indeed $19$, but $20$ is nearly as likely and values of $18$ or below carry $26.4\%$ of
+the mass.</p>
+<p class="srcref">Tool: G7 &sect;1.4 (definition), &sect;1.5 (what a CI does and does not
+mean), &sect;5.2 (CI versus credible interval) &middot; B&amp;T &sect;9.1</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q140 -->
+<div class="ex qcard" id="q140" data-diff="3" data-topic="confidence-intervals">
+<p><b>Q140.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Which variance bound? &middot; <span class="ref">G7 &sect;1.6</span></span></p>
+<p>You must design a study estimating the mean $\theta$ of a score that is guaranteed by
+construction to lie in $[0,10]$; nothing else is known about its distribution. The
+requirement is a $99\%$ confidence interval of half-width at most $0.5$.
+(a) Prove that any random variable supported on $[0,10]$ has
+$\operatorname{var}(X)\le25$, and identify the distribution attaining it.
+(b) Find the smallest $n$ meeting the requirement. (c) Two colleagues propose
+shortcuts: one takes $\sigma=10$ ("the range"), the other assumes the scores are uniform
+on $[0,10]$ and uses $\sigma^2=100/12$. Compute each of their $n$'s and say precisely
+what is wrong with each.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The interval is $M_n\pm z\sigma/\sqrt n$ with $\Phi(z)=1-\alpha/2$.
+For $99\%$, $\Phi(z)=0.995$ and $z=2.5758293$. The variance is unknown, and no data
+exist yet, so &mdash; exactly as with the Bernoulli $\tfrac14$ bound of G7 &sect;1.6 &mdash;
+we must use a <em>worst-case bound valid for every distribution allowed by the model</em>.</p>
+<p><b>Step 1 &mdash; the variance bound.</b> Variance is the minimizer of mean squared
+deviation, so comparing against the midpoint $5$ can only increase it:
+$$\operatorname{var}(X)=\mathbb{E}\big[(X-\mathbb{E}[X])^2\big]\ \le\
+\mathbb{E}\big[(X-5)^2\big].$$
+Since $0\le X\le10$ we have $|X-5|\le5$ with probability one, hence
+$(X-5)^2\le25$ pointwise and therefore $\mathbb{E}[(X-5)^2]\le25$. Chaining,
+$\operatorname{var}(X)\le25$.</p>
+<p>Equality needs $\mathbb{E}[X]=5$ <em>and</em> $|X-5|=5$ almost surely: the two-point
+law putting mass $\tfrac12$ at $0$ and $\tfrac12$ at $10$. Checking the family
+$\mathbf{P}(X=10)=p$, $\mathbf{P}(X=0)=1-p$: $\operatorname{var}=100p(1-p)$, maximized
+at $p=\tfrac12$ with value $25$. (Scanning $p$ on a fine grid returns a maximum of
+exactly $25.0$.) So $\sigma_{\max}=5$, not $10$.</p>
+<p><b>Step 2 &mdash; the sample size.</b> Require
+$$\frac{z\sigma}{\sqrt n}\le0.5
+\;\Longleftrightarrow\; n\ \ge\ \left(\frac{z\sigma_{\max}}{0.5}\right)^2
+=\left(\frac{2.5758293\times5}{0.5}\right)^2=(25.758293)^2=663.4897 .$$
+Round up: $n=664$. Check: $2.5758293\sqrt{25/664}=2.5758293\times0.1940376=0.4998078\le0.5$.
+$\checkmark$ (For contrast, the same job at $95\%$ confidence needs only $n=385$: the
+$99\%$ guarantee costs $(2.5758293/1.9599640)^2=1.727$ times the data.)</p>
+<p><b>Step 3 &mdash; the two shortcuts.</b></p>
+<p><i>"$\sigma=10$."</i> This confuses the <em>range</em> with the standard deviation.
+It gives $n\ge(2.5758293\times10/0.5)^2=2654$ &mdash; valid, since it over-bounds the
+variance by a factor $4$, but wasteful: it demands $2654/664=3.9970$ times the data for
+the same guarantee (the factor is $4$ up to the two roundings). Conservative bounds are only useful if they are the <em>tightest</em>
+distribution-free ones.</p>
+<p><i>"uniform, so $\sigma^2=100/12=8.3333$."</i> This gives
+$n\ge(2.5758293\sqrt{8.3333}/0.5)^2=222$, and it is <b>not valid</b>: it is an
+assumption about the shape of the distribution, and the model said only that the scores
+lie in $[0,10]$. If the scores are in fact bimodal &mdash; many $0$'s and many $10$'s,
+which is common for pass/fail-like scoring &mdash; the true variance is up to $25$, three
+times the assumed value, and the delivered half-width would be
+$2.5758293\sqrt{25/222}=0.8643917$, not $0.5$. The interval would then be a $99\%$
+interval in name only. This is the difference between a bound and a guess.</p>
+<p><b>Answer.</b> $\;$(a) $\operatorname{var}(X)\le25$, attained by the two-point law
+$\tfrac12\delta_0+\tfrac12\delta_{10}$; (b) $n=664$; (c) $\sigma=10$ gives $n=2654$
+(valid but $4\times$ wasteful), the uniform assumption gives $n=222$ (invalid &mdash; an
+unjustified distributional assumption, not a bound).</p>
+<p><i>Trap.</i> Reaching for the Bernoulli $\tfrac14$ bound directly. That bound is
+$\operatorname{var}\le\tfrac14$ for a variable on $[0,1]$; the general statement is
+$\operatorname{var}\le(b-a)^2/4$ for support $[a,b]$, and forgetting to rescale by
+$(b-a)^2=100$ would give $n=\lceil(2.5758293\times0.5/0.5)^2\rceil=7$ &mdash; off by two
+orders of magnitude.</p>
+<p class="srcref">Tool: G7 &sect;1.4 (CI for a mean), &sect;1.6 (bounding an unknown
+variance; the $\theta(1-\theta)\le1/4$ device) &middot; B&amp;T &sect;9.1</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q141 -->
+<div class="ex qcard" id="q141" data-diff="1" data-topic="mle">
+<p><b>Q141.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Bernoulli ML and invariance &middot; <span class="ref">G7 &sect;2.2</span></span></p>
+<p>A machine either passes or fails a self-test each morning, independently, with unknown
+failure probability $\theta$. Over $n=40$ mornings it failed $13$ times.
+(a) Write the likelihood and derive the ML estimate $\hat\theta$ from scratch.
+(b) Report the ML estimate of the <em>odds</em> $\theta/(1-\theta)$ and of the probability
+$\theta^2$ that it fails on two specified consecutive mornings, naming the principle you
+used. (c) How many times more likely are the observed data under $\hat\theta$ than under
+$\theta=1/2$?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $X_1,\dots,X_{40}$ be i.i.d. Bernoulli($\theta$), $X_i=1$ for a
+failure, and let $k=\sum_i x_i=13$ be the observed number of failures.</p>
+<p><b>Step 1 &mdash; the likelihood.</b> By independence the joint PMF factors:
+$$L(\theta)=p_X(x;\theta)=\prod_{i=1}^{40}\theta^{x_i}(1-\theta)^{1-x_i}
+=\theta^{k}(1-\theta)^{n-k}=\theta^{13}(1-\theta)^{27}.$$
+(This is a function of $\theta$ with the data frozen &mdash; not a probability
+distribution over $\theta$; see the &sect;2.1 gotcha.)</p>
+<p><b>Step 2 &mdash; log and differentiate.</b> The logarithm is increasing, so it has the
+same maximizer, and it turns the product into a sum:
+$$\ell(\theta)=13\log\theta+27\log(1-\theta),\qquad
+\frac{d\ell}{d\theta}=\frac{13}{\theta}-\frac{27}{1-\theta}.$$
+Setting this to zero and multiplying through by $\theta(1-\theta)&gt;0$:
+$$13(1-\theta)-27\theta=0\;\Longrightarrow\;13=40\theta\;\Longrightarrow\;
+\hat\theta=\frac{13}{40}=0.325 .$$
+It is a maximum: $\ell''(\theta)=-13/\theta^2-27/(1-\theta)^2&lt;0$ everywhere, so
+$\ell$ is strictly concave and the stationary point is the global maximum. In general
+$\hat\theta_{\text{ML}}=k/n$ &mdash; the sample frequency.</p>
+<p><b>Step 3 &mdash; invariance.</b> ML estimates transform: if $\hat\theta$ maximizes
+the likelihood in $\theta$ and $g$ is any function, the ML estimate of $g(\theta)$ is
+$g(\hat\theta)$ (G7 &sect;2.7, the invariance principle). Hence
+$$\widehat{\text{odds}}=\frac{0.325}{1-0.325}=\frac{0.325}{0.675}=0.4814815,
+\qquad \widehat{\theta^2}=(0.325)^2=0.105625 .$$
+No new maximization is needed.</p>
+<p><b>Step 4 &mdash; likelihood ratio against $\theta=1/2$.</b>
+$$\ell(\hat\theta)=13\log(0.325)+27\log(0.675)=-25.2232411,\qquad
+\ell(0.5)=40\log(0.5)=-27.7258872 .$$
+The difference is $2.5026461$, so
+$$\frac{L(\hat\theta)}{L(0.5)}=e^{2.5026461}=12.2148 .$$
+The data are about $12.2$ times more likely under $\hat\theta=0.325$ than under a
+fair-coin machine.</p>
+<p><b>Answer.</b> $\;\hat\theta=0.325$; $\widehat{\text{odds}}=0.4814815$;
+$\widehat{\theta^2}=0.105625$; likelihood ratio $=12.2148$.</p>
+<p><i>Trap.</i> Reading the $12.2$ as "the machine is $12.2$ times more likely to have
+$\theta=0.325$ than $\theta=0.5$." Likelihoods are probabilities <em>of the data</em>,
+not of the parameter; converting them into statements about $\theta$ requires a prior
+(G6 &sect;3). A second trap: estimating the odds by rerunning the maximization in a new
+parametrization &mdash; unnecessary, and invariance guarantees the same answer.</p>
+<p class="srcref">Tool: G7 &sect;2.1&ndash;2.2 (likelihood, log-likelihood, the smooth
+case), &sect;2.7 (invariance) &middot; B&amp;T &sect;9.1</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q142 -->
+<div class="ex qcard" id="q142" data-diff="2" data-topic="mle">
+<p><b>Q142.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Normal ML, both parameters &middot; <span class="ref">G7 &sect;2.3</span></span></p>
+<p>Five independent readings of a reference voltage, modeled as
+$N(\mu,v)$ with both $\mu$ and $v$ unknown, are
+$$9.8,\quad 10.4,\quad 9.1,\quad 10.9,\quad 10.3 .$$
+(a) Report $\hat\mu_{\text{ML}}$ and $\hat v_{\text{ML}}$, showing the arithmetic.
+(b) Compare $\hat v_{\text{ML}}$ with the unbiased sample variance $\hat s_n^2$ and
+state the exact relation between the two. (c) Give the ML estimate of
+$\mathbf{P}(X&gt;11)$, i.e. the chance a future reading exceeds $11$ volts.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> From G7 &sect;2.3, maximizing
+$\ell(\mu,v)=-\frac n2\log(2\pi v)-\frac{1}{2v}\sum_i(x_i-\mu)^2$ gives
+$$\hat\mu_{\text{ML}}=\frac1n\sum_i x_i=m_n,\qquad
+\hat v_{\text{ML}}=\frac1n\sum_i(x_i-m_n)^2 .$$
+The $\mu$-equation does not involve $v$, so the two maximizations decouple: solve for
+$\mu$ first, then substitute. Here $n=5$.</p>
+<p><b>Step 1 &mdash; the mean.</b>
+$$\sum_i x_i=9.8+10.4+9.1+10.9+10.3=50.5,\qquad
+\hat\mu_{\text{ML}}=\frac{50.5}{5}=10.1 .$$</p>
+<p><b>Step 2 &mdash; the variance.</b> Deviations from $10.1$:
+$$-0.3,\quad 0.3,\quad -1.0,\quad 0.8,\quad 0.2 ,$$
+whose squares are $0.09,\ 0.09,\ 1.00,\ 0.64,\ 0.04$, summing to
+$$\sum_i(x_i-10.1)^2=1.86 .$$
+Hence
+$$\hat v_{\text{ML}}=\frac{1.86}{5}=0.372 .$$</p>
+<p><b>Step 3 &mdash; the unbiased comparison.</b>
+$$\hat s_n^2=\frac{1}{n-1}\sum_i(x_i-m_n)^2=\frac{1.86}{4}=0.465,\qquad
+\frac{\hat s_n^2}{\hat v_{\text{ML}}}=\frac{0.465}{0.372}=1.25=\frac{n}{n-1}.$$
+Exactly, $\hat v_{\text{ML}}=\frac{n-1}{n}\hat s_n^2$, so
+$\mathbb{E}[\hat v_{\text{ML}}]=\frac{n-1}{n}v=0.8v$: the ML variance is biased
+<em>downward</em> by $20\%$ at $n=5$. (Simulating $300{,}000$ samples of size $5$ from
+$N(0,4)$ gives $\mathbb{E}[\hat v_{\text{ML}}]/v=0.79997$. $\checkmark$) The reason is
+structural: the deviations are taken from $m_n$, the point that <em>minimizes</em> the
+sum of squares, so the sum is systematically too small; dividing by $n-1$ instead of $n$
+repairs it exactly.</p>
+<p><b>Step 4 &mdash; the tail probability, by invariance.</b> $\mathbf{P}(X&gt;11)$ is a
+function of $(\mu,v)$, so its ML estimate is that function evaluated at the ML
+estimates (G7 &sect;2.7). With $\hat\sigma=\sqrt{0.372}=0.6099180$,
+$$z=\frac{11-10.1}{0.6099180}=\frac{0.9}{0.6099180}=1.4756081,\qquad
+\widehat{\mathbf{P}}(X&gt;11)=1-\Phi(1.4756081)=0.0700246 .$$</p>
+<p><b>Answer.</b> $\;\hat\mu_{\text{ML}}=10.1$, $\hat v_{\text{ML}}=0.372$;
+$\hat s_n^2=0.465=\frac{n}{n-1}\hat v_{\text{ML}}$;
+$\widehat{\mathbf{P}}(X&gt;11)=0.0700246$.</p>
+<p><i>Trap.</i> Using $\hat s_n^2=0.465$ in Step 4 "because it is the unbiased one."
+The invariance principle applies to the <em>ML</em> estimates; substituting $0.465$
+gives $1-\Phi(0.9/0.6819091)=1-\Phi(1.3198240)=0.0934469$, a $33.4\%$ larger answer, and
+it is the ML estimate of nothing. (Note also that unbiasedness is not preserved by nonlinear
+maps: $\hat s_n$ is <em>not</em> an unbiased estimate of $\sigma$ even though
+$\hat s_n^2$ is unbiased for $v$.)</p>
+<p class="srcref">Tool: G7 &sect;2.3 (normal ML for mean and variance), &sect;2.7
+(invariance), &sect;1.6 ($\hat s_n^2$) &middot; B&amp;T Example 9.4, &sect;9.1</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q143 -->
+<div class="ex qcard" id="q143" data-diff="2" data-topic="mle">
+<p><b>Q143.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; ML when calculus fails &middot; <span class="ref">G7 &sect;2.4</span></span></p>
+<p>Detector response times are modeled as i.i.d. <em>shifted exponentials</em>: for an
+unknown threshold $\theta$,
+$$f_X(x;\theta)=e^{-(x-\theta)}\ \ \text{for } x\ge\theta,\qquad
+f_X(x;\theta)=0\ \ \text{for } x&lt;\theta .$$
+Five times are recorded: $3.2,\ 4.7,\ 3.9,\ 5.1,\ 3.5$ (seconds).
+(a) Write the likelihood and explain why setting $d\ell/d\theta=0$ finds nothing.
+(b) Find $\hat\theta_{\text{ML}}$. (c) Given that $\min_i X_i-\theta$ is exponential
+with rate $n$, find the bias of $\hat\theta_{\text{ML}}$, build an unbiased estimator,
+and compare the two MSEs.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $n=5$, $\sum_i x_i=3.2+4.7+3.9+5.1+3.5=20.4$, and
+$\min_i x_i=3.2$. The parameter here is a <em>boundary</em> of the support, which is the
+signature of a corner solution (G7 &sect;2.4).</p>
+<p><b>Step 1 &mdash; the likelihood, with its constraint written down.</b> By
+independence,
+$$L(\theta)=\prod_{i=1}^{5}f_X(x_i;\theta)
+=\begin{cases}\displaystyle e^{\,n\theta-\sum_i x_i}=e^{5\theta-20.4}, &amp;
+\theta\le\min_i x_i=3.2,\\[4pt] 0, &amp; \theta&gt;3.2,\end{cases}$$
+because a single observation below $\theta$ makes its density &mdash; and hence the whole
+product &mdash; zero. The constraint $\theta\le3.2$ is not decoration; it <em>is</em> the
+information the data carry about $\theta$.</p>
+<p><b>Step 2 &mdash; why differentiation fails.</b> On the region where $L&gt;0$,
+$$\ell(\theta)=5\theta-20.4,\qquad \frac{d\ell}{d\theta}=5 .$$
+The derivative is the constant $+5$: never zero, so there is no stationary point at all.
+The log-likelihood is strictly increasing in $\theta$ and then falls off a cliff to
+$-\infty$ at $\theta=3.2^+$. Calculus finds nothing because the maximum is not interior.</p>
+<p><b>Step 3 &mdash; the ML estimate.</b> Since $\ell$ increases on $(-\infty,3.2]$, push
+$\theta$ as far right as allowed:
+$$\hat\theta_{\text{ML}}=\min_i x_i=3.2 .$$
+Sanity check on the values: $\ell(3.2)=5(3.2)-20.4=-4.4$, while $\ell(3.0)=-5.4$ and
+$\ell(2.0)=-10.4$ &mdash; the likelihood really is climbing right up to the boundary.</p>
+<p><b>Step 4 &mdash; bias and correction.</b> Let $Y=\min_i X_i-\theta$. We are given
+$Y\sim\text{Exp}(n)$, so $\mathbb{E}[Y]=1/n=1/5=0.2$ and
+$\operatorname{var}(Y)=1/n^2=0.04$. Therefore
+$$\mathbb{E}[\hat\theta_{\text{ML}}]=\theta+0.2,\qquad \mathrm{bias}=+0.2 ,$$
+a systematic <em>overestimate</em> &mdash; unsurprising, since the smallest of five
+observations is still above the true floor. The obvious repair subtracts the bias:
+$$\tilde\Theta=\min_i X_i-\frac1n = 3.2-0.2=3.0,\qquad \mathbb{E}[\tilde\Theta]=\theta .$$
+(A $400{,}000$-run simulation with $\theta=3$ gives
+$\mathbb{E}[\min_iX_i]-\theta=0.19971$ and $\operatorname{var}(\min_iX_i)=0.04001$.
+$\checkmark$)</p>
+<p><b>Step 5 &mdash; the MSEs.</b> Subtracting a constant does not change the variance, so
+both estimators have variance $1/n^2=0.04$, and
+$$\mathrm{MSE}(\hat\theta_{\text{ML}})=0.04+(0.2)^2=0.04+0.04=0.08,\qquad
+\mathrm{MSE}(\tilde\Theta)=0.04+0=0.04 .$$
+Here the unbiased version halves the MSE &mdash; the opposite verdict from Q137, and for
+a clear reason: the correction there was a <em>rescaling</em> (which changes the variance
+too), whereas here it is a <em>shift</em> (which does not), so removing the bias is pure
+profit.</p>
+<p><b>Answer.</b> $\;\hat\theta_{\text{ML}}=3.2$; bias $=+1/n=0.2$; unbiased estimator
+$\min_iX_i-1/n=3.0$; MSEs $0.08$ and $0.04$ respectively.</p>
+<p><i>Trap.</i> Writing $\ell(\theta)=n\theta-\sum_ix_i$ <em>without</em> the constraint
+and concluding "no maximum, $\hat\theta=+\infty$." The constraint region is part of the
+likelihood; dropping it loses the entire answer. The mirror-image trap is answering
+$\bar x=20.4/5=4.08$ because "the mean of the model is $\theta+1$, so
+$\hat\theta=\bar x-1=3.08$" &mdash; that is the method-of-moments estimate, a legitimate
+but different estimator, and it is not the maximizer of $L$ (indeed $\theta=3.08$ is
+feasible here, but with a sample containing a value below $3.08$ it could even be
+impossible).</p>
+<p class="srcref">Tool: G7 &sect;2.4 (ML when calculus fails: parameters in the support
+boundary; the uniform $[0,\theta]$ case) &middot; B&amp;T Example 9.1, Problem 9.9</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q144 -->
+<div class="ex qcard" id="q144" data-diff="2" data-topic="mle">
+<p><b>Q144.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; ML, MAP and the flat prior &middot; <span class="ref">G7 &sect;5.2</span></span></p>
+<p>A new coin is tossed $n=6$ times and lands heads $k=5$ times. Let $\theta$ be the
+probability of heads.
+(a) Give the ML estimate. (b) Give the MAP estimate under a uniform prior on $[0,1]$,
+and prove the general statement "MAP $=$ ML when the prior is flat".
+(c) Give the MAP estimate under the prior $f_\Theta(\theta)\propto\theta(1-\theta)$ on
+$[0,1]$. (d) Give the posterior <em>mean</em> under the uniform prior, using
+$\int_0^1\theta^a(1-\theta)^b\,d\theta=\frac{a!\,b!}{(a+b+1)!}$.
+(e) Which of these four numbers would you report, and what question does each answer?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The data enter only through the likelihood
+$L(\theta)=\binom{6}{5}\theta^5(1-\theta)^1$; the binomial coefficient is a constant in
+$\theta$ and never affects any maximizer.</p>
+<p><b>(a) ML.</b> By Q141's derivation, $\hat\theta_{\text{ML}}=k/n=5/6=0.8333333$.</p>
+<p><b>(b) MAP under a flat prior.</b> Bayes' rule gives the posterior
+$$f_{\Theta\mid X}(\theta\mid x)=\frac{f_\Theta(\theta)\,p_{X\mid\Theta}(x\mid\theta)}
+{p_X(x)} .$$
+The denominator $p_X(x)$ does not depend on $\theta$. If the prior is flat,
+$f_\Theta(\theta)=1$ on $[0,1]$, it does not depend on $\theta$ either, so
+$$f_{\Theta\mid X}(\theta\mid x)\ \propto\ p_{X\mid\Theta}(x\mid\theta)=L(\theta)
+\quad\text{on }[0,1].$$
+Two functions that are positive multiples of one another have the same maximizer, hence
+$\hat\theta_{\text{MAP}}=\hat\theta_{\text{ML}}$ &mdash; provided the ML estimate lies
+inside the prior's support, which it does here. Numerically, maximizing
+$\theta^5(1-\theta)$ on a $2{,}000{,}001$-point grid returns $0.8333335$. $\checkmark$
+So $\hat\theta_{\text{MAP}}=5/6=0.8333333$.</p>
+<p><b>(c) MAP under $f_\Theta(\theta)\propto\theta(1-\theta)$.</b> Now the posterior is
+proportional to
+$$\theta(1-\theta)\cdot\theta^5(1-\theta)=\theta^6(1-\theta)^2 .$$
+Take logs and differentiate: $\frac{6}{\theta}-\frac{2}{1-\theta}=0$ gives
+$6(1-\theta)=2\theta$, i.e. $6=8\theta$ and
+$$\hat\theta_{\text{MAP}}=\frac{6}{8}=0.75 .$$
+(Grid check: $0.7500000$. $\checkmark$) The prior, which favors mid-range coins, has
+pulled the estimate from $0.8333$ toward $0.5$ &mdash; it acts like two extra
+pseudo-observations, one head and one tail.</p>
+<p><b>(d) Posterior mean under the flat prior.</b>
+$$\mathbb{E}[\Theta\mid X=x]
+=\frac{\int_0^1\theta\cdot\theta^5(1-\theta)\,d\theta}{\int_0^1\theta^5(1-\theta)\,d\theta}
+=\frac{\frac{6!\,1!}{8!}}{\frac{5!\,1!}{7!}}
+=\frac{720/40320}{120/5040}=\frac{0.0178571}{0.0238095}=0.75 .$$
+In general this is $(k+1)/(n+2)=6/8=0.75$, Laplace's rule of succession. (Numerical
+integration returns $0.7500000$. $\checkmark$)</p>
+<p><b>(e) What each number answers.</b>
+$\hat\theta_{\text{ML}}=0.8333$: "which $\theta$ makes the observed data most likely?"
+&mdash; no prior, no probability statement about $\theta$.
+$\hat\theta_{\text{MAP}}$ (flat) $=0.8333$: "which $\theta$ has the highest posterior
+density?" &mdash; numerically identical here, but a genuinely different question, and it
+comes with a full posterior you can integrate.
+$\hat\theta_{\text{MAP}}$ (Beta-shaped prior) $=0.75$: the same question with real prior
+information supplied.
+Posterior mean $=0.75$: "what is the LMS estimate, minimizing
+$\mathbb{E}[(\Theta-\hat\theta)^2\mid X]$?" (G6 &sect;4). With six tosses I would report
+$0.75$ with the posterior attached, since ML's $0.8333$ has an awkward feature &mdash;
+it would have returned $1.0$ had all six landed heads, asserting that tails is
+impossible on the evidence of six tosses.</p>
+<p><b>Answer.</b> $\;$ML $=5/6=0.8333333$; MAP (flat) $=5/6=0.8333333$;
+MAP (prior $\propto\theta(1-\theta)$) $=0.75$; posterior mean (flat) $=(k+1)/(n+2)=0.75$.</p>
+<p><i>Trap.</i> "A flat prior makes everything Bayesian collapse to the classical answer."
+Only the <em>mode</em> collapses. The posterior mean under the same flat prior is
+$0.75$, differing from ML by $0.0833$; the posterior variance, credible intervals and
+predictive distribution have no classical counterpart at all. A flat prior kills the
+difference between MAP and ML, not the difference between Bayesian and classical
+inference.</p>
+<p class="srcref">Tool: G7 &sect;5.2 (Bayesian/classical master comparison; MAP $\to$ ML
+under a flat prior) &middot; G6 &sect;3 (MAP), &sect;4 (LMS/posterior mean)
+&middot; B&amp;T &sect;8.2, &sect;9.1</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q145 -->
+<div class="ex qcard" id="q145" data-diff="1" data-topic="regression">
+<p><b>Q145.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Least squares from the closed forms &middot; <span class="ref">G7 &sect;3.2&ndash;3.3</span></span></p>
+<p>A pump is run at five settings $x$ (in units of $100$ rpm) and the delivered flow $y$
+(liters/min) is recorded:</p>
+<p style="overflow-x:auto">$$\begin{array}{c|ccccc}
+x_i &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5\\\hline
+y_i &amp; 2.1 &amp; 3.9 &amp; 6.2 &amp; 7.8 &amp; 10.0
+\end{array}$$</p>
+<p>(a) Fit the least-squares line $y\approx\hat\theta_0+\hat\theta_1x$.
+(b) Report the residuals and verify the two identities every least-squares fit satisfies:
+$\sum_ie_i=0$ and $\sum_ix_ie_i=0$. (c) Compute $\mathrm{SSE}$ and $R^2$.
+(d) Predict the flow at $x=6$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The closed forms of G7 &sect;3.2 are
+$$\hat\theta_1=\frac{S_{xy}}{S_{xx}},\qquad \hat\theta_0=\bar y-\hat\theta_1\bar x,$$
+with $S_{xx}=\sum_i(x_i-\bar x)^2$, $S_{xy}=\sum_i(x_i-\bar x)(y_i-\bar y)$,
+$S_{yy}=\sum_i(y_i-\bar y)^2$. Here $n=5$.</p>
+<p><b>Step 1 &mdash; the two means.</b>
+$\sum_ix_i=1+2+3+4+5=15$ so $\bar x=15/5=3$;
+$\sum_iy_i=2.1+3.9+6.2+7.8+10.0=30.0$ so $\bar y=30/5=6.0$.</p>
+<p><b>Step 2 &mdash; the three sums.</b> Centered values:
+$x_i-\bar x=-2,-1,0,1,2$ and $y_i-\bar y=-3.9,-2.1,0.2,1.8,4.0$.
+$$S_{xx}=4+1+0+1+4=10,$$
+$$S_{xy}=(-2)(-3.9)+(-1)(-2.1)+(0)(0.2)+(1)(1.8)+(2)(4.0)
+=7.8+2.1+0+1.8+8.0=19.7,$$
+$$S_{yy}=15.21+4.41+0.04+3.24+16.00=38.90 .$$</p>
+<p><b>Step 3 &mdash; the coefficients.</b>
+$$\hat\theta_1=\frac{19.7}{10}=1.97,\qquad
+\hat\theta_0=6.0-1.97\times3=6.0-5.91=0.09 .$$
+So the fit is $y\approx0.09+1.97x$. (A direct least-squares solve returns
+$\hat\theta_0=0.09$, $\hat\theta_1=1.97$. $\checkmark$) Reading it: each extra $100$ rpm
+buys about $1.97$ L/min of flow.</p>
+<p><b>Step 4 &mdash; fitted values and residuals.</b>
+$$\hat y = 2.06,\ 4.03,\ 6.00,\ 7.97,\ 9.94
+\quad\Longrightarrow\quad
+e = 0.04,\ -0.13,\ 0.20,\ -0.17,\ 0.06 .$$
+Check the identities:
+$$\sum_ie_i=0.04-0.13+0.20-0.17+0.06=0.00,$$
+$$\sum_ix_ie_i=1(0.04)+2(-0.13)+3(0.20)+4(-0.17)+5(0.06)
+=0.04-0.26+0.60-0.68+0.30=0.00 .$$
+Both vanish, as they must: they <em>are</em> the two normal equations
+$\partial Q/\partial\theta_0=0$ and $\partial Q/\partial\theta_1=0$ rewritten.</p>
+<p><b>Step 5 &mdash; SSE and $R^2$.</b> Directly,
+$$\mathrm{SSE}=0.04^2+0.13^2+0.20^2+0.17^2+0.06^2
+=0.0016+0.0169+0.0400+0.0289+0.0036=0.0910 .$$
+The shortcut of &sect;3.3 agrees without forming residuals:
+$\mathrm{SSE}=S_{yy}-S_{xy}^2/S_{xx}=38.90-19.7^2/10=38.90-38.809=0.091$. $\checkmark$
+Then
+$$R^2=1-\frac{\mathrm{SSE}}{S_{yy}}=1-\frac{0.091}{38.90}=1-0.0023393=0.9976607 .$$</p>
+<p><b>Step 6 &mdash; prediction.</b> $\hat y(6)=0.09+1.97\times6=0.09+11.82=11.91$ L/min.</p>
+<p><b>Answer.</b> $\;\hat\theta_0=0.09$, $\hat\theta_1=1.97$;
+residuals $(0.04,-0.13,0.20,-0.17,0.06)$ with both identities $=0$;
+$\mathrm{SSE}=0.091$, $R^2=0.9976607$; $\hat y(6)=11.91$.</p>
+<p><i>Trap.</i> Computing $\hat\theta_0$ as $\bar y - \hat\theta_1$ (forgetting $\bar x$),
+which gives $6.0-1.97=4.03$ &mdash; a line missing every data point. The intercept
+formula exists precisely to force the line through the centroid $(\bar x,\bar y)=(3,6)$,
+and indeed $\hat y(3)=0.09+5.91=6.00=\bar y$.</p>
+<p class="srcref">Tool: G7 &sect;3.2 (normal equations and the closed forms),
+&sect;3.3 (residual identities, $R^2$, the $\mathrm{SSE}=S_{yy}-S_{xy}^2/S_{xx}$
+shortcut) &middot; B&amp;T &sect;9.2</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q146 -->
+<div class="ex qcard" id="q146" data-diff="2" data-topic="regression">
+<p><b>Q146.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Spot the error &middot; <span class="ref">G7 &sect;3.2</span></span></p>
+<p>Using Q145's data ($x=1,\dots,5$; $y=2.1,\ 3.9,\ 6.2,\ 7.8,\ 10.0$), a student writes
+$$\hat\theta_1=\frac{\sum_i x_iy_i}{\sum_i x_i^2}$$
+"because that is the slope formula", computes $109.7/55=1.9945455$, and reports a fit
+$y\approx0.09+1.9945x$ (keeping Q145's intercept).
+(a) Identify the error precisely and give the correct identity relating
+$\sum_ix_iy_i$ to $S_{xy}$. (b) Is $1.9945455$ the least-squares slope of <em>any</em>
+model? If so, which one, and what is its SSE compared with the correct fit's $0.091$?
+(c) What is the single worst consequence of the student's reported line?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The raw sums are
+$\sum_ix_iy_i=2.1+7.8+18.6+31.2+50.0=109.7$, $\sum_ix_i^2=1+4+9+16+25=55$,
+$\sum_iy_i^2=4.41+15.21+38.44+60.84+100.00=218.9$, with $\bar x=3$, $\bar y=6$, $n=5$.</p>
+<p><b>(a) The error: no centering.</b> The correct closed form uses
+<em>centered</em> sums. The bookkeeping identity (expand the product and use
+$\sum_ix_i=n\bar x$) is
+$$S_{xy}=\sum_i(x_i-\bar x)(y_i-\bar y)=\sum_ix_iy_i-n\bar x\bar y
+=109.7-5(3)(6)=109.7-90=19.7,\ \checkmark$$
+$$S_{xx}=\sum_ix_i^2-n\bar x^2=55-5(9)=55-45=10 .\ \checkmark$$
+So the correct slope is $19.7/10=1.97$; the student computed $109.7/55=1.9945455$,
+which drops the $-n\bar x\bar y$ and $-n\bar x^2$ corrections. The discrepancy is
+$0.0245455$. The formula $\sum x_iy_i/\sum x_i^2$ is only equal to $S_{xy}/S_{xx}$ when
+$\bar x=0$ (or $\bar y=0$) &mdash; which is why the mistake is invisible on centered data
+and lethal otherwise.</p>
+<p><b>(b) It is the right answer to a different question.</b> $\sum x_iy_i/\sum x_i^2$
+is exactly the least-squares slope for the <em>no-intercept</em> model
+$Y_i=\theta_1x_i+W_i$: minimizing $Q(\theta_1)=\sum_i(y_i-\theta_1x_i)^2$ gives
+$\frac{dQ}{d\theta_1}=-2\sum_ix_i(y_i-\theta_1x_i)=0$, i.e.
+$\theta_1\sum_ix_i^2=\sum_ix_iy_i$. Its SSE is
+$$\mathrm{SSE}_{\text{no-int}}=\sum_iy_i^2-\frac{(\sum_ix_iy_i)^2}{\sum_ix_i^2}
+=218.9-\frac{109.7^2}{55}=218.9-\frac{12034.09}{55}=218.9-218.8016=0.0983636 .$$
+Against the two-parameter fit's $0.0910$, the excess is $0.0073636$ &mdash; the
+no-intercept model is worse, as it must be, since it is the two-parameter model
+constrained to $\theta_0=0$ and a constrained minimum cannot beat an unconstrained one.</p>
+<p><b>(c) The worst consequence: an incoherent line.</b> The student has spliced a slope
+from the no-intercept model onto an intercept from the with-intercept model. The
+resulting line $y=0.09+1.9945x$ minimizes nothing: it is not the least-squares fit of
+either model, its residuals do <em>not</em> satisfy $\sum_ie_i=0$ or $\sum_ix_ie_i=0$,
+and it no longer passes through the centroid $(3,6)$ &mdash; at $x=3$ it predicts
+$0.09+5.9836=6.0736$ instead of $6.00$. Every diagnostic downstream ($R^2$, the residual
+plot, any confidence interval for the slope) is then computed from a line that is not the
+fit.</p>
+<p><b>Answer.</b> $\;$(a) The error is omitting the centering corrections:
+$S_{xy}=\sum x_iy_i-n\bar x\bar y=19.7$, $S_{xx}=\sum x_i^2-n\bar x^2=10$, so
+$\hat\theta_1=1.97$, not $1.9945455$.
+(b) Yes &mdash; it is the least-squares slope of the no-intercept model, whose
+$\mathrm{SSE}=0.0983636&gt;0.0910$.
+(c) The reported line minimizes no criterion at all and violates both residual
+identities.</p>
+<p><i>Trap.</i> Concluding "the two slopes are close, so it does not matter." The gap
+here is small only because $\hat\theta_0=0.09$ is nearly zero. Shift every $y_i$ up by
+$50$: the correct slope stays $1.97$ (a vertical shift changes only the intercept), while
+$\sum x_iy_i/\sum x_i^2$ jumps to $(109.7+50\cdot15)/55=15.63$ &mdash; a factor of eight
+wrong.</p>
+<p class="srcref">Tool: G7 &sect;3.2 (normal equations, closed forms, the $S_{xx},S_{xy}$
+notation) &middot; G7 Practice 3.3 (regression through the origin) &middot; B&amp;T &sect;9.2</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q147 -->
+<div class="ex qcard" id="q147" data-diff="2" data-topic="regression">
+<p><b>Q147.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; What the fitted line does not claim &middot; <span class="ref">G7 &sect;3.8</span></span></p>
+<p>Q145's pump fit is $\hat y=0.09+1.97x$ with $R^2=0.9976607$ on five settings
+$x\in\{1,2,3,4,5\}$. An engineer draws four conclusions. Mark each true or false, with a
+reason; where false, state what the data <em>do</em> support.</p>
+<p>(i) "$R^2=0.998$, so the relation between speed and flow is essentially deterministic
+and linear over the whole operating range."<br>
+(ii) "Raising the setting to $x=12$ will deliver about $\hat y=23.73$ L/min."<br>
+(iii) "Since $R^2$ is so high, the slope is certainly not zero &mdash; no confidence
+interval needed."<br>
+(iv) "The relation is invertible: to get $y=10$ L/min I need
+$x=1/\hat\theta_1\times10$-ish, and regressing $x$ on $y$ would give slope
+$1/1.97=0.5076$."</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> A least-squares line is a summary of the data <em>in the observed range
+of $x$</em>, under a model $Y_i=\theta_0+\theta_1x_i+W_i$ in which the $x_i$ are fixed,
+chosen constants and only the noise is random (G7 &sect;3.1). Every one of the four claims
+oversteps that in a different direction.</p>
+<p><b>(i) False.</b> $R^2$ measures how much of the observed spread $S_{yy}=38.90$ the
+line removes: $1-0.091/38.90=0.9976607$. It says nothing about (a) linearity outside the
+five settings tried, (b) whether a curve would do even better, or (c) the absolute size
+of the residual noise, which here is
+$\hat\sigma=\sqrt{\mathrm{SSE}/(n-2)}=\sqrt{0.091/3}=\sqrt{0.0303333}=0.1741647$ L/min.
+$R^2$ is also inflated by a wide spread of $x$'s: the same noise with the settings packed
+into $[3,3.2]$ would give a much smaller $R^2$ with an identical physical relationship.
+What the data support: over $x\in[1,5]$, a line fits with residual scale about
+$0.17$ L/min.</p>
+<p><b>(ii) False &mdash; extrapolation.</b> The arithmetic
+$0.09+1.97(12)=23.73$ is right; the inference is not. No datum was collected above
+$x=5$, so nothing in the fit constrains the shape of the relation there, and pumps
+saturate. Confidence intervals do not rescue you: they quantify noise around an assumed
+model, not the possibility that the model is the wrong shape outside its data
+(G7 &sect;3.8). What the data support: predictions for $x$ within roughly $[1,5]$.</p>
+<p><b>(iii) False.</b> $R^2$ is not a significance statement; with $n=5$ points, three
+residual degrees of freedom, one needs the interval itself. With $\sigma$ unknown, G7
+&sect;3.6 gives $\hat\theta_1\pm t_{n-2,0.975}\,\hat\sigma/\sqrt{S_{xx}}$. Here
+$t_{3,0.975}=3.1824463$ and the standard error is
+$\hat\sigma/\sqrt{S_{xx}}=0.1741647/\sqrt{10}=0.0550757$, so the $95\%$ interval is
+$$1.97\pm3.1824463\times0.0550757=1.97\pm0.1752755=[1.7947245,\ 2.1452755].$$
+It happens to exclude $0$ comfortably, so the conclusion survives &mdash; but it survives
+<em>because the interval was computed</em>, not because $R^2$ was large. (A dataset with
+$n=3$ and $R^2=0.99$ can easily have an interval straddling zero.)</p>
+<p><b>(iv) False.</b> Least squares is asymmetric: it minimizes squared errors in $y$
+only. Regressing $x$ on $y$ minimizes a different criterion and gives slope
+$$\hat\beta_1=\frac{S_{xy}}{S_{yy}}=\frac{19.7}{38.90}=0.5064267,$$
+not $1/1.97=0.5076142$. In fact the two slopes multiply to
+$\hat\theta_1\hat\beta_1=1.97\times0.5064267=0.9976607=R^2\le1$, with equality only for a
+perfect fit. The two lines coincide only when the points are exactly collinear. What the
+data support: to <em>predict</em> $y$ from $x$, use $\hat y=0.09+1.97x$; to predict $x$
+from $y$, refit the other way; and neither is a statement that changing $x$
+<em>causes</em> $y$ to move (G7 &sect;3.8: only an intervention establishes that).</p>
+<p><b>Answer.</b> $\;$All four are false. $\hat\sigma=0.1741647$;
+$\hat y(12)=23.73$ is arithmetic, not evidence; the $95\%$ slope interval is
+$[1.7947245,\ 2.1452755]$; regressing $x$ on $y$ gives slope $0.5064267$, and
+$\hat\theta_1\hat\beta_1=R^2=0.9976607$.</p>
+<p><i>Trap.</i> The tempting answer is that (ii) is true "because the model is linear."
+The model is linear <em>by assumption</em>, and the assumption was only ever tested where
+data exist. A fitted line is an interpolation device with an extrapolation-shaped
+formula.</p>
+<p class="srcref">Tool: G7 &sect;3.3 ($R^2$), &sect;3.6 (reporting a regression; the
+$t$-interval for the slope), &sect;3.8 (extrapolation, causation, asymmetry of the fit)
+&middot; B&amp;T &sect;9.2</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q148 -->
+<div class="ex qcard" id="q148" data-diff="2" data-topic="hypothesis-testing">
+<p><b>Q148.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; A discrete LRT &middot; <span class="ref">G7 &sect;4.2, &sect;4.5</span></span></p>
+<p>A supplier's process is either in control ($H_0$: each unit is defective independently
+with probability $p_0=0.1$) or drifted ($H_1$: $p_1=0.3$). You inspect $n=10$ units and
+count defectives $X$.
+(a) Derive the likelihood ratio $L(k)$ and show the LRT rejects $H_0$ for large $k$.
+(b) Evaluate $L(4)$ and interpret it. (c) Find the rejection region of the form
+$\{X\ge k\}$ with the largest attainable level not exceeding $\alpha=0.05$, and report
+the resulting $\alpha$ and $\beta$. (d) Why can you not achieve $\alpha=0.05$ exactly?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $X\sim\text{Binomial}(10,p)$ under both hypotheses, differing only in
+$p$. Its PMF is $p_X(k;p)=\binom{10}{k}p^k(1-p)^{10-k}$.</p>
+<p><b>Step 1 &mdash; the ratio.</b> The binomial coefficients are identical under the two
+hypotheses and cancel:
+$$L(k)=\frac{p_X(k;H_1)}{p_X(k;H_0)}
+=\frac{\binom{10}{k}(0.3)^k(0.7)^{10-k}}{\binom{10}{k}(0.1)^k(0.9)^{10-k}}
+=\left(\frac{0.3}{0.1}\right)^{k}\left(\frac{0.7}{0.9}\right)^{10-k}
+=3^k(0.7777778)^{10-k}.$$
+Monotonicity: consecutive values satisfy
+$$\frac{L(k+1)}{L(k)}=\frac{0.3}{0.1}\cdot\frac{0.9}{0.7}=3\times1.2857143=3.8571429&gt;1,$$
+so $L$ is strictly increasing in $k$. Therefore $\{L(x)&gt;\xi\}$ is always an upper tail
+$\{X\ge k\}$: rejecting for large $\xi$ is the same as rejecting for many defectives.
+This is what makes the abstract LRT usable &mdash; you never have to sort likelihood
+ratios by hand.</p>
+<p><b>Step 2 &mdash; $L(4)$.</b> $L(4)=3^4(0.7777778)^6=81\times0.2213773=17.9315653$.
+(Direct ratio of the two binomial PMFs: $17.9315653$. $\checkmark$) The observed count $4$
+is about $17.9$ times more likely under drift than under control. For scale,
+$L(0)=(0.7777778)^{10}=0.0810131$, $L(2)=1.2052767$ and $L(3)=4.6489243$: the ratio
+crosses $1$ between $k=1$ and $k=2$.</p>
+<p><b>Step 3 &mdash; calibrating to $\alpha\le0.05$.</b> Compute upper tails under $H_0$
+($p=0.1$):
+$$\mathbf{P}(X\ge2)=0.2639011,\quad
+\mathbf{P}(X\ge3)=0.0701908,\quad
+\mathbf{P}(X\ge4)=0.0127952,\quad
+\mathbf{P}(X\ge5)=0.0016349 .$$
+The smallest threshold whose tail does not exceed $0.05$ is $k=4$, since
+$\mathbf{P}(X\ge3)=0.0701908&gt;0.05$ while $\mathbf{P}(X\ge4)=0.0127952\le0.05$.
+So $R=\{X\ge4\}$ and $\alpha=0.0127952$.</p>
+<p>The type II error is the probability of not rejecting when $H_1$ holds:
+$$\beta=\mathbf{P}(X\le3;\,p=0.3)=0.6496107,$$
+so the power is $1-0.6496107=0.3503893$. (Simulation with $400{,}000$ draws each returns
+$\hat\alpha=0.012705$ and $\hat\beta=0.650373$. $\checkmark$) Any critical value
+$\xi\in(L(3),L(4)]=(4.6489243,\ 17.9315653]$ produces this same test.</p>
+<p><b>Step 4 &mdash; why not exactly $0.05$.</b> $X$ takes eleven values, so
+$\mathbf{P}(X\ge k;H_0)$ takes only eleven values as $k$ ranges over the integers;
+$0.05$ is not one of them. It sits inside the jump from $0.0701908$ (at $k=3$) to
+$0.0127952$ (at $k=4$), a gap equal to $\mathbf{P}(X=3;H_0)=0.0573956$. Following the
+&sect;4.5 rule &mdash; never exceed the promised level &mdash; you take $k=4$ and accept
+a test that is markedly more conservative than advertised. The price is visible in
+$\beta$: the $k=3$ test would have had $\beta=0.3827828$, roughly $0.27$ better power,
+but at $\alpha=0.0702$.</p>
+<p><b>Answer.</b> $\;L(k)=3^k(7/9)^{10-k}$, increasing in $k$; $L(4)=17.9315653$;
+$R=\{X\ge4\}$ with $\alpha=0.0127952$ and $\beta=0.6496107$ (power $0.3503893$);
+exact $\alpha=0.05$ is unattainable because $X$ is discrete.</p>
+<p><i>Trap.</i> Choosing $k=3$ "because $0.0702$ is closer to $0.05$ than $0.0128$ is."
+Closeness is not the criterion &mdash; the level is a promise, an upper bound on the
+false-rejection rate, and $0.0702&gt;0.05$ breaks it. A second trap: reporting
+$\beta=1-\alpha=0.987$. $\alpha$ and $\beta$ are computed under <em>different</em>
+distributions and do not sum to anything in particular.</p>
+<p class="srcref">Tool: G7 &sect;4.2 (likelihood ratio test, calibrating $\xi$ to
+$\alpha$), &sect;4.5 (the discrete case: take the largest attainable level $\le\alpha$)
+&middot; B&amp;T &sect;9.3, Example 9.14</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q149 -->
+<div class="ex qcard" id="q149" data-diff="1" data-topic="hypothesis-testing">
+<p><b>Q149.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; What "not rejected" means &middot; <span class="ref">G7 &sect;4.1</span></span></p>
+<p>A researcher tests $H_0:\mu=0$ against $H_1:\mu=0.5$ using $n=9$ i.i.d. normal
+observations with known $\sigma=1$, rejecting when the sample mean $M_9$ exceeds a
+threshold calibrated to $\alpha=0.05$. She obtains $M_9=0.41$, does not reject, and
+writes in her report: "we conclude that $\mu=0$."
+(a) Find the threshold. (b) Find $\beta$, the probability of failing to reject when
+$\mu=0.5$ is in fact true. (c) Criticize her sentence and rewrite it.
+(d) What $n$ would push $\beta$ down to $0.10$?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Under either hypothesis $M_9\sim N(\mu,\sigma^2/n)=N(\mu,1/9)$, so the
+standard error is $\sigma/\sqrt n=1/3=0.3333333$. The rejection region is one-sided
+(larger $\mu$ means larger $M_n$), $R=\{M_9&gt;c\}$.</p>
+<p><b>Step 1 &mdash; the threshold.</b> Calibrate under $H_0$:
+$$\alpha=\mathbf{P}(M_9&gt;c;\,\mu=0)=1-\Phi\!\left(\frac{c}{1/3}\right)=0.05
+\;\Longrightarrow\;\frac{c}{1/3}=z_{0.95}=1.6448536,$$
+$$c=\frac{1.6448536}{3}=0.5482845 .$$
+Her observed $M_9=0.41&lt;0.5482845$, so indeed she does not reject.</p>
+<p><b>Step 2 &mdash; $\beta$.</b> Under $H_1$, $M_9\sim N(0.5,1/9)$, so
+$$\beta=\mathbf{P}(M_9\le c;\,\mu=0.5)
+=\Phi\!\left(\frac{0.5482845-0.5}{1/3}\right)
+=\Phi(0.1448536)=0.5575868 .$$
+Equivalently $\beta=\Phi\big(z_{0.95}-\mu_1\sqrt n/\sigma\big)=\Phi(1.6448536-1.5)$.
+(Simulation of $500{,}000$ sample means gives $\hat\beta=0.55766$ and
+$\hat\alpha=0.049778$. $\checkmark$) The power is only $0.4424132$.</p>
+<p><b>Step 3 &mdash; the critique.</b> "We conclude that $\mu=0$" is unsupportable. Even
+if $\mu$ really were $0.5$ &mdash; the specific alternative she cares about &mdash; this
+test would have failed to reject $55.8\%$ of the time. Not rejecting is therefore only
+weak evidence, and none of it is evidence <em>for</em> $H_0$: the test was designed to
+control the false-rejection rate at $0.05$ and was never designed to control the
+false-acceptance rate at all. The asymmetry is deliberate (G7 &sect;4.1): $H_0$ is the
+default, and the data either dislodge it or fail to.</p>
+<p>A correct sentence: "at the $5\%$ level, the data do not provide sufficient evidence to
+reject $\mu=0$; with $n=9$ this test has power only $0.44$ against $\mu=0.5$, so the
+result is also consistent with a real effect of that size."</p>
+<p><b>Step 4 &mdash; the $n$ for $\beta=0.10$.</b> Require
+$\Phi\big(z_{0.95}-\mu_1\sqrt n/\sigma\big)\le0.10$. Since $\Phi$ is increasing and
+$\Phi(-z_{0.90})=0.10$, this is $z_{0.95}-\mu_1\sqrt n/\sigma\le-z_{0.90}$, i.e.
+$$\sqrt n\ \ge\ \frac{(z_{0.95}+z_{0.90})\sigma}{\mu_1}
+=\frac{(1.6448536+1.2815516)\times1}{0.5}=5.8528104,$$
+$$n\ \ge\ (5.8528104)^2=34.2554\;\Longrightarrow\; n=35 .$$
+Check: $\Phi(1.6448536-0.5\sqrt{35})=\Phi(1.6448536-2.9580399)=\Phi(-1.3131863)=0.0945601\le0.10$.
+$\checkmark$ Note the cost: detecting a half-standard-deviation effect reliably needs
+roughly four times her sample.</p>
+<p><b>Answer.</b> $\;c=0.5482845$; $\beta=0.5575868$ (power $0.4424132$); "we conclude
+$\mu=0$" is wrong &mdash; the correct statement is "insufficient evidence to reject at the
+$5\%$ level"; $n=35$ gives $\beta\le0.10$.</p>
+<p><i>Trap.</i> "Not rejecting at $\alpha=0.05$ means $\mathbf{P}(H_0)=0.95$." There is no
+probability attached to $H_0$ in classical inference &mdash; $\mu$ is a constant, not a
+random variable. Attaching one requires a prior and turns the problem into the Bayesian
+MAP comparison of G6 &sect;3. A second trap: reading $\alpha=0.05$ as if it bounded the
+error rate of <em>both</em> decisions; here the other error rate is $0.5576$, eleven times
+larger.</p>
+<p class="srcref">Tool: G7 &sect;4.1 (the two error types; why $H_0$ is privileged),
+&sect;4.3 (test on a normal mean), &sect;4.5 (the $\alpha$&ndash;$\beta$ tradeoff)
+&middot; B&amp;T &sect;9.3</p>
+</div></details>
+</div>
+
+<!-- ============================================================ Q150 -->
+<div class="ex qcard" id="q150" data-diff="3" data-topic="hypothesis-testing">
+<p><b>Q150.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; LRT, threshold, and the $\alpha$&ndash;$\beta$ tradeoff &middot; <span class="ref">G7 &sect;4.2, &sect;4.5</span></span></p>
+<p>Component lifetimes $X_1,\dots,X_n$ are i.i.d. exponential. The manufacturer claims a
+failure rate $\lambda_0=1$ per year ($H_0$); a rival claims the parts are twice as good,
+$\lambda_1=1/2$ ($H_1$). You test $n=10$ components and observe the total lifetime
+$S=\sum_iX_i$.
+(a) Derive $L(x)$ and show the LRT rejects $H_0$ for large $S$.
+(b) With $\alpha=0.05$, find the threshold $\xi$ on $S$ (use: the $0.95$ quantile of a
+Gamma$(10,\text{rate }1)$ is $15.7052164$) and the corresponding threshold on the
+likelihood ratio itself. (c) Compute $\beta$. (d) Tabulate $(\alpha,\beta)$ for
+$\alpha=0.10,\ 0.05,\ 0.01$ using thresholds $14.2059903$, $15.7052164$, $18.7831174$,
+and state the tradeoff. (e) What $n$ makes $\beta\le0.05$ while keeping $\alpha=0.05$?
+(Gamma tail values are supplied below.)</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The exponential density with rate $\lambda$ is
+$f(x;\lambda)=\lambda e^{-\lambda x}$ for $x\ge0$. Under $H_j$ the sum
+$S=\sum_{i=1}^{10}X_i$ is Erlang/Gamma with $n=10$ stages and rate $\lambda_j$
+(G4 &sect;3), with mean $n/\lambda_j$: $\mathbb{E}[S;H_0]=10$ and
+$\mathbb{E}[S;H_1]=20$. Longer total life is evidence for the rival's claim.</p>
+<p><b>Step 1 &mdash; the likelihood ratio.</b> By independence,
+$$L(x)=\frac{f_X(x;H_1)}{f_X(x;H_0)}
+=\frac{\prod_i\lambda_1e^{-\lambda_1x_i}}{\prod_i\lambda_0e^{-\lambda_0x_i}}
+=\left(\frac{\lambda_1}{\lambda_0}\right)^{n}
+e^{-(\lambda_1-\lambda_0)\sum_ix_i}
+=\left(\tfrac12\right)^{10}e^{\,S/2},$$
+using $\lambda_1-\lambda_0=0.5-1=-0.5$. The data enter only through $S$ &mdash; $S$ is a
+sufficient statistic &mdash; and $e^{S/2}$ is strictly increasing in $S$. Hence
+$$\{L(x)&gt;\xi_L\}=\{S&gt;\xi\}\quad\text{for the matching }\xi,$$
+so the LRT is "reject when total lifetime is large," as intuition demands.</p>
+<p><b>Step 2 &mdash; calibrate $\xi$.</b> Choose $\xi$ so the false-rejection probability
+is $\alpha$:
+$$\mathbf{P}(S&gt;\xi;\,H_0)=0.05\;\Longleftrightarrow\;\xi=\text{Gamma}(10,1)\text{'s }0.95
+\text{ quantile}=15.7052164 .$$
+Check: $\mathbf{P}(S&gt;15.7052164;H_0)=0.0500000$. $\checkmark$ On the sample mean this is
+$\xi/n=1.5705216$ years &mdash; reject if the average part lasts more than $1.57$ years,
+against a claimed mean of $1$. Translating to the ratio scale,
+$$\xi_L=\left(\tfrac12\right)^{10}e^{\,15.7052164/2}
+=0.0009765625\times e^{7.8526082}=0.0009765625\times2572.4350=2.5121436 .$$
+So the test rejects when the data are more than about $2.51$ times as likely under $H_1$.
+That the threshold on $L$ exceeds $1$ is the classical asymmetry at work: a bare
+majority of evidence is not enough to dislodge $H_0$.</p>
+<p><b>Step 3 &mdash; $\beta$.</b> Under $H_1$, $S\sim$ Gamma$(10,\text{rate }0.5)$, mean
+$20$:
+$$\beta=\mathbf{P}(S\le15.7052164;\,H_1)=0.2652645 ,$$
+so the power is $0.7347355$. (Simulation with $300{,}000$ replicates of each hypothesis
+returns $\hat\alpha=0.050167$ and $\hat\beta=0.265607$. $\checkmark$) Intuitively, $H_1$'s
+distribution is centered at $20$ and the threshold sits at $15.7052164$, only
+$(20-15.7052164)/6.3245553=0.6790649$ standard deviations below it (the Gamma standard
+deviation under $H_1$ is $\sqrt{10}/0.5=6.3245553$), so a substantial left tail falls
+below the threshold.</p>
+<p><b>Step 4 &mdash; the tradeoff.</b> Evaluating $\mathbf{P}(S\le\xi;H_1)$ at the three
+thresholds:</p>
+<p style="overflow-x:auto">$$\begin{array}{c|c|c|c}
+\alpha &amp; \xi &amp; \beta &amp; \text{power }1-\beta\\\hline
+0.10 &amp; 14.2059903 &amp; 0.1801000 &amp; 0.8199000\\
+0.05 &amp; 15.7052164 &amp; 0.2652645 &amp; 0.7347355\\
+0.01 &amp; 18.7831174 &amp; 0.4640388 &amp; 0.5359612
+\end{array}$$</p>
+<p>At fixed $n$, moving $\xi$ right shrinks the $H_0$ tail and grows the $H_1$ one: every
+factor-of-five reduction in $\alpha$ here roughly doubles $\beta$. There is no threshold
+that makes both small &mdash; the two error probabilities are linked by a single dial, and
+the only way off the curve is more data (G7 &sect;4.5, &sect;4.6).</p>
+<p><b>Step 5 &mdash; the $n$ that buys $\beta\le0.05$.</b> Increase $n$, recalibrating
+$\xi_n$ each time as the $0.95$ quantile of Gamma$(n,1)$ and evaluating
+$\beta_n=\mathbf{P}(S\le\xi_n;\text{rate }0.5)$. Scanning upward from $n=10$, the
+requirement first holds at
+$$n=23:\qquad \xi_{23}=31.4148102,\qquad \beta_{23}=0.0496647\le0.05 .$$
+So $23$ components buy symmetric $5\%$ errors, against $10$ components with $\beta=0.265$.
+Note the shape of the answer: the separation between the hypotheses is fixed (a factor of
+two in rate), and both error probabilities shrink only as the sampling distributions
+pull apart at rate $\sqrt n$.</p>
+<p><b>Answer.</b> $\;L(x)=(1/2)^{10}e^{S/2}$, increasing in $S$; $\xi=15.7052164$
+(equivalently $\xi_L=2.5121436$, or $1.5705216$ on the sample mean);
+$\beta=0.2652645$; the tradeoff is $(\alpha,\beta)=(0.10,0.1801),\ (0.05,0.2653),\
+(0.01,0.4640)$; $n=23$ gives $\beta=0.0496647$ at $\alpha=0.05$.</p>
+<p><i>Trap.</i> Rejecting for <em>small</em> $S$ because "$H_1$ has the smaller
+parameter $\lambda_1=1/2$." The parameter is a rate, not a mean: a smaller rate means
+<em>longer</em> lifetimes. Getting the direction wrong flips the test into one with
+$\alpha=0.05$ and $\beta=\mathbf{P}(S&gt;\text{lower quantile};H_1)$ close to $1$ &mdash;
+worse than tossing a coin. Always check the direction on the means ($10$ versus $20$)
+before calibrating anything.</p>
+<p class="srcref">Tool: G7 &sect;4.2 (LRT, monotone ratio, calibrating $\xi$ to $\alpha$),
+&sect;4.5 (the $\alpha$&ndash;$\beta$ tradeoff), &sect;4.6 (Neyman&ndash;Pearson)
+&middot; G4 &sect;3 (Erlang as a sum of exponentials) &middot; B&amp;T &sect;9.3</p>
+</div></details>
+</div>

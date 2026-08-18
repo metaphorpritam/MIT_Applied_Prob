@@ -248,6 +248,40 @@ $$\mathbf{P}(A_1 \cup A_2 \cup \cdots \cup A_n) \le \mathbf{P}(A_1) + \mathbf{P}
 then to $A_2$ and $A_3 \cup \cdots \cup A_n$, and so on; after $n-1$ such steps and adding, $\mathbf{P}(A_1 \cup \cdots \cup A_n) \le \sum_{i=1}^n \mathbf{P}(A_i)$ (this is the argument of B&amp;T, p. 14).</p>
 </div></details>
 
+<p>Property 4 is stated for two events, and that is the version used everywhere below. Three events come up often enough — "at least one of three components fails", "the card is a heart, a face card, or an ace" — to be worth recording separately, and the derivation needs nothing new.</p>
+
+<div class="thm"><b>Property (inclusion–exclusion, three sets).</b> For any events $A$, $B$, $C$,
+$$\mathbf{P}(A\cup B\cup C) \;=\; \mathbf{P}(A)+\mathbf{P}(B)+\mathbf{P}(C)-\mathbf{P}(A\cap B)-\mathbf{P}(A\cap C)-\mathbf{P}(B\cap C)+\mathbf{P}(A\cap B\cap C).$$
+</div>
+
+<details class="sol"><summary>Proof — the two-set rule, applied to three different pairs</summary><div class="body">
+<p><b>Step 1 — bracket two of the three.</b> Union is associative, so $A \cup B \cup C = (A\cup B)\cup C$: this is a union of the two events $A\cup B$ and $C$. Property 4 applied to that pair gives
+$$\mathbf{P}(A\cup B\cup C) = \mathbf{P}(A\cup B) + \mathbf{P}(C) - \mathbf{P}\big((A\cup B)\cap C\big). \tag{i}$$
+No assumption is needed: property 4 holds for arbitrary events, overlapping or not.</p>
+<p><b>Step 2 — expand the first term.</b> Property 4 again, this time on the pair $A$, $B$:
+$$\mathbf{P}(A\cup B) = \mathbf{P}(A) + \mathbf{P}(B) - \mathbf{P}(A\cap B). \tag{ii}$$</p>
+<p><b>Step 3 — expand the subtracted term.</b> By the distributive law for sets,
+$$(A\cup B)\cap C = (A\cap C)\cup(B\cap C),$$
+a union of the two events $A\cap C$ and $B\cap C$ — so property 4 applies a third time, to <em>that</em> pair:
+$$\mathbf{P}\big((A\cup B)\cap C\big) = \mathbf{P}(A\cap C) + \mathbf{P}(B\cap C) - \mathbf{P}\big((A\cap C)\cap(B\cap C)\big).$$
+The last intersection simplifies: an outcome lies in both $A\cap C$ and $B\cap C$ exactly when it lies in $A$, in $B$ and in $C$, i.e. $(A\cap C)\cap(B\cap C) = A\cap B\cap C$. Hence
+$$\mathbf{P}\big((A\cup B)\cap C\big) = \mathbf{P}(A\cap C) + \mathbf{P}(B\cap C) - \mathbf{P}(A\cap B\cap C). \tag{iii}$$</p>
+<p><b>Step 4 — substitute (ii) and (iii) into (i).</b>
+$$
+\begin{aligned}
+\mathbf{P}(A\cup B\cup C)
+&= \big[\mathbf{P}(A)+\mathbf{P}(B)-\mathbf{P}(A\cap B)\big] + \mathbf{P}(C) - \big[\mathbf{P}(A\cap C)+\mathbf{P}(B\cap C)-\mathbf{P}(A\cap B\cap C)\big]\\
+&= \mathbf{P}(A)+\mathbf{P}(B)+\mathbf{P}(C)-\mathbf{P}(A\cap B)-\mathbf{P}(A\cap C)-\mathbf{P}(B\cap C)+\mathbf{P}(A\cap B\cap C). \qquad \blacksquare
+\end{aligned}
+$$</p>
+<p><b>The pattern.</b> The signs alternate by the number of events intersected — add the singles, subtract the pairs, add back the triples — and the same bracketing argument, iterated, carries it to any finite number of events:
+$$\mathbf{P}(A_1\cup\cdots\cup A_n) = \sum_{i}\mathbf{P}(A_i) - \sum_{i&lt;j}\mathbf{P}(A_i\cap A_j) + \sum_{i&lt;j&lt;k}\mathbf{P}(A_i\cap A_j\cap A_k) - \cdots + (-1)^{n+1}\,\mathbf{P}(A_1\cap\cdots\cap A_n),$$
+the two-set and three-set statements being the cases $n=2$ and $n=3$. Keeping only the first sum leaves the union bound (property 5) — which is exactly why that bound over-estimates.</p>
+<p><b>A check on the tetrahedral grid.</b> Take the fair $4\times4$ model of Example 1.1 and the three events $A = \{X=1\}$ (a column, $4$ cells), $B = \{Y=1\}$ (a row, $4$ cells), $C = \{X+Y=5\}$ (the anti-diagonal $(1,4),(2,3),(3,2),(4,1)$, $4$ cells). The pairwise overlaps are single cells — $A\cap B = \{(1,1)\}$, $A\cap C = \{(1,4)\}$, $B\cap C = \{(4,1)\}$ — and $A\cap B\cap C = \varnothing$, since $(1,1)$ has sum $2$. The formula gives
+$$\mathbf{P}(A\cup B\cup C) = \frac{4+4+4}{16} - \frac{1+1+1}{16} + \frac{0}{16} = \frac{12-3}{16} = \frac{9}{16} = 0.5625 .$$
+Counting the union directly: the $L$-shape $A\cup B$ has $7$ cells (Practice 1.6), and $C$ contributes the two further cells $(2,3)$ and $(3,2)$, for $7+2 = 9$ cells. ✓ Adding the three probabilities blindly would have given $12/16 = 0.75$.</p>
+</div></details>
+
 <div class="note"><b>Interpretation.</b> Read the axioms as bookkeeping for a fixed budget of $1$ unit of belief spread over $\Omega$. Nonnegativity says no piece of the budget is negative; normalization says the pieces total $1$; additivity says the budget of a union of non-overlapping regions is the sum of their budgets. Every property above is then obvious as accounting: the complement rule is "what is left of the budget", monotonicity is "a bigger region cannot hold less", and inclusion–exclusion is "if you add two overlapping regions you paid for the overlap twice, so refund it once".</div>
 
 <div class="warn"><b>Gotcha — additivity needs disjointness, every single time.</b> $\mathbf{P}(A \cup B) = \mathbf{P}(A) + \mathbf{P}(B)$ is <em>false</em> in general. With $A = \{X = 1\}$ and $B = \{Y = 1\}$ on the tetrahedral grid, $\mathbf{P}(A) = \mathbf{P}(B) = 4/16$ but $A \cup B$ has $7$ cells, not $8$ — the cell $(1,1)$ lies in both. Whenever you write a "$+$" between two probabilities, be able to point at the reason the two events cannot both happen.</div>
@@ -750,7 +784,7 @@ Since $[0,1] = \{0\} \cup (0,1]$ is a disjoint union, Axiom 3 gives $1 = \mathbf
 <b>§1 in one screen.</b>
 <b>Model</b> $= (\Omega, \mathbf{P})$: $\Omega$ mutually exclusive and collectively exhaustive; events are subsets of $\Omega$.
 <b>Axioms</b> (L01 slide 7, strengthened on slide 11): (1) $\mathbf{P}(A) \ge 0$; (2) $\mathbf{P}(\Omega) = 1$; (3) countable additivity — $\mathbf{P}(\bigcup_i A_i) = \sum_i \mathbf{P}(A_i)$ for pairwise disjoint $A_1, A_2, \ldots$.
-<b>Consequences:</b> $\mathbf{P}(\varnothing)=0$; $\mathbf{P}(A^c) = 1 - \mathbf{P}(A)$; $A \subseteq B \Rightarrow \mathbf{P}(A) \le \mathbf{P}(B)$; $\mathbf{P}(A\cup B) = \mathbf{P}(A)+\mathbf{P}(B)-\mathbf{P}(A\cap B)$; union bound; "exactly one" $=\mathbf{P}(A)+\mathbf{P}(B)-2\mathbf{P}(A\cap B)$ (rec01 P1).
+<b>Consequences:</b> $\mathbf{P}(\varnothing)=0$; $\mathbf{P}(A^c) = 1 - \mathbf{P}(A)$; $A \subseteq B \Rightarrow \mathbf{P}(A) \le \mathbf{P}(B)$; $\mathbf{P}(A\cup B) = \mathbf{P}(A)+\mathbf{P}(B)-\mathbf{P}(A\cap B)$, and for three events singles $-$ pairs $+$ triple (in general the alternating sum); union bound; "exactly one" $=\mathbf{P}(A)+\mathbf{P}(B)-2\mathbf{P}(A\cap B)$ (rec01 P1).
 <b>Two uniform laws:</b> discrete, $\mathbf{P}(A) = |A|/|\Omega|$ — on the $4\times4$ tetrahedral grid the slide-8 answers are $1/8$, $1/4$, $1/2$, $5/16$; continuous, $\mathbf{P}(A) = \text{area}(A)$ — $\mathbf{P}(X+Y\le 1/2) = 1/8$ and every single point has probability $0$.
 <b>Countable additivity earns its keep:</b> $\mathbf{P}(n)=2^{-n}$ gives $\mathbf{P}(\text{even}) = \sum_{k\ge1}(1/4)^k = \frac{1/4}{1-1/4} = 1/3$, unreachable by finitely many applications of Axiom 3; its general form is the continuity property $\mathbf{P}(A_n) \to \mathbf{P}(A)$ (rec01 G1).
 <b>Recitation headline numbers:</b> neither genius nor chocolate lover $= 0.1$; loaded die $\mathbf{P}(\{1,2,3\}) = 4/9$; Romeo &amp; Juliet $\mathbf{P}(\text{meet}) = 1-(1-w)^2 = 7/16 = 0.4375$ at $w = 15$ min.
@@ -2797,6 +2831,60 @@ those not containing $n$ — these are exactly the $k$-subsets of $\{1,\dots,n-1
 $\binom{n-1}{k}$ members. Adding the two disjoint classes gives the identity. Numerically,
 $\binom{7}{3} + \binom{7}{4} = 35 + 35 = 70 = \binom{8}{4}$, matching the last row of Fig. 4.2.</p></div></details></div>
 
+<p>One counting object is still missing, and $\binom{n}{k}$ supplies it. Drawing $k$ items from $n$ types
+admits four regimes — ordered or not, with replacement or not — and three of them have appeared:
+sequences $n^k$ (ordered, with replacement, §4.2), $k$-permutations $n!/(n-k)!$ (ordered, without
+replacement, §4.3) and subsets $\binom{n}{k}$ (unordered, without replacement, just now). The fourth
+is the unordered draw <em>with</em> replacement, where an item may be picked several times and only the
+tally matters. Its outcome is a <em>multiset</em>: a selection recording how many copies of each type
+were taken, so that from types $\{a,b,c\}$ the draws $aab$ and $aba$ are the same object, described by
+the counts $(2,1,0)$.</p>
+
+<div class="thm"><b>Property (multisets — "stars and bars"; beyond the L04 slides, and the fourth cell of
+the sampling table in §4.8).</b> The number of multisets of size $k$ drawn from $n$ types — equivalently,
+the number of ways to write $k = k_1+k_2+\cdots+k_n$ with each $k_j \ge 0$ an integer, where $k_j$ is
+the number of copies of type $j$ — is
+$$\binom{n+k-1}{k} \;=\; \binom{n+k-1}{n-1}.$$
+</div>
+
+<p><b>Derivation — a bijection with strings of stars and bars.</b> Encode a multiset as a row of
+symbols, using $k$ stars ($\star$) for the items drawn and $n-1$ bars ($\mid$) as fences separating
+the $n$ types: write $k_1$ stars, a bar, $k_2$ stars, a bar, …, a bar, $k_n$ stars. The row has
+$k + (n-1)$ symbols in all. With $n=4$ types and $k=6$ draws, the multiset with counts
+$(2,0,3,1)$ becomes
+$$\star\star \mid \; \mid \star\star\star \mid \star ,$$
+the empty gap between the first two bars recording that type $2$ was never drawn. The encoding is a
+<em>bijection</em>, and both directions must be checked, which is the whole content of the argument:</p>
+<ul>
+<li><em>Every multiset gives exactly one row.</em> The counts $k_1,\dots,k_n$ are determined by the
+multiset, and the recipe above then fixes the row symbol by symbol.</li>
+<li><em>Every row gives exactly one multiset.</em> Given a row of $k$ stars and $n-1$ bars, the bars cut it
+into exactly $n$ (possibly empty) blocks; reading off the block lengths $k_1,\dots,k_n$ recovers the
+counts, and they sum to $k$ because every star lies in exactly one block.</li>
+</ul>
+<p>So the multisets are in one-to-one correspondence with the rows, and it remains to count rows. A row
+is determined by <em>which</em> of its $n+k-1$ positions hold the stars — a $k$-element subset of the
+positions, everything else being a bar — so by the combination count above there are
+$\binom{n+k-1}{k}$ rows. Choosing the
+bars' positions instead gives $\binom{n+k-1}{n-1}$, the same number by the symmetry
+$\binom{N}{j}=\binom{N}{N-j}$. $\blacksquare$</p>
+
+<p>Two instances. From $n=3$ types, the $k=2$ multisets number $\binom{3+2-1}{2}=\binom{4}{2}=6$, and
+they can be listed: $11, 12, 13, 22, 23, 33$ — the $9$ ordered pairs collapse to $6$ because $12$ and
+$21$ are the same tally. From $n=6$ types with $k=6$ draws, the count is
+$\binom{11}{6} = \binom{11}{5} = 462$: the number of distinguishable <em>unordered</em> results of six rolls
+of a die, against $6^6 = 46{,}656$ ordered ones. (Both counts, and the formula itself for all
+$n\le 8$, $k\le 7$, are checked by direct enumeration in <code>computes/g1_s4.py</code>, key
+<code>multiset_formula_check</code>.)</p>
+
+<div class="warn"><b>Gotcha — multisets are almost never equally likely.</b> The multiset count is a
+legitimate count, but it is usually the wrong <em>sample space</em>: rolling two fair dice gives
+$\binom{6+2-1}{2} = 21$ possible tallies, and they do <em>not</em> carry probability $1/21$ each. The tally
+$\{1,1\}$ arises from one ordered pair out of $36$ and the tally $\{1,2\}$ from two, so their
+probabilities are $1/36$ and $1/18$. This is the §4.1 gotcha in its sharpest form — build $\Omega$ from
+ordered sequences, and use $\binom{n+k-1}{k}$ when the question asks how many <em>tallies</em> exist, not
+how likely one is.</div>
+
 <h3>4.5 Binomial probabilities</h3>
 
 <p>Now counting meets independence. Toss a coin $n$ times independently, with $\mathbf{P}(H)=p$ on each
@@ -3384,6 +3472,42 @@ $k$-set equally likely. When $k$ is small relative to $n$ the depletion is negli
 hypergeometric is close to the binomial with success probability $m/n$ — toggle the widget's $n$
 slider upward with $k$ fixed and watch the two marker sets converge.</div>
 
+<p>That closeness can be made exact. Write $X$ for the number of red balls drawn — the quantity called
+$i$ above — and $q = m/n$ for the fraction of the urn that is red.</p>
+
+<div class="thm"><b>Property (mean and variance of the hypergeometric).</b> With $n$ balls in the urn,
+$m$ of them red, and $k$ drawn without replacement,
+$$\mathbb{E}[X] \;=\; k\,\frac{m}{n} \;=\; kq, \qquad
+\operatorname{var}(X) \;=\; k\,\frac{m}{n}\Big(1-\frac{m}{n}\Big)\frac{n-k}{n-1} \;=\; kq(1-q)\cdot\frac{n-k}{n-1}.$$
+The first two factors are exactly the binomial mean and variance for $k$ trials of success probability
+$q$; the third, $\dfrac{n-k}{n-1}$, is the <b>finite-population correction factor</b>. It is usually
+quoted as $\dfrac{N-n}{N-1}$, in letters where $N$ is the population size and $n$ the sample size; in
+this section's letters the population is $n$ and the sample is $k$, so $N \mapsto n$ and $n \mapsto k$.
+In the white/black form, with $w$ white and $b$ black balls in an urn of $N = w+b$ and $n$ drawn
+without replacement,
+$$\operatorname{var}(X) \;=\; n\,\frac{w}{w+b}\Big(1-\frac{w}{w+b}\Big)\frac{w+b-n}{w+b-1}.$$
+(Deriving these means writing $X$ as a sum of $k$ <em>dependent</em> indicators; linearity still delivers
+the mean at once, but the variance needs the covariance of two indicators, which is G2 material. Here
+the formulas are quoted and checked numerically.)</div>
+
+<div class="note"><b>Interpretation — sampling without replacement is <em>less</em> variable.</b> Since
+$n-k &lt; n-1$ whenever $k &gt; 1$, the correction factor is smaller than $1$: removing balls from the urn
+damps the fluctuations of the count, because a run of red draws leaves fewer red balls behind and
+pushes the next draw the other way. The two extremes say it best. At $k=1$ the factor is
+$\frac{n-1}{n-1} = 1$: a single draw cannot feel depletion, and $X$ is Bernoulli($q$) whether or not
+the ball is returned. At $k=n$ the factor is $\frac{n-n}{n-1} = 0$ and the variance vanishes: drawing
+the entire urn gives $X = m$ every time, with no randomness left at all. In between, the running
+instance $n=20$, $m=8$, $k=5$ has binomial variance $kq(1-q) = 5\cdot 0.4\cdot 0.6 = 1.2 = 6/5$ and
+correction $\frac{15}{19} \approx 0.789474$, so
+$$\operatorname{var}(X) = \frac{6}{5}\cdot\frac{15}{19} = \frac{18}{19} \approx 0.947368 ,$$
+shorter than its with-replacement cousin by exactly the factor $\frac{15}{19}$ — and the compute script recovers exactly $18/19$ from
+the PMF of Fig. 4.5 by evaluating $\mathbb{E}[X^2]-(\mathbb{E}[X])^2$ term by term (keys
+<code>hyper_var_from_pmf_frac</code>, <code>hyper_var_matches</code>). The same comparison for
+Practice 4.16 ($n=20$, $m=3$, $k=4$): $0.51$ with replacement against
+$0.51\cdot\frac{16}{19} = 0.429474$ without. This is the precise statement of the note above — the
+hypergeometric is the binomial with the variance shaved by $\frac{n-k}{n-1}$, and the shave is
+negligible exactly when $k$ is small relative to $n$.</div>
+
 <div class="warn"><b>Gotcha — the support is not all of $0..k$.</b> You cannot draw more red balls than
 exist ($i\le m$), nor more non-red than exist ($k-i \le n-m$, i.e. $i \ge k-(n-m)$). Formulas that
 ignore these bounds produce nonsense terms; the convention $\binom{a}{b}=0$ for $b &lt; 0$ or $b &gt; a$
@@ -3426,7 +3550,10 @@ number of ways to permute equally sized groups.</li>
 independently takes one of $n$ values).</li>
 <li><em>Yes, no repetition</em> $\Rightarrow$ <em>$k$-permutation</em>: $\dfrac{n!}{(n-k)!}$; with $k=n$ this
 is $n!$.</li>
-<li><em>No</em> $\Rightarrow$ <em>subset</em>: $\dbinom{n}{k}$; summed over all $k$ this gives $2^n$.</li>
+<li><em>No, and repetition is allowed</em> $\Rightarrow$ <em>multiset</em>: $\dbinom{n+k-1}{k}$ (stars and
+bars, §4.4) — only the tally of each type is recorded.</li>
+<li><em>No, no repetition</em> $\Rightarrow$ <em>subset</em>: $\dbinom{n}{k}$; summed over all $k$ this
+gives $2^n$.</li>
 </ul></li>
 <li><b>Count numerator and denominator in the same currency</b> (both ordered, or both unordered), then
 divide.</li>
@@ -3436,6 +3563,28 @@ event space? Does an extreme case ($k=0$, $k=n$, $p=0$, $p=1$) give the obvious 
 
 <img class="fig" src="data:image/png;base64,{{IMG:g1_s4_flowchart}}" alt="Flowchart: start from counting a selection from n distinct items; first decision, are items split into r labeled groups, yes leads to partition n!/(n1!...nr!); no leads to does order matter; yes leads to repetition allowed, yes gives sequence n^k, no gives k-permutation n!/(n-k)!, with k=n giving permutation n!; order no gives subset n choose k, which sums over k to 2^n subsets." style="max-width:820px">
 <div class="figcap">Fig. 4.6 — The counting decision tree of the recipe above (L04 slides 3, 5, 8). Orange boxes are questions; blue boxes are the formula to use; green boxes are the special cases that fall out.</div>
+
+<p>Fig. 4.6 draws the three classical branches; step 3's two questions — does order matter, is repetition
+allowed — are independent of each other, so together they make a $2\times 2$ table whose fourth cell is
+the multiset count of §4.4. Drawing $k$ items from $n$ types:</p>
+
+<table>
+<thead><tr><th class="l">$k$ from $n$</th><th class="l">without replacement</th><th class="l">with replacement</th></tr></thead>
+<tbody>
+<tr><th class="l">ordered</th><td class="l">$k$-permutation, $\dfrac{n!}{(n-k)!}$</td><td class="l">sequence, $n^k$</td></tr>
+<tr><th class="l">unordered</th><td class="l">subset, $\dbinom{n}{k}$</td><td class="l">multiset, $\dbinom{n+k-1}{k}$</td></tr>
+</tbody>
+</table>
+
+<p>At $n=5$, $k=3$ the four cells are $5\cdot4\cdot3 = 60$, $5^3 = 125$, $\binom{5}{3} = 10$ and
+$\binom{7}{3} = 35$ — each verified by direct enumeration in <code>computes/g1_s4.py</code> (key
+<code>sampling_table_brute_check</code>). The two "with replacement" cells are the larger ones in each
+row, since repetition adds outcomes; the two "unordered" cells are the smaller ones in each column,
+since forgetting the order merges outcomes. Only the without-replacement column divides cleanly:
+$60/3! = 10$, because each subset comes from exactly $3!$ orderings. The with-replacement column does
+<em>not</em> — $125/3!$ is not even an integer, because a sequence with a repeated item has
+fewer than $3!$ distinct rearrangements. That failed division is the reason the fourth cell needs its
+own argument.</p>
 
 <div class="note"><b>Interpretation.</b> The three formulas $n^k$, $n!/(n-k)!$ and $\binom{n}{k}$ form a
 descending chain, each obtained from the one before by removing a freedom:
@@ -3471,6 +3620,24 @@ $$\mathbf{P}(\text{no pair}) = \frac{3{,}360}{4{,}845} \approx 0.693498, \qquad
 This combines all three objects from the recipe: a subset (which pairs), a sequence (which sock from
 each pair), and a complement.</p></div></details></div>
 
+<div class="ex"><b>Practice 4.19.</b> Ten identical candies are handed out to four children, and a child may
+receive none. (a) In how many ways? (b) How many ways if every child must get at least one candy?
+(c) Why is the answer to (a) not $4^{10}$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) The candies are identical, so an outcome records only how many each child gets: a multiset of
+size $k=10$ drawn from the $n=4$ children, equivalently a solution of $k_1+k_2+k_3+k_4 = 10$ in
+nonnegative integers. By the stars-and-bars count of §4.4,
+$\binom{n+k-1}{k} = \binom{13}{10} = \binom{13}{3} = 286$.</p>
+<p>(b) Give each child one candy first — a single fixed act, no choices made — and distribute the
+remaining $10-4 = 6$ freely: $\binom{4+6-1}{6} = \binom{9}{6} = \binom{9}{3} = 84$. (Brute-force
+enumeration of the $84$ quadruples confirms it, key <code>candies_positive_brute</code>.)</p>
+<p>(c) $4^{10}$ counts <em>sequences</em>: it answers "assign each of $10$ distinguishable candies to a
+child", where swapping two candies between two children gives a different outcome. With identical
+candies that swap changes nothing, so the object is a multiset, not a sequence. The two models are
+genuinely different questions — and note that $4^{10}$ equally weighted is the model in which the
+tallies are <em>not</em> equally likely, exactly the gotcha of §4.4.</p>
+</div></details></div>
+
 <div class="summary"><b>§4 cheatsheet — counting.</b>
 <table>
 <thead><tr><th class="l">Object / result</th><th class="l">Formula</th><th class="l">Trigger</th><th class="l">Source</th></tr></thead>
@@ -3482,19 +3649,22 @@ each pair), and a complement.</p></div></details></div>
 <tr><td class="l">Permutations</td><td class="l">$n!$</td><td class="l">order all $n$ distinct items</td><td class="l">L04 s3</td></tr>
 <tr><td class="l">$k$-permutations</td><td class="l">$n!/(n-k)!$</td><td class="l">ordered selection of $k$ distinct items</td><td class="l">L04 s5</td></tr>
 <tr><td class="l">Combinations</td><td class="l">$\binom{n}{k}=\dfrac{n!}{k!(n-k)!}$</td><td class="l">unordered $k$-subset; positions of $k$ heads</td><td class="l">L04 s5; B&amp;T §1.6</td></tr>
+<tr><td class="l">Multisets (stars and bars)</td><td class="l">$\binom{n+k-1}{k}$</td><td class="l">unordered draw of $k$ from $n$ types <em>with</em> replacement; $k$ identical items into $n$ labeled bins</td><td class="l">§4.4 (beyond L04)</td></tr>
 <tr><td class="l">Subset-sum identity</td><td class="l">$\sum_{k=0}^n\binom{n}{k}=2^n$</td><td class="l">classify all subsets by size</td><td class="l">L04 s5</td></tr>
 <tr><td class="l">Partitions (multinomial)</td><td class="l">$\dfrac{n!}{n_1!\cdots n_r!}$, $\sum_i n_i=n$</td><td class="l">$r$ labeled groups of prescribed sizes</td><td class="l">L04 s8; rec04 P4</td></tr>
 <tr><td class="l">Binomial probability</td><td class="l">$\binom{n}{k}p^k(1-p)^{n-k}$</td><td class="l">$k$ successes in $n$ independent trials</td><td class="l">L04 s6; B&amp;T §1.6</td></tr>
 <tr><td class="l">Conditional uniformity</td><td class="l">$\mathbf{P}(A\mid B)=|A\cap B|/|B|$ when all $\omega\in B$ share a probability</td><td class="l">"given exactly $k$ heads …"; answer free of $p$</td><td class="l">L04 s7</td></tr>
 <tr><td class="l">Multinomial probability</td><td class="l">$\dfrac{n!}{n_1!\cdots n_r!}p_1^{n_1}\cdots p_r^{n_r}$</td><td class="l">count vector over $r$ categories, i.i.d. trials</td><td class="l">rec04 P5</td></tr>
 <tr><td class="l">Hypergeometric</td><td class="l">$\dfrac{\binom{m}{i}\binom{n-m}{k-i}}{\binom{n}{k}}$</td><td class="l">sampling $k$ without replacement from $m$ red, $n-m$ other</td><td class="l">rec04 P3; B&amp;T §1.6 Prob. 1.61</td></tr>
+<tr><td class="l">Hypergeometric mean, variance</td><td class="l">$\mathbb{E}[X]=k\dfrac{m}{n}$, $\operatorname{var}(X)=k\dfrac{m}{n}\Big(1-\dfrac{m}{n}\Big)\dfrac{n-k}{n-1}$</td><td class="l">same setting; last factor is the finite-population correction $\frac{N-n}{N-1}$</td><td class="l">rec04 P3; G2</td></tr>
 <tr><td class="l">Birthday probability</td><td class="l">$\dfrac{365\cdot364\cdots(365-n+1)}{365^n}$</td><td class="l">"do any two of $n$ coincide?" — count pairs, not people</td><td class="l">rec04 P1; B&amp;T §1.6 Prob. 1.50</td></tr>
 </tbody>
 </table>
 <p><b>Numbers to remember.</b> Six die rolls all different: $6!/6^6 = 5/324 \approx 0.015432$. Given $3$
 heads in $10$ tosses, first two heads: $\binom{8}{1}/\binom{10}{3} = 1/15 \approx 0.066667$, free of $p$.
 Four players each get an ace: $2197/20825 \approx 0.105498$. Birthday: $n=23$ gives collision
-probability $0.507297$; $n=57$ exceeds $99\%$. Eight safe rooks: $8!/\binom{64}{8} \approx 9.109465\times 10^{-6}$.</p>
+probability $0.507297$; $n=57$ exceeds $99\%$. Hypergeometric urn $n=20$, $m=8$, $k=5$: mean $2$,
+variance $\frac{6}{5}\cdot\frac{15}{19} = \frac{18}{19} \approx 0.947368$. Eight safe rooks: $8!/\binom{64}{8} \approx 9.109465\times 10^{-6}$.</p>
 </div>
 
 <h2 id="g1-s5">§5 &nbsp; Synthesis, cheatsheet, and the bridge to random variables</h2>

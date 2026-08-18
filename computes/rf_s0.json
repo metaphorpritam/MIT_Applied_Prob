@@ -1,0 +1,50 @@
+{
+ "n_teaching_notes": 7,
+ "n_note_fragments": 42,
+ "note_groups": [
+  "g1",
+  "g2",
+  "g3",
+  "g4",
+  "g5",
+  "g6",
+  "g7"
+ ],
+ "fragments_per_note": {
+  "g1": 6,
+  "g2": 6,
+  "g3": 6,
+  "g4": 6,
+  "g5": 6,
+  "g6": 6,
+  "g7": 6
+ },
+ "teaching_sections_per_note": [
+  4
+ ],
+ "n_teaching_sections_total": 28,
+ "qb_cards_present_now": 103,
+ "qb_declared_size": 150,
+ "fragments_with_distribution_tables": [
+  "g2_s1.html",
+  "g2_s5.html",
+  "g3_s5.html",
+  "g5_s5.html",
+  "g6_s2.html",
+  "g6_s3.html",
+  "g7_s0.html"
+ ],
+ "n_fragments_with_distribution_tables": 7,
+ "audit_items_total": 189,
+ "audit_verdicts": {
+  "COVERED": 128,
+  "PARTIAL": 26,
+  "MISSING_OUT_OF_SYLLABUS": 32,
+  "MISSING_IN_SYLLABUS": 3
+ },
+ "audit_covered": 128,
+ "audit_partial": 26,
+ "audit_out_of_syllabus": 32,
+ "audit_in_syllabus_gaps": 3,
+ "audit_covered_or_partial_pct": 81.5
+}

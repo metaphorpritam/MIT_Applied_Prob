@@ -169,6 +169,33 @@ not a right one. The right eigenvector for eigenvalue 1 is the all-ones column v
 one), which tells you nothing. Solving $P\pi^{\mathsf T}=\pi^{\mathsf T}$ by mistake is the single
 most common arithmetic error in this material.</div>
 
+<div class="thm"><b>Property (doubly stochastic chains; authored here, straight from the balance
+equations).</b> Call a chain <b>doubly stochastic</b> if every <em>column</em> of the transition
+matrix sums to 1 as well as every row, i.e. $\sum_{i=1}^{m}p_{ij}=1$ for every $j$. Then the
+<b>uniform</b> distribution $\pi_j=1/m$ satisfies the balance equations, so it is stationary — and
+when the chain is a single aperiodic recurrent class, uniqueness in the convergence theorem makes it
+<em>the</em> steady state. The verification is one line: for each $j$,
+$$\sum_{k=1}^{m}\pi_kp_{kj}=\sum_{k=1}^{m}\frac{1}{m}p_{kj}
+=\frac{1}{m}\sum_{k=1}^{m}p_{kj}=\frac{1}{m}\cdot1=\pi_j,$$
+using the column sum in the last step; and normalization holds because $\sum_{j}1/m=1$.</div>
+
+<p>A symmetric transition matrix ($p_{ij}=p_{ji}$) is automatically doubly stochastic, since its
+columns are its rows. Take the lazy random walk on a 4-cycle: states $1,2,3,4$ sit on a circle, and
+each step stays put with probability $1/2$ or moves to either neighbor with probability $1/4$,</p>
+
+$$P=\begin{pmatrix}
+0.5&amp;0.25&amp;0&amp;0.25\\
+0.25&amp;0.5&amp;0.25&amp;0\\
+0&amp;0.25&amp;0.5&amp;0.25\\
+0.25&amp;0&amp;0.25&amp;0.5\end{pmatrix}.$$
+
+<p>Every row and every column sums to $1$; all four states communicate around the circle, and the
+self-loops make the class aperiodic. So $\pi=(1/4,1/4,1/4,1/4)$ with no algebra at all — the linear
+solve in <code>computes/g5_s3.py</code> section G returns $0.25$ in every coordinate, with balance
+residual $0$. The moral: check the column sums <em>before</em> setting up the linear system;
+symmetric shuffles, symmetric random walks and doubly stochastic models of "no preferred state" are
+solved the moment you notice.</p>
+
 <div class="ex"><b>Practice 3.1.</b> A chain on states $\{1,2,3\}$ has
 $p_{11}=1$ (state 1 absorbing), $p_{22}=p_{23}=1/2$, $p_{33}=p_{31}=1/2$. Does the steady-state
 convergence theorem apply? What is $\pi$?
@@ -580,6 +607,28 @@ long stretch of $n$ steps these crossings must alternate — you cannot cross le
 row without crossing back in between — so the two counts differ by at most 1, and after dividing by
 $n$ and letting $n\to\infty$ the frequencies are equal. This is the argument on L17 slide 8; the
 induction above is the same statement in algebra.</div>
+
+<div class="thm"><b>Property (detailed balance; reversible chains — the general form of the cut
+equation, cf. B&amp;T Problem 7.25).</b> Suppose a distribution $\pi$ with $\pi_j\ge0$ and
+$\sum_j\pi_j=1$ satisfies the <b>detailed balance</b> equations
+$$\pi_i\,p_{ij}=\pi_j\,p_{ji}\qquad\text{for every pair of states }i,j.$$
+Then $\pi$ is stationary. The proof is one line — sum over $i$:
+$$\sum_{i=1}^{m}\pi_ip_{ij}=\sum_{i=1}^{m}\pi_jp_{ji}=\pi_j\sum_{i=1}^{m}p_{ji}=\pi_j,$$
+using detailed balance term by term, then the fact that row $j$ of the transition matrix sums to 1.
+The left-hand side is the balance equation for state $j$, so all $m$ of them hold. A chain
+possessing such a $\pi$ is called <b>reversible</b>: in steady state the joint probability
+$\mathbf{P}(X_n=i,\,X_{n+1}=j)=\pi_ip_{ij}$ is symmetric in $i$ and $j$, so the sequence run
+backwards is the same Markov chain.</div>
+
+<div class="note"><b>Interpretation (what detailed balance buys, and where it lives in this course).</b>
+Balance says that the flow into a state equals the flow out of it, netted over all the state's
+neighbors; detailed balance says the flow balances <em>pair by pair</em>, which is much stronger and
+much easier to solve — guess a $\pi$ satisfying it and you have solved the chain without ever writing
+the $m$-equation linear system. Birth–death chains are the course's standard example: for any pair
+that is not a neighbor pair, $p_{ij}=p_{ji}=0$ and detailed balance holds trivially, while for a
+neighbor pair it reads $\pi_ip_i=\pi_{i+1}q_{i+1}$ — exactly the cut equation proved above. That is
+why the queue of §3.5 and the phone exchange of §3.6 come out in closed form. The converse fails:
+being stationary does <em>not</em> make $\pi$ reversible, as the next Gotcha shows.</div>
 
 <div class="warn"><b>Gotcha.</b> Local balance is <em>not</em> a general fact about Markov chains. It
 is a special feature of chains whose transition graph is a line (or, more generally, a tree, or any
@@ -1004,6 +1053,10 @@ periodic $\Rightarrow$ no limit (but the $\pi_j$ still are the long-run frequenc
 letting $n\to\infty$ in $r_{ij}(n)=\sum_kr_{ik}(n-1)p_{kj}$ (finite sums only). They are
 <em>dependent</em> — they sum to $0=0$ — so drop one and adjoin
 $\displaystyle\sum_j\pi_j=1$. In matrix form $\pi=\pi P$ with $\pi$ a row vector.</li>
+<li><b>Doubly stochastic.</b> If every <em>column</em> of $P$ sums to 1 too (in particular if $P$ is
+symmetric), then $\pi_j=1/m$ solves the balance equations — the uniform distribution is stationary,
+and is the steady state when the class is single and aperiodic. Check the column sums before
+solving anything.</li>
 <li><b>Frequency reading (L17 slide 6).</b> $\pi_j$ = long-run fraction of time in $j$;
 $\pi_jp_{jk}$ = long-run frequency of the transition $j\to k$; balance = flow in equals flow out.
 Long-run average cost $=\sum_j\pi_jc_j$ (state costs) or $\sum_{j,k}\pi_jp_{jk}d_{jk}$
@@ -1013,6 +1066,10 @@ Long-run average cost $=\sum_j\pi_jc_j$ (state costs) or $\sum_{j,k}\pi_jp_{jk}d
 <li><b>Birth–death (L17 slide 8).</b> Local balance across each cut:
 $\pi_ip_i=\pi_{i+1}q_{i+1}$, hence $\displaystyle\pi_i=\pi_0\prod_{k=1}^{i}\frac{p_{k-1}}{q_k}$,
 with $\pi_0$ from normalization. Valid because the chain is a line — <em>not</em> a general fact.</li>
+<li><b>Detailed balance / reversibility.</b> If $\pi_ip_{ij}=\pi_jp_{ji}$ for <em>all</em> $i,j$ then
+$\pi$ is stationary (sum over $i$ and use $\sum_ip_{ji}=1$), and the chain is called
+<b>reversible</b>. Birth–death chains are the standard example — there detailed balance <em>is</em>
+the cut equation. The converse fails: stationary does not imply reversible.</li>
 <li><b>Constant $p,q$.</b> $\rho=p/q$; $\pi_i=\pi_0\rho^{\,i}$;
 $\pi_0=(1-\rho)/(1-\rho^{m+1})$ for finite $m$, $\pi_0=1/(m+1)$ when $\rho=1$. Infinite buffer with
 $\rho&lt;1$: $\pi_i=(1-\rho)\rho^{\,i}$, $\mathbf{P}(X\ge k)=\rho^k$,

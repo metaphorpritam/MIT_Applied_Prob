@@ -1,0 +1,1597 @@
+{
+ "synthesis": {
+  "headline": "Coverage is genuinely strong: of 189 merged cheatsheet items (~178 distinct after cross-agent dedupe), 128 are COVERED, 26 PARTIAL, 32 MISSING_OUT_OF_SYLLABUS (Stat 110-only machinery, chiefly MGFs, order statistics, and Stat 110's named-distribution zoo), and only 3 are MISSING_IN_SYLLABUS \u2014 i.e. in B&T/6.041 scope and genuinely absent. All three are small, one-paragraph repairs. In several places the notes are substantially deeper than the cheatsheet (Stirling derived rather than quoted, coupon collector with Euler asymptotics and Monte-Carlo, de Moivre-Laplace continuity correction, competing exponentials with the winner's identity, splitting/merging with the independence clause, mean recurrence times by first-step analysis). The real weakness is not content but retrieval surface: the distribution facts exist but are scattered across four tables in four different notes.",
+  "real_gaps": [
+   {
+    "topic": "Closure of the binomial under addition: X~Bin(n1,p), Y~Bin(n2,p) independent => X+Y ~ Bin(n1+n2,p)",
+    "importance": "medium",
+    "why_it_matters": "Two agents disagreed (one PARTIAL, one MISSING_IN_SYLLABUS); I re-ran the greps and took the MISSING verdict \u2014 no fragment states the additivity identity, only the Bernoulli-sum decomposition (g2_s5.html:153-154) from which a reader must re-derive it. It matters because the notes DO state every sibling closure by name \u2014 normal+normal (g3_s4.html:828 has its own subsection), Erlang+Exp (g5_s5.html:843), Poisson+Poisson via merging (G4 \u00a74) \u2014 so a learner scanning for 'which families are closed under sums' finds a conspicuous hole exactly where the most-used discrete family should be. It is also the cheapest possible worked example of discrete convolution.",
+    "where_it_belongs": "G3 \u00a74 (g3_s4.html), the convolution subsections \u2014 as a short worked discrete convolution immediately before/after the Erlang and normal cases; cross-link from the binomial definition in G2 \u00a71 (g2_s1.html) and from the sums-closure list at g3_s4.html:1150."
+   },
+   {
+    "topic": "Joint CDF F_{X,Y}(x,y)=P(X<=x, Y<=y), the 2-D CDF<->PDF link f=\u2202\u00b2F/\u2202x\u2202y, and the CDF-factorization criterion for independence",
+    "importance": "medium",
+    "why_it_matters": "B&T \u00a73.4 states the joint CDF, so this is in scope, and one repair closes three separate audit items at once: the MISSING joint CDF, the PARTIAL 'mixed partial' (the identity appears exactly once, unflagged, mid-derivation at g4_s1.html:518 for f_{R,\u0398} in a polar example), and the PARTIAL 'three equivalent independence conditions' (the CDF-factorization form is absent precisely because the object is never defined). I confirmed by grep: no fragment in notes/src/fragments contains 'joint CDF' or the P(X<=x,Y<=y) form. A learner who has internalized f=F' in one dimension (g3_s1.html:787) has no stated 2-D analogue, which bites on any max/min-of-two-variables problem attacked by the CDF method.",
+    "where_it_belongs": "G3 \u00a72 (g3_s2.html), \u00a72.1 'The joint PDF, and probability as volume' \u2014 one short definition box plus the mixed-partial line, with a back-reference to G3 \u00a71.4 (g3_s1.html:202) where the one-dimensional CDF is defined, and a third bullet added to the independence criteria in \u00a72.4."
+   },
+   {
+    "topic": "Doubly stochastic chains: if every column of the transition matrix sums to 1, the uniform distribution is stationary",
+    "importance": "low",
+    "why_it_matters": "Confirmed absent by grep ('doubly stochastic' -> zero hits across all 42 fragments). It is a one-line shortcut that lives entirely inside machinery G5 \u00a73 already builds (balance equations plus normalization), and it saves solving the linear system outright on symmetric chains \u2014 a common exam time-saver. Genuinely in scope but low cost to omit; include it only as a remark, not a subsection.",
+    "where_it_belongs": "G5 \u00a73 (g5_s3.html), the balance-equations / steady-state section, as a one-sentence remark right after the balance equations plus normalization are set up."
+   }
+  ],
+  "partials": [
+   {
+    "topic": "One consolidated table of distributions",
+    "what_is_thin": "Nothing is mathematically missing, but the lookup surface is fragmented across four notes with four different column schemas: discrete zoo at g2_s5.html:92-139 (only Bernoulli, discrete uniform, binomial, geometric \u2014 Poisson is not in it), continuous zoo at g3_s5.html:120-158 (Family|PDF|CDF|E|var|Mechanism), the Bernoulli-vs-Poisson parallel table at g4_s5.html:177-179 (binomial/Poisson/geometric/exponential/Pascal/Erlang), and the hypergeometric stranded in the counting note at g1_s4.html:1030. This is the single highest-value fix in the whole audit: build one merged reference page on the g3_s5 schema, cross-linked from all four existing tables.",
+    "where": "New consolidated table, cross-linked from g2_s5, g3_s5, g4_s5, g1_s4"
+   },
+   {
+    "topic": "Jensen's inequality",
+    "what_is_thin": "Named and used correctly five times with the direction rule given operationally (g2_s3.html:177 'for convex g \u2026 the true answer must be >= g(E[X])'), and with quantified gaps (g3_s3 'the Jensen gap is 0.198604 hours'), but never stated as a theorem. g2_s2.html:126 explicitly defers it \u2014 'a fact that gets a name (Jensen's inequality) later' \u2014 and no later section ever picks the promise up. One defn/thm box would close a dangling forward-reference.",
+    "where": "G2 \u00a72 (g2_s2.html:126) or G3 \u00a75"
+   },
+   {
+    "topic": "Three-set inclusion-exclusion",
+    "what_is_thin": "The two-set version is fully proved and reused across six notes (g1_s1.html:100, :117-119). The three-set formula is absent; the only 'A \u222a B \u222a C' hit (g1_s1.html:119) is finite additivity for three DISJOINT pieces, which is a different statement and could mislead.",
+    "where": "G1 \u00a71 (g1_s1.html), after the two-set proof"
+   },
+   {
+    "topic": "Reversibility / detailed balance as a general criterion",
+    "what_is_thin": "Both agents who touched this said PARTIAL, consistently. The cut/detailed-balance technique is well covered for birth-death and queueing chains (g5_s5.html:230), but 'reversible' is never defined \u2014 it appears once in scare quotes (g5_s3.html:586) inside a Gotcha warning that local balance is NOT general \u2014 and the theorem 'detailed balance => stationary' is never stated. B&T does not develop reversibility, so this is a soft gap, but the current treatment leaves the reader thinking local balance is a hack rather than a checkable sufficient condition.",
+    "where": "G5 \u00a73 (g5_s3.html) and \u00a75 (g5_s5.html)"
+   },
+   {
+    "topic": "Multinomial: lumping, conditional Multinomial, and the exact covariance",
+    "what_is_thin": "The multinomial coefficient and joint PMF are derived (g1_s4 \u00a74.6, g7_s4), and the marginal fact N_k ~ Bin(n, \u03b8_k) is stated in g7_s4. Missing: the lumping-closure property (merging categories keeps it multinomial), the conditional-Multinomial property, and the plain exact identity Cov(X_i,X_j) = -n p_i p_j. The negative covariance appears only in asymptotic normalized form inside the chi-square derivation (\u03a3 = I - \u221a\u03b8\u221a\u03b8\u1d40). The exact identity is squarely in scope \u2014 G3 \u00a74 covers covariance and G2 \u00a75 covers indicator decompositions, which is exactly how you prove it.",
+    "where": "G1 \u00a74 (g1_s4.html \u00a74.6) and G3 \u00a74 (g3_s4.html)"
+   },
+   {
+    "topic": "Jointly normal + uncorrelated => independent",
+    "what_is_thin": "The notes warn emphatically in the other direction \u2014 g3_s4 Gotcha: 'neither means independent', with Example 4.9 (Y=X\u00b2) \u2014 but never name the normal exception. The closest is g6_s4's jointly-normal LLMS theorem, which implies the \u03c1=0 case without saying it. Given how hard the notes hammer 'uncorrelated \u2260 independent', one sentence naming the exception prevents an over-corrected misconception.",
+    "where": "G3 \u00a74 (g3_s4.html, the covariance Gotcha) with a pointer to G6 \u00a74"
+   },
+   {
+    "topic": "Hypergeometric variance and the finite-population correction",
+    "what_is_thin": "PMF, story, mean, a bar chart and an interactive binomial-comparison explorer are all present (g1_s4.html:809-935, g1_s5.html:89). Confirmed by grep: no fragment states the variance or the correction factor (w+b-n)/(w+b-1). Since the notes use the hypergeometric as 'the standing counterexample when \u00a71.4 tempts you to call every count binomial' (g2_s1.html:178), the variance is exactly where that contrast is sharpest \u2014 the correction factor IS the without-replacement penalty.",
+    "where": "G1 \u00a74 (g1_s4.html:1030) or the G2 \u00a75 zoo table"
+   },
+   {
+    "topic": "General Gamma(a,\u03bb) with non-integer shape",
+    "what_is_thin": "A labelling gap, not a conceptual one. The integer case is covered exhaustively as the Erlang (29 hits in g4_s4 alone, plus g3_s4 convolution derivation, mean k/\u03bb, variance k/\u03bb\u00b2), and the Gamma function itself is used at g3_s3.html:508 and g6_s3.html:288. But 'gamma distribution' returns zero hits, so a learner meeting Gamma(a,\u03bb) elsewhere will not recognize it as the Erlang they already own. One naming sentence in the G3 \u00a75 zoo row fixes it.",
+    "where": "G3 \u00a75 (g3_s5.html) zoo table"
+   },
+   {
+    "topic": "Cauchy-Schwarz: a dangling cross-reference",
+    "what_is_thin": "g6_s4.html:653 says 'By the Cauchy-Schwarz inequality (G3 \u00a74) |\u03c1|<=1' and :657 invokes 'the equality case of Cauchy-Schwarz' \u2014 but grep for 'Cauchy' inside g3_s4.html returns nothing. The |\u03c1|<=1 bound IS fully proved there (g3_s4.html:1043, via var(U\u00b1V)=2(1\u00b1\u03c1)); the name is simply never attached. Attaching the label (and optionally the general |E(XY)|<=\u221a(E(X\u00b2)E(Y\u00b2)) form) repairs a broken forward-reference for zero mathematical cost.",
+    "where": "G3 \u00a74 (g3_s4.html:1043)"
+   },
+   {
+    "topic": "Sampling: the fourth cell and the organizing 2x2",
+    "what_is_thin": "Two related thin spots. (a) Unordered-with-replacement, C(n+k-1,k) / stars-and-bars, is never named or derived \u2014 it survives only as an incidental aside inside a gotcha (g1_s5.html:202, '462 multisets'), while the other three cells get a decision list, a flowchart and a summary table (g1_s4.html:967-1023). (b) Separately, Binomial/HGeom/NBin are each taught well but there is no unifying replace-vs-not x fixed-n-vs-until-r 2x2; the gap is the organizing device, not the content.",
+    "where": "G1 \u00a74 (g1_s4.html:967-1023) and a small table in G2 \u00a75 or G4 \u00a75"
+   },
+   {
+    "topic": "Exchangeable variance shortcut Var(\u03a3X_i) = n\u00b7Var(X_1) + 2\u00b7C(n,2)\u00b7Cov(X_1,X_2)",
+    "what_is_thin": "The general \u03a3_{i<j} expansion is present (g3_s4.html:1155, g4_s2.html:328) and the indicator-sum variance is worked (g2_s4.html:832), but the packaged identically-distributed shortcut is never stated, so the C(n,2) count gets re-derived every time \u2014 which is exactly the step people botch in hat-matching and sampling-without-replacement problems.",
+    "where": "G3 \u00a74 (g3_s4.html:1155) or G2 \u00a75 next to the hat-matching variance"
+   },
+   {
+    "topic": "Chi-square: placement, not content (verdict conflict resolved)",
+    "what_is_thin": "Two agents called this PARTIAL for different reasons; one claimed the definition was missing, the other claimed E=n and Var=2n were missing. I checked g7_s4.html directly: lines 338-347 derive Y=Z\u00b2 by the CDF method, identify it as a Gamma with rate 1/2, state 'precisely the definition of the chi-square distribution with n degrees of freedom' AND 'Its mean is n and its variance 2n.' Both claims are therefore wrong \u2014 the content is fully there. The only real thinness is placement: it lives inside a hypothesis-testing derivation in G7, with a one-dof cousin in G3 \u00a74 Practice 4.8, and never gets a zoo-table row with the 2^{n/2}\u0393(n/2) normalizer.",
+    "where": "G3 \u00a75 (g3_s5.html) zoo table \u2014 add a row pointing to g7_s4.html:338-347"
+   },
+   {
+    "topic": "Student-t density and moments",
+    "what_is_thin": "The t is used correctly and explained well as a quantile lookup (g7_s3.html:622-639, with a good discussion at :732-737 of why it is 25% wider than z at 6 df, shrinking to ~4.5% by n=30). The density formula and the moments (mean 0 for n>1, variance n/(n-2) for n>2) never appear. Deriving the t density is Stat 110 territory, so this is close to enrichment; a zoo-table row would suffice.",
+    "where": "G3 \u00a75 zoo table or G7 \u00a73 (g7_s3.html)"
+   },
+   {
+    "topic": "Exponential rescaling \u03bbX ~ Expo(1)",
+    "what_is_thin": "The general machinery (Y=aX for continuous X) is fully covered in G3 \u00a74, but the specific normalization is never stated as a named reusable fact. Trivial to add as a one-line remark in the exponential zoo row.",
+    "where": "G3 \u00a75 (g3_s5.html:134-139)"
+   }
+  ],
+  "enrichment": [
+   {
+    "topic": "Universality of the Uniform (inverse-CDF transform): F(X)~Unif(0,1) and F^{-1}(U) has CDF F",
+    "note": "Best single enrichment candidate. Both agents who flagged it agreed it is out of B&T scope, but also agreed G3 \u00a74 (g3_s4.html:27, the CDF method) already has every piece of machinery needed \u2014 it is a two-paragraph addition that pays off immediately as the basis of simulation, and it retroactively explains why the CDF method works at all. Worked with F(x)=1-e^{-x} it is also a clean self-check on the exponential material the notes already own."
+   },
+   {
+    "topic": "Simpson's paradox",
+    "note": "Zero hits anywhere in the corpus. It is the single best cautionary tale about conditioning and would sit naturally at the end of G1 \u00a72-\u00a73, where conditional independence counterexamples in both directions are already worked (g1_s3.html:292-295, :537-559). Pure enrichment, high pedagogical return, no syllabus cost."
+   },
+   {
+    "topic": "Moment generating functions \u2014 a short 'beyond the syllabus' appendix",
+    "note": "The largest structural difference between the two documents: the cheatsheet routes every sum-of-independents result through MGF multiplication; our notes route the same results through convolution (g3_s4) and process algebra (g4_s2, g4_s4). The notes already document the boundary deliberately (g4_s2.html:239-240 cites B&T's transform and says transforms are outside L12's scope). A two-page appendix showing M_{X+Y}=M_X\u00b7M_Y reproducing the Erlang and normal-sum results the reader already derived by convolution would make the exclusion legible rather than mysterious \u2014 and is the right home for the cheatsheet's MGF column."
+   },
+   {
+    "topic": "Order statistics, including U_(j) ~ Beta(j, n-j+1)",
+    "note": "Zero hits for 'order statistic'. The notes already derive min and max by the CDF method (g3_s1.html:554, g7_s2.html:574-576) and already define the Beta family with mean/mode/variance (g3_s3, g3_s5:150-155), so the general ith-order-statistic density is a short step from material in hand and ties two existing threads together."
+   },
+   {
+    "topic": "Two-dimensional change of variables via the Jacobian determinant",
+    "note": "The notes use the polar Jacobian ad hoc twice (g3_s1.html:583, g4_s1.html:500, 'the extra factor r is the Jacobian') without ever stating the general theorem, and they DO state the 1-D version (g3_s4.html:197). Naming the general 2-D rule would retire two ad hoc passages; strictly optional since B&T handles functions of two RVs by CDF method and convolution."
+   },
+   {
+    "topic": "Random walk on an undirected graph: stationary distribution proportional to degree",
+    "note": "Out of B&T Chapter 7, but the notes already contain the exact intuition in a throwaway aside \u2014 g2_s2.html:336 'Sampling a person through a friendship link is sampling proportional to degree' (the friendship paradox). Connecting that aside to the Markov-chain theorem in G5 \u00a73 would be a satisfying payoff across two notes."
+   },
+   {
+    "topic": "Log-normal as a derived distribution",
+    "note": "One passing mention (g7_s3.html:903, 'multiplicative lognormal noise') with no PDF or moments. It slots naturally into the G3 \u00a75 continuous zoo as a Y=e^X change-of-variables exercise, reinforcing G3 \u00a74 machinery while explaining the multiplicative-noise remark G7 already makes."
+   },
+   {
+    "topic": "Beta-Gamma (bank-post-office) result and Beta(1,1)~Unif(0,1)",
+    "note": "Classic Stat 110 results with no 6.041 counterpart, but the notes already carry a full Beta definition box with the Beta function (g3_s3.html:461-462) and the Beta-Binomial conjugacy (g6_s3, g7_s5). Beta(1,1)=Unif in particular is a one-line remark that makes the uniform prior in the existing Bayesian examples feel inevitable rather than arbitrary."
+   },
+   {
+    "topic": "Indicator algebra: I_A\u00b2=I_A, I_A I_B = I_{A\u2229B}, I_{A\u222aB}=I_A+I_B-I_A I_B",
+    "note": "The notes use indicators heavily but only through linearity of expectation. The algebraic identities give inclusion-exclusion by indicators, which would pair well with the three-set inclusion-exclusion repair listed under partials \u2014 the two together make one coherent short addition to G1 \u00a71 / G2 \u00a75."
+   }
+  ],
+  "coverage_summary": "189 merged items (~178 distinct after deduping cross-agent overlaps: Universality of the Uniform x2, uniform order statistics x2, graph random walk x2, reversibility x2, Jensen x2, binomial closure x2, chi-square x2, Gamma x2, and the MGF cluster counted across p2/p3/p8/p10).\n\nBy verdict: COVERED 128 (68%), PARTIAL 26 (14%), MISSING_OUT_OF_SYLLABUS 32 (17%), MISSING_IN_SYLLABUS 3 (1.6%).\n\nThe 32 out-of-syllabus items are dominated by three Stat 110 clusters: MGFs (9 items across the p3 section, the p8 example, and the p10 table column), order statistics (4), and Stat 110's extended named-distribution zoo plus its story-proof tooling (Negative Hypergeometric, capture-recapture, Beta-Gamma, MVN/bivariate-normal density, log-normal, indicator algebra, Simpson's paradox, the R command table, and Blitzstein's own resource links).\n\nWhich notes carry the load: G3 (continuous RVs, derived distributions, joint densities) is the workhorse \u2014 it alone answers most of cheatsheet p2, p3 col3, and p7; G5 fully covers the Markov-chain material on p4 col3, p5 and p8, at greater depth than the cheatsheet (mean recurrence via first-step analysis, the two failure modes of steady-state convergence); G4 covers all Poisson/Bernoulli-process and conditional-expectation material (p4) plus the discrete distribution families, again going further (splitting with the independence clause, competing exponentials with the winner's identity); G2 owns discrete RVs, indicators and the linearity examples on p7; G1 owns counting, conditioning and Bayes on p1; G6 owns LLN/CLT/Bayesian inference; G7 owns the classical-statistics material the cheatsheet only gestures at.\n\nThree verdict conflicts were resolved by re-running greps against notes/src/fragments: (1) binomial closure \u2014 took MISSING over PARTIAL, confirmed no additivity statement exists; (2) chi-square \u2014 took the p7 agent's quoted evidence over the p6/p10 agents, since g7_s4.html:346-347 verifiably states both the n-squared-normals definition and E=n, Var=2n, so only placement is thin; (3) doubly stochastic and joint CDF \u2014 confirmed genuinely absent (zero grep hits), so both stand as real gaps."
+ },
+ "items": [
+  {
+   "topic": "Common Mistake 6 \u2014 don't confuse a random variable with its distribution; PDF of X^2 needs a transformation, PDF of X+Y needs a convolution",
+   "cheatsheet_page": "p9",
+   "verdict": "COVERED",
+   "importance": "high",
+   "detail": "To get f_{X^2} use the transformation/CDF method, not (f_X)^2; to get f_{X+Y} compute f_{X+Y}(w)=\\int f_X(x)f_Y(w-x)dx, not f_X+f_Y.",
+   "evidence": "G3 \u00a74 (derived distributions) and \u00a75: grep -ri \"convolution\" hits 16 fragments including g3_s0..g3_s5. g3_s4.html:1150 states Exp(\u03bb)+Exp(\u03bb)=Erlang-2 with density \u03bb^2 w e^{-\u03bbw} obtained by convolution; g3_s4.html:459 is Practice 4.8 \u2018X standard normal, Y=X^2, find f_Y\u2019 done by the CDF method; g7_s4.html:338 repeats the Z^2 transformation explicitly ('By the CDF method of \u2026')."
+  },
+  {
+   "topic": "Common Mistake 7 \u2014 E(g(X)) \u2260 g(E(X)); use LOTUS",
+   "cheatsheet_page": "p9",
+   "verdict": "COVERED",
+   "importance": "high",
+   "detail": "E[g(X)] = \u03a3 g(x)p_X(x) (or \u222b g(x)f_X(x)dx) \u2014 the expected value rule / LOTUS \u2014 and this generally differs from g(E[X]).",
+   "evidence": "Course wording is 'expected value rule'; grep -ri \"expected value rule|LOTUS\" hits g2_s0, g2_s2, g2_s3, g2_s4, g3_s0, g3_s2, g4_s1, g4_s2. Worked contrast at g2_s2.html:125-126 (E[g(X)]=0.5208 vs g(E[X])=0.4 for g(x)=1/(x+1)), repeated continuously at g3_s3.html:639 (E[T]=4.620981 vs 200/E[V]=4.444444) and g5_s5.html:373 (E[24/W]=8.32 \u2260 24/E[W]=8, called 'the single most common lost-point on Quiz 2')."
+  },
+  {
+   "topic": "Jensen's inequality (named in Mistake 7 as the explanation of the E(g(X)) vs g(E(X)) gap)",
+   "cheatsheet_page": "p9",
+   "verdict": "PARTIAL",
+   "importance": "low",
+   "detail": "For convex g, E[g(X)] \u2265 g(E[X]); reversed for concave g.",
+   "evidence": "Named five times but never stated as an inequality. g2_s2.html:126 explicitly defers it \u2014 'a fact that gets a name (Jensen's inequality) later'; g3_s3.html:639 'the same Jensen gap'; g5_s5.html:373 'what Jensen and later the delta-method are about'; g5_s5.html:510 '1/w is convex (Jensen's inequality, and 8.317766>8)'; g7_s5.html:295 'not unbiased for \u03c3, by Jensen's inequality (B&T \u00a79.1)'. Grep for a formal statement (\"convex\" in g3_s3) found only an unrelated 'convex combination' at g3_s3.html:259. So the direction of the gap is always asserted per-example, never proved or stated in general."
+  },
+  {
+   "topic": "St. Petersburg paradox (cited in Mistake 7 as the extreme case)",
+   "cheatsheet_page": "p9",
+   "verdict": "COVERED",
+   "importance": "medium",
+   "detail": "Game paying 2^k with probability 2^{-k} has infinite expectation.",
+   "evidence": "Has its own section: g2_s2.html:355 '<h3>2.6 The St. Petersburg paradox: infinite expectation (rec05 P4)</h3>', with figure (g2_s2.html:386, partial sums of $1 per k plus log-log running-average simulations) and an interactive widget (g2_s2.html:389-392, 'St. Petersburg with a bankroll cap: what is the game actually worth?'). Also referenced in g2_s0 and g2_s5."
+  },
+  {
+   "topic": "Recommended Resources (Introduction to Probability book, stat110.net, Stat 110 Quora blog, Quora Probability FAQ, RStudio, cheatsheet LaTeX source)",
+   "cheatsheet_page": "p9",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "importance": "low",
+   "detail": "Six external links to Harvard Stat 110 / Blitzstein materials.",
+   "evidence": "Searched fragments for 'stat110', 'Blitzstein', 'Quora' \u2014 no hits (these are Stat 110 course-specific pointers). Our notes instead cite B&T sections and the MIT lecture/recitation numbering throughout (e.g. g3_s5.html:131 'L08 s3; B&T \u00a73.1'). Not a defect: these are the other course's own advertising."
+  },
+  {
+   "topic": "Distributions in R command table (dbinom/pbinom/qbinom/rbinom, dgeom, dhyper, dnbinom, dpois, dbeta, dchisq, dexp, dgamma, dlnorm, dnorm, dt, dunif; plus dmultinom and dmvnorm)",
+   "cheatsheet_page": "p9",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "importance": "low",
+   "detail": "d/p/q/r prefix convention: density, CDF, quantile, random generation, for each named family.",
+   "evidence": "Grep for 'R command', 'dbinom', 'rnorm' in fragments: no hits. 6.041 is not an R course. Our notes do supply the equivalent computational spine in Python \u2014 e.g. g7_s3.html:637 uses scipy t quantiles (`t_crit_6df_975`) and g7_s3.html:636 `scipy.stats.linregress`, and every fragment cites `computes/gN_sM.py` keys \u2014 so the *function* of the table (reproducible numbers) is served by a different toolchain."
+  },
+  {
+   "topic": "Bernoulli(p): P(X=1)=p, P(X=0)=q; E=p, Var=pq",
+   "cheatsheet_page": "p10",
+   "verdict": "COVERED",
+   "importance": "high",
+   "detail": "E[X]=p, var(X)=pq=p(1-p).",
+   "evidence": "Discrete zoo table in G2 \u00a75: g2_s5.html:92 row '<b>Bernoulli($p$)</b>'; numeric check row at g2_s5.html:137 (Bernoulli(0.3): mean 0.3, variance 0.21); recap at g2_s5.html:649 'Bernoulli($p$): $p$, $p(1-p)$'."
+  },
+  {
+   "topic": "Binomial(n,p): PMF C(n,k)p^k q^{n-k} on {0..n}; E=np, Var=npq",
+   "cheatsheet_page": "p10",
+   "verdict": "COVERED",
+   "importance": "high",
+   "detail": "p_X(k)=\\binom{n}{k}p^k(1-p)^{n-k}, E=np, var=np(1-p).",
+   "evidence": "g2_s5.html:108 row '<b>Binomial($n,p$)</b>'; numeric row g2_s5.html:138 (Binomial(10,0.3): mean 3, variance 2.1); recap g2_s5.html:650 'Binomial($n,p$): $np$, $np(1-p)$'. Restated in the Bernoulli/Poisson parallel table at g4_s5.html:177 with full PMF, mean np, variance np(1-p)."
+  },
+  {
+   "topic": "Geometric(p): PMF q^k p on {0,1,2,...}; E=q/p, Var=q/p^2",
+   "cheatsheet_page": "p10",
+   "verdict": "COVERED",
+   "importance": "high",
+   "detail": "Cheatsheet counts failures before the first success (support from 0, mean q/p); our course counts trials up to and including the first success (support from 1, mean 1/p). Same family, shifted by 1.",
+   "evidence": "g2_s5.html:116 row '<b>Geometric($p$)</b>'; numeric row g2_s5.html:139 (Geometric(0.2) summed to k=4000: mean 5.000000000000, variance 20.000000000000 \u2014 i.e. 1/p and (1-p)/p^2, the first-success convention); recap g2_s5.html:651 'Geometric($p$): $1/p$, $(1-p)/p^2$'; memorylessness stated at g2_s5.html:260. Full PMF (1-p)^{t-1}p with mean/variance also at g4_s5.html:178. Parametrization difference only \u2014 per the brief, a naming/convention difference is COVERED."
+  },
+  {
+   "topic": "Negative Binomial NBin(r,p): PMF C(r+n-1, r-1)p^r q^n; E=rq/p, Var=rq/p^2",
+   "cheatsheet_page": "p10",
+   "verdict": "COVERED",
+   "importance": "medium",
+   "detail": "Waiting time for the r-th success. Course calls it the Pascal distribution and counts total trials: PMF \\binom{t-1}{k-1}p^k(1-p)^{t-k}, mean k/p, variance k(1-p)/p^2.",
+   "evidence": "g4_s5.html:179 table row 'Time to the $k$th arrival | Pascal: $\\binom{t-1}{k-1}p^k(1-p)^{t-k}$, mean $k/p$, variance $k(1-p)/p^2$ | Erlang$(k)$ \u2026 | L13 s6; L14 s6; L15 s2'. Also g4_s0.html:81 (same row, mean k/p), g4_s2.html:1104 and g4_s5.html:220,458 ('Pascal \u2192 Erlang' under the \u03b4\u21920 limit). Same shift-by-r parametrization difference as Geometric."
+  },
+  {
+   "topic": "Hypergeometric HGeom(w,b,n): PMF C(w,k)C(b,n-k)/C(w+b,n); E=nw/(b+w), Var=((w+b-n)/(w+b-1))\u00b7n\u00b7(\u03bc/n)(1-\u03bc/n)",
+   "cheatsheet_page": "p10",
+   "verdict": "PARTIAL",
+   "importance": "low",
+   "detail": "PMF and mean are ours; the variance with its finite-population correction factor (w+b-n)/(w+b-1) is not.",
+   "evidence": "PMF: g1_s5.html:89 and g1_s4.html:1030 both give $\\binom{m}{i}\\binom{n-m}{k-i}/\\binom{n}{k}$ with the 'draw k of n without replacement' story; worked numerically at g1_s5.html:143 (0.397317) and g1_s4.html:809-935, with a PMF bar chart and an interactive explorer comparing it to its binomial cousin (g1_s4.html:858-924). Mean km/n appears as the dashed line in Fig. 4.5 (g1_s4.html:859). Named as the standing counterexample to 'every count is binomial' at g2_s1.html:178 and g2_s5.html:210. THIN PART: grep -i for 'hypergeometric.*variance', 'variance.*hypergeometric' and 'finite-population correction' returned no matches anywhere in the fragments \u2014 the variance formula and its correction factor are absent."
+  },
+  {
+   "topic": "Poisson(\u03bb): PMF e^{-\u03bb}\u03bb^k/k!; E=\u03bb, Var=\u03bb",
+   "cheatsheet_page": "p10",
+   "verdict": "COVERED",
+   "importance": "high",
+   "detail": "Mean equals variance.",
+   "evidence": "g4_s5.html:177 'Poisson: $P(k,\\tau)=\\frac{(\\lambda\\tau)^ke^{-\\lambda\\tau}}{k!}$, mean $=$ variance $=\\lambda\\tau$'; g4_s0.html:99 gives it as a highlighted structural fact ('Poisson's mean equals its variance \u2026 a peculiarity with no analogue on the Bernoulli side'); used diagnostically at g4_s5.html:123 ('A Poisson random variable has mean = variance, and 47.36 \u2260 12.8 \u2026 overdispersed')."
+  },
+  {
+   "topic": "Uniform(a,b): f=1/(b-a) on (a,b); E=(a+b)/2, Var=(b-a)^2/12",
+   "cheatsheet_page": "p10",
+   "verdict": "COVERED",
+   "importance": "high",
+   "detail": "Plus the discrete uniform analogue.",
+   "evidence": "g3_s5.html:126-131 zoo-table row with PDF 1/(b-a), CDF (x-a)/(b-a), E=(a+b)/2, var=(b-a)^2/12, plus a full derivation of both moments at g3_s5.html:163-180 (including the u=x-(a+b)/2 substitution) and a numeric check at a=2,b=7 (height 0.2, mean 4.5, variance 2.083333). Discrete uniform mean/variance at g2_s5.html:649-650."
+  },
+  {
+   "topic": "Normal N(\u03bc,\u03c3^2): f=(1/\u03c3\u221a(2\u03c0))e^{-(x-\u03bc)^2/(2\u03c3^2)}; E=\u03bc, Var=\u03c3^2",
+   "cheatsheet_page": "p10",
+   "verdict": "COVERED",
+   "importance": "high",
+   "detail": "CDF has no closed form; use \u03a6((x-\u03bc)/\u03c3).",
+   "evidence": "g3_s5.html:142-147 zoo-table row with exactly the cheatsheet PDF, E=\u03bc, var=\u03c3^2, and the note 'no closed form; $\\Phi(\\frac{x-\\mu}{\\sigma})$ from tables' (cited to L08 s6-s7, L11 s5-s6, B&T \u00a73.3). Plotted in Fig. 5.1 (g3_s5.html:160-161) as N(2,16)."
+  },
+  {
+   "topic": "Exponential(\u03bb): f=\u03bbe^{-\u03bbx} on (0,\u221e); E=1/\u03bb, Var=1/\u03bb^2",
+   "cheatsheet_page": "p10",
+   "verdict": "COVERED",
+   "importance": "high",
+   "detail": "Memoryless waiting time.",
+   "evidence": "g3_s5.html:134-139 zoo-table row (PDF \u03bbe^{-\u03bbx}, CDF 1-e^{-\u03bbx}, E=1/\u03bb, var=1/\u03bb^2, story 'waiting time with no aging (memoryless)'), with the normalization, CDF and mean derived by parts at g3_s5.html:182-189. Also g4_s5.html:178 as the Poisson-side interarrival law."
+  },
+  {
+   "topic": "Gamma(a,\u03bb): f=(1/\u0393(a))(\u03bbx)^a e^{-\u03bbx}(1/x); E=a/\u03bb, Var=a/\u03bb^2",
+   "cheatsheet_page": "p10",
+   "verdict": "PARTIAL",
+   "importance": "low",
+   "detail": "General (real a) Gamma family with \u0393(a) normalizer.",
+   "evidence": "The integer-shape case IS fully covered as the Erlang: g4_s5.html:179 'Erlang$(k)$: $\\frac{\\lambda^ky^{k-1}e^{-\\lambda y}}{(k-1)!}$, mean $k/\\lambda$, variance $k/\\lambda^2$' (matches a/\u03bb, a/\u03bb^2 at a=k); derived as a convolution at g3_s4.html:793 and :1150, tail-linked to the Poisson at g4_s2.html:986, and appearing as the k-th-arrival row of the Bernoulli/Poisson table (g4_s0.html:81). A general Gamma density with \u0393(\u03b1) also appears as a conjugate prior at g6_s3.html:288 ('$\\lambda^\\alpha\\theta^{\\alpha-1}e^{-\\lambda\\theta}/\\Gamma(\\alpha)$ with $\\Gamma(6)=5!=120$'). THIN PART: no zoo-table row for Gamma(a,\u03bb) with non-integer a and no general statement of E=a/\u03bb, var=a/\u03bb^2 \u2014 the moments exist only in the Erlang (integer k) dress."
+  },
+  {
+   "topic": "Beta(a,b): f=(\u0393(a+b)/(\u0393(a)\u0393(b)))x^{a-1}(1-x)^{b-1} on (0,1); E=a/(a+b), Var=\u03bc(1-\u03bc)/(a+b+1)",
+   "cheatsheet_page": "p10",
+   "verdict": "COVERED",
+   "importance": "medium",
+   "detail": "E=\u03b1/(\u03b1+\u03b2), var=\u03b1\u03b2/((\u03b1+\u03b2)^2(\u03b1+\u03b2+1)) \u2014 algebraically the cheatsheet's \u03bc(1-\u03bc)/(a+b+1).",
+   "evidence": "g3_s5.html:150-155 zoo-table row: PDF q^{\u03b1-1}(1-q)^{\u03b2-1}/B(\u03b1,\u03b2), mean \u03b1/(\u03b1+\u03b2), variance \u03b1\u03b2/((\u03b1+\u03b2)^2(\u03b1+\u03b2+1)), story 'A random probability: the posterior of an unknown Bernoulli parameter'. Beta function expanded via Gamma at g3_s3.html:462 ($B(\\alpha,\\beta)=\\Gamma(\\alpha)\\Gamma(\\beta)/\\Gamma(\\alpha+\\beta)$). Worked at g3_s5.html:216-220 (Beta(2,1): f(q)=2q, mean 2/3, variance 1/18) and plotted in Fig. 5.1. Used as a prior/posterior in G6-G7: g6_s0.html:92 and g7_s0.html:140 (uniform prior, 7 heads of 10 \u21d2 Beta(8,4), MAP 0.700000, LMS 0.666667), g7_s5.html:161-169 (Beta(1,1) and Beta(2,2) priors, Beta(2+k, 2+n-k) posterior)."
+  },
+  {
+   "topic": "Log-Normal LN(\u03bc,\u03c3^2): f=(1/(x\u03c3\u221a(2\u03c0)))e^{-(log x-\u03bc)^2/(2\u03c3^2)}; E=\u03b8=e^{\u03bc+\u03c3^2/2}, Var=\u03b8^2(e^{\u03c3^2}-1)",
+   "cheatsheet_page": "p10",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "importance": "low",
+   "detail": "exp of a normal; multiplicative-noise model.",
+   "evidence": "grep -i 'log-normal|lognormal|Log-Normal' across all 42 fragments returns exactly one passing mention, g7_s3.html:903 ('that corresponds to assuming *multiplicative* lognormal noise'), with no PDF, mean or variance anywhere. 6.041 does not teach the log-normal as a named family; it is Stat 110 material. Optional enrichment only \u2014 it would slot naturally into the G3 \u00a75 continuous zoo as a derived-distribution example (Y=e^X)."
+  },
+  {
+   "topic": "Chi-Square \u03c7^2_n: f=(1/(2^{n/2}\u0393(n/2)))x^{n/2-1}e^{-x/2}; E=n, Var=2n",
+   "cheatsheet_page": "p10",
+   "verdict": "PARTIAL",
+   "importance": "low",
+   "detail": "Sum of n squared iid standard normals.",
+   "evidence": "The n=1 case is derived twice, properly: g3_s5.html:401 '(This is the chi-square density with one degree of freedom.) Quadrature confirms \u2026' and g3_s4.html:459 Practice 4.8 (X standard normal, Y=X^2, find f_Y). The general definition is given in G7: g7_s4.html:338-346 derives Y=Z^2 by the CDF method and reaches 'precisely the definition of the chi-square distribution with $n$ degrees of freedom', identifying it as a Gamma with rate 1/2; g7_s4.html:311 and g7_s4.html:20 tie it to the goodness-of-fit statistic, and g7_s5.html:416 flags the chi-square/KS tests as introduced-without-proof in L25. THIN PART: no explicit statement of E=n, Var=2n and no tabulated general PDF with the 2^{n/2}\u0393(n/2) normalizer."
+  },
+  {
+   "topic": "Student-t t_n: f=(\u0393((n+1)/2)/(\u221a(n\u03c0)\u0393(n/2)))(1+x^2/n)^{-(n+1)/2}; E=0 if n>1, Var=n/(n-2) if n>2",
+   "cheatsheet_page": "p10",
+   "verdict": "PARTIAL",
+   "importance": "low",
+   "detail": "Heavy-tailed replacement for the normal when \u03c3 is estimated.",
+   "evidence": "The t is used correctly and repeatedly where 6.041 needs it \u2014 CIs with estimated variance and regression inference: g7_s3.html:622-625 (use the t quantile with n-2 df; report $\\hat\\theta_1 \\pm t_{1-\\alpha/2,n-2}\\mathrm{se}(\\hat\\theta_1)$), g7_s3.html:637-639 (numeric CIs with $t_{0.975,6}=2.446912$), and g7_s3.html:732-737 explains *why* it is wider than z (2.447 vs 1.96, a 25% widening at 6 df, shrinking to ~4.5% by n=30). THIN PART: the density formula and the moments (mean 0 for n>1, variance n/(n-2) for n>2) never appear \u2014 the t is treated purely as a quantile lookup. Deriving the t density is Stat 110 territory, so this is enrichment, not a 6.041 gap."
+  },
+  {
+   "topic": "MGF column of the Table of Distributions (M(t)=E(e^{tX}) for all 14 families)",
+   "cheatsheet_page": "p10",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "importance": "medium",
+   "detail": "q+pe^t; (q+pe^t)^n; p/(1-qe^t); e^{\u03bb(e^t-1)}; e^{t\u03bc+\u03c3^2t^2/2}; \u03bb/(\u03bb-t); (\u03bb/(\u03bb-t))^a; (1-2t)^{-n/2}; plus 'messy'/'doesn't exist' entries for HGeom, Beta, LogNormal, t.",
+   "evidence": "grep -i 'moment generating|transform of|z-transform|Laplace transform' across all 42 fragments returns ZERO matches \u2014 transforms are entirely absent from our notes. Per the stated 6.041 scope this is deliberate (MGFs are named in the brief as canonical Stat 110-only material). Worth noting as the single largest structural difference between the two documents: the cheatsheet routes sums-of-independent-RVs through MGF multiplication, whereas our notes route the same results through convolution (g3_s4) and through the Bernoulli/Poisson process algebra (g4_s2, g4_s4) \u2014 a complete substitute for everything 6.041 asks."
+  },
+  {
+   "topic": "A single consolidated Table of Distributions (one page, all families, PMF/PDF + support + E + Var side by side)",
+   "cheatsheet_page": "p10",
+   "verdict": "PARTIAL",
+   "importance": "medium",
+   "detail": "One lookup surface covering 6 discrete + 8 continuous families.",
+   "evidence": "Every 6.041-relevant row exists in our notes, but the table is fragmented across three separate places with different column schemas: g2_s5.html:92-139 (discrete zoo: Bernoulli, discrete uniform, binomial, geometric \u2014 only 4 families, Poisson absent from it), g3_s5.html:120-158 (continuous zoo: Family | PDF | CDF | E | var | Mechanism, covering Uniform, Exponential, Normal, Beta), and g4_s5.html:177-179 (Bernoulli-vs-Poisson parallel table carrying binomial/Poisson/geometric/exponential/Pascal/Erlang). Hypergeometric lives in a fourth place (g1_s4.html:1030, G1's counting note). Nothing is mathematically missing; what is missing is the one-surface lookup, which is precisely what a learner reaches for under exam pressure. Cheapest fix: a single merged reference table (the g3_s5 schema extended with the discrete families and hypergeometric/Erlang rows), cross-linked from all four existing tables."
+  },
+  {
+   "topic": "Multiplication Rule (basic counting principle, n1\u00b7n2\u00b7\u00b7\u00b7nr) + tree diagram",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "G1 \u00a74.2 \u2014 g1_s4.html:87 '<h3>4.2 The basic counting principle</h3>' and :91 boxed theorem '(L04 slide 3; B&T \u00a71.6). Consider a selection made in r stages\u2026'; tree-diagram staging at g1_s4.html:153 and 16 'tree' hits in g1_s2.html (multiplication rule as a tree).",
+   "importance": "high"
+  },
+  {
+   "topic": "Sampling Table: 4 cases (n^k; (n+k-1 choose k); n!/(n-k)!; (n choose k))",
+   "cheatsheet_page": "p1",
+   "verdict": "PARTIAL",
+   "evidence": "Three of four cells are taught explicitly: g1_s4.html:967-980 decision list ('sequence: n^k', 'k-permutation: n!/(n-k)!', 'subset: (n choose k)') plus Fig 4.6 flowchart and the summary table at g1_s4.html:1023. The fourth cell, unordered-with-replacement (n+k-1 choose k) / stars-and-bars, appears ONLY as an incidental aside inside a gotcha: g1_s5.html:202 'the $\\binom{6+6-1}{6}=\\binom{11}{5}=462$ multisets of six faces'. It is never named, derived, or given as a general formula.",
+   "detail": "# unordered samples of size k from n with replacement = C(n+k-1, k)",
+   "importance": "low"
+  },
+  {
+   "topic": "Naive definition of probability P_naive(A)=#favorable/#outcomes",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "G1 \u00a71.3 \u2014 g1_s1.html:155 '<h3>1.3 The discrete uniform law: probabilities are counts</h3>', :157 theorem 'If \u03a9 is finite and all outcomes are equally likely\u2026' (L01 slide 9).",
+   "importance": "high"
+  },
+  {
+   "topic": "Independent events \u2014 three equivalent statements P(A\u2229B)=P(A)P(B), P(A|B)=P(A), P(B|A)=P(B)",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "G1 \u00a73 (g1_s3.html) is the independence section; 35 hits for 'conditionally independent/conditional independence' and the product/conditional equivalences are developed throughout (e.g. g1_s3.html:464-475, 1072).",
+   "importance": "high"
+  },
+  {
+   "topic": "Conditional independence (P(A\u2229B|C)=P(A|C)P(B|C)); neither direction implies the other",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "g1_s3.html:248 '<h3>3.3 Conditional independence</h3>', :256 the definition, and explicit counterexamples in BOTH directions at :292-295 (independent but not conditionally independent) and :537-559 (conditionally independent but not independent).",
+   "importance": "high"
+  },
+  {
+   "topic": "De Morgan's Laws (A\u222aB)^c=A^c\u2229B^c, (A\u2229B)^c=A^c\u222aB^c",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "g1_s0.html:108, g1_s1.html:141 'De Morgan gives $A^c \\cap B^c = (A \\cup B)^c$', g1_s1.html:444 and :576 (countable version), g3_s5.html:527. Also listed as a cross-reference topic at g3_s5.html:574.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Joint / Marginal / Conditional probability definitions; P(A|B)=P(A,B)/P(B)",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "G1 \u00a72 (g1_s2.html) \u2014 section blurb at g1_s2.html:6 '\u00a72.1 defines conditional probability and shows it is again a legitimate probability law'; 44 'total probability theorem' hits and 229 'Bayes' hits across fragments.",
+   "importance": "high"
+  },
+  {
+   "topic": "\"Conditional probability IS probability\" \u2014 every theorem holds with extra conditioning (LOTP/Bayes with extra event C)",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "g1_s3.html:250 'Conditional probabilities form a legitimate probability law: P(\u00b7|C) satisfies the three axioms on \u03a9 (\u00a72.1). So every definition we make about probability laws can be made again \"given C\".' Same claim at g1_s2.html:6. The general principle is stated even though the extra-conditioning LOTP/Bayes formulas are not separately displayed; G4 \u00a71 then uses conditional models throughout.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Intersections via conditioning / chain rule P(A,B,C)=P(A)P(B|A)P(C|A,B)",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "G1 \u00a72.2 reads the definition forwards as the multiplication rule (g1_s2.html:6); tree-based multi-stage chain rule at g1_s2.html:188-192 ('A tree is not an illustration of the multiplication rule; it is the multiplication rule as a data structure') with the 3-stage urn example at :192.",
+   "importance": "high"
+  },
+  {
+   "topic": "Unions via Inclusion\u2013Exclusion (two-set and three-set)",
+   "cheatsheet_page": "p1",
+   "verdict": "PARTIAL",
+   "evidence": "Two-set version is fully covered and proved: g1_s1.html:100 (property 4), :117-119 proof by disjoint decomposition, :140 numeric use, plus reuse in g1_s2/g1_s3/g1_s5/g2_s4/g3_s5/g4_s3. The THREE-set formula P(A\u222aB\u222aC)=\u03a3P\u2212\u03a3P(pairwise)+P(A\u2229B\u2229C) is absent: grep for 'A \\cup B \\cup C' and 'three-set'/'three sets' returns only g1_s1.html:119, which is finite additivity for three *disjoint* pieces, not inclusion\u2013exclusion for three overlapping sets.",
+   "detail": "P(A\u222aB\u222aC)=P(A)+P(B)+P(C)\u2212P(A\u2229B)\u2212P(A\u2229C)\u2212P(B\u2229C)+P(A\u2229B\u2229C)",
+   "importance": "medium"
+  },
+  {
+   "topic": "Simpson's Paradox (P(A|B,C)<P(A|B^c,C) and P(A|B,C^c)<P(A|B^c,C^c) yet P(A|B)>P(A|B^c)), with the Dr. Hibbert/Dr. Nick figure",
+   "cheatsheet_page": "p1",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "grep -ril 'simpson' over all 42 fragments returns nothing; also no 'aggregation paradox'/'confounder' equivalent. 6.041/B&T do not teach Simpson's paradox (it is a Stat 110 staple), so this is enrichment rather than a syllabus gap \u2014 though it is the single best cautionary tale about conditioning and would fit G1 \u00a72\u2013\u00a73.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Law of Total Probability (partition form, and the B/B^c special case)",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "'total probability theorem' occurs 44 times across the fragments; introduced in G1 \u00a72 (g1_s0.html:61 '\u00a72 \u2014 Conditional probability, total probability, Bayes' rule (L02, rec02, B&T \u00a71.3\u20131.4)').",
+   "importance": "high"
+  },
+  {
+   "topic": "Bayes' Rule P(A|B)=P(B|A)P(A)/P(B), and the version conditioned on extra C",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "229 'Bayes' hits; G1 \u00a72.4 develops it with 'posterior \u221d prior \u00d7 likelihood' at g1_s2.html:271 and an interactive false-alarm/base-rate example at g1_s2.html:364; Bayes variants for continuous/mixed cases in G3 \u00a73 (g3_s3.html).",
+   "importance": "high"
+  },
+  {
+   "topic": "Odds Form of Bayes' Rule \u2014 posterior odds = likelihood ratio \u00d7 prior odds",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "g1_s2.html:306 displays the factorization with 'prior odds = 0.05/0.95' underbraced times the likelihood ratio; g1_s3.html:906-932 computes prior odds \u2192 posterior odds and lists 'Sanity check with the odds form: posterior odds = prior odds \u00d7 likelihood ratio'; g1_s5.html:325 reuses it; likelihood ratio again in G7 \u00a74 (g7_s0.html:172, LRT).",
+   "importance": "medium"
+  },
+  {
+   "topic": "PMF p_X(x)=P(X=x) with p_X\u22650 and \u03a3p_X=1; PMF stem-plot figure",
+   "cheatsheet_page": "p1",
+   "verdict": "COVERED",
+   "evidence": "G2 \u00a71 (g2_s1.html) is the PMF section per the scope map; the two properties are re-derived for joint PMFs at g2_s4.html:34-38 ('p_{X,Y}(x,y)\u22650, because it is a probability' and '\u03a3_x \u03a3_y p_{X,Y}=P(\u03a9)=1'). Figures: g2_s2.html:59 refers to 'Fig. 2.1' as a PMF plot.",
+   "importance": "high"
+  },
+  {
+   "topic": "CDF F_X(x)=P(X\u2264x); increasing, right-continuous, \u21920 and \u21921; step-function figure",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "G3 \u00a71.4 \u2014 g3_s1.html:202 '<h3>1.4 Cumulative distribution functions: one object for all three worlds</h3>', :206 definition (L08 slide 4, B&T \u00a73.2 p.148), :214 'Nondecreasing', :216 'Right-continuous', and the summary row g3_s1.html:787 'nondecreasing, right-continuous, 0\u21921; f_X=F_X'; jump at x = P(X=x)'. Figure IMG:g3_s1_cdf_trio at :225 shows PDF/PMF/CDF including the discrete step CDF.",
+   "importance": "high"
+  },
+  {
+   "topic": "Independence of discrete r.v.s: P(X=x,Y=y)=P(X=x)P(Y=y) for all x,y",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "G2 \u00a74 joint PMFs (g2_s4.html:29 defines p_{X,Y}; 43 'marginal' hits) and the scope map assigns independence of RVs to G2 \u00a74; g3_s2.html:126 and :337 give the continuous analogue plus E[g(X)h(Y)]=E[g(X)]E[h(Y)].",
+   "importance": "high"
+  },
+  {
+   "topic": "Indicator random variables I_A \u2208{0,1}, I_A ~ Bern(P(A)), and the indicator method for counting",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "g2_s4.html:818 and :1215 ('X_i is an indicator, so its expectation is the probability'), :1314 (sum of n(n-1) indicators), g2_s5.html:596 names 'the indicator method'; also used in g4_s2, g5_s1, g6_s1.",
+   "importance": "high"
+  },
+  {
+   "topic": "Fundamental Bridge E(I_A)=P(A)",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "g2_s4.html:818 'The expectation of an indicator is the probability of the event it indicates \u2014 remember this'; restated at g4_s4.html:80 'the expectation of an indicator is the probability of its event (G2 \u00a72)'.",
+   "importance": "high"
+  },
+  {
+   "topic": "Indicator algebra identities: I_A^2=I_A, I_A I_B = I_{A\u2229B}, I_{A\u222aB}=I_A+I_B\u2212I_A I_B",
+   "cheatsheet_page": "p2",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "grep -in 'I_A I_B|I_{A|I_A^2|indicator.*product' over all fragments returns no hits. These identities are Stat 110 story-proof tooling (used for inclusion\u2013exclusion by indicators); 6.041 uses indicators only via linearity of expectation, which IS covered.",
+   "detail": "I_A^2=I_A; I_A I_B=I_{A\u2229B}; I_{A\u222aB}=I_A+I_B\u2212I_A I_B",
+   "importance": "low"
+  },
+  {
+   "topic": "Variance Var(X)=E(X\u2212EX)^2=E(X^2)\u2212(EX)^2 and SD(X)=\u221aVar(X)",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "G2 \u00a72 \u2014 g2_s2.html:181-183 'Rearranged, this is the form used constantly for second moments' and its use in rec05 P2(f); continuous restatement at g3_s1.html:786 'var(X)=E[X^2]\u2212(E[X])^2' with \u03c3_X notation and 'standard deviation' defined at g3_s1.html:95.",
+   "importance": "high"
+  },
+  {
+   "topic": "Expected value definition E(X)=\u03a3 x_i P(X=x_i) and Linearity E(aX+bY+c)=aE(X)+bE(Y)+c (incl. the X/Y/X+Y column figure)",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "g2_s2.html:6 '\u00a72.1 defines E[X] and solves the uniform example that L05 slide 6 leaves blank'; 'linearity of expectation' occurs 22 times across the fragments (notably the indicator sums at g2_s4.html:1215, :1314). Linearity without independence is exactly the mechanism used there.",
+   "importance": "high"
+  },
+  {
+   "topic": "Same distribution implies same mean: X ~ Y \u21d2 E(X)=E(Y) and E(g(X))=E(g(Y))",
+   "cheatsheet_page": "p2",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "grep -in 'same distribution' finds only distributional-equality *uses* (g4_s2.html:649 fresh-start property, g4_s3.html:272-273 Poisson stationarity), never the stated principle 'same distribution \u21d2 same expectation of any function'. It is an implicit trivium in 6.041; Stat 110 states it because symmetry/story arguments lean on it.",
+   "importance": "low"
+  },
+  {
+   "topic": "Conditional expected value E(X|A)=\u03a3 x P(X=x|A)",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "g2_s3.html:203 displays E[X|A]=\u03a3 x p_{X|A}(x) 'and more generally E[g(X)|A]\u2026', :204 defines conditional variance too, with worked Example 3.3 at :216-228 (L06 slide 5).",
+   "importance": "high"
+  },
+  {
+   "topic": "CRV interval probability P(a\u2264X\u2264b)=F(b)\u2212F(a); normal case \u03a6((b\u2212\u03bc)/\u03c3)\u2212\u03a6((a\u2212\u03bc)/\u03c3)",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "g3_s1.html has 38 '\\Phi' hits including the table-reading walkthrough at :646 'Step 3 \u2014 read the table. Go to the row 0.2 and the column .05 of the standard normal table'; g7_s2.html:820 uses \u03a6(z)=0.975 for a CI. CDF-difference form in the summary row g3_s1.html:787.",
+   "importance": "high"
+  },
+  {
+   "topic": "PDF as derivative of CDF (F'=f), F(x)=\u222b_{-\u221e}^{x} f(t)dt, F(b)\u2212F(a)=\u222b_a^b f; PDF/CDF normal figure",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "g3_s1.html:6 '\u00a71.1 defines the probability density function and reads it correctly'; summary row g3_s1.html:787 'f_X=F_X''; figure IMG:g3_s1_cdf_trio at :225 pairs pdf and cdf panels. The CDF\u2194PDF round trip is the backbone of the CDF method in g3_s4.html:27.",
+   "importance": "high"
+  },
+  {
+   "topic": "E(X)=\u222b x f(x) dx for a CRV",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "g3_s1.html:93 and the summary row :786 'E[X]=\u222b x f_X'.",
+   "importance": "high"
+  },
+  {
+   "topic": "LOTUS: E(g(X))=\u03a3 g(x)P(X=x) / \u222b g(x)f(x)dx, and 'you don't need the PMF/PDF of g(X)'",
+   "cheatsheet_page": "p2",
+   "verdict": "COVERED",
+   "evidence": "Course wording is 'expected value rule' (44 hits). g2_s2.html:78 '<h3>2.2 The expected value rule for E[g(X)]</h3>' with boxed property at :82 (L05 slide 7, B&T \u00a72.4); continuous version g3_s1.html:93 'E[g(X)] = \u222b g(x) f_X(x) dx'; two-variable version g3_s2.html:404 (L09 slide 3). The 'no need for f_Z' point is made explicitly at g3_s2.html:713 'Cross-check by the expected value rule without ever finding f_Z'.",
+   "importance": "high"
+  },
+  {
+   "topic": "Universality of the Uniform (UoU): F(X) ~ Unif(0,1) and F^{-1}(U) has CDF F; worked with F(x)=1\u2212e^{-x}",
+   "cheatsheet_page": "p2",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "grep -ril 'universality|inverse transform|inverse CDF' returns only g6_s2.html, where 'universality' refers to the CLT ('Universality: only means and variances matter', g6_s2.html:113) \u2014 unrelated. No fragment contains F(X)~Unif(0,1) or F^{-1}(U). 6.041/B&T do not lecture this (it appears only as a simulation exercise), so it is enrichment \u2014 but it would slot naturally into G3 \u00a74 next to the CDF method (g3_s4.html:27), which already has all the machinery.",
+   "detail": "If X is continuous with CDF F, then F(X)~Unif(0,1); conversely F^{-1}(U) has CDF F.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Moments: kth moment \u03bc_k=E(X^k), standardized moment m_k=E(Z^k) with Z=(X\u2212\u03bc)/\u03c3; Mean=\u03bc_1, Var=\u03bc_2\u2212\u03bc_1^2, Skew=m_3, Kurt=m_4\u22123",
+   "cheatsheet_page": "p2",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "No fragment defines moments beyond the second: grep 'kth moment|moment generating|MGF' returns zero hits; 'second moment' appears (g2_s2.html:181, :253) but only as E[X^2] inside the variance identity. 'skew' hits in g6_s2.html:192, :212, :424 are qualitative remarks about CLT accuracy ('the Edgeworth expansion is proportional to the skewness of the base'), never a definition of Skew(X)=m_3. Kurtosis: zero definitional hits. 6.041 never uses moments above order 2 or transforms.",
+   "detail": "\u03bc_k=E(X^k), m_k=E(((X\u2212\u03bc)/\u03c3)^k); Skew=m_3, Kurt=m_4\u22123",
+   "importance": "low"
+  },
+  {
+   "topic": "Section heading 'Moments and MGFs' (MGF content itself begins on p3)",
+   "cheatsheet_page": "p2",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "grep -in 'moment generating|MGF' over all 42 fragments: zero hits. Transforms/MGFs are explicitly outside 6.041's 2010-era syllabus (B&T ch. 4.4 is optional and was not lectured); Stat 110 leans on them heavily. Flagged only so the p3 audit does not treat it as new.",
+   "importance": "low"
+  },
+  {
+   "topic": "Important CDFs: Standard Normal Phi, Exponential F(x)=1-e^{-lambda x}, Uniform(0,1) F(x)=x",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$\\Phi$; $F(x)=1-e^{-\\lambda x}$ on $(0,\\infty)$; $F(x)=x$ on $(0,1)$",
+   "evidence": "G3 \u00a71 (g3_s1.html). Exponential CDF and tail used repeatedly: line 460 '$\\mathbf{P}(X\\le5)=1-e^{-0.2\\times5}=1-e^{-1}=0.632121$'; line 379 gotcha on $\\lambda$ vs $1/\\lambda$ with $\\mathbf{P}(X>x)=e^{-x/1000}$; line 794 summary row '$\\Phi(0.25)=0.5987$; 68/95/99.7% within 1/2/3$\\sigma$'. Uniform CDF/density in g3_s1.html:185.",
+   "importance": "high"
+  },
+  {
+   "topic": "Convolution of random variables = distribution of a sum of independents",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$f_{X+Y}(w)=\\int f_X(x)f_Y(w-x)dx$ for independent $X,Y$",
+   "evidence": "grep -ril 'convolution' hits g3_s0..g3_s5, g4_s0..g4_s5. G3 \u00a74 is the convolution section; g3_s4.html:793 derives 'Erlang density of order 2' by convolution and g3_s4.html:1150 summarises 'Exp($\\lambda$)+Exp($\\lambda$) = Erlang-2, $\\lambda^2we^{-\\lambda w}$'; g3_s4.html:807 checks continuity of the Unif+Exp convolution at $w=1$.",
+   "importance": "high"
+  },
+  {
+   "topic": "Pois(l1) + Pois(l2) = Pois(l1+l2)",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$X+Y\\sim\\mathrm{Pois}(\\lambda_1+\\lambda_2)$",
+   "evidence": "G6 \u00a72 (g6_s2.html:1009) 'Example 2.8 (rec21 P3 - sums of unit-mean Poissons and Stirling's formula)' explicitly uses $S_n\\sim$Poisson($n$) as the sum of $n$ unit-mean Poissons. The process-level version (merging) is in G4/G5: g5_s5.html:639 'a Poisson process of rate $\\lambda_1+\\lambda_2$'; g4_s2.html:1105 '$p+q-pq\\to\\lambda_1+\\lambda_2$'.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Bin(n1,p) + Bin(n2,p) = Bin(n1+n2,p); Bin(n,p) is a sum of i.i.d. Bern(p)",
+   "cheatsheet_page": "p7",
+   "verdict": "PARTIAL",
+   "detail": "$X+Y\\sim\\mathrm{Bin}(n_1+n_2,p)$",
+   "evidence": "The generative fact is stated outright - g2_s5.html:153-154 'the binomial variance is $n$ copies of that, $np(1-p)$, because a binomial random variable is a sum of $n independent indicators'; g4_s2.html Bernoulli-process section builds Bin as a count of independent slots. What I could not find is the closure statement itself written as a rule ('Bin + Bin = Bin' / 'Bin(n_1,p)+Bin(n_2,p)'): grep for 'Bin(n_1', 'binomial.{0,60}binomial', 'sum of .{0,30}Bernoulli' returned only the indicator-decomposition passages, never the additivity identity. Thin only as a lookup-table entry; the reader can derive it in one line from what is there.",
+   "importance": "low"
+  },
+  {
+   "topic": "Gamma(a1,l) + Gamma(a2,l) = Gamma(a1+a2,l); Gamma(n,l) is a sum of i.i.d. Expo(l)",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$X+Y\\sim\\mathrm{Gamma}(a_1+a_2,\\lambda)$; integer-shape Gamma = sum of Expos (course calls this Erlang)",
+   "evidence": "Course wording is 'Erlang'. g3_s4.html:793 derives the 'Erlang density of order 2' as Exp+Exp by convolution; g4_s2.html:367 'a fixed number ($n\\ge2$) of exponentials is not [exponential] (it is Erlang, which \u00a73.4 will...)'; g5_s5.html:831 'An Erlang random variable of order 2 with parameter $\\lambda$ is the sum of two...' and :843 'Erlang(2) + Exp = Erlang of order 3' - which is exactly the additivity rule.",
+   "importance": "medium"
+  },
+  {
+   "topic": "NBin(r1,p) + NBin(r2,p) = NBin(r1+r2,p); NBin(r,p) is a sum of i.i.d. Geom(p)",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$X+Y\\sim\\mathrm{NBin}(r_1+r_2,p)$",
+   "evidence": "Course wording is 'Pascal'. G4 \u00a72 Bernoulli-process section: g4_s2.html:943 'the smallest and largest of the 24 Pascal terms', :942 '$\\mathbb{E}[Y_6]=6/0.05=120$' - the $k$th arrival time of a Bernoulli process is the sum of $k$ i.i.d. geometric interarrival times, which is the Pascal/NBin decomposition. g4_s2.html:1104 'geometric $\\to$ exponential, Pascal $\\to$ Erlang'.",
+   "importance": "medium"
+  },
+  {
+   "topic": "N(m1,s1^2) + N(m2,s2^2) = N(m1+m2, s1^2+s2^2)",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$X+Y\\sim\\mathcal{N}(\\mu_1+\\mu_2,\\sigma_1^2+\\sigma_2^2)$",
+   "evidence": "G3 \u00a74.7 is a whole subsection on it: g3_s4.html:828 '<h3>4.7 The sum of two independent normals is normal</h3>' and :850 '<div class=\"thm\"><b>Theorem (sum of independent normals; L11 slide 6, B&T \u00a74.1).</b>'. Applied at g3_s4.html:926 and g5_s5.html:558 'a sum of two independent normals, hence normal with mean $1+1=2$'.",
+   "importance": "high"
+  },
+  {
+   "topic": "Special case: Bin(1,p) ~ Bern(p)",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$\\mathrm{Bin}(1,p)\\sim\\mathrm{Bern}(p)$",
+   "evidence": "g2_s5.html:96 distribution table row 'One trial with two outcomes; an <em>indicator</em> of any event $A$ with $p=\\mathbf{P}(A)$'; :198 '<b>4. Bernoulli($0.4$)</b> - one trial with two outcomes; $X$ is the indicator of the event...'. The Bern-as-$n=1$-binomial link is explicit in the same G2 \u00a75 table.",
+   "importance": "low"
+  },
+  {
+   "topic": "Special case: Gamma(1,lambda) ~ Expo(lambda)",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$\\mathrm{Gamma}(1,\\lambda)\\sim\\mathrm{Expo}(\\lambda)$",
+   "evidence": "Implicit-but-explicit in the Erlang treatment: g4_s2.html:367 contrasts one exponential with 'a fixed number ($n\\ge2$) of exponentials ... (it is Erlang)'; g5_s5.html:831 defines Erlang order 2 as the sum of two exponentials, so order 1 is the exponential. g3_s4.html:1150 lists the order-2 case explicitly.",
+   "importance": "low"
+  },
+  {
+   "topic": "Special case: NBin(1,p) ~ Geom(p)",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$\\mathrm{NBin}(1,p)\\sim\\mathrm{Geom}(p)$",
+   "evidence": "g4_s2.html:1093 table row '$L$ = failures before the first success | shifted geometric'; g4_s3.html:817 'unsuccessful trials before the first success'. Pascal-of-order-1 = geometric is the base case of the Pascal treatment in G4 \u00a72.",
+   "importance": "low"
+  },
+  {
+   "topic": "Special case: chi^2_n ~ Gamma(n/2, 1/2)",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$\\chi^2_n\\sim\\mathrm{Gamma}(n/2,1/2)$",
+   "evidence": "g7_s4.html:338-347 derives it: '$Z\\sim N(0,1)$ and $Y=Z^2$ ... rate $1/2$ - which is precisely the definition of the <b>chi-square distribution with $n$ degrees of freedom</b>, written $\\chi^2_n$. Its mean is $n$ and its variance $2n$.' The one-dof case is also derived twice more, at g3_s4.html:459 (Practice 4.8) and g3_s5.html:401. The Gamma parameterisation label itself is not used, but the content is identical.",
+   "importance": "low"
+  },
+  {
+   "topic": "Special case: Beta(1,1) ~ Unif(0,1)",
+   "cheatsheet_page": "p7",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "$\\mathrm{Beta}(1,1)\\sim\\mathrm{Unif}(0,1)$",
+   "evidence": "Searched 'Beta(1,1)', 'uniform is a Beta', 'beta function', 'Beta distribution'. Only hit is g3_s3.html:461-462, which introduces the beta function $B(\\alpha,\\beta)=\\int_0^1 q^{\\alpha-1}(1-q)^{\\beta-1}dq=\\Gamma(\\alpha)\\Gamma(\\beta)/\\Gamma(\\alpha+\\beta)$ purely as a normalising constant in a Bayesian example - it never names a Beta distribution or gives the Beta(1,1) identity. The Beta family and Beta-Binomial conjugacy are Stat 110 material; 6.041 (B&T) does not carry Beta as a named distribution.",
+   "importance": "low"
+  },
+  {
+   "topic": "Cauchy-Schwarz inequality |E(XY)| <= sqrt(E(X^2)E(Y^2))",
+   "cheatsheet_page": "p7",
+   "verdict": "PARTIAL",
+   "detail": "$|E(XY)|\\le\\sqrt{E(X^2)E(Y^2)}$",
+   "evidence": "The specialised consequence is fully proved but the general inequality is never stated. g3_s4.html:1043 '<div class=\"thm\"><b>Property (L11 slide 8).</b> $-1\\le\\rho\\le1$, and $|\\rho|=1$ if and only if...' with a complete derivation via $0\\le\\operatorname{var}(U\\pm V)=2(1\\pm\\rho)$. G6 \u00a74 then cites it by name - g6_s4.html:653 'By the Cauchy-Schwarz inequality (G3 \u00a74) $|\\rho|\\le1$' and :657 'the equality case of Cauchy-Schwarz' - but grep for 'Cauchy' inside g3_s4.html returns nothing, so G6 forward-references a name that G3 never attaches. Thin only in that the general $E(XY)$ form and the label are absent from the section that owns it.",
+   "importance": "low"
+  },
+  {
+   "topic": "Markov's inequality P(X >= a) <= E|X|/a",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$P(X\\ge a)\\le \\mathbb{E}|X|/a$ for $a>0$",
+   "evidence": "G6 \u00a7\u00a70-2. grep -ril \"Markov's inequality\" hits g6_s0.html, g6_s1.html, g6_s2.html. It is the opening tool of the limit-theorems note, stated, proved and applied before Chebyshev.",
+   "importance": "high"
+  },
+  {
+   "topic": "Chebyshev's inequality P(|X-mu| >= a) <= sigma^2/a^2",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$P(|X-\\mu|\\ge a)\\le\\sigma^2/a^2$",
+   "evidence": "grep -ril 'chebyshev' hits g5_s5, g6_s0, g6_s1, g6_s2, g6_s5, g7_s1, g7_s5. Includes quality discussion: g6_s5.html:450-452 'At $k=3$ the bound is $0.111111$ against a normal tail of $0.002700$, a factor of $41$ ... Never quote a Chebyshev bound as \"the probability\"'; g6_s1.html:376 figure caption comparing the $1/n$ Chebyshev decay against the true $e^{-2n\\epsilon^2}$.",
+   "importance": "high"
+  },
+  {
+   "topic": "Jensen's inequality E(g(X)) >= g(E(X)) for convex g",
+   "cheatsheet_page": "p7",
+   "verdict": "PARTIAL",
+   "detail": "$\\mathbb{E}[g(X)]\\ge g(\\mathbb{E}[X])$ for $g$ convex; reversed for concave",
+   "evidence": "Named five times (g2_s2:126, g2_s3, g3_s3:639, g5_s5:373 and :510, g7_s5:295) and the direction rule is given as an operational check - g2_s3.html:177 'Sanity-check the direction: for convex $g$ (like $x^2$, $1/x$ on $x>0$, $e^x$) the true answer must be $\\ge g(\\mathbb{E}[X])$' - plus quantified Jensen gaps (g3_s3: 'the Jensen gap is $0.198604$ hours'). But g2_s2.html:126 defers it ('a fact that gets a name (Jensen's inequality) later') and no later section ever states it as a theorem in a defn/thm box; grep for the boxed statement found nothing. So: the inequality is used correctly everywhere, never formally stated.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Geometric series: finite sum (1-r^n)/(1-r) and infinite 1/(1-r) for |r|<1",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$\\sum_{k=0}^{n-1}r^k=\\frac{1-r^n}{1-r}$; $\\sum_{k\\ge0}r^k=\\frac{1}{1-r}$",
+   "evidence": "Derived from scratch: g2_s1.html:313 '<b>Step 1 - the finite geometric sum.</b> Let $S_N=\\sum_{j=0}^{N-1}q^j$ ... Multiply by $q$ and subtract'. Reused with the closed form quoted at g5_s1.html:337 '$\\sum_{k=1}^{n}x^{k-1}=(1-x^n)/(1-x)$', g5_s2.html:345 '$\\sum_{m\\ge0}x^m=1/(1-x)$ (G2 \u00a73)', g5_s3.html:647, g5_s4.html:392.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Exponential function series e^x = sum x^n/n! = lim (1+x/n)^n",
+   "cheatsheet_page": "p7",
+   "verdict": "PARTIAL",
+   "detail": "$e^x=\\sum_{n\\ge0}\\frac{x^n}{n!}=\\lim_{n\\to\\infty}(1+x/n)^n$",
+   "evidence": "The series is used implicitly (Poisson PMF normalisation) and the Taylor expansion appears where it does work - g4_s3.html:127 'the Taylor expansion $e^{-\\lambda\\delta}=1-\\lambda\\delta+\\cdots$', g3_s5.html:366 'first-order Taylor expansion'. But grep for the full identity ('e^x=', '\\\\sum_{k=0}^{\\\\infty}\\\\frac{\\\\lambda^k}{k!}', 'exponential series') found no place where the series is written out as a reference formula, and the $\\lim(1+x/n)^n$ form appears nowhere. Thin as a lookup item only.",
+   "importance": "low"
+  },
+  {
+   "topic": "Gamma and Beta integrals; Gamma(a+1)=a*Gamma(a); Gamma(n)=(n-1)!",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$\\int_0^\\infty x^{t-1}e^{-x}dx=\\Gamma(t)$; $\\int_0^1 x^{a-1}(1-x)^{b-1}dx=\\frac{\\Gamma(a)\\Gamma(b)}{\\Gamma(a+b)}$",
+   "evidence": "Both integrals appear verbatim in G3 \u00a73: g3_s3.html:461-462 gives the beta integral with its Gamma-ratio value and the integer form $\\frac{(\\alpha-1)!(\\beta-1)!}{(\\alpha+\\beta-1)!}$; g3_s3.html:508 gives 'the gamma integral $\\int_0^\\infty u^ye^{-u}du=\\Gamma(y+1)=y!$ for a nonnegative integer $y$ (integrate by parts $y$ times)', which is the $\\Gamma(a+1)=a\\Gamma(a)$ recursion and $\\Gamma(n)=(n-1)!$ in one. Also g6_s3.html:288 '$\\Gamma(6)=5!=120$'.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Euler's approximation for harmonic sums: H_n ~ log n + 0.577",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$1+\\frac12+\\cdots+\\frac1n\\approx\\log n+0.577\\ldots$",
+   "evidence": "g4_s3.html:889-891 'Asymptotics [SOLUTION GAP filled] ... $\\ln(n+1)\\le H_n\\le1+\\ln n$ ... More precisely $H_n=\\ln n+\\gamma+\\frac1{2n}+O(n^{-2})$ with $\\gamma=0.577216$ the Euler-Mascheroni constant', with numerics at :892 ($H_{10}=2.928968$, refined estimate $29.298008$, Monte-Carlo $29.289280$). Our notes go strictly further than the cheatsheet here (they bound $H_n$ by integrals first). $\\gamma$ also reappears at g3_s4.html:269-273 in the Gumbel derivation.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Stirling's approximation n! ~ sqrt(2 pi n)(n/e)^n",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$n!\\approx\\sqrt{2\\pi n}\\left(\\frac{n}{e}\\right)^n$",
+   "evidence": "g6_s2.html:1004 '<h3>2.6 Two consequences: Stirling's formula, and where the CLT must not go</h3>', :1024 'compute $\\mathbf{P}(S_n=n)$ ... in two ways, exactly and by the CLT, and equate', :1047 boxed '$n!\\approx n^ne^{-n}\\sqrt{2\\pi n}=\\boxed{\\sqrt{2\\pi n}(n/e)^n}$', plus a numerical accuracy table (:1049) and the historical note that de Moivre got the form and Stirling the $\\sqrt{2\\pi}$ (:1069-1070). Deeper than the cheatsheet, which only states it.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Medians and quantiles: median m satisfies F(m)>=0.5 and P(X>=m)>=0.5; a-th quantile = min{x: F(x)>=a}",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "median; $a$th quantile $=\\min\\{x:F(x)\\ge a\\}$",
+   "evidence": "Discrete two-sided definition: g2_s2.html:59 'the <em>median</em> is also $2$ (since $p_X(1)+p_X(2)=0.60\\ge0.5$)'. Continuous version and computation: g3_s1.html:461 '(d) The median $m$ solves $1-e^{-0.2m}=0.5$ ... $m=5\\ln2=3.465736$'; g3_s5.html:256-257 'the median $m$ (the value with $F_X(m)=1/2$). Is the median equal to the mean?'; g3_s1.html:185 gotcha on mean=median for symmetric densities. Quantiles used operationally in G6/G7: g6_s5.html:139 '$z_{0.975}=1.959964$, the $97.5$th standard normal percentile'; g7_s4.html:351 'the $(1-\\alpha)$ quantile of $\\chi^2_n$'.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Miscellaneous conventions: log means natural log; definition of i.i.d.",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$\\log=\\ln$; i.i.d. = independent, identically distributed",
+   "evidence": "Notes use $\\ln$ explicitly everywhere rather than an ambiguous $\\log$ (g4_s3.html:889 '$\\ln(n+1)\\le H_n\\le1+\\ln n$'; g3_s1.html:461 '$\\ln0.5=-\\ln2$'), so the ambiguity the cheatsheet warns about does not arise. i.i.d. is defined and leaned on hard in G6: g6_s1.html:556 'Example 1.11 (rec20 P3 - three transformed i.i.d. uniform sequences)'; g4_s3.html:817 'The $X_i$ are i.i.d. and independent of $N$'.",
+   "importance": "low"
+  },
+  {
+   "topic": "Example: typos on a page - (1-1/n)^n -> 1/e (Poisson/rare-event approximation)",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$\\left(1-\\frac1n\\right)^n\\to e^{-1}$",
+   "evidence": "G4 \u00a73 is built on the Poisson limit of the binomial: g4_s3.html:2 sources line cites 'B&T \u00a76.1 (Poisson approximation to the binomial, pp. 306-309, Examples 6.6-6.7)'; :302-307 'Example 3.3 (B&T Example 6.6 - when is the Poisson approximation any good?) ... approximations $e^{-1}/k!$'. The $e^{-1}$ landmark also appears at g3_s1.html:379 and :460 ('the universal $63\\%$ figure').",
+   "importance": "medium"
+  },
+  {
+   "topic": "Example: linearity and indicators (1) - birthday problem, E(distinct birthdays)=365(1-(364/365)^n), E(matches)=C(n,2)/365",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$E(X)=365\\left(1-(364/365)^n\\right)$; $E(Y)=\\binom{n}{2}/365$",
+   "evidence": "g2_s5.html:53 '<b>2. Decompose into indicators.</b> Let $D_d=1$ if day $d$ has at least one birthday' - exactly the cheatsheet's $I_j$ construction; :34 'write $X=\\sum_i X_i$ with each $X_i\\in\\{0,1\\}$ and use linearity (L07 slides 6-7)'. The pairwise-match count is the same section's second half. Birthday-problem counting is also in G1 \u00a74 (g1_s4.html:11 'birthday problem (P1)').",
+   "importance": "high"
+  },
+  {
+   "topic": "Example: linearity and indicators (2) - hat-matching, E(matches)=n(1/n)=1",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$E[X]=n\\cdot\\frac1n=1$ regardless of $n$",
+   "evidence": "Worked twice. g2_s4.html:1200 'a <b>uniformly random permutation</b> of the $n$ hats - all $n!$ orderings equally likely'; g2_s5.html:280-286 '<b>Step 1 - decompose into indicators.</b> Writing the PMF of $X$ directly is a derangement count and is genuinely hard; the indicator method avoids it entirely ... <b>Step 2 - the single-indicator probability.</b> Person $i$ is equally likely to end up with any...' , with :268 '$\\mathbb{E}[X]=1$ in one line by linearity even though the indicators $X_i$ are strongly dependent'. Notes go further than the cheatsheet by computing the variance too (:335 warns the naive independent-indicator variance $n\\cdot\\frac1n(1-\\frac1n)$ is wrong).",
+   "importance": "high"
+  },
+  {
+   "topic": "Example: linearity and First Success - coupon collector, E(N)=n*sum(1/j)",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$E(N)=n\\sum_{j=1}^{n}\\frac1j=nH_n\\approx n(\\log n+0.577)$",
+   "evidence": "g4_s3.html:859-900 is a full worked coupon collector ('There are $n$ papers in a drawer...'): phase decomposition $M=T_0+\\cdots+T_{n-1}$, $p_i=(n-i)/n$, $\\mathbb{E}[T_i]=n/(n-i)$, re-indexing to the boxed '$\\mathbb{E}[M]=n\\sum_{k=1}^{n}\\frac1k=nH_n$', the Euler asymptotic, numerics for $n=10,100,1000$, a 200,000-run Monte-Carlo check, and an interpretation ('The last phase alone costs $\\mathbb{E}[T_{n-1}]=n$ draws'). Substantially richer than the cheatsheet.",
+   "importance": "high"
+  },
+  {
+   "topic": "Example: orderings of i.i.d. random variables - all n! orderings equally likely",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$P(\\text{a given ordering})=\\frac{3!2!}{5!}=1/\\binom{5}{3}$",
+   "evidence": "The counting principle is in G1 \u00a74: g1_s4.html:185 '$\\#\\{\\text{orderings of }n\\text{ elements}\\}=n!$'; g1_s5.html:209 'Conversely, $\\binom{n}{k}$ already divides by the $k!$ orderings inside the chosen subset'. The i.i.d.-continuous application is in g2_s4.html:1200 ('all $n!$ orderings equally likely') and used as a symmetry argument at g3_s2.html:713 ('the factor $2$ by symmetry of the two orderings'). Both of the cheatsheet's two routes (permutation count and $\\binom{5}{3}$ slot choice) are available from what is there.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Example: expectation of Negative Hypergeometric - cards drawn before first Ace = 48/5 = 9.6",
+   "cheatsheet_page": "p7",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "$E(X)=\\sum_{j=1}^{48}E(I_j)=48\\cdot\\frac15=9.6$ by symmetry",
+   "evidence": "Searched 'first ace', 'before the first Ace', 'negative hypergeometric', 'Negative Hypergeometric'. g1_s4.html:517 mentions aces only in a dealing/counting problem ('the first ace can go to any of the $4$ players'), and the many 'before the first' hits (g4_s3.html:786, g4_s4.html:418/429/438/973/994) are all Bernoulli/Poisson first-success problems, not this one. The Negative Hypergeometric is a Stat 110 named distribution absent from B&T; the underlying technique (indicators + symmetry + linearity) is fully covered by the hat-matching and birthday examples above, so nothing methodological is lost.",
+   "importance": "low"
+  },
+  {
+   "topic": "Example: minimum and maximum of RVs - CDF of max of n i.i.d. Unif(0,1) is a^n",
+   "cheatsheet_page": "p7",
+   "verdict": "COVERED",
+   "detail": "$P(\\max\\le a)=\\prod P(X_i\\le a)$; $P(\\min\\ge a)=\\prod P(X_i\\ge a)$; for Unif(0,1), $F_{U_{(n)}}(a)=a^n$",
+   "evidence": "Both directions are worked. g3_s1.html:554 'Practice: $F_M(m)=\\mathbf{P}(X_1\\le m)\\mathbf{P}(X_2\\le m)=(1-e^{-\\lambda m})^2$ ... Differentiating with the chain rule, $f_M(m)=2(1-e^{-\\lambda m})\\lambda e^{-\\lambda m}$' plus the tail-formula mean $3/(2\\lambda)$. The uniform case verbatim: g7_s2.html:574-576 'Let $M=\\max_i X_i$. For $0\\le m\\le\\theta$, $F_M(m)=\\mathbf{P}(X_1\\le m,\\dots,X_n\\le m)=\\prod_{i=1}^{n}\\mathbf{P}(X_i\\le m)=(m/\\theta)^n$' (the MLE-for-$\\theta$ example). Min-side via complement in the same sections.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Example: pattern-matching with the e^x Taylor series - E(1/(X+1)) for X ~ Pois(lambda) via LOTUS",
+   "cheatsheet_page": "p7",
+   "verdict": "PARTIAL",
+   "detail": "$E\\!\\left(\\frac{1}{X+1}\\right)=\\frac{e^{-\\lambda}}{\\lambda}(e^{\\lambda}-1)$",
+   "evidence": "The tool is covered but not this trick. LOTUS is the course's 'expected value rule', stated at g2_s0.html:45 'the expected value rule $\\mathbb{E}[g(X)]=\\sum_x g(x)p_X(x)$, which spares you the PMF of $g(X)$' and applied to non-linear $g$ throughout (g5_s5.html:508 computes $\\mathbb{E}[24/W]$ directly from $f_W$). What is absent is the specific move of re-indexing an infinite LOTUS sum back into a recognisable $e^\\lambda$ series; grep for 'pattern-match', 'Taylor series', '\\\\frac{1}{X+1}' turned up only unrelated Taylor expansions (g4_s3.html:127, g3_s5.html:366). Nice enrichment for series manipulation; not a 6.041 exam skill.",
+   "importance": "low"
+  },
+  {
+   "topic": "Adam's Law and Eve's Law worked example: T|N ~ Bin(N,p), N ~ Geom(s); E(T) and Var(T)",
+   "cheatsheet_page": "p8",
+   "verdict": "COVERED",
+   "detail": "$E(T)=E(E(T|N))=E(Np)=\\frac{p(1-s)}{s}$; $\\mathrm{Var}(T)=E(\\mathrm{Var}(T|N))+\\mathrm{Var}(E(T|N))$",
+   "evidence": "Exactly the random-sum machinery of G4 \u00a72. g4_s2.html:6 'expectations $\\mathbb{E}[X]=\\mathbb{E}[\\mathbb{E}[X\\mid Y]]$ and the law of total variance'; :42 'Example 2.1 (rec13 P1 - generalizations of the law of iterated expectations)'; :150 '<div class=\"defn\"><b>Definition (random sum; L12 slide 7, B&T \u00a74.5).</b>'; :166 figure 'The two-track recipe for a random sum: condition on $N=n$, un-fix $n$, then apply the appropriate law'; :197 'Step 5: iterate' and :229 'Step 5$'$: add. The law of total variance assembles the pieces'. Course wording is 'law of iterated expectations' / 'law of total variance' - naming difference only.",
+   "importance": "high"
+  },
+  {
+   "topic": "MGF for finding moments: M(t)=lambda/(lambda-t) for Expo, E(X^3)=6/lambda^3, and the geometric-series pattern-recognition route to E(X^n)=n!/lambda^n",
+   "cheatsheet_page": "p8",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "$M(t)=E(e^{tX})$; $n$th moment = coefficient of $t^n/n!$",
+   "evidence": "The notes rule this out explicitly rather than omitting it by accident: g4_s2.html:239-240 '(B&T also derives the transform $M_Y(s)=M_N(\\log M_X(s))$; transforms are outside the scope of L12, which reads \"mean and variance only; no transforms\".)'. Every other 'transform' hit in the fragments is a change-of-variable/Jacobian, not an MGF. This is a deliberate, documented syllabus boundary, so it is enrichment at best.",
+   "importance": "low"
+  },
+  {
+   "topic": "Markov chains (1): two-state chain, stationary distribution via sQ = s, s = (beta/(alpha+beta), alpha/(alpha+beta))",
+   "cheatsheet_page": "p8",
+   "verdict": "COVERED",
+   "detail": "$s_0=s_0(1-\\alpha)+s_1\\beta$, $s_1=s_0\\alpha+s_1(1-\\beta)$ $\\Rightarrow$ $\\vec s=\\left(\\frac{\\beta}{\\alpha+\\beta},\\frac{\\alpha}{\\alpha+\\beta}\\right)$",
+   "evidence": "The two-state chain is the running example of G5. g5_s0.html:9 figure caption 'the two-state chain of L16 slide 5 / L17 slide 7 / L18 slide 3'; :65 'Question A - the short run ... Iterate the recursion. For the two-state chain of Fig. 0.1'; g5_s3.html:198 '<div class=\"ex\"><b>Example 3.1 (L17 slide 7 and L18 slide 3 - the two-state chain; solved in full).</b>' with row-sum checks and steady-state values printed under the states (:205), and :16 'we solve chains - the two-state chain of L17 slide 7, its cousin from B&T Example 7.5'. g5_s3.html:187 even anticipates the student question about balance equations for a two-state chain.",
+   "importance": "high"
+  },
+  {
+   "topic": "Markov chain reversibility / detailed balance: s_i q_ij = s_j q_ji",
+   "cheatsheet_page": "p8",
+   "verdict": "PARTIAL",
+   "detail": "chain reversible w.r.t. $\\vec s$ iff $s_iq_{ij}=s_jq_{ji}$ for all $i,j$",
+   "evidence": "Detailed balance is present but only in the birth-death setting, and reversibility is never developed as a general property. g5_s5.html:230 'The cut (detailed balance) equation across the boundary between $i$ and $i+1$ is...' - this is the local-balance/cut argument used for queueing chains (g5_s3 Erlang-B, M/M/1). Reversibility itself appears once, in scare quotes and in passing: g5_s3.html:586 'chain that is \"reversible\"'. So a 6.041 learner gets the cut equations (which is what B&T Chapter 7 actually needs) but not the general reversibility criterion or the fact that it gives a shortcut to $\\vec s$. B&T does not cover reversibility as such, so this is a soft gap.",
+   "importance": "low"
+  },
+  {
+   "topic": "Markov chains (2): random walk on an undirected graph - stationary distribution proportional to degree",
+   "cheatsheet_page": "p8",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "$\\pi_i=\\deg(i)/\\sum_j\\deg(j)$; on the Catan board, $3/84=1/28$, $4/84=1/21$, $6/84=1/14$",
+   "evidence": "Searched 'random walk', 'degree', 'undirected', 'proportional to the degree'. The random-walk hits are 1-D walks (g1_s3.html:723 'rec03 P2 is the smallest interesting example: a random walk'; g5_s1.html:67; g5_s3.html:739; g5_s4 gambler's-ruin) and the only 'degree' hits are degrees of freedom (g7_s4) plus a friendship-paradox aside at g2_s2.html:336 'Sampling a person through a friendship link is sampling proportional to degree' - which is the right intuition but not the Markov-chain theorem. Graph random walks are a Stat 110 / 6.262 topic; B&T Chapter 7 does not include the degree-proportional stationary law.",
+   "importance": "low"
+  },
+  {
+   "topic": "Determining irreducibility and aperiodicity of a chain",
+   "cheatsheet_page": "p8",
+   "verdict": "COVERED",
+   "detail": "irreducible = can reach anywhere from anywhere; aperiodic = gcd of return times is 1",
+   "evidence": "Treated more carefully than the cheatsheet. g5_s2.html:16 'classes, <b>periodic</b> vs. <b>aperiodic</b> classes - is exactly what the steady-state...'; g5_s3.html:64 'that is <b>aperiodic</b> (transient states are allowed)'; :86 'A periodic recurrent class. Take the two-state chain with $p_{12}=p_{21}=1$'; :283 'it is aperiodic because $p_{11}=0.7>0$ is a self-loop'; :1000 'Convergence (L17 slide 5, L18 slide 2). Single recurrent class + aperiodic'; :124 quotes B&T p.362 on the failure mode. Our notes correctly use the weaker 'single aperiodic recurrent class' condition rather than the cheatsheet's blunt 'irreducible'.",
+   "importance": "high"
+  },
+  {
+   "topic": "Expected return time to a state = 1 / stationary probability",
+   "cheatsheet_page": "p8",
+   "verdict": "COVERED",
+   "detail": "$E[\\text{return time to }i]=1/\\pi_i$ (e.g. $1/(1/14)=14$)",
+   "evidence": "g5_s3.html:434 'time between successive visits. That is exactly true: the mean recurrence time of \u00a74 satisfies...'; g5_s4.html:526 '<h3>4.4 Mean first passage and mean recurrence times</h3>' and :538 'The <b>mean recurrence time</b> of $s$ is...'; g5_s5.html:63 summary-table row 'the <b>mean recurrence time</b> of a recurrent state $s$'; worked at g5_s4.html:589 and :988-1028. Our notes additionally give the first-step-analysis derivation, which the cheatsheet just asserts.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Problem-Solving Strategies (12 numbered items: define events/RVs, counting, find the distribution, LOTUS/indicators/Adam for expectation, Eve for variance, E(X^2) via Var, covariance properties, symmetry, orderings, independence, pattern-match painful integrals, sanity check)",
+   "cheatsheet_page": "p8",
+   "verdict": "COVERED",
+   "detail": "meta-strategy checklist for routing a problem to the right tool",
+   "evidence": "Our notes carry this as decision flowcharts and recipe boxes rather than a numbered list, and per-topic rather than globally. g2_s5.html:174 'Decision flowchart: is the quantity a number attached to each outcome? Then does it come from one of four standard mechanisms ... finally route to expected-value rule, linearity/indicators, variance, or total expectation'; g2_s5.html:169 'A mean of a sum $\\to$ linearity and indicators'; g3_s1.html:765 'Everything in this section is one of six moves. The chart below is the decision guide'; g4_s2.html:166 the random-sum two-track recipe; g5_s4.html:275 'Fig. 4.4 - Which system do I write?'; g6_s4.html:814 estimator-choice flowchart; g7_s4.html:959 '<div class=\"recipe\"><b>Recipe (the chi-square test)</b>'. Strategy #11 (pattern-match a painful integral to a known PDF) is g3_s3.html:461-508.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Biohazards (5 items: naive definition misuse, confusing unconditional/conditional/joint, assuming independence, sanity checks, confusing RVs/numbers/events)",
+   "cheatsheet_page": "p8",
+   "verdict": "COVERED",
+   "detail": "the five classic error modes",
+   "evidence": "328 warn/gotcha boxes across all 42 fragments (grep count for 'Gotcha|pitfall|common error|sanity check'). Item-by-item: (1) equally-likely misuse - g1_s5.html:415 'discrete uniform law on ordered sequences); (b) Binomial probability. The trap is reaching for the...'; (2) conditional vs joint - g1_s2.html:23 '$\\mathbf{P}(B)$ is the total probability of the conditioning event, i.e. the size of the new universe ... If $\\mathbf{P}(B)=0$ the quantity is <b>undefined</b>', plus the whole $P(HH|A)$ vs $P(HH|A\\cup B)$ worked contrast at :107-140; (3) unjustified independence - g2_s1.html:178 'It is the hypergeometric PMF. Keep it in mind as the standing counterexample when \u00a71.4 tempts you to call every count binomial', g2_s5.html:218 'indicators negatively dependent', :653 'holds without independence; every variance-of-a-sum rule needs it'; (4) sanity checks - normalisation/mean checks are run on nearly every example (g3_s3.html:637 'Normalization: ... $=1$ \u2713'); (5) RVs vs numbers vs events - g2_s0.html:32 '$g(X)$ is again a random variable ..., while $g(x)$ is a number', g2_s5.html:637 'An indicator is a $0$-$1$ random variable no matter what $X$ is'.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Multinomial covariance Cov(X_i,X_j) = -n p_i p_j (Problem-Solving Strategies item 7)",
+   "cheatsheet_page": "p8",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "$\\mathrm{Cov}(X_i,X_j)=-np_ip_j$ for $i\\ne j$",
+   "evidence": "Searched 'multinomial', 'Multinomial', '-np_ip_j'. No hits in any fragment. Covariance properties themselves are fully covered (G3 \u00a74: bilinearity at g3_s4.html:1080 'Covariance is bilinear', the correlation bound, the $Y=X^2$ zero-covariance trap at :1009), and the negative-dependence intuition appears for the hat problem (g2_s5.html:218 'indicators negatively dependent'). The Multinomial is a Stat 110 named joint distribution; B&T/6.041 does not carry it.",
+   "importance": "low"
+  },
+  {
+   "topic": "Transition matrix Q, q_ij = P(X_{n+1}=j|X_n=i); m-step probabilities as (i,j) element of Q^m; PMF of X_n = p\u00b7Q^n",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "G5 \u00a71-\u00a72. grep 'transition matrix' -> g5_s0/s1/s3/s4; grep 'n-step' -> g5_s0/s1/s2/s5. The notes build the transition-probability matrix, the n-step recursion (Chapman-Kolmogorov via the total probability theorem) and propagation of an initial distribution.",
+   "importance": "high"
+  },
+  {
+   "topic": "Chain properties: irreducible, recurrent, periodic / aperiodic; in an irreducible chain all states share a period",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "G5 \u00a72. grep 'irreducib' -> g5_s2; grep 'recurren' -> all six g5 fragments; grep 'periodic' -> all six g5 fragments. 6.041 phrases it as recurrent/transient classes plus periodicity of a recurrent class.",
+   "importance": "high"
+  },
+  {
+   "topic": "Stationary distribution: sQ = s, existence/uniqueness for irreducible aperiodic chains, s_i as long-run fraction of time in state i",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "G5 \u00a73 ('steady-state probabilities', balance equations). grep 'balance equation' -> g5_s0..s5; grep 'steady-state' -> all six g5 fragments; g5_s3 contains 'If \\pi_j is the fraction of time in j...'. The cheatsheet's matrix equation (Q'-I)s'=0 is the same linear system the notes solve as balance equations + normalization (g5_s0 explicitly notes the balance equations alone are singular and normalization fixes the scale).",
+   "importance": "high"
+  },
+  {
+   "topic": "Expected number of steps to return to state i starting from i equals 1/s_i",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "G5 \u00a74.4. g5_s4 defines the mean recurrence time t*_s = E[min{n>=1: X_n=s} | X_0=s], gives the system t_s=0, t_i=1+sum_j p_ij t_j, and states/uses t*_s = 1/pi_s (verified numerically twice, e.g. t*_{6-1}=265/61=4.344262). g5_s3 previews it: 'the mean recurrence time of \u00a74 satisfies t_j^*=1/\\pi_j'.",
+   "importance": "high"
+  },
+  {
+   "topic": "Reversibility: chain is reversible w.r.t. s if s_i q_ij = s_j q_ji; 'Reversibility Condition Implies Stationarity'",
+   "cheatsheet_page": "p5",
+   "verdict": "PARTIAL",
+   "detail": "s_i q_{ij} = s_j q_{ji} for all i,j  =>  s is stationary",
+   "evidence": "grep 'reversib' hits ONLY g5_s3, and only inside a Gotcha: 'Local balance is not a general fact... It is a special feature of chains whose transition graph is a line (or a tree, or any chain that is \"reversible\")', citing B&T Problem 7.25 as a counterexample. grep 'detailed balance' hits only g5_s5, and there only as a parenthetical label on the birth-death cut equation pi_i p = pi_{i+1} q. So the *cut/detailed-balance technique* is well covered for birth-death chains, but the general theorem 'detailed balance => stationary' is never stated as a theorem, and 'reversible' is never defined.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Stationary distribution is uniform if the columns of Q sum to 1 (doubly stochastic chains)",
+   "cheatsheet_page": "p5",
+   "verdict": "MISSING_IN_SYLLABUS",
+   "detail": "If sum_i q_ij = 1 for every j then s = (1/M,...,1/M) is stationary",
+   "evidence": "grep 'doubly stochastic' -> no hits in any fragment; grep 'columns.{0,40}sum to 1' -> no hits. This is a one-line shortcut inside the steady-state material G5 \u00a73 already covers, so it is in scope, but its absence costs little.",
+   "importance": "low"
+  },
+  {
+   "topic": "Random walk on an undirected network: stationary distribution proportional to the degree sequence (with the 5-node figure)",
+   "cheatsheet_page": "p5",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "s_i proportional to deg(i); example (3,3,2,4,2)/14",
+   "evidence": "grep 'random walk' -> g1_s0/s1/s3 (a 3-step lattice walk under independence), g5_s3, g7_s5 \u2014 none about graphs. grep 'degree' in g5 -> no hits (only 'degrees of freedom' in g7). B&T ch.7 does not treat network random walks; this is Stat 110 enrichment.",
+   "importance": "low"
+  },
+  {
+   "topic": "Uniform distribution: Unif(a,b), probability of a sub-interval proportional to its length, constant density over the support",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "G3 \u00a71-\u00a72. grep 'uniform.{0,40}pdf' -> g3_s1, g3_s2; 'Unif' appears 40x in g3_s1 and 81x in g3_s2; the continuous uniform pdf/CDF/mean/variance are derived in G3 \u00a71 and used as the running example throughout G3 \u00a72 (joint uniform on regions).",
+   "importance": "high"
+  },
+  {
+   "topic": "Universality of the Uniform (inverse-CDF transform)",
+   "cheatsheet_page": "p5 (cross-reference)",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "F(X) ~ Unif(0,1) and F^{-1}(U) ~ F",
+   "evidence": "grep 'universality of the uniform' -> 0 hits; grep 'inverse transform' -> 0 hits; grep 'inverse.{0,20}CDF' -> a single incidental hit in g4_s1. Not a B&T/6.041 topic (it belongs to simulation); worth adding only as optional enrichment alongside G3 \u00a74 derived distributions.",
+   "importance": "low"
+  },
+  {
+   "topic": "Normal distribution N(mu, sigma^2): standardization Z=(X-mu)/sigma ~ N(0,1), standard normal with CDF Phi, location-scale transformation closure",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "G3 \u00a71 (normal pdf, standardization, Phi table) and G6 \u00a72. grep 'standard normal' -> g3_s0/s1/s4 + g6_s1/s2/s4/s5 + all of g7; grep 'normal table' -> g3_s1, g3_s5, g6_s2, g7_s1/s2/s4; grep 'Phi(' -> 15 fragments. g3_s3 has 'linear function of a normal'. The cheatsheet's 'Location-Scale Transformation' is the course's aX+b closure of the normal family (aX+b: 14 hits in g3_s1).",
+   "importance": "high"
+  },
+  {
+   "topic": "Normal is ubiquitous because of the CLT",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "G6 \u00a72 is entirely the CLT: grep 'de Moivre' -> g6_s0/s2/s5 (de Moivre-Laplace), 'normal approximation' -> g6_s0/s1/s2 plus g7; g6_s2 also works the Poisson-versus-normal paradox from L20 slide 8. Far deeper than the cheatsheet's one sentence.",
+   "importance": "high"
+  },
+  {
+   "topic": "Exponential distribution: story, rate parameter lambda, E[X]=1/lambda",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "G3 \u00a71 (definition, pdf/CDF, mean/variance) and G4 \u00a73-\u00a74 (interarrival times of the Poisson process). grep 'exponential' hits 32 of 42 fragments; the rate-parameter reading ('1 per 1/4 hour on average') is the course's arrival-rate discussion in g4_s3.",
+   "importance": "high"
+  },
+  {
+   "topic": "Memorylessness: P(X>s+t | X>s) = P(X>t); X-a | (X>a) ~ Expo(lambda); Exponential is the only continuous memoryless distribution",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "grep 'memoryless' -> 19 fragments, with 22 hits in g2_s3 (geometric memorylessness), 15 in g3_s1 (exponential memorylessness, the conditional-tail form), 16 in g4_s3, 9 in g4_s4. grep 'fresh-start' -> g2_s3, g4_s2 (14 hits), g4_s4 \u2014 the course's fresh-start property is exactly the cheatsheet's 'as good as new'.",
+   "importance": "high"
+  },
+  {
+   "topic": "Expos as a rescaled Expo(1): Y~Expo(lambda) => lambda\u00b7Y ~ Expo(1)",
+   "cheatsheet_page": "p5",
+   "verdict": "PARTIAL",
+   "detail": "X = lambda\u00b7Y ~ Expo(1)",
+   "evidence": "The general machinery is covered \u2014 G3 \u00a74 derived distributions handles Y=aX for continuous X (aX+b: 16 hits in g3_s4, 14 in g3_s1), and the exponential's scale-family behaviour is implicit throughout G4's rate arguments. But no fragment states the specific normalization 'lambda\u00b7X ~ Expo(1)' as a named, reusable fact.",
+   "importance": "low"
+  },
+  {
+   "topic": "Min of Expos: min(X_1..X_k) ~ Expo(lambda_1+...+lambda_k)",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "grep 'minimum of.{0,20}exponential' -> g3_s1 (3 hits), g4_s4; grep 'competing exponential' -> g4_s4 (5 hits), g5_s5. g4_s4 states the full result including the winner's identity: 'min ~ Exp(sum_i lambda_i) and the winner is i with probability lambda_i/sum_j lambda_j, independently of the winning time' \u2014 strictly more than the cheatsheet.",
+   "importance": "high"
+  },
+  {
+   "topic": "Max of Expos: max(X_1..X_k) ~ Y_1+...+Y_k with Y_j ~ Expo(j\u00b7lambda) independent",
+   "cheatsheet_page": "p5",
+   "verdict": "PARTIAL",
+   "detail": "the coupon-collector-style decomposition of the maximum into independent exponential stages",
+   "evidence": "g3_s1 Example 1.7 (rec08 P3(d)) fully derives the CDF/pdf of Z=max{X_1,X_2,X_3} for iid Exp(lambda), including E[Z] via the tail formula. What is absent is the cheatsheet's *decomposition* identity max = sum of independent Expo(j\u00b7lambda) \u2014 a Stat 110 story-proof device rather than a 6.041 technique.",
+   "importance": "low"
+  },
+  {
+   "topic": "Gamma(a, lambda) distribution: story as the total wait for the a-th arrival when interarrivals are Expo(lambda); the four PDF-shape figures",
+   "cheatsheet_page": "p5",
+   "verdict": "PARTIAL",
+   "detail": "Gamma(n,lambda) = sum of n iid Expo(lambda); general non-integer a requires the Gamma function",
+   "evidence": "The integer case is covered exhaustively and by name: grep 'Erlang' -> g3_s4, g4_s0/s2/s3/s4/s5 (29 hits in g4_s4), g5_s3/s5, g6_s2, g7_s0/s1 \u2014 the k-th arrival time of a Poisson process, with pdf, mean k/lambda, variance k/lambda^2, and the bank-queue-style stories. What is thin: grep 'gamma distribution' -> 0 hits, grep 'Gamma function' -> 0 hits, so the general Gamma(a,lambda) with non-integer a is never named. This is a labelling gap, not a conceptual one, for 6.041.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Beta(a,b) distribution and its PDF shapes",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "g3_s3 has a full 'Definition (beta distribution)' box: f(q)=q^{a-1}(1-q)^{b-1}/B(a,b) with the beta function B(a,b)=Gamma(a)Gamma(b)/Gamma(a+b)=(a-1)!(b-1)!/(a+b-1)! for integers, plus mean a/(a+b), mode (a-1)/(a+b-2) and variance. Arrived at from the recitation's coin-bias posterior.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Conjugate prior of the Binomial: X|p ~ Bin(n,p), p ~ Beta(a,b) => p|(X=x) ~ Beta(a+x, b+n-x)",
+   "cheatsheet_page": "p5",
+   "verdict": "COVERED",
+   "evidence": "g3_s3 derives the Beta posterior from a Beta prior under Bernoulli/binomial observation (the recitation coin-bias example, then the general Beta definition box). g6_s3 discusses conjugacy explicitly (5 hits), including a Gotcha: 'Two of our three canonical calculations were conjugate \u2014 beta prior stays beta under binomial data, normal prior stays normal under normal noise', plus a counterexample warning that conjugacy is the exception. The updating rule a->a+x, b->b+n-x is present in the worked posterior ('8/12 instead of 7/10' pseudo-count reading).",
+   "importance": "medium"
+  },
+  {
+   "topic": "Order statistics of the Uniform",
+   "cheatsheet_page": "p5 (cross-reference)",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "U_(j) ~ Beta(j, n-j+1)",
+   "evidence": "grep 'order statistic' -> 0 hits in all 42 fragments. Not in B&T/6.041 (only min and max appear, in G3 \u00a74 derived distributions). Optional enrichment.",
+   "importance": "low"
+  },
+  {
+   "topic": "Beta-Gamma relationship / bank-post office result: X~Gamma(a,l), Y~Gamma(b,l) independent => X/(X+Y) ~ Beta(a,b) and X+Y independent of X/(X+Y)",
+   "cheatsheet_page": "p5-p6",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "X/(X+Y) ~ Beta(a,b),  X+Y  independent of  X/(X+Y)",
+   "evidence": "grep 'bank' / 'post office' / 'X/(X+Y)' -> no relevant hits; grep 'beta distribution' -> g3_s3 only (definition, no Gamma link). A classic Stat 110 result with no 6.041 counterpart.",
+   "importance": "low"
+  },
+  {
+   "topic": "Chi-Square distribution: chi^2_n = Z_1^2+...+Z_n^2 for iid standard normals; chi^2_n = Gamma(n/2, 1/2)",
+   "cheatsheet_page": "p6",
+   "verdict": "PARTIAL",
+   "detail": "X ~ chi^2_n  <=>  X = sum_{i=1}^n Z_i^2,  Z_i iid N(0,1);  equivalently Gamma(n/2, 1/2)",
+   "evidence": "g3_s4 Practice 4.8 derives the chi-square density with ONE degree of freedom from Y=X^2, X standard normal: f_Y(y)=(1/sqrt(2 pi y))e^{-y/2}, and names it. g7_s4 uses chi^2_r heavily (16 'chi-square' hits) for the generalized-likelihood-ratio / goodness-of-fit test, including the correct rank-(m-1) projection argument and 'The squared norm of a mean-zero Gaussian with a rank-r projection covariance is exactly chi^2_r'. What is missing is the plain definition 'chi^2_n = sum of n squared standard normals' stated up front, and the Gamma(n/2,1/2) identification.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Table: distributions for four sampling schemes (Binomial / HGeom / NBin / NHGeom by replace vs no-replace x fixed-n vs draw-until-r)",
+   "cheatsheet_page": "p6",
+   "verdict": "PARTIAL",
+   "detail": "2x2 table: Replace+fixed n = Binomial (Bern if n=1); No-replace+fixed n = HGeom; Replace+until r successes = NBin (Geom if r=1); No-replace+until r = NHGeom",
+   "evidence": "Three of the four cells are covered individually and well \u2014 Binomial/Bernoulli in g2_s1, Hypergeometric in g1_s4 Example 4.14 (full urn derivation) and g2_s1 (explicitly contrasted with the binomial: 'the draws are not independent... It is the hypergeometric PMF'), NBin/Pascal in g4_s2. But grep 'sampling scheme' -> only two incidental hits (g2_s2, g5_s5) and there is no unifying 2x2 organizing table. NHGeom is out of 6.041 scope. The gap is the *organizing device*, not the content.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Bernoulli distribution: story, indicator of success, 1-X ~ Bern(1-p)",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "g2_s1 has an explicit 'Definition (Bernoulli; B&T \u00a72.2 p. 75)' box. Indicator random variables are a major theme: grep 'indicator' -> 30 hits in g2_s4, 24 in g2_s5, plus g2_s1, g6_s1, g7_s2 (indicator decomposition for expectations).",
+   "importance": "high"
+  },
+  {
+   "topic": "Binomial distribution: story, X = X_1+...+X_n as a sum of iid Bernoullis, PMF figure",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "g2_s1 derives the binomial PMF with the counting/independence argument and includes the B&T Figure 2.3 shape discussion (Fig. 1.2 panel (c), n=10 at p=0.2/0.5/0.8, symmetry, peak near np). g2_s1 also has 'binomial ... sum of' (the Bernoulli-sum representation). 'binomial' hits 29 of 42 fragments.",
+   "importance": "high"
+  },
+  {
+   "topic": "Binomial property \u2014 Redefine success: n - X ~ Bin(n, 1-p)",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "g2_s1's shape discussion works exactly this symmetry: 'swapping the roles of H and T maps k -> n-k and leaves the formula unchanged. ... The p=0.2 and p=0.8 curves are exact mirror images'. Stated as a symmetry rather than as a labelled property, but the content is there.",
+   "importance": "low"
+  },
+  {
+   "topic": "Binomial property \u2014 Sum: X~Bin(n,p), Y~Bin(m,p) independent => X+Y ~ Bin(n+m, p)",
+   "cheatsheet_page": "p6",
+   "verdict": "MISSING_IN_SYLLABUS",
+   "detail": "X + Y ~ Bin(n+m, p)",
+   "evidence": "grep 'sum of two independent binomial' -> 0 hits; 'binomial.{0,80}binomial.{0,40}sum' -> 0 hits; 'Bin.n[+]m' -> 0 hits. The general tool (discrete convolution) is thoroughly covered in G3 \u00a74 (25 'convolution' hits in g3_s4), and the Poisson analogue IS stated via merging in G4 \u00a74, so the binomial closure fact is a small, in-scope omission \u2014 a natural worked convolution example that would also reinforce the Bernoulli-sum picture.",
+   "importance": "low"
+  },
+  {
+   "topic": "Binomial conditional: X | (X+Y=r) ~ HGeom(n, m, r)",
+   "cheatsheet_page": "p6",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "conditioning two independent binomials on their total gives a hypergeometric",
+   "evidence": "grep 'conditional.{0,60}hypergeom' and 'hypergeom.{0,80}conditional' -> 0 hits; g2_s4's 'conditional ... binomial' hits are about conditional PMFs generally, not this identity. A Stat 110 story-proof result; B&T never states it.",
+   "importance": "low"
+  },
+  {
+   "topic": "Binomial-Poisson relationship: Bin(n,p) ~= Pois(lambda) when p is small",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "grep 'Poisson approximation' -> g4_s3 (3 hits), g6_s2. G4 \u00a73 builds the whole Bernoulli->Poisson limit as the course's central construction, with the Fig. 3.5 Bernoulli/Poisson dictionary ('the third row (binomial -> Poisson: counts)') and the p = lambda\u00b7delta -> 0 scaling made explicit.",
+   "importance": "high"
+  },
+  {
+   "topic": "Binomial-Normal relationship: Bin(n,p) ~= N(np, np(1-p)) for large n, p not near 0 or 1",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "G6 \u00a72. grep 'de Moivre' -> g6_s0, g6_s2 (7 hits), g6_s5; grep 'continuity correction' -> g6_s0, g7_s4, and g6_s2 works the correction numerically (z=200.5 cut, comparing corrected 0.063259 vs exact 0.065206 vs uncorrected 0.068019). Deeper than the cheatsheet.",
+   "importance": "high"
+  },
+  {
+   "topic": "Geometric distribution (cheatsheet convention: number of FAILURES before the first success)",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "G2 \u00a71/\u00a73. grep 'geometric.{0,30}number of (trials|failures)' -> g2_s1 (2), g2_s3. Note the convention shift: B&T/6.041 defines the geometric as the number of trials up to AND INCLUDING the first success (mean 1/p), the cheatsheet as failures before it (mean (1-p)/p). Both parameterizations and the shift-by-one relation are handled in g2_s1/g2_s3 and reused in G4 \u00a72 (9 'first success' hits in g4_s2).",
+   "importance": "high"
+  },
+  {
+   "topic": "First Success distribution: FS(p) = Geom(p)+1, E[X]=1/p",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "This IS the course's geometric distribution. grep 'first success' -> g2_s1 (8), g2_s3 (4), g2_s5, g4_s2 (9), g4_s3, g4_s5, g5_s5, g7_s2; E[X]=1/p is derived in G2 \u00a73 and reused as the interarrival mean throughout G4 \u00a72 and in g5_s4 ('the wait is geometric with parameter 0.6 and mean 1/0.6').",
+   "importance": "high"
+  },
+  {
+   "topic": "Negative Binomial NBin(r,p): number of failures before the r-th success",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "g4_s2 states the Pascal PMF of order k as a theorem box: p_{Y_k}(t)=C(t-1,k-1)p^k(1-p)^{t-k}, with E[Y_k]=k/p and var=k(1-p)/p^2, derived as a sum of k iid geometrics, and explicitly notes 'also called the negative binomial'. grep 'Pascal' -> g1_s4, g4_s0 (5), g4_s2 (18), g4_s3 (4), g4_s5 (5). Again the trials-vs-failures convention differs by k.",
+   "importance": "high"
+  },
+  {
+   "topic": "Hypergeometric HGeom(w,b,n): story (sampling without replacement), PMF, the standard examples",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "g1_s4 Example 4.14 (rec04 P3, B&T Problem 1.61) derives the general urn answer for i red out of k drawn from n balls with m red, flagged as a solution-gap the notes fill in. g2_s1 works a small numeric case and uses it as 'the standing counterexample when \u00a71.4 tempts you to call every count binomial'. grep 'without replacement' -> g1_s2, g1_s4 (7), g1_s5 (3), g2_s1 (4), g2_s5.",
+   "importance": "high"
+  },
+  {
+   "topic": "Capture-recapture (HGeom(n, N-n, m) tagged-elk example)",
+   "cheatsheet_page": "p6",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "tag n of N elk, recapture m; number tagged ~ HGeom(n, N-n, m)",
+   "evidence": "grep 'capture.recapture' -> 0 hits (the 'capture' hits in g4_s4/g6 are the ordinary English verb). Purely an application flavour of the hypergeometric already covered; Stat 110 staple, not a 6.041 one.",
+   "importance": "low"
+  },
+  {
+   "topic": "Poisson distribution Pois(lambda): rare-events story, accidents-per-month example",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "g2_s4 introduces the Poisson PMF/mean/variance; G4 \u00a73-\u00a74 is an entire treatment of the Poisson process with the rare-events limit story spelled out. grep 'poisson' -> 21 fragments.",
+   "importance": "high"
+  },
+  {
+   "topic": "Poisson property \u2014 Sum: X~Pois(l1), Y~Pois(l2) independent => X+Y ~ Pois(l1+l2)",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "This is the course's MERGING of Poisson processes. grep 'merging' -> g2_s0, g2_s3, g3_s4, g4_s0, g4_s2, g4_s3, g4_s4, g4_s5, g5_s1, g5_s5; g4_s3 Fig. 3.5 lists merging as a dictionary row 'previewed here and proved in \u00a74'. lambda_1 + lambda_2 arithmetic appears 32x in g4_s4.",
+   "importance": "high"
+  },
+  {
+   "topic": "Poisson property \u2014 Conditional: X | (X+Y=n) ~ Bin(n, l1/(l1+l2))",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "g4_s4's decision list states it directly: 'Given a count, how are arrivals distributed among types? Binomial (two types) or multinomial'. g4_s3 has 'conditioned on the total'. The same fragment gives the companion competing-exponential result lambda_i/sum_j lambda_j.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Poisson property \u2014 Chicken-egg / thinning: accept each of Z~Pois(l) items w.p. p => accepted ~ Pois(lp), rejected ~ Pois(l(1-p)), and the two are INDEPENDENT",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "This is the course's SPLITTING of a Poisson process. grep 'splitting.{0,40}Poisson' -> g4_s4 (5 hits), g4_s5, g5_s5; grep 'thinning' -> g4_s2, g4_s3, g5_s5. g4_s4 states the full result including the independence clause: 'the label-i stream is Poisson at rate p_i\u00b7lambda, and the label streams are mutually independent' \u2014 the independence is the surprising part and the notes have it.",
+   "importance": "high"
+  },
+  {
+   "topic": "Multinomial distribution Mult_k(n, p): story and joint PMF n!/(n_1!...n_k!) p_1^{n_1}...p_k^{n_k}",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "g1_s4 \u00a74.6 derives the multinomial coefficient by the slot argument (rec04 P4) and computes multinomial probabilities (rec04 P5) \u2014 18 'multinomial' hits. g7_s4 restates the joint PMF as p_X(x;theta)=c\u00b7theta_1^{n_1}...theta_m^{n_m} with c=n!/(n_1!...n_m!) for the goodness-of-fit derivation.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Multinomial marginals, lumping, and conditionals: X_i ~ Bin(n,p_i); X_i+X_j ~ Bin(n, p_i+p_j); lumped categories stay Multinomial; X_1..X_{k-1} | X_k=n_k ~ Mult_{k-1}(n-n_k, p/(1-p_k))",
+   "cheatsheet_page": "p6",
+   "verdict": "PARTIAL",
+   "detail": "marginal Bin(n,p_i); lumping closure; conditional renormalized Multinomial",
+   "evidence": "g7_s4 states the marginal fact ('Marginally N_k ~ Bin(n, theta_k^*)') and uses it, so the marginal half is present. But grep found no statement of the lumping-closure property or the conditional-Multinomial property anywhere in g1_s4/g1_s5/g4_s4/g7_s4. Lumping in particular is a genuinely useful counting move that fits G1 \u00a74 and G2's joint-PMF marginalization.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Multinomial variances and covariances: Var(X_i)=n p_i(1-p_i), Cov(X_i,X_j) = -n p_i p_j",
+   "cheatsheet_page": "p6",
+   "verdict": "PARTIAL",
+   "detail": "Cov(X_i, X_j) = -n p_i p_j  for i != j",
+   "evidence": "g7_s4 gives var(N_k;H_0)=n\u00b7theta_k^*(1-theta_k^*) and, in the chi-square limit argument, the asymptotic covariance matrix Sigma = I - sqrt(theta)sqrt(theta)^T with 'off-diagonal entries -sqrt(theta_j theta_k)'. So the *negative* covariance structure is present in asymptotic (normalized) form, but the plain exact identity Cov(X_i,X_j) = -n p_i p_j is never stated. It is squarely in scope \u2014 G3 \u00a75 covers covariance and G2 \u00a75 covers indicator decompositions, which is exactly how you prove it.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Multivariate Uniform: on a 2D region probability is proportional to area, density = 1/(area of region); 3D analogue by volume",
+   "cheatsheet_page": "p6",
+   "verdict": "COVERED",
+   "evidence": "G3 \u00a72 is built on this: grep 'uniform on.{0,30}(region|square|triangle|disk|circle)' -> g1_s1, g3_s2 (18 hits), g3_s4; 'Unif' appears 81x in g3_s2. Joint uniform densities over regions, with marginals and conditionals obtained by area ratios, are the section's running examples.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Multivariate Normal: definition via 'every linear combination is Normal', mean vector and covariance matrix; any subvector is MVN",
+   "cheatsheet_page": "p6",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "t_1X_1+...+t_kX_k Normal for all t  <=>  X is MVN",
+   "evidence": "grep 'multivariate normal' -> g6_s3 (a posterior recognized as N(mu,Sigma) after completing the square in the linear-Gaussian model) and g7_s4 (the multivariate CLT limit in the goodness-of-fit derivation). Both USE an MVN, neither DEFINES the family or states the subvector/linear-combination characterization. B&T 6.041 does not develop MVN theory; the linear-Gaussian cases the course needs are already handled. Enrichment only.",
+   "importance": "low"
+  },
+  {
+   "topic": "MVN property: within an MVN, uncorrelated => independent",
+   "cheatsheet_page": "p6",
+   "verdict": "PARTIAL",
+   "detail": "jointly normal + zero correlation  =>  independent",
+   "evidence": "The converse warning is emphatic \u2014 g3_s4 Gotcha: '\"Zero covariance\" and \"uncorrelated\" mean the same thing, and neither means independent', with Example 4.9 as the counterexample. But the jointly-normal EXCEPTION is never stated. The closest is g6_s4's theorem 'If Theta and X are jointly normal, then E[Theta|X] is an affine function of X ... var(Theta|X=x)=(1-rho^2)sigma_Theta^2 for every x' \u2014 which implies the rho=0 case but does not say it. Given how strongly the notes warn that uncorrelated != independent, one sentence naming the normal exception is a real (if small) in-scope repair.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Bivariate Normal joint PDF for N(0,1) marginals with correlation rho",
+   "cheatsheet_page": "p6",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "detail": "f(x,y) = 1/(2\u00b7pi\u00b7tau) \u00b7 exp(-(x^2+y^2-2\u00b7rho\u00b7x\u00b7y)/(2\u00b7tau^2)), tau = sqrt(1-rho^2)",
+   "evidence": "grep 'bivariate normal' -> a single hit in g6_s4, and only as the caption of a scatter figure ('Scatter of 4000 samples from a bivariate normal with correlation 0.8') illustrating linear LMS \u2014 the density formula never appears. B&T 6.041 does not require the bivariate normal density; the course gets what it needs from the jointly-normal LLMS theorem in g6_s4. Optional enrichment for G3 \u00a75 / G6 \u00a74.",
+   "importance": "low"
+  },
+  {
+   "topic": "Moment Generating Function: M_X(t)=E(e^{tX}), definition and \"bookkeeping device\" motivation",
+   "cheatsheet_page": "p3 col1",
+   "detail": "$M_X(t)=E(e^{tX})$, exists for $t$ in an open interval containing 0",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "Grep -i 'moment generating|MGF' over notes/src/fragments \u2192 'No files found'. MGFs are Stat 110 machinery; B&T/6.041 (Bertsekas\u2013Tsitsiklis, the course text) drops transforms from the 6.041x syllabus entirely.",
+   "importance": "low"
+  },
+  {
+   "topic": "MGF generates moments: mu_k = E(X^k) = M_X^{(k)}(0), via Taylor expansion of e^{tX}",
+   "cheatsheet_page": "p3 col1",
+   "detail": "$M_X(t)=\\sum_{k\\ge0}\\mu_k t^k/k!$, so $\\mu_k=M_X^{(k)}(0)$",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "Same grep as above: zero hits for 'moment generating'/'MGF' anywhere in g1\u2013g7.",
+   "importance": "low"
+  },
+  {
+   "topic": "MGF of a linear function: M_{aX+b}(t) = e^{bt} M_X(at)",
+   "cheatsheet_page": "p3 col1",
+   "detail": "$M_Y(t)=e^{bt}M_X(at)$ for $Y=aX+b$",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "No 'MGF'/'moment generating' hits in fragments.",
+   "importance": "low"
+  },
+  {
+   "topic": "MGF uniqueness (MGF determines the distribution)",
+   "cheatsheet_page": "p3 col1",
+   "detail": "Equal MGFs \u27fa equal PMFs/PDFs",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "No 'MGF' hits. 6.041 proves distributional identities (e.g. sum of normals, sum of Poissons) by convolution instead \u2014 see g3_s4 \u00a74.7 'The sum of two independent normals is normal'.",
+   "importance": "low"
+  },
+  {
+   "topic": "Summing independent RVs by multiplying MGFs: M_{X+Y}=M_X\u00b7M_Y",
+   "cheatsheet_page": "p3 col1",
+   "detail": "$M_{X+Y}(t)=M_X(t)M_Y(t)$ for independent $X,Y$",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "No 'MGF' hits. The same job is done in our notes by convolution: g3_s4 \u00a74.5 'Discrete convolution', \u00a74.6 'Continuous convolution and the sum of two uniforms', \u00a74.7 sum of two independent normals (25 'convolution' hits in g3_s4).",
+   "importance": "low"
+  },
+  {
+   "topic": "Joint CDF of two RVs: F(x,y) = P(X \u2264 x, Y \u2264 y)",
+   "cheatsheet_page": "p3 col1 (Joint Distributions)",
+   "detail": "$F_{X,Y}(x,y)=\\mathbf{P}(X\\le x, Y\\le y)$",
+   "verdict": "MISSING_IN_SYLLABUS",
+   "evidence": "Grep 'F_\\{X,Y\\}|joint CDF|joint cumulative|bivariate CDF' over all fragments \u2192 No matches. Grep of the 6 'CDF' occurrences in g3_s2.html (the joint-PDF section) shows all are one-variable CDFs (exponential CDF, P(Z\u2264z)=z\u00b2). The only 2-D CDF symbol in the whole corpus is an incidental $F_{R,\\Theta}$ in g4_s1.html:518 inside a polar-coordinates example, never defined. B&T \u00a73.4 does state the joint CDF, so this is in scope.",
+   "importance": "low"
+  },
+  {
+   "topic": "Joint PDF as the mixed partial of the joint CDF: f_{X,Y} = \u2202\u00b2F/\u2202x\u2202y",
+   "cheatsheet_page": "p3 col1",
+   "detail": "$f_{X,Y}(x,y)=\\frac{\\partial^2}{\\partial x\\partial y}F_{X,Y}(x,y)$",
+   "verdict": "PARTIAL",
+   "evidence": "The identity appears exactly once, un-flagged, mid-derivation in g4_s1.html:518 ($f_{R,\\Theta}=\\partial^2 F_{R,\\Theta}/\\partial r\\partial\\theta$). g3_s2 \u00a72.1 'The joint PDF, and probability as volume' defines the joint PDF directly as a density integrated over regions and never states the CDF\u2194PDF differentiation link in 2-D. Thin: a learner has the 1-D $f=F'$ (g3_s1) but no stated 2-D analogue.",
+   "importance": "low"
+  },
+  {
+   "topic": "Joint PMF p_{X,Y}(x,y) = P(X=x, Y=y)",
+   "cheatsheet_page": "p3 col1",
+   "detail": "discrete joint distribution as a table",
+   "verdict": "COVERED",
+   "evidence": "g2_s4.html is built on it \u2014 32 'joint PMF/joint PDF' hits, \u00a74 headings include the expected value rule for $g(X,Y)$ with $p_{X,Y}(x,y)$ (g2_s4.html:610\u2013635).",
+   "importance": "high"
+  },
+  {
+   "topic": "Joint PDF f_{X,Y}(x,y); nonnegativity and normalization to 1",
+   "cheatsheet_page": "p3 col1",
+   "detail": "joint PMF/PDF must be \u22650 and sum/integrate to 1",
+   "verdict": "COVERED",
+   "evidence": "g3_s2 \u00a72.1 'The joint PDF, and probability as volume' (121 joint-PDF hits in g3_s2.html); normalization exercised explicitly in Practice 2.4 (g3_s2.html:143 'Verify normalization, find both marginals, and decide whether X and Y are independent').",
+   "importance": "high"
+  },
+  {
+   "topic": "Conditioning and Bayes' rule for discrete r.v.s: P(Y=y|X=x)=P(X=x|Y=y)P(Y=y)/P(X=x)",
+   "cheatsheet_page": "p3 col1 (Conditional Distributions)",
+   "detail": "discrete-discrete Bayes",
+   "verdict": "COVERED",
+   "evidence": "g3_s3.html \u00a73 'The four faces of Bayes' rule' \u2014 Theorem at line 26 'Bayes' rule, all four cases \u2014 L10 slides 2\u20133', with the (D|D) cell derived at lines 103\u2013115.",
+   "importance": "high"
+  },
+  {
+   "topic": "Conditioning and Bayes' rule for continuous r.v.s: f_{Y|X}(y|x)=f_{X,Y}/f_X = f_{X|Y}f_Y/f_X",
+   "cheatsheet_page": "p3 col1",
+   "detail": "continuous-continuous Bayes",
+   "verdict": "COVERED",
+   "evidence": "g3_s3.html:147\u2013152 derives the (C|C) cell and checks it against the \u00a72 definition of a conditional density; g3_s2 \u00a72.3 'Conditional PDFs: the renormalized slice'.",
+   "importance": "high"
+  },
+  {
+   "topic": "Hybrid Bayes' rule: f_X(x|A) = P(A|X=x) f_X(x) / P(A)",
+   "cheatsheet_page": "p3 col1",
+   "detail": "mixing a continuous unknown with a discrete/event observation",
+   "verdict": "COVERED",
+   "evidence": "g3_s3.html covers the (D|C) and (C|D) cells explicitly (line 379 'Step 2 \u2014 Bayes (cell (D|C))', line 418 the light-beam / coin-bias example where 'the unknown is itself a probability'); conditioning a continuous RV on an event is set up in g3_s0.html:86 and g3_s1.html:397 ($f_{X\\mid A}$, $F_{X\\mid A}$).",
+   "importance": "high"
+  },
+  {
+   "topic": "Marginal PMF from joint PMF: P(X=x)=\u03a3_y P(X=x,Y=y)",
+   "cheatsheet_page": "p3 col2",
+   "detail": "sum out the unwanted variable",
+   "verdict": "COVERED",
+   "evidence": "g2_s4.html \u2014 43 'marginal' hits; the flowchart alt-text at g2_s4.html:345 names 'the law of one variable alone (marginalize)' as one of three branches off a joint PMF table.",
+   "importance": "high"
+  },
+  {
+   "topic": "Marginal PDF from joint PDF: f_X(x)=\u222b f_{X,Y}(x,y) dy",
+   "cheatsheet_page": "p3 col2",
+   "detail": "integrate out the unwanted variable, with correct support limits",
+   "verdict": "COVERED",
+   "evidence": "g3_s2.html \u00a72.2 'From the joint to the marginal' (42 'marginal' hits), worked with support-driven limits at lines 114, 138, 448 ('Which x? The support constraint is y\u2264x\u2264\u2113 \u2026 that \u2014 not habit \u2014 is where the lower limit comes from').",
+   "importance": "high"
+  },
+  {
+   "topic": "Independence of random variables: three equivalent conditions (joint CDF factors; joint PMF/PDF factors; conditional = marginal)",
+   "cheatsheet_page": "p3 col2",
+   "detail": "$F=F_XF_Y$ \u27fa $f=f_Xf_Y$ \u27fa $f_{Y|X}=f_Y$; notation $X \\perp\\!\\!\\!\\perp Y$",
+   "verdict": "PARTIAL",
+   "evidence": "The PMF/PDF-factorization and conditional-equals-marginal criteria are covered: g3_s2 \u00a72.4 'Independence, and Buffon's needle' (line 358 'By independence the joint density is the product of the marginals'), g4_s1.html:75 'Independence collapses it \u2026 $p_{X|Y}(x|y)=p_X(x)$'. The joint-CDF-factorization criterion is absent (grep 'joint CDF|F_\\{X,Y\\}' \u2192 no matches), consistent with the joint CDF never being defined.",
+   "importance": "low"
+  },
+  {
+   "topic": "Multivariate LOTUS (expected value rule for g(X,Y)), discrete and continuous",
+   "cheatsheet_page": "p3 col2",
+   "detail": "$E[g(X,Y)]=\\sum_x\\sum_y g(x,y)p_{X,Y}(x,y)$; $\\iint g(x,y)f_{X,Y}(x,y)\\,dx\\,dy$",
+   "verdict": "COVERED",
+   "evidence": "Course wording is 'expected value rule'. g2_s4.html:610 'Expected value rule for $g(X,Y)$ (L07 slide 4; B&T \u00a72.5)' with formula at :612 and a full proof at :620\u2013635. Continuous version carried over by the substitution table in g3_s0.html:130.",
+   "importance": "high"
+  },
+  {
+   "topic": "Covariance: Cov(X,Y)=E[(X-EX)(Y-EY)]=E(XY)-E(X)E(Y); Cov(X,X)=Var(X)",
+   "cheatsheet_page": "p3 col2",
+   "detail": "definition plus the computational shortcut",
+   "verdict": "COVERED",
+   "evidence": "g3_s4.html \u00a74.8 'Covariance and correlation'; g3_s5.html:65 restates $\\operatorname{cov}(X,Y)=\\mathbb{E}[XY]-\\mathbb{E}[X]\\mathbb{E}[Y]$ in the section summary.",
+   "importance": "high"
+  },
+  {
+   "topic": "Correlation coefficient: Corr(X,Y)=Cov/\u221a(Var X \u00b7 Var Y), always in [-1,1]",
+   "cheatsheet_page": "p3 col2",
+   "detail": "standardized covariance",
+   "verdict": "COVERED",
+   "evidence": "g3_s4 \u00a74.8; the $|\\rho|\\le1$ bound is proved via Cauchy\u2013Schwarz in g4_s1.html:547 (degenerate case discussed, with a [SOURCE TYPO?] note on the official solution).",
+   "importance": "high"
+  },
+  {
+   "topic": "Independence \u21d2 uncorrelated, but not conversely (counterexample X~N(0,1), Y=X\u00b2)",
+   "cheatsheet_page": "p3 col2",
+   "detail": "$X\\perp Y \\Rightarrow \\operatorname{Cov}=0 \\Rightarrow E(XY)=E(X)E(Y)$; converse false",
+   "verdict": "COVERED",
+   "evidence": "g3_s4.html:996 Example 4.9 ($X$ uniform on $\\{-1,0,1\\}$, $Y=X^2$), :1011 'neither means independent', :1036 '$Y=X^2$ is a deterministic function of $X$ and yet has $\\rho=0$'. Also g2_s4.html:585 Practice 4.10 with the same construction. (Our counterexample is the discrete cousin rather than the normal one \u2014 equivalent lesson.)",
+   "importance": "high"
+  },
+  {
+   "topic": "Var(X+Y) = Var(X)+Var(Y)+2Cov(X,Y); independence collapses the cross term",
+   "cheatsheet_page": "p3 col2",
+   "detail": "variance of a sum",
+   "verdict": "COVERED",
+   "evidence": "g2_s4.html \u00a74.7 'Variance of a sum' with the Property box at :705; g3_s4.html:967 'Property (variance of a sum; L11 slide 7)'.",
+   "importance": "high"
+  },
+  {
+   "topic": "Var(X\u2081+\u2026+X\u2099) = \u03a3 Var(X\u1d62) + 2 \u03a3_{i<j} Cov(X\u1d62,X\u2c7c)",
+   "cheatsheet_page": "p3 col2",
+   "detail": "n-term variance expansion",
+   "verdict": "COVERED",
+   "evidence": "g3_s4.html:1155 '$\\operatorname{var}(\\sum_iX_i)=\\sum_i\\operatorname{var}(X_i)+\\ldots$'; g2_s4.html:832 the same expansion applied to an indicator decomposition; g4_s2.html:328 explicitly names the surviving $2\\sum_{i<j}\\operatorname{cov}(X_i,X_j)$ term.",
+   "importance": "high"
+  },
+  {
+   "topic": "Symmetric-case shortcut: Var(X\u2081+\u2026+X\u2099) = n\u00b7Var(X\u2081) + 2\u00b7C(n,2)\u00b7Cov(X\u2081,X\u2082) for identically distributed, exchangeable X\u1d62",
+   "cheatsheet_page": "p3 col2",
+   "detail": "$n\\operatorname{Var}(X_1)+2\\binom{n}{2}\\operatorname{Cov}(X_1,X_2)$",
+   "verdict": "PARTIAL",
+   "evidence": "The general $\\sum_{i<j}$ form is present (g3_s4.html:1155, g4_s2.html:328) and the indicator-sum variance is worked at g2_s4.html:832, but grep 'binom\\{n\\}\\{2\\}\\\\operatorname\\{cov\\}' and 'nVar(X_1)' find no packaged exchangeable shortcut. A learner must re-derive the $\\binom{n}{2}$ count each time (matters for hat-matching / sampling-without-replacement problems).",
+   "importance": "medium"
+  },
+  {
+   "topic": "Covariance properties: symmetry, translation invariance Cov(X+a,Y+b)=Cov(X,Y), Cov(aX,bY)=abCov(X,Y), bilinearity over sums",
+   "cheatsheet_page": "p3 col3",
+   "detail": "$\\operatorname{Cov}(W+X,Y+Z)=\\operatorname{Cov}(W,Y)+\\operatorname{Cov}(W,Z)+\\operatorname{Cov}(X,Y)+\\operatorname{Cov}(X,Z)$",
+   "verdict": "COVERED",
+   "evidence": "g3_s4.html:1069 'Covariance is bilinear \u2014 it follows from the definition and linearity of expectation'; :1027 states $\\operatorname{cov}(aX+b,cY+d)=ac\\operatorname{cov}(X,Y)$ (translation + scaling in one line); :1154 summary bullet 'bilinear; independence \u21d2 0, not conversely'. Reused at g7_s3.html:395 and g6_s4.html:434.",
+   "importance": "high"
+  },
+  {
+   "topic": "Correlation is location- and scale-invariant: Corr(aX+b, cY+d)=Corr(X,Y)",
+   "cheatsheet_page": "p3 col3",
+   "detail": "for $a,c\\neq0$ (sign flips if $ac<0$)",
+   "verdict": "COVERED",
+   "evidence": "g4_s1.html:432 computes $\\rho(aX+b,Y)=\\operatorname{cov}(aX+b,Y)/\\sqrt{\\operatorname{var}(aX+b)\\operatorname{var}(Y)}$ explicitly; g3_s4.html:1027 gives the covariance half.",
+   "importance": "medium"
+  },
+  {
+   "topic": "One-variable transformation (change of variables): f_Y(y)=f_X(g^{-1}(y))|d g^{-1}/dy| for strictly monotone g",
+   "cheatsheet_page": "p3 col3 (Transformations)",
+   "detail": "1-D Jacobian formula",
+   "verdict": "COVERED",
+   "evidence": "g3_s4.html \u00a74.2 'The general formula for a strictly monotonic $g$'; :197 'The factor $|dh/dy|$ is the one-dimensional Jacobian of the change of variables'. Non-monotone cases (Y=X\u00b2, kinked maps) handled by the CDF method in \u00a74.1/\u00a74.4, and a gotcha at g3_s5.html:434 about dropping the Jacobian.",
+   "importance": "high"
+  },
+  {
+   "topic": "Two-variable transformation via the Jacobian matrix and its determinant",
+   "cheatsheet_page": "p3 col3",
+   "detail": "$f_{X,Y}(x,y)=f_{U,V}(u,v)\\,\\big|\\!\\det\\partial(u,v)/\\partial(x,y)\\big|$, with $|ad-bc|$ for 2\u00d72",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "Grep 'Jacobian matrix|determinant' over fragments returns only g7_s3.html (Hessian determinant in regression), never a 2-D density change-of-variables theorem. The only 2-D change of variables used is the polar map worked ad hoc (g3_s1.html:583, g4_s1.html:500, '$dx\\,dy=r\\,dr\\,d\\theta$ \u2026 the extra factor $r$ is the Jacobian'). 6.041/B&T handles functions of two RVs by the CDF method and convolution (our g3_s4 \u00a74.3, \u00a74.5\u20134.7), not by general Jacobians.",
+   "importance": "low"
+  },
+  {
+   "topic": "Convolution integral: f_{X+Y}(t)=\u222b f_X(x) f_Y(t-x) dx",
+   "cheatsheet_page": "p3 col3 (Convolutions)",
+   "detail": "PDF of a sum of independent CRVs",
+   "verdict": "COVERED",
+   "evidence": "g3_s4.html \u00a74.5 'Discrete convolution: flip, shift, cross-multiply, add' and \u00a74.6 'Continuous convolution and the sum of two uniforms' \u2014 25 'convolution' hits in that file alone.",
+   "importance": "high"
+  },
+  {
+   "topic": "Convolution example: X,Y iid N(0,1) \u21d2 X+Y ~ N(0,2), by completing the square",
+   "cheatsheet_page": "p3 col3",
+   "detail": "complete the square, use that a normal PDF integrates to 1",
+   "verdict": "COVERED",
+   "evidence": "g3_s4.html:828 heading '4.7 The sum of two independent normals is normal' \u2014 the exact same completing-the-square argument.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Poisson process definition: counts in an interval of length t are Pois(\u03bbt); disjoint intervals independent",
+   "cheatsheet_page": "p4 col1",
+   "detail": "rate \u03bb arrivals per unit time; e.g. [0,5],(5,12),(13,23) give independent Pois(5\u03bb),Pois(7\u03bb),Pois(10\u03bb)",
+   "verdict": "COVERED",
+   "evidence": "g4_s3.html \u00a73 'The Poisson process I: counts, interarrivals, Erlang', \u00a73.1 'The three defining properties', \u00a73.2 'The number of arrivals: binomial \u2192 Poisson, derived'. 109 'Poisson process' hits across 15 files.",
+   "importance": "high"
+  },
+  {
+   "topic": "Poisson process timeline figure (arrival marks T\u2081\u2026T\u2085 on a time axis)",
+   "cheatsheet_page": "p4 col1",
+   "detail": "visual of arrivals and interarrival gaps",
+   "verdict": "COVERED",
+   "evidence": "g4_s3/g4_s4 are figure-heavy (g4_s4 has 30 'Poisson process' hits with \u00a74.4 'Random incidence for the Poisson process', which requires exactly this timeline picture); arrival-time notation $T_1,T_2$ used at g4_s4.html:190.",
+   "importance": "low"
+  },
+  {
+   "topic": "Count\u2013time duality: P(T\u2081>t)=P(N_t=0)=e^{-\u03bbt} \u21d2 T\u2081~Expo(\u03bb); interarrival times iid Expo(\u03bb)",
+   "cheatsheet_page": "p4 col1",
+   "detail": "the bridge between the counting process and the exponential",
+   "verdict": "COVERED",
+   "evidence": "g4_s3.html \u00a73.3 'The first interarrival time: the exponential' and \u00a73.4 'The kth arrival time: the Erlang distribution' (23 'interarrival/memoryless' hits in g4_s3, 43 in g4_s4). Our notes go further than the cheatsheet by deriving the Erlang.",
+   "importance": "high"
+  },
+  {
+   "topic": "Memoryless property of the exponential: E(T | T>t) = t + E(T)",
+   "cheatsheet_page": "p4 col2 (bullet, shuttle example)",
+   "detail": "$T\\sim$Expo(1/10), $E(T|T>t)=t+10$",
+   "verdict": "COVERED",
+   "evidence": "g3_s1.html has 14 memoryless hits including the conditional CDF $F_{X|A}(x)=1-e^{-\\lambda x}$ at :397 (fresh-start property); g4_s4.html:87 'independent of the past, so the additional waiting time until the first catch is \u2026' \u2014 the fishing example is the course's version of the shuttle story.",
+   "importance": "high"
+  },
+  {
+   "topic": "Order statistics: definition of X_(1) \u2264 \u2026 \u2264 X_(n), and that they are dependent",
+   "cheatsheet_page": "p4 col1 (Order Statistics)",
+   "detail": "ith smallest of n iid draws",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "Grep -i 'order statistic' over all fragments \u2192 'No files found'. Order statistics are a Stat 110 topic; 6.041 only ever handles max/min of independent RVs as a CDF-method derived-distribution exercise, which our g3_s4 \u00a74.1 does cover.",
+   "importance": "low"
+  },
+  {
+   "topic": "Order statistic CDF/PDF: F_{X_(i)}(x)=\u03a3_{k=i}^n C(n,k)F(x)^k(1-F(x))^{n-k}; f_{X_(i)}(x)=n\u00b7C(n-1,i-1)F^{i-1}(1-F)^{n-i}f(x)",
+   "cheatsheet_page": "p4 col1",
+   "detail": "binomial-count derivation of the ith order statistic's law",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "No 'order statistic' hits anywhere. Not in B&T's 6.041 syllabus.",
+   "importance": "low"
+  },
+  {
+   "topic": "Uniform order statistics: U_(j) ~ Beta(j, n-j+1)",
+   "cheatsheet_page": "p4 col1",
+   "detail": "jth order statistic of n iid Unif(0,1)",
+   "verdict": "MISSING_OUT_OF_SYLLABUS",
+   "evidence": "No 'order statistic' hits; grep for 'Beta(' distribution appears only as the Bayesian conjugate posterior in g3_s3.html:485\u2013495 (coin-bias example), not as an order-statistic result. Stat 110 material.",
+   "importance": "low"
+  },
+  {
+   "topic": "Conditional expectation given an event: E(Y|A) is a number; worked examples (fair die given prime; Bin successes given first 3 are heads)",
+   "cheatsheet_page": "p4 col2 (Conditional Expectation)",
+   "detail": "$E(Y|A)=3+7p$ style computations",
+   "verdict": "COVERED",
+   "evidence": "g4_s1.html \u00a71.1 draws exactly this number-vs-random-variable distinction, with a table at :28 and three symptoms of getting it wrong at :31 (e.g. 'writing var(E[X|Y=y]) \u2014 the variance of a number, always 0'). Conditioning on an event set up in g2_s4 \u00a74 and g3_s0.html:86.",
+   "importance": "high"
+  },
+  {
+   "topic": "Table: E(Y) and E(Y|A) side by side for discrete vs continuous Y",
+   "cheatsheet_page": "p4 col2",
+   "detail": "$\\sum_y yP(Y=y)$ / $\\int yf_Y(y)dy$; $\\sum_y yP(Y=y|A)$ / $\\int yf(y|A)dy$",
+   "verdict": "COVERED",
+   "evidence": "g3_s0.html is a discrete\u2194continuous dictionary table; line 86 is the 'Conditioning on an event A' row giving $p_{X|A}$ vs $f_{X|A}$ side by side, and :130 states the master substitution $p_X(x)\\rightsquigarrow f_X(x)dx$, $\\sum_x\\rightsquigarrow\\int dx$ with 'E and var are the same objects in both worlds'.",
+   "importance": "medium"
+  },
+  {
+   "topic": "Conditioning on a random variable: E(Y|X) is a function of X, hence a random variable, not a number",
+   "cheatsheet_page": "p4 col2",
+   "detail": "plug X into g(x)=E(Y|X=x); e.g. E(Y|X=x)=x\u00b3+5x \u21d2 E(Y|X)=X\u00b3+5X",
+   "verdict": "COVERED",
+   "evidence": "g4_s1.html \u00a71.1 'From a number to a random variable: E[X|Y=y] versus E[X|Y]', definition box at :23, comparison table at :28, gotcha at :79 ('If your answer for E[X|Y] still contains the symbol X, you have not finished'). Examples 1.1\u20131.3 at :37, :52, :67 (class-sections, stick-breaking, random-bias coin giving E[X|Y]=nY, the direct analogue of the cheatsheet's Bin(10,p) example E(Y|X)=X+7p).",
+   "importance": "high"
+  },
+  {
+   "topic": "Properties of conditional expectation: (1) E(Y|X)=E(Y) if X\u22a5Y; (2) taking out what's known E(h(X)W|X)=h(X)E(W|X); (3) Adam's law E(E(Y|X))=E(Y)",
+   "cheatsheet_page": "p4 col2",
+   "detail": "the three structural rules",
+   "verdict": "COVERED",
+   "evidence": "All three, and linearity as a fourth, in one bullet list at g4_s1.html:74\u201376 \u2014 :74 'Pulling out what is known. For any function h, E[X h(Y) | Y] = h(Y)E[X|Y]', :75 'Independence collapses it', :76 'Linearity survives'. Exercised in Practice 1.2 at :92\u201397. Adam's law = 'law of iterated expectations', g4_s1 \u00a71.2 with a full discrete and continuous proof at :107\u2013117.",
+   "importance": "high"
+  },
+  {
+   "topic": "Adam's law in LOTP/partition form: E(Y)=E(Y|A\u2081)P(A\u2081)+\u2026+E(Y|A\u2099)P(A\u2099), and the A/A\u1d9c special case",
+   "cheatsheet_page": "p4 col2",
+   "detail": "total expectation over a partition of the sample space",
+   "verdict": "COVERED",
+   "evidence": "Course wording is 'total expectation theorem'. g4_s1.html:4 opens by naming it: 'That is the total expectation theorem, and it is a computational device'; \u00a71.2 then upgrades it to the iterated-expectations form. 61 'iterated expectation / total expectation / total variance' hits across 12 files.",
+   "importance": "high"
+  },
+  {
+   "topic": "Eve's law (law of total variance): Var(Y)=E(Var(Y|X))+Var(E(Y|X))",
+   "cheatsheet_page": "p4 col2",
+   "detail": "within-group plus between-group variance",
+   "verdict": "COVERED",
+   "evidence": "g4_s1.html \u00a71.3 'Conditional variance and the law of total variance', boxed at :165 with the two terms labelled 'average variability within groups' and 'variability between groups', and a step-by-step proof at :172\u2013175 that explicitly fills a gap the lecture slide skips.",
+   "importance": "high"
+  },
+  {
+   "topic": "Law of Large Numbers: sample mean X\u0304\u2099 \u2192 \u03bc with probability 1",
+   "cheatsheet_page": "p4 col2 (LLN)",
+   "detail": "the cheatsheet states the *strong* law (a.s. convergence)",
+   "verdict": "COVERED",
+   "evidence": "g6_s1.html \u00a71.3 'The sample mean M\u2099 and the weak law of large numbers' and \u00a71.5 'Convergence in probability'. The strong-law distinction is handled head-on at g6_s1.html:447: a worked counterexample sequence that converges in probability but keeps jumping, closing 'The statement that a run must settle down is convergence with probability 1 (the strong law of large numbers), which is strictly stronger and is not proved in 6.041.' \u2014 i.e. correctly scoped rather than omitted.",
+   "importance": "high"
+  },
+  {
+   "topic": "Markov and Chebyshev inequalities (used to prove WLLN)",
+   "cheatsheet_page": "p4 (implicit; LLN section)",
+   "detail": "tail bounds",
+   "verdict": "COVERED",
+   "evidence": "g6_s1.html \u00a71.1 'The Markov inequality', \u00a71.2 'The Chebyshev inequality', \u00a71.4 'The pollster's problem: turning the weak law into a sample size'. (Not itself a cheatsheet p3\u2013p4 item; noted because it is the machinery under their LLN.)",
+   "importance": "high"
+  },
+  {
+   "topic": "CLT approximation form: Y = X\u2081+\u2026+X\u2099 \u2248 N(n\u03bc, n\u03c3\u00b2); X\u0304\u2099 \u2248 N(\u03bc, \u03c3\u00b2/n)",
+   "cheatsheet_page": "p4 col3",
+   "detail": "the practical 'approximately distributed' version",
+   "verdict": "COVERED",
+   "evidence": "g6_s2.html \u00a72 'The Central Limit Theorem' (62 hits on CLT/\u03a6/converges-in-distribution terms), \u00a72.3 'Using it: the normal approximation recipe', plus \u00a72.4 'De Moivre\u2013Laplace: the 1/2 correction for integer-valued sums' \u2014 a continuity correction the cheatsheet omits.",
+   "importance": "high"
+  },
+  {
+   "topic": "CLT asymptotic form: (X\u2081+\u2026+X\u2099 \u2212 n\u03bc)/(\u03c3\u221an) \u2192\u1d30 N(0,1); CDF converges to \u03a6",
+   "cheatsheet_page": "p4 col3",
+   "detail": "$\\sqrt{n}(\\bar X_n-\\mu)/\\sigma \\xrightarrow{D} \\mathcal N(0,1)$",
+   "verdict": "COVERED",
+   "evidence": "g6_s2.html \u00a72.1 'The statement, and why standardization is forced on us' and \u00a72.2 'What exactly does the theorem say? (and what it does not)' \u2014 \u00a72.2 is precisely the convergence-in-distribution / \u03a6 discussion, and \u00a72.6 'where the CLT must not go' guards the misuse the cheatsheet does not mention.",
+   "importance": "high"
+  },
+  {
+   "topic": "Markov chain definition: state space {1,\u2026,M}, X_t, and the Markov property P(X_{n+1}=j | X\u2080=i\u2080,\u2026,X\u2099=i) = P(X_{n+1}=j | X\u2099=i)",
+   "cheatsheet_page": "p4 col3",
+   "detail": "given the present, past and future are conditionally independent",
+   "verdict": "COVERED",
+   "evidence": "g5_s1.html \u00a71.1 'The Markov model: states, transition probabilities, and the Markov property' (25 'Markov property/state space' hits); \u00a71.3 adds n-step transitions and Chapman\u2013Kolmogorov, which the cheatsheet does not have on this page.",
+   "importance": "high"
+  },
+  {
+   "topic": "Markov chain transition diagram (labelled state graph with arc probabilities)",
+   "cheatsheet_page": "p4 col3, figure",
+   "detail": "5-state chain drawn with self-loops and arc labels",
+   "verdict": "COVERED",
+   "evidence": "g5_s1 \u00a71.2 builds a chain (the checkout counter) from its Bernoulli ingredients and \u00a71.4 computes the two-state chain; g5_s2 (127 recurrent/transient/periodic hits) works throughout with labelled chains, e.g. :155 'start at 9 and you land in {6,7} with probability 1', :537 explicit arc reasoning '1\u21922 \u2026 from 3 the only'.",
+   "importance": "medium"
+  },
+  {
+   "topic": "State properties: recurrent vs transient",
+   "cheatsheet_page": "p4 col3",
+   "detail": "recurrent = you always return; transient = positive probability of never returning",
+   "verdict": "COVERED",
+   "evidence": "g5_s2.html \u00a72.1 'Accessibility, recurrence, transience' and \u00a72.2 'Recurrent classes and the decomposition of a chain'; 259 recurrent/transient/periodic hits across the six g5 files. Our notes add the expected-visit-count bound at g5_s2.html:184 ($E[N]\\le 1/(1-\\rho)$), which the cheatsheet lacks.",
+   "importance": "high"
+  },
+  {
+   "topic": "State properties: periodic vs aperiodic (GCD of possible return times)",
+   "cheatsheet_page": "p4 col3",
+   "detail": "period k>1 vs GCD = 1",
+   "verdict": "COVERED",
+   "evidence": "g5_s2.html \u00a72.3 'Periodicity' and \u00a72.4 'The steady-state convergence theorem, and the two ways it fails' \u2014 the second failure mode being periodicity, which is the reason the classification matters and which the cheatsheet leaves implicit.",
+   "importance": "high"
+  }
+ ]
+}

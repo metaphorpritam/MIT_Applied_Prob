@@ -306,5 +306,59 @@
  "C_23_2_pairs": 253,
  "multinom_triples_n10_r3": 66,
  "multinom_6_321_seq_check": 60,
- "fact_9_over_216": 1680
+ "fact_9_over_216": 1680,
+ "multiset_formula_check": true,
+ "multiset_3_2": 6,
+ "multiset_3_2_list": [
+  "11",
+  "12",
+  "13",
+  "22",
+  "23",
+  "33"
+ ],
+ "multiset_6_6": 462,
+ "multiset_6_6_symmetry": true,
+ "multiset_stars_bars_symbols": [
+  6,
+  5
+ ],
+ "dice2_multisets": 21,
+ "dice2_ordered": 36,
+ "dice2_multiset_probs_unequal": [
+  "1/36",
+  "1/18"
+ ],
+ "sampling_table_params": {
+  "n": 5,
+  "k": 3
+ },
+ "sampling_ordered_with": 125,
+ "sampling_ordered_without": 60,
+ "sampling_unordered_without": 10,
+ "sampling_unordered_with": 35,
+ "sampling_table_brute_check": [
+  true,
+  true,
+  true,
+  true
+ ],
+ "candies_10_among_4": 286,
+ "candies_10_among_4_positive": 84,
+ "candies_positive_brute": 84,
+ "hyper_var_from_pmf_frac": "18/19",
+ "hyper_var_from_pmf": 0.947368,
+ "hyper_var_formula_frac": "18/19",
+ "hyper_var_formula": 0.947368,
+ "hyper_var_matches": true,
+ "hyper_binom_var_frac": "6/5",
+ "hyper_binom_var": 1.2,
+ "hyper_fpc_frac": "15/19",
+ "hyper_fpc": 0.789474,
+ "hyper_fpc_k1": true,
+ "hyper_fpc_kn": 0.0,
+ "hyper_var_ratio_is_fpc": true,
+ "pq_hyper_defect_var": 0.429474,
+ "pq_hyper_defect_binom_var": 0.51,
+ "pq_hyper_defect_fpc_frac": "16/19"
 }

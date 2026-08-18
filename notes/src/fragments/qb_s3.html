@@ -1,0 +1,606 @@
+<h2 id="qb-s3">&sect;3 &nbsp; Continuous random variables</h2>
+
+<p class="srcref">Drills G3 &sect;1&ndash;&sect;2 and &sect;4 &middot; Bertsekas&ndash;Tsitsiklis &sect;3.1&ndash;3.5, &sect;4.1&ndash;4.2 &middot; every number recomputed in <code>computes/qb_s3.py</code></p>
+
+<p>Twenty-five problems on densities, ordered <b>by difficulty, not by theme</b>: Q48&ndash;Q55 are &#9733;, Q56&ndash;Q67 are &#9733;&#9733;, Q68&ndash;Q72 are &#9733;&#9733;&#9733;. Four threads are braided through that ordering, so work down the list and pick each thread up as it comes. <b>Earning a PDF, and CDFs</b> (Q48&ndash;49, Q56&ndash;57, Q72): normalize a density, integrate it for probabilities and moments, pass back and forth between $f_X$ and $F_X$, and handle the two distributions here that are part jump and part ramp. <b>The named families</b> (Q50&ndash;51, Q54a, Q58&ndash;59, Q67): the uniform (density $1/(b-a)$, mean $(a+b)/2$, variance $(b-a)^2/12$), the exponential (memorylessness, and the min/max of independent exponentials), and the normal (standardization and reading $\Phi$ off a table, in both directions). <b>Two dimensions</b> (Q52, Q55, Q60&ndash;61, Q66, Q69): joint PDFs over regions that are <em>not</em> rectangles, marginals by slicing, conditional densities as renormalized slices, $\mathbb{E}[X\mid Y=y]$, and the factorization test for independence &mdash; with the triangle trap that catches almost everyone. <b>Transformations and covariance</b> (Q53&ndash;54, Q62&ndash;65, Q68, Q70&ndash;71): derived distributions by the CDF method and by the monotonic-change-of-variables formula (watch the $|dg/dx|$), two convolutions (a uniform plus an exponential in Q63, and two exponentials at unequal rates in Q71), and covariance/correlation, including a pair that is uncorrelated but as dependent as two variables can be. Where a problem has a trap, the solution names the wrong answer you were about to give. One caveat on coverage: continuous inference &mdash; G3 &sect;3, the four faces of Bayes' rule &mdash; is <em>not</em> drilled in this section, which is why the source line above says &sect;1&ndash;&sect;2 and &sect;4.</p>
+
+<div class="ex qcard" id="q48" data-diff="1" data-topic="pdf">
+<p><b>Q48.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Normalizing a PDF &middot; <span class="ref">G3 &sect;1.1&ndash;1.2</span></span></p>
+<p>A machine's daily downtime $X$, in hours, has the "tent" density
+$$f_X(x) = \begin{cases} cx, &amp; 0 \le x \le 1,\\ c(2-x), &amp; 1 \lt x \le 2,\\ 0, &amp; \text{otherwise.}\end{cases}$$
+(a) Find $c$. &nbsp; (b) Find $\mathbf{P}(X \ge 1.5)$. &nbsp; (c) Find $\mathbb{E}[X]$ and $\operatorname{var}(X)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> A PDF must be nonnegative and integrate to $1$ over the whole line (G3 &sect;1.1). The density is piecewise, so every integral splits at $x=1$.</p>
+<p><b>(a) Normalization.</b> Integrate each piece:
+$$\int_0^1 cx\,dx = c\Big[\frac{x^2}{2}\Big]_0^1 = \frac{c}{2}, \qquad \int_1^2 c(2-x)\,dx = c\Big[2x - \frac{x^2}{2}\Big]_1^2 = c\big[(4-2)-(2-0.5)\big] = \frac{c}{2}.$$
+Summing, $\frac{c}{2}+\frac{c}{2} = c = 1$, so $c = 1$. (Geometric shortcut: the graph is a triangle of base $2$ and height $c$, area $\frac12(2)(c)=c$.)</p>
+<p><b>(b) A tail probability.</b> Only the second piece is involved:
+$$\mathbf{P}(X \ge 1.5) = \int_{1.5}^{2}(2-x)\,dx = \Big[2x-\frac{x^2}{2}\Big]_{1.5}^{2} = (4-2) - (3 - 1.125) = 2 - 1.875 = 0.125 .$$
+</p>
+<p><b>(c) Mean and variance.</b> The density is symmetric about $x=1$ (reflecting $x \mapsto 2-x$ swaps the two pieces), so $\mathbb{E}[X]=1$. Longhand, as a check:
+$$\mathbb{E}[X] = \int_0^1 x\cdot x\,dx + \int_1^2 x(2-x)\,dx = \frac13 + \Big[x^2-\frac{x^3}{3}\Big]_1^2 = 0.333333 + \Big(\frac43 - \frac23\Big) = 0.333333+0.666667 = 1 .$$
+For the second moment,
+$$\mathbb{E}[X^2] = \int_0^1 x^3dx + \int_1^2 x^2(2-x)\,dx = 0.25 + \Big[\frac{2x^3}{3}-\frac{x^4}{4}\Big]_1^2 = 0.25 + (5.333333-4) - (0.666667-0.25) = 1.166667,$$
+i.e. $\mathbb{E}[X^2] = \frac{7}{6}$. Hence
+$$\operatorname{var}(X) = \mathbb{E}[X^2] - \big(\mathbb{E}[X]\big)^2 = 1.166667 - 1 = 0.166667 = \tfrac16 .$$
+A $4\times10^6$-sample simulation (the tent is the sum of two independent $U(0,1)$'s) gives $\mathbf{P}(X\ge1.5)\approx0.124830$ and $\operatorname{var}\approx0.166715$ &mdash; both confirmed.</p>
+<p><b>Answer.</b> $\;c=1$, $\;\mathbf{P}(X\ge1.5)=0.125$, $\;\mathbb{E}[X]=1$, $\;\operatorname{var}(X)=1/6\approx0.166667$.</p>
+<p><b>Trap.</b> Answering $\mathbf{P}(X\ge1.5) = 0.25$: the right half $[1,2]$ carries mass $0.5$, and $1.5$ is its midpoint, so "half of a half" feels right. But the density is <em>falling</em> across that half, so the piece beyond the midpoint is the smaller one &mdash; and by similar triangles it is a quarter, not a half, of the right-hand mass: $0.125$. Splitting a non-uniform density at a midpoint never splits its probability in two.</p>
+<p class="srcref">Tool: G3 &sect;1.1 (PDF normalization), &sect;1.2 (expectation and variance by integration) &middot; B&amp;T &sect;3.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q49" data-diff="1" data-topic="cdf">
+<p><b>Q49.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; CDF to PDF &middot; <span class="ref">G3 &sect;1.4</span></span></p>
+<p>A continuous random variable $X$ has CDF
+$$F_X(x) = \begin{cases} 0, &amp; x \lt 0,\\ x^2/4, &amp; 0 \le x \le 2,\\ 1, &amp; x \gt 2.\end{cases}$$
+(a) Find the PDF $f_X$. &nbsp; (b) Compute $\mathbf{P}(1 \le X \le 1.5)$. &nbsp; (c) Find the median of $X$ &mdash; the value $m$ with $F_X(m)=1/2$ &mdash; and say whether it is above or below $\mathbb{E}[X] = 4/3$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> For a continuous random variable, $f_X(x) = \dfrac{dF_X}{dx}(x)$ wherever the derivative exists (G3 &sect;1.4), and $\mathbf{P}(a \le X \le b) = F_X(b)-F_X(a)$ &mdash; endpoints do not matter because single points carry zero probability.</p>
+<p><b>(a) Differentiate.</b> On $0 \lt x \lt 2$, $\;f_X(x) = \frac{d}{dx}\frac{x^2}{4} = \frac{2x}{4} = \frac{x}{2}$, and $f_X(x)=0$ outside $[0,2]$. Sanity check: $\int_0^2 \frac{x}{2}dx = \big[\frac{x^2}{4}\big]_0^2 = 1$ &#10003;, and $f_X \ge 0$ on the support &#10003;. Sample value: $f_X(1.5) = 0.75$.</p>
+<p><b>(b) A probability from the CDF.</b> No integration needed &mdash; that is the point of having $F_X$:
+$$\mathbf{P}(1 \le X \le 1.5) = F_X(1.5) - F_X(1) = \frac{1.5^2}{4} - \frac{1^2}{4} = \frac{2.25}{4} - \frac{1}{4} = 0.5625 - 0.25 = 0.3125 .$$
+</p>
+<p><b>(c) Median.</b> Solve $F_X(m) = \dfrac{m^2}{4} = \dfrac12 \Rightarrow m^2 = 2 \Rightarrow m = \sqrt2 = 1.414214$ (take the root inside $[0,2]$). Since $\mathbb{E}[X] = \int_0^2 x\cdot\frac{x}{2}dx = \big[\frac{x^3}{6}\big]_0^2 = \frac{8}{6} = 1.333333$, the median $1.414214$ lies <em>above</em> the mean. That is the signature of a left-skewed density: $f_X(x)=x/2$ increases, piling mass near $x=2$, and the long thin tail runs to the left, dragging the mean down.</p>
+<p><b>Answer.</b> $\;f_X(x)=x/2$ on $[0,2]$; $\;\mathbf{P}(1\le X\le1.5)=0.3125$; $\;m=\sqrt2\approx1.414214 \gt \mathbb{E}[X]=1.333333$.</p>
+<p><b>Traps.</b> (i) Reporting the median as $4/3 = 1.333333$ &mdash; that is the <em>mean</em>, which was handed to you in the question. Mean and median agree only for a symmetric density; here they differ by $0.080880$, and part (c) is asking precisely which is larger. (ii) Using $F_X$ itself as the density, i.e. answering $f_X(x) = x^2/4$. It fails the first check every candidate density must pass: $\int_0^2 x^2/4\,dx = 2/3 \ne 1$. A CDF climbs to $1$; a PDF <em>encloses</em> area $1$.</p>
+<p class="srcref">Tool: G3 &sect;1.4 (CDFs, $f_X = dF_X/dx$) &middot; B&amp;T &sect;3.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q50" data-diff="1" data-topic="exponential">
+<p><b>Q50.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Memorylessness &middot; <span class="ref">G3 &sect;1.5</span></span></p>
+<p>A network router's time to failure $T$ is exponential with mean $30$ months. Your router has been running for $18$ months without failing. What is the probability it lasts at least $12$ months more? Answer in two ways: from the definition of conditional probability, and in one line from memorylessness.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $T \sim \text{Exp}(\lambda)$ with $\mathbb{E}[T]=1/\lambda = 30$, so $\lambda = 1/30 = 0.033333$ per month. The exponential tail is $\mathbf{P}(T \gt t) = e^{-\lambda t}$ for $t \ge 0$ (G3 &sect;1.5). The event asked for is $\{T \gt 30\}$ conditioned on $\{T \gt 18\}$.</p>
+<p><b>Method 1 &mdash; conditional probability.</b> Since $\{T \gt 30\} \subset \{T \gt 18\}$, the intersection is just $\{T \gt 30\}$:
+$$\mathbf{P}(T \gt 30 \mid T \gt 18) = \frac{\mathbf{P}(T \gt 30)}{\mathbf{P}(T \gt 18)} = \frac{e^{-30/30}}{e^{-18/30}} = \frac{e^{-1}}{e^{-0.6}} = \frac{0.367879}{0.548812} = 0.670320 .$$
+</p>
+<p><b>Method 2 &mdash; memorylessness.</b> The exponential's defining property is $\mathbf{P}(T \gt t+s \mid T \gt t) = \mathbf{P}(T \gt s)$: a used router that still works is stochastically brand new. So the answer is simply
+$$\mathbf{P}(T \gt 12) = e^{-12/30} = e^{-0.4} = 0.670320 ,$$
+the same number, with no division. Simulation of $4\times10^6$ exponentials gives $0.669630$ &#10003;.</p>
+<p><b>Answer.</b> $\;e^{-0.4} = 0.670320$.</p>
+<p><b>Trap.</b> The tempting wrong answer is $e^{-30/30}=0.367879$ &mdash; reading "lasts to month 30" off the unconditional tail and forgetting that you have already been told it survived to month 18. Memorylessness resets the clock; it does not delete the question.</p>
+<p class="srcref">Tool: G3 &sect;1.5 (exponential and memorylessness) &middot; B&amp;T &sect;3.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q51" data-diff="1" data-topic="normal">
+<p><b>Q51.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Standardization and the $\Phi$ table &middot; <span class="ref">G3 &sect;1.7</span></span></p>
+<p>Exam scores in a large class are modeled as $X \sim N(70, 25)$ (mean $70$, <em>variance</em> $25$). Using the standard normal table values $\Phi(1.60)=0.9452$ and $\Phi(1.40)=0.9192$, find $\mathbf{P}(63 \le X \le 78)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $\operatorname{var}(X)=25$ means $\sigma = \sqrt{25} = 5$, not $25$. Standardize: $Z = (X-\mu)/\sigma \sim N(0,1)$, and $\mathbf{P}(a \le X \le b) = \Phi\!\big(\frac{b-\mu}{\sigma}\big) - \Phi\!\big(\frac{a-\mu}{\sigma}\big)$ (G3 &sect;1.7).</p>
+<p><b>Step 1 &mdash; the two $z$-scores.</b>
+$$z_{\text{lo}} = \frac{63-70}{5} = \frac{-7}{5} = -1.40, \qquad z_{\text{hi}} = \frac{78-70}{5} = \frac{8}{5} = 1.60 .$$
+</p>
+<p><b>Step 2 &mdash; the negative argument.</b> Tables list $\Phi$ only for $z \ge 0$; use the symmetry $\Phi(-z) = 1-\Phi(z)$:
+$$\Phi(-1.40) = 1 - \Phi(1.40) = 1 - 0.9192 = 0.0808 .$$
+</p>
+<p><b>Step 3 &mdash; subtract.</b>
+$$\mathbf{P}(63 \le X \le 78) = \Phi(1.60) - \Phi(-1.40) = 0.9452 - 0.0808 = 0.8644 .$$
+Exact value from the error function: $0.864444$ &mdash; the table rounding costs about $4\times10^{-5}$.</p>
+<p><b>Answer.</b> $\;\mathbf{P}(63 \le X \le 78) = 0.8644$.</p>
+<p><b>Trap.</b> Using $\sigma = 25$ gives $z_{\text{lo}}=-0.28$, $z_{\text{hi}}=0.32$ and an answer near $0.236$ &mdash; the single most common normal-distribution error. $N(\mu,\sigma^2)$ names the <em>variance</em> in the second slot.</p>
+<p class="srcref">Tool: G3 &sect;1.7 (normal random variables, standardization, $\Phi$-table) &middot; B&amp;T &sect;3.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q52" data-diff="1" data-topic="joint-pdf">
+<p><b>Q52.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Joint PDF and marginals &middot; <span class="ref">G3 &sect;2.1&ndash;2.2</span></span></p>
+<p>Two sensor readings $(X,Y)$ have joint PDF $f_{X,Y}(x,y) = c\,(x+2y)$ for $0 \le x \le 1$, $0 \le y \le 1$, and $0$ elsewhere. (a) Find $c$. &nbsp; (b) Find the marginal PDF $f_X$. &nbsp; (c) Find $\mathbb{E}[X]$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> A joint PDF integrates to $1$ over the plane; the marginal is obtained by integrating out the other variable, $f_X(x) = \int_{-\infty}^{\infty} f_{X,Y}(x,y)\,dy$ (G3 &sect;2.1&ndash;2.2).</p>
+<p><b>(a) Normalize.</b> Integrate over the unit square, inner integral in $y$ first:
+$$\int_0^1\!\!\int_0^1 (x+2y)\,dy\,dx = \int_0^1 \Big[xy + y^2\Big]_{y=0}^{y=1} dx = \int_0^1 (x+1)\,dx = \Big[\frac{x^2}{2}+x\Big]_0^1 = 0.5 + 1 = 1.5 .$$
+So $c \cdot 1.5 = 1$ and $c = 1/1.5 = 2/3 = 0.666667$.</p>
+<p><b>(b) Marginal of $X$.</b> Reusing the inner integral just computed,
+$$f_X(x) = \int_0^1 \frac23 (x+2y)\,dy = \frac23 (x+1), \qquad 0 \le x \le 1,$$
+and $0$ elsewhere. Check: $\int_0^1 \frac23(x+1)dx = \frac23 (1.5) = 1$ &#10003;. Endpoint values: $f_X(0)=0.666667$, $f_X(1)=1.333333$ &mdash; the density rises linearly, so larger $x$ is twice as likely per unit length at the top of the range as at the bottom.</p>
+<p><b>(c) Mean of $X$.</b> Use the marginal &mdash; never the joint, when only $X$ is involved:
+$$\mathbb{E}[X] = \int_0^1 x\cdot\frac23(x+1)\,dx = \frac23\int_0^1 (x^2+x)\,dx = \frac23\Big(\frac13+\frac12\Big) = \frac23\cdot\frac56 = \frac{5}{9} = 0.555556 .$$
+It exceeds $0.5$, as the upward-sloping marginal demands.</p>
+<p><b>Answer.</b> $\;c = 2/3$, $\;f_X(x) = \tfrac23(x+1)$ on $[0,1]$, $\;\mathbb{E}[X] = 5/9 \approx 0.555556$.</p>
+<p><b>Trap.</b> Answering $\mathbb{E}[X] = 0.5$ "because $X$ lives on the unit square". The <em>region</em> is symmetric in $x$ and $y$; the <em>density</em> is not, since $y$ carries the weight $2$ and $x$ only $1$. That asymmetry is exactly what separates $\mathbb{E}[X]=5/9=0.555556$ from $\mathbb{E}[Y]=11/18=0.611111$ &mdash; a gap of $1/18$. Read the tilt off the marginal before you trust a symmetry argument.</p>
+<p class="srcref">Tool: G3 &sect;2.1 (joint PDFs), &sect;2.2 (marginals) &middot; B&amp;T &sect;3.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q53" data-diff="1" data-topic="covariance">
+<p><b>Q53.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Covariance algebra &middot; <span class="ref">G3 &sect;4.8</span></span></p>
+<p>Two portfolio returns satisfy $\operatorname{var}(X)=4$, $\operatorname{var}(Y)=9$, $\operatorname{cov}(X,Y)=-3$. (a) Find the correlation coefficient $\rho(X,Y)$. &nbsp; (b) Find $\operatorname{var}(X+Y)$ and $\operatorname{var}(2X-Y)$. &nbsp; (c) <b>True or false, with reason:</b> whenever $\operatorname{cov}(X,Y) \lt 0$, the sum $X+Y$ is less variable than it would be if $X$ and $Y$ were independent with the same individual variances.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $\rho = \dfrac{\operatorname{cov}(X,Y)}{\sigma_X\sigma_Y}$, and for any $a,b$, $\;\operatorname{var}(aX+bY) = a^2\operatorname{var}(X) + b^2\operatorname{var}(Y) + 2ab\operatorname{cov}(X,Y)$ (G3 &sect;4.8).</p>
+<p><b>(a) Correlation.</b> $\sigma_X = \sqrt4 = 2$, $\sigma_Y = \sqrt9 = 3$, so
+$$\rho = \frac{-3}{2\cdot3} = \frac{-3}{6} = -0.5 ,$$
+inside $[-1,1]$ as it must be.</p>
+<p><b>(b) Two linear combinations.</b> With $a=b=1$:
+$$\operatorname{var}(X+Y) = 4 + 9 + 2(1)(1)(-3) = 13 - 6 = 7 .$$
+With $a=2$, $b=-1$:
+$$\operatorname{var}(2X-Y) = 2^2(4) + (-1)^2(9) + 2(2)(-1)(-3) = 16 + 9 + 12 = 37 .$$
+Note the sign bookkeeping: $2ab = 2(2)(-1) = -4$, times $\operatorname{cov} = -3$, gives $+12$ &mdash; a negative covariance <em>increases</em> the variance of a difference.</p>
+<p><b>(c) True.</b> Under independence the covariance term vanishes and $\operatorname{var}(X+Y)$ would be $4+9=13$; with $\operatorname{cov}=-3$ it is $7 \lt 13$. In general $\operatorname{var}(X+Y) = \operatorname{var}(X)+\operatorname{var}(Y)+2\operatorname{cov}(X,Y)$, and a negative covariance subtracts. This is the whole mathematical content of diversification: assets that move oppositely cancel each other's swings.</p>
+<p><b>Answer.</b> $\;\rho = -0.5$; $\;\operatorname{var}(X+Y)=7$; $\;\operatorname{var}(2X-Y)=37$; (c) <b>true</b>.</p>
+<p><b>Trap.</b> Writing $\operatorname{var}(2X-Y) = 4\cdot4 + 9 - 12 = 13$ &mdash; that is subtracting the cross term instead of tracking the two sign flips ($b=-1$ and $\operatorname{cov}\lt0$), which multiply to a plus.</p>
+<p class="srcref">Tool: G3 &sect;4.8 (covariance and correlation) &middot; B&amp;T &sect;4.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q54" data-diff="1" data-topic="derived">
+<p><b>Q54.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; The uniform, then a monotone transformation &middot; <span class="ref">G3 &sect;1.3, &sect;4.2</span></span></p>
+<p>A resistor's value $X$ is uniform on $[1,3]$ (in ohms). (a) Write $f_X$ and $F_X$, and give $\mathbb{E}[X]$, $\operatorname{var}(X)$ and $\mathbf{P}(1.5 \le X \le 2.5)$. &nbsp; (b) The corresponding conductance is $Y = 1/X$. Find the PDF of $Y$, verify it integrates to $1$, and compute $\mathbb{E}[Y]$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The continuous uniform.</b> On $[a,b]$ the density is constant, and constant $=1/(b-a)$ is forced by normalization (G3 &sect;1.3). With $a=1$, $b=3$:
+$$f_X(x) = \frac{1}{b-a} = \frac{1}{2} = 0.5 \;\;(1 \le x \le 3), \qquad F_X(x) = \frac{x-a}{b-a} = \frac{x-1}{2} \;\;(1 \le x \le 3),$$
+with $F_X = 0$ below $1$ and $1$ above $3$; e.g. $F_X(2.5) = 0.75$. The moments are the two formulas worth memorizing,
+$$\mathbb{E}[X] = \frac{a+b}{2} = \frac{1+3}{2} = 2 \;\Omega, \qquad \operatorname{var}(X) = \frac{(b-a)^2}{12} = \frac{4}{12} = \frac13 = 0.333333 ,$$
+so $\sigma_X = 0.577350$. (Check the variance the long way: $\mathbb{E}[X^2] = \int_1^3 \frac{x^2}{2}dx = \frac{13}{3} = 4.333333$, and $4.333333 - 2^2 = 0.333333$ &#10003;.) Probabilities of intervals are pure length ratios &mdash; the position inside $[a,b]$ is irrelevant:
+$$\mathbf{P}(1.5 \le X \le 2.5) = \frac{2.5-1.5}{3-1} = \frac{1}{2} = 0.5 .$$
+</p>
+<p><b>(b) Setup for the transformation.</b> The map $g(x)=1/x$ is strictly <em>decreasing</em> on $[1,3]$, hence strictly monotonic, so the change-of-variables formula applies (G3 &sect;4.2):
+$$f_Y(y) = \frac{f_X(x)}{\big|\,dg/dx\,\big|}\bigg|_{x = g^{-1}(y)} .$$
+</p>
+<p><b>Step 1 &mdash; the range.</b> As $x$ runs from $1$ up to $3$, $y=1/x$ runs from $1$ down to $1/3 = 0.333333$. So $Y$ lives on $[1/3, 1]$; $f_Y = 0$ outside.</p>
+<p><b>Step 2 &mdash; the inverse and the derivative.</b> $y = 1/x \Rightarrow x = 1/y$, and $\dfrac{dg}{dx} = -\dfrac{1}{x^2}$, so $\left|\dfrac{dg}{dx}\right| = \dfrac{1}{x^2}$. The absolute value is what keeps the density positive; dropping it would give a negative "density".</p>
+<p><b>Step 3 &mdash; substitute.</b> With $f_X(x)=0.5$ and $x = 1/y$,
+$$f_Y(y) = \frac{0.5}{1/x^2} = \frac{x^2}{2} = \frac{1}{2y^2}, \qquad \frac13 \le y \le 1 .$$
+Endpoint values: $f_Y(1/3)= \frac{1}{2(1/9)} = 4.5$, $f_Y(1)=0.5$. Note the reciprocal map has piled the mass up at the small-$y$ end, even though $X$ was flat.</p>
+<p><b>Step 4 &mdash; check.</b> $\displaystyle\int_{1/3}^{1} \frac{dy}{2y^2} = \frac12\Big[-\frac1y\Big]_{1/3}^{1} = \frac12(-1 + 3) = 1$ &#10003;.</p>
+<p><b>Step 5 &mdash; the mean.</b>
+$$\mathbb{E}[Y] = \int_{1/3}^1 y\cdot\frac{1}{2y^2}dy = \frac12\int_{1/3}^1\frac{dy}{y} = \frac12\big[\ln y\big]_{1/3}^1 = \frac{\ln 3}{2} = 0.549306 .$$
+Simulation with $4\times10^6$ draws: $0.549182$ &#10003;. A second check by a different route: $\mathbf{P}(Y \le 0.75) = \mathbf{P}(X \ge 4/3) = \frac{3-4/3}{2} = 0.833333$, and integrating $f_Y$ over $[1/3, 0.75]$ gives the same $0.833333$ &#10003; (simulation $0.833558$).</p>
+<p><b>Answer.</b> $\;f_X = 1/2$ on $[1,3]$, $F_X(x)=(x-1)/2$, $\mathbb{E}[X]=2$, $\operatorname{var}(X)=1/3$, $\mathbf{P}(1.5\le X\le2.5)=0.5$; $\;f_Y(y) = 1/(2y^2)$ on $[1/3,1]$, $\;\mathbb{E}[Y] = \tfrac12\ln 3 \approx 0.549306$.</p>
+<p><b>Traps.</b> (i) Reading $N(\mu,\sigma^2)$-style habits into the uniform and reporting $\operatorname{var}(X) = (b-a)^2 = 4$ or $(b-a)/12$; the formula is $(b-a)^2/12 = 0.333333$, and only the <em>width</em> enters, never the location. (ii) Answering $\mathbb{E}[Y] = 1/\mathbb{E}[X] = 1/2 = 0.5$. Expectation does not pass through nonlinear functions; the true value $0.549306$ is larger, as Jensen's inequality guarantees for the convex map $1/x$.</p>
+<p class="srcref">Tool: G3 &sect;1.3 (continuous uniform: density, CDF, mean, variance), &sect;4.2 (change of variables for strictly monotonic $g$) &middot; B&amp;T &sect;3.1, &sect;4.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q55" data-diff="1" data-topic="conditional">
+<p><b>Q55.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Conditional density &middot; <span class="ref">G3 &sect;2.3</span></span></p>
+<p>Continuing the model of Q52 &mdash; $f_{X,Y}(x,y) = \frac23(x+2y)$ on the unit square &mdash; find the conditional PDF $f_{Y|X}(y \mid 0.5)$ and the conditional expectation $\mathbb{E}[Y \mid X = 0.5]$. Compare with the unconditional $\mathbb{E}[Y] = 11/18$. Does the comparison prove $X$ and $Y$ are independent?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The conditional density is the slice of the joint at $X=x$, renormalized by the marginal: $f_{Y|X}(y\mid x) = \dfrac{f_{X,Y}(x,y)}{f_X(x)}$ wherever $f_X(x) \gt 0$ (G3 &sect;2.3). From Q52, $f_X(x) = \frac23(x+1)$.</p>
+<p><b>Step 1 &mdash; the denominator.</b> $f_X(0.5) = \frac23(0.5+1) = \frac23(1.5) = 1$.</p>
+<p><b>Step 2 &mdash; the slice.</b> For $0 \le y \le 1$,
+$$f_{Y|X}(y \mid 0.5) = \frac{\frac23(0.5+2y)}{1} = \frac{0.5+2y}{1.5} .$$
+Check that it is a density: $\int_0^1 \frac{0.5+2y}{1.5}dy = \frac{1}{1.5}\big(0.5 + 1\big) = 1$ &#10003;. Values: $f_{Y|X}(0\mid0.5)=0.333333$, $f_{Y|X}(1\mid0.5)=1.666667$.</p>
+<p><b>Step 3 &mdash; conditional expectation.</b>
+$$\mathbb{E}[Y \mid X = 0.5] = \int_0^1 y\,\frac{0.5+2y}{1.5}\,dy = \frac{1}{1.5}\Big(0.5\cdot\frac12 + 2\cdot\frac13\Big) = \frac{0.25+0.666667}{1.5} = \frac{0.916667}{1.5} = 0.611111 .$$
+</p>
+<p><b>Step 4 &mdash; the comparison.</b> $\mathbb{E}[Y] = 11/18 = 0.611111$ too &mdash; the two agree exactly. <b>This does not prove independence.</b> The general conditional mean is
+$$\mathbb{E}[Y \mid X = x] = \frac{\frac{x}{2}+\frac23}{x+1},$$
+which equals $0.666667$ at $x=0$ and $0.583333$ at $x=1$ &mdash; it genuinely varies with $x$, and merely happens to cross the unconditional mean near $x=0.5$. Independence requires $f_{Y|X}(y\mid x)$ to be the <em>same function of $y$</em> for every $x$, which fails here: $f_{Y|X}(y\mid0) = \frac{2y}{1}$ differs from $f_{Y|X}(y\mid0.5)$.</p>
+<p><b>Answer.</b> $\;f_{Y|X}(y\mid0.5) = \dfrac{0.5+2y}{1.5}$ on $[0,1]$, $\;\mathbb{E}[Y\mid X=0.5] = 11/18 \approx 0.611111$; the coincidence with $\mathbb{E}[Y]$ does <b>not</b> imply independence.</p>
+<p><b>Trap.</b> "One conditional mean equals the unconditional mean, so $X$ and $Y$ are independent." Even the stronger statement $\mathbb{E}[Y\mid X=x] = \mathbb{E}[Y]$ for <em>all</em> $x$ (mean-independence) would not suffice &mdash; see Q64.</p>
+<p class="srcref">Tool: G3 &sect;2.3 (conditional PDFs), &sect;2.4 (independence) &middot; B&amp;T &sect;3.5</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q56" data-diff="2" data-topic="pdf">
+<p><b>Q56.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Heavy tails and moments &middot; <span class="ref">G3 &sect;1.1&ndash;1.2</span></span></p>
+<p>File sizes on a server (in megabytes) are modeled by $f_X(x) = c\,x^{-3}$ for $x \ge 1$, and $0$ for $x \lt 1$. (a) Find $c$. &nbsp; (b) Find $\mathbf{P}(X \gt 2)$ and the median. &nbsp; (c) Find $\mathbb{E}[X]$. &nbsp; (d) Find $\operatorname{var}(X)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> All four parts are improper integrals on $[1,\infty)$; the general antiderivative $\int x^{-p}dx = \frac{x^{1-p}}{1-p}$ converges at $\infty$ exactly when $p \gt 1$. Keep that condition in view &mdash; it decides part (d).</p>
+<p><b>(a) Normalization.</b>
+$$\int_1^\infty c\,x^{-3}dx = c\Big[\frac{x^{-2}}{-2}\Big]_1^\infty = c\Big(0 - \big(-\tfrac12\big)\Big) = \frac{c}{2} = 1 \;\Longrightarrow\; c = 2 .$$
+</p>
+<p><b>(b) Tail and median.</b> The tail is
+$$\mathbf{P}(X \gt 2) = \int_2^\infty 2x^{-3}dx = \Big[-x^{-2}\Big]_2^\infty = 0 + \frac{1}{4} = 0.25 .$$
+In general $\mathbf{P}(X \gt t) = t^{-2}$ for $t \ge 1$, so $F_X(t) = 1 - t^{-2}$ and the median solves $1 - m^{-2} = 0.5 \Rightarrow m^{-2} = 0.5 \Rightarrow m = \sqrt2 = 1.414214$ MB.</p>
+<p><b>(c) Mean.</b> Here $p = 2 \gt 1$, so the integral converges:
+$$\mathbb{E}[X] = \int_1^\infty x\cdot 2x^{-3}dx = \int_1^\infty 2x^{-2}dx = \Big[-2x^{-1}\Big]_1^\infty = 0 + 2 = 2 \text{ MB}.$$
+Note the mean ($2$) sits well above the median ($1.414$) &mdash; the standard heavy-tail signature.</p>
+<p><b>(d) Variance &mdash; the point of the problem.</b>
+$$\mathbb{E}[X^2] = \int_1^\infty x^2\cdot2x^{-3}dx = \int_1^\infty \frac{2}{x}\,dx = \big[2\ln x\big]_1^\infty = \lim_{M\to\infty} 2\ln M = \infty .$$
+The integrand is $2/x$, the borderline case $p=1$, which diverges &mdash; logarithmically, hence slowly: truncating at $M=10$ gives $2\ln10 = 4.605170$, at $M=1000$ gives $13.815511$, and it keeps climbing without limit. So $\mathbb{E}[X^2]$ does not exist (as a finite number), and consequently <b>$\operatorname{var}(X)$ is infinite</b>. The distribution has a perfectly good finite mean and no finite variance at all.</p>
+<p><b>Answer.</b> $\;c=2$; $\;\mathbf{P}(X \gt 2)=1/4$, median $\sqrt2 \approx 1.414214$; $\;\mathbb{E}[X]=2$; $\;\operatorname{var}(X) = \infty$.</p>
+<p><b>Trap.</b> Reporting $\operatorname{var}(X) = \mathbb{E}[X^2]-\mathbb{E}[X]^2 = 4-4 = 0$. That comes from mis-integrating $\int 2x^{-1}dx$ as $-2x^{-2}\big/\!\ldots$ or from assuming a finite mean forces a finite variance, and a variance of $0$ for a spread-out density should be an immediate alarm: zero variance means the random variable is a constant.</p>
+<p class="srcref">Tool: G3 &sect;1.1 (normalization), &sect;1.2 (moments by integration) &middot; B&amp;T &sect;3.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q57" data-diff="2" data-topic="cdf">
+<p><b>Q57.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; A mixed distribution &middot; <span class="ref">G3 &sect;1.4</span></span></p>
+<p>You arrive at a traffic light. With probability $0.3$ the light is green and you wait $W = 0$; otherwise your wait $W$ is uniform on $[0,2]$ minutes. (a) Write the CDF $F_W$ and identify the jump and the ramp. &nbsp; (b) Compute $\mathbf{P}(W \le 1)$, $\mathbf{P}(0 \lt W \le 1)$ and the median. &nbsp; (c) Compute $\mathbb{E}[W]$ and $\operatorname{var}(W)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $W$ is neither discrete nor continuous: it puts an atom of probability at $0$ and spreads the rest as a density. The CDF handles all three worlds uniformly (G3 &sect;1.4) &mdash; jumps for atoms, slopes for density.</p>
+<p><b>(a) The CDF.</b> Condition on the light. For $0 \le w \lt 2$,
+$$F_W(w) = \mathbf{P}(\text{green}) \cdot 1 + \mathbf{P}(\text{red}) \cdot \mathbf{P}(U \le w) = 0.3 + 0.7\cdot\frac{w}{2} = 0.3 + 0.35\,w ,$$
+with $F_W(w)=0$ for $w \lt 0$ and $F_W(w)=1$ for $w \ge 2$. Check the top end: $0.3 + 0.35(2) = 1$ &#10003;. So the CDF <b>jumps by $0.3$ at $w=0$</b> &mdash; that jump <em>is</em> $\mathbf{P}(W=0)=0.3$ &mdash; and then <b>ramps with slope $0.35$</b> across $[0,2]$; the slope is the density on the continuous part, $f(w)=0.35$ for $0 \lt w \lt 2$ (which is $0.7 \times \frac12$, the red probability times the uniform density).</p>
+<p><b>(b) Probabilities.</b>
+$$\mathbf{P}(W \le 1) = F_W(1) = 0.3 + 0.35(1) = 0.65 ; \qquad \mathbf{P}(0 \lt W \le 1) = 0.65 - 0.3 = 0.35 .$$
+Here, unlike in the purely continuous case, the strict inequality matters: excluding the atom removes $0.3$. The median solves $0.3+0.35m = 0.5 \Rightarrow m = 0.2/0.35 = 0.571429$ minutes.</p>
+<p><b>(c) Moments.</b> Expectation of a mixed variable = atom contribution + integral against the density:
+$$\mathbb{E}[W] = \underbrace{0.3 \times 0}_{\text{atom}} + \int_0^2 w\,(0.35)\,dw = 0.35\Big[\frac{w^2}{2}\Big]_0^2 = 0.35(2) = 0.7 \text{ min}.$$
+Cross-check by total expectation: $0.3(0) + 0.7(1) = 0.7$ &#10003;. Second moment:
+$$\mathbb{E}[W^2] = 0 + \int_0^2 w^2(0.35)\,dw = 0.35\Big[\frac{w^3}{3}\Big]_0^2 = 0.35\cdot\frac83 = 0.933333 ,$$
+so
+$$\operatorname{var}(W) = 0.933333 - (0.7)^2 = 0.933333 - 0.49 = 0.443333 .$$
+Simulation of $4\times10^6$ arrivals: $\mathbb{E}[W]\approx0.700$, $\operatorname{var}\approx0.4434$ &#10003;.</p>
+<p><b>Answer.</b> $\;F_W(w) = 0.3+0.35w$ on $[0,2)$ (jump $0.3$ at $0$, slope $0.35$); $\;\mathbf{P}(W\le1)=0.65$, $\;\mathbf{P}(0\lt W\le1)=0.35$, median $= 4/7 \approx 0.571429$; $\;\mathbb{E}[W]=0.7$, $\;\operatorname{var}(W)=0.443333$.</p>
+<p><b>Trap.</b> Treating $W$ as $U(0,2)$ conditional on red and forgetting the atom, giving $\mathbb{E}[W]=1$ and $\operatorname{var}(W)=1/3=0.333$. Also common: "$\mathbf{P}(W\le1)=\mathbf{P}(W\lt1)$ because $W$ is continuous" &mdash; false at $w=0$, where the CDF genuinely jumps.</p>
+<p class="srcref">Tool: G3 &sect;1.4 (CDFs cover discrete, continuous and mixed) &middot; B&amp;T &sect;3.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q58" data-diff="2" data-topic="exponential">
+<p><b>Q58.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Competing exponentials &middot; <span class="ref">G3 &sect;1.6</span></span></p>
+<p>A server has two independent failure modes: a disk failure at time $X \sim \text{Exp}(\lambda_1)$ with $\mathbb{E}[X]=4$ hours, and a power failure at time $Y \sim \text{Exp}(\lambda_2)$ with $\mathbb{E}[Y]=6$ hours. The server goes down at $M = \min\{X,Y\}$ and is fully repaired only at $L = \max\{X,Y\}$. (a) What is $\mathbf{P}(X \lt Y)$, i.e. that the disk fails first? &nbsp; (b) What is the distribution of $M$, and $\mathbb{E}[M]$? &nbsp; (c) What is $\mathbb{E}[L]$?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $\lambda_1 = 1/4 = 0.25$ and $\lambda_2 = 1/6 = 0.166667$ per hour. The tools are the tail form $\mathbf{P}(X \gt t)=e^{-\lambda_1 t}$ and the min-of-independent-exponentials argument of G3 &sect;1.6.</p>
+<p><b>(a) Who fails first.</b> Condition on $Y$ and integrate:
+$$\mathbf{P}(X \lt Y) = \int_0^\infty \mathbf{P}(X \lt y)\,f_Y(y)\,dy = \int_0^\infty \big(1-e^{-\lambda_1 y}\big)\lambda_2 e^{-\lambda_2 y}\,dy = 1 - \frac{\lambda_2}{\lambda_1+\lambda_2} = \frac{\lambda_1}{\lambda_1+\lambda_2},$$
+where the middle integral used $\int_0^\infty \lambda_2 e^{-(\lambda_1+\lambda_2)y}dy = \frac{\lambda_2}{\lambda_1+\lambda_2}$. Substituting, $\lambda_1+\lambda_2 = 0.25+0.166667 = 0.416667$ and
+$$\mathbf{P}(X \lt Y) = \frac{0.25}{0.416667} = 0.6 .$$
+Interpretation: the winner is chosen in proportion to <em>rates</em>, not to means. Simulation: $0.599707$ &#10003;.</p>
+<p><b>(b) The minimum.</b> For $m \ge 0$, using independence,
+$$\mathbf{P}(M \gt m) = \mathbf{P}(X \gt m,\, Y \gt m) = e^{-\lambda_1 m}e^{-\lambda_2 m} = e^{-(\lambda_1+\lambda_2)m},$$
+which is exactly the tail of an exponential with rate $\lambda_1+\lambda_2 = 0.416667$ &mdash; rates add. Therefore
+$$\mathbb{E}[M] = \frac{1}{\lambda_1+\lambda_2} = \frac{1}{0.416667} = 2.4 \text{ hours},$$
+shorter than either individual mean ($4$ and $6$), as two ways to fail must be. As a bonus, $\mathbf{P}(M \gt 3) = e^{-0.416667\times3} = e^{-1.25} = 0.286505$.</p>
+<p><b>(c) The maximum, without any new integral.</b> Pointwise, $\min\{X,Y\}+\max\{X,Y\} = X+Y$ &mdash; whichever is smaller, the two sides list the same two numbers. Taking expectations and using linearity,
+$$\mathbb{E}[L] = \mathbb{E}[X] + \mathbb{E}[Y] - \mathbb{E}[M] = 4 + 6 - 2.4 = 7.6 \text{ hours}.$$
+Simulation: $\mathbb{E}[M]\approx2.4003$, $\mathbb{E}[L]\approx7.5972$ &#10003;.</p>
+<p><b>Answer.</b> $\;\mathbf{P}(X\lt Y)=0.6$; $\;M \sim \text{Exp}(0.416667)$ with $\mathbb{E}[M]=2.4$ h; $\;\mathbb{E}[L]=7.6$ h.</p>
+<p><b>Traps.</b> (i) Answering $\mathbf{P}(X\lt Y)=\frac{4}{4+6}=0.4$ by mixing means with rates &mdash; it is backwards, and the faster-failing disk must win <em>more</em> than half the time. (ii) Claiming $L$ is exponential: it is not, since $\mathbb{E}[L]=7.6 \ne \mathbb{E}[X]+\mathbb{E}[Y]=10$ and its density $\lambda_1e^{-\lambda_1\ell}(1-e^{-\lambda_2\ell}) + \lambda_2e^{-\lambda_2\ell}(1-e^{-\lambda_1\ell})$ is not a single exponential. Only the <em>minimum</em> inherits the family.</p>
+<p class="srcref">Tool: G3 &sect;1.5&ndash;1.6 (exponential; maxima and minima of independent exponentials) &middot; B&amp;T &sect;3.3, &sect;6.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q59" data-diff="2" data-topic="normal">
+<p><b>Q59.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Inverse normal / design &middot; <span class="ref">G3 &sect;1.7</span></span></p>
+<p>A bottling machine dispenses a volume that is normal with standard deviation $\sigma = 1.2$ ml; the mean $\mu$ is set by a dial. Regulation requires that at most $1\%$ of bottles contain less than the labeled $500$ ml. Using $\Phi(2.33) = 0.9901$ (so $z_{0.99} \approx 2.33$), find the smallest admissible $\mu$. Explain in one sentence why the answer scales linearly in $\sigma$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $X \sim N(\mu, 1.2^2)$ be the fill volume. The requirement is $\mathbf{P}(X \lt 500) \le 0.01$. This is an <em>inverse</em> normal problem: the probability is given and the parameter is unknown, so we standardize and then read the table backwards (G3 &sect;1.7).</p>
+<p><b>Step 1 &mdash; standardize the constraint.</b>
+$$\mathbf{P}(X \lt 500) = \Phi\!\Big(\frac{500-\mu}{1.2}\Big) \le 0.01 .$$
+</p>
+<p><b>Step 2 &mdash; invert $\Phi$.</b> Since $\Phi$ is strictly increasing, the constraint is $\dfrac{500-\mu}{1.2} \le \Phi^{-1}(0.01)$. By symmetry $\Phi^{-1}(0.01) = -\Phi^{-1}(0.99) = -2.33$ (the exact value is $-2.326348$). So
+$$\frac{500-\mu}{1.2} \le -2.33 .$$
+</p>
+<p><b>Step 3 &mdash; solve for $\mu$.</b> Multiply by $1.2$ (positive, so the inequality direction survives):
+$$500 - \mu \le -2.796 \;\Longrightarrow\; \mu \ge 500 + 2.796 = 502.796 \text{ ml}.$$
+With the exact quantile $2.326348$ the bound is $500 + 2.791617 = 502.791617$ ml; the table rounding costs about $0.004$ ml. Verification: at $\mu = 502.796$, $\mathbf{P}(X\lt500) = \Phi(-2.33) = 0.009903 \le 0.01$ &#10003;.</p>
+<p><b>Why linear in $\sigma$.</b> The admissible mean is $\mu = 500 + z_{0.99}\,\sigma$: the safety margin is a fixed <em>number of standard deviations</em>, so halving the machine's variability to $\sigma=0.6$ halves the overfill to $1.398$ ml &mdash; which is precisely the business case for a more precise filler.</p>
+<p><b>Answer.</b> $\;\mu \ge 502.796$ ml (exact: $502.7916$ ml).</p>
+<p><b>Trap.</b> Using $z = 1.96$ and answering $502.352$ ml. $1.96$ is the <em>two-sided</em> $95\%$ value; here the requirement is one-sided at the $1\%$ level, whose quantile is $2.33$. A one-sided requirement never uses a two-sided quantile.</p>
+<p class="srcref">Tool: G3 &sect;1.7 (normal standardization, inverse $\Phi$) &middot; B&amp;T &sect;3.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q60" data-diff="2" data-topic="joint-pdf">
+<p><b>Q60.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Uniform on a triangle &middot; <span class="ref">G3 &sect;2.1&ndash;2.2</span></span></p>
+<p>Two components are stress-tested; the pair $(X,Y)$ of readings is uniform on the triangle $T = \{(x,y): 0 \le y \le x \le 1\}$ &mdash; i.e. the half of the unit square below the diagonal. (a) Write $f_{X,Y}$. &nbsp; (b) Find both marginals and identify each. &nbsp; (c) Find $\mathbf{P}(X+Y \le 1)$. &nbsp; (d) Find $\mathbb{E}[X]$ and $\mathbb{E}[Y]$ and explain the ordering.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> "Uniform on a region $S$" means $f_{X,Y} = 1/\text{area}(S)$ on $S$ and $0$ elsewhere, so every probability is an area times that constant (G3 &sect;2.1).</p>
+<p><b>(a) The joint density.</b> $T$ is the triangle with vertices $(0,0)$, $(1,0)$, $(1,1)$; its area is $\frac12(1)(1)=0.5$. Hence
+$$f_{X,Y}(x,y) = \begin{cases} 1/0.5 = 2, &amp; 0 \le y \le x \le 1,\\ 0, &amp; \text{otherwise.}\end{cases}$$
+</p>
+<p><b>(b) Marginals by slicing.</b> Fix $x \in [0,1]$; the vertical slice of $T$ is $\{0 \le y \le x\}$, of length $x$:
+$$f_X(x) = \int_0^{x} 2\,dy = 2x, \qquad 0 \le x \le 1 .$$
+Fix $y \in [0,1]$; the horizontal slice is $\{y \le x \le 1\}$, of length $1-y$:
+$$f_Y(y) = \int_{y}^{1} 2\,dx = 2(1-y), \qquad 0 \le y \le 1 .$$
+Both check: $\int_0^1 2x\,dx = 1$ and $\int_0^1 2(1-y)dy = 1$ &#10003;. Sample values $f_X(0.5)=1$, $f_Y(0.5)=1$. Neither marginal is uniform even though the joint density is constant &mdash; the slices have different lengths. $X$ is a rising triangular density (it is the maximum of two independent uniforms), $Y$ a falling one (the minimum).</p>
+<p><b>(c) A probability as an area.</b> The region $T \cap \{x+y \le 1\}$ is bounded by $y=0$, $y=x$ and $x+y=1$; the last two lines meet where $x=y=0.5$. So it is the triangle with vertices $(0,0)$, $(1,0)$, $(0.5,0.5)$, whose area is $\frac12 \times \text{base}\;1 \times \text{height}\;0.5 = 0.25$. Multiply by the density:
+$$\mathbf{P}(X+Y \le 1) = 2 \times 0.25 = 0.5 .$$
+Simulation ($4\times10^6$ points): $0.499720$ &#10003;.</p>
+<p><b>(d) Means.</b>
+$$\mathbb{E}[X] = \int_0^1 x(2x)\,dx = \Big[\frac{2x^3}{3}\Big]_0^1 = \frac23 = 0.666667, \qquad \mathbb{E}[Y] = \int_0^1 y\,2(1-y)\,dy = 2\Big(\frac12-\frac13\Big) = \frac13 = 0.333333 .$$
+The ordering $\mathbb{E}[Y] \lt \mathbb{E}[X]$ is forced: $Y \le X$ pointwise on $T$, so their expectations must obey the same inequality. Also $\mathbb{E}[X]+\mathbb{E}[Y] = 1 = \mathbb{E}[U_1]+\mathbb{E}[U_2]$, since $\max + \min = U_1+U_2$.</p>
+<p><b>Answer.</b> $\;f_{X,Y}=2$ on $T$; $\;f_X(x)=2x$, $\;f_Y(y)=2(1-y)$ on $[0,1]$; $\;\mathbf{P}(X+Y\le1)=0.5$; $\;\mathbb{E}[X]=2/3$, $\;\mathbb{E}[Y]=1/3$.</p>
+<p><b>Trap.</b> Answering $f_X(x)=1$ "because the joint is uniform". A uniform joint density does <em>not</em> give uniform marginals unless the region is a rectangle with sides parallel to the axes.</p>
+<p class="srcref">Tool: G3 &sect;2.1 (uniform on a region), &sect;2.2 (marginals by slicing) &middot; B&amp;T &sect;3.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q61" data-diff="2" data-topic="conditional">
+<p><b>Q61.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Conditional density on a wedge &middot; <span class="ref">G3 &sect;2.3, &sect;2.5</span></span></p>
+<p>A job arrives at time $Y$ and is started at some earlier-recorded time $X$, with joint PDF
+$$f_{X,Y}(x,y) = c\,e^{-y}, \qquad 0 \le x \le y \lt \infty,$$
+and $0$ elsewhere. (a) Find $c$. &nbsp; (b) Find $f_Y$ and $f_X$, and name each distribution. &nbsp; (c) Find $f_{X|Y}(x \mid y)$ and $\mathbb{E}[X \mid Y=y]$. &nbsp; (d) Use the total expectation theorem to get $\mathbb{E}[X]$, and confirm it against the marginal.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The support is the wedge above the diagonal in the first quadrant. Order the integration so the inner limits are finite: for a fixed $y$, $x$ ranges over $[0,y]$.</p>
+<p><b>(a) Normalization.</b>
+$$\int_0^\infty\!\!\int_0^{y} c\,e^{-y}\,dx\,dy = \int_0^\infty c\,y\,e^{-y}\,dy = c\cdot\Gamma(2) = c \cdot 1 = 1 \;\Longrightarrow\; c = 1,$$
+using $\int_0^\infty y e^{-y}dy = \big[-(y+1)e^{-y}\big]_0^\infty = 1$.</p>
+<p><b>(b) Marginals.</b> Integrating out $x$ (the inner integral above, with $c=1$):
+$$f_Y(y) = \int_0^{y} e^{-y}\,dx = y\,e^{-y}, \qquad y \ge 0,$$
+the Erlang/Gamma$(2,1)$ density &mdash; the sum of two independent $\text{Exp}(1)$'s. Values: $f_Y(1)=0.367879$, $f_Y(2)=0.270671$. Integrating out $y$ (now $y$ runs from $x$ to $\infty$):
+$$f_X(x) = \int_{x}^{\infty} e^{-y}\,dy = e^{-x}, \qquad x \ge 0,$$
+so $X \sim \text{Exp}(1)$ exactly. Check: $\mathbf{P}(Y \le 1) = \int_0^1 ye^{-y}dy = 1-2e^{-1} = 0.264241$.</p>
+<p><b>(c) The conditional density &mdash; a flat slice.</b> For $y \gt 0$,
+$$f_{X|Y}(x \mid y) = \frac{f_{X,Y}(x,y)}{f_Y(y)} = \frac{e^{-y}}{y\,e^{-y}} = \frac{1}{y}, \qquad 0 \le x \le y .$$
+The $e^{-y}$ cancels completely: <b>given $Y=y$, $X$ is uniform on $[0,y]$</b>. This is the general fact that renormalizing a constant slice gives a uniform conditional. Hence
+$$\mathbb{E}[X \mid Y=y] = \frac{y}{2},$$
+and e.g. $\mathbf{P}(X \le 1 \mid Y = 3) = 1/3$.</p>
+<p><b>(d) Total expectation.</b> First $\mathbb{E}[Y] = \int_0^\infty y\cdot ye^{-y}dy = \Gamma(3) = 2$ (or: the mean of a sum of two $\text{Exp}(1)$'s). Then, since $\mathbb{E}[X\mid Y] = Y/2$ is linear in $Y$,
+$$\mathbb{E}[X] = \mathbb{E}\big[\mathbb{E}[X \mid Y]\big] = \mathbb{E}\Big[\frac{Y}{2}\Big] = \frac{\mathbb{E}[Y]}{2} = \frac{2}{2} = 1 .$$
+Confirmation from the marginal: $X \sim \text{Exp}(1)$ has mean $1$ &#10003;. Simulation ($4\times10^6$ draws of $Y\sim\text{Gamma}(2,1)$ then $X\mid Y \sim U(0,Y)$): $\mathbb{E}[X]\approx0.999$, $\mathbb{E}[Y]\approx1.999$, $\mathbf{P}(X\le1)\approx0.6323$ vs. the exact $1-e^{-1}=0.632121$ &#10003;.</p>
+<p><b>Answer.</b> $\;c=1$; $\;f_Y(y)=ye^{-y}$, $\;f_X(x)=e^{-x}$; $\;f_{X|Y}(x\mid y)=1/y$ on $[0,y]$ with $\mathbb{E}[X\mid Y=y]=y/2$; $\;\mathbb{E}[X]=1$.</p>
+<p><b>Trap.</b> Writing $f_Y(y) = \int_0^\infty e^{-y}dx$ (limits $0$ to $\infty$ for $x$) and getting $\infty$. On a non-rectangular support the inner limits <em>depend on the outer variable</em> &mdash; here $x$ stops at $y$.</p>
+<p class="srcref">Tool: G3 &sect;2.2 (marginals), &sect;2.3 (conditional PDFs), &sect;2.5 (total expectation) &middot; B&amp;T &sect;3.5</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q62" data-diff="2" data-topic="derived">
+<p><b>Q62.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Which tool? Derived distribution &middot; <span class="ref">G3 &sect;4.1&ndash;4.2</span></span></p>
+<p>Let $X \sim U(0,1)$ and $Y = \tan\!\big(\pi(X - \tfrac12)\big)$ &mdash; the horizontal position where a beam pivoted at unit distance and pointed in a uniformly random direction strikes a wall. (a) <b>Which tool applies</b> &mdash; the CDF method or the monotonic change-of-variables formula &mdash; and why? &nbsp; (b) Find $f_Y$. &nbsp; (c) Find $\mathbf{P}(|Y| \le 1)$. &nbsp; (d) Does $\mathbb{E}[Y]$ exist?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Tool selection.</b> On the open interval $(0,1)$ the argument $\pi(x-\frac12)$ runs over $(-\frac\pi2,\frac\pi2)$, where $\tan$ is strictly increasing and differentiable with nonzero derivative. So $g$ is <b>strictly monotonic</b>, one-to-one from $(0,1)$ onto all of $\mathbb{R}$, and the change-of-variables formula of G3 &sect;4.2 applies directly:
+$$f_Y(y) = \frac{f_X(x)}{|dg/dx|}\bigg|_{x=g^{-1}(y)} .$$
+(The CDF method would work too and gives the same answer &mdash; monotonicity is exactly the condition that makes the shortcut legal. Reach for the CDF method only when $g$ folds two $x$'s onto one $y$, as in Q68.)</p>
+<p><b>(b) The density.</b> The derivative is
+$$\frac{dg}{dx} = \pi\sec^2\!\big(\pi(x-\tfrac12)\big) = \pi\big(1+\tan^2(\pi(x-\tfrac12))\big) = \pi(1+y^2),$$
+using the identity $\sec^2\theta = 1+\tan^2\theta$ and then substituting $y = \tan(\cdot)$ &mdash; a neat trick that avoids ever writing $x$ in terms of $y$. It is positive, so the absolute value changes nothing. With $f_X(x)=1$,
+$$\boxed{\;f_Y(y) = \frac{1}{\pi(1+y^2)}, \qquad -\infty \lt y \lt \infty\;}$$
+&mdash; the standard <b>Cauchy</b> density. Values: $f_Y(0) = 1/\pi = 0.318310$, $f_Y(1) = 1/(2\pi) = 0.159155$. Check: $\int_{-\infty}^\infty \frac{dy}{\pi(1+y^2)} = \frac{1}{\pi}\big[\arctan y\big]_{-\infty}^{\infty} = \frac1\pi\big(\frac\pi2+\frac\pi2\big) = 1$ &#10003;.</p>
+<p><b>(c) A probability.</b>
+$$\mathbf{P}(|Y| \le 1) = \frac{1}{\pi}\big[\arctan y\big]_{-1}^{1} = \frac{1}{\pi}\Big(\frac\pi4 + \frac\pi4\Big) = 0.5 .$$
+Sanity check with no calculus: $|Y| \le 1 \iff |\pi(X-\frac12)| \le \frac\pi4 \iff X \in [0.25, 0.75]$, an interval of length $0.5$ &#10003;. Simulation: $0.499451$ &#10003;. (For scale, $\mathbf{P}(|Y|\le10) = 0.936549$ &mdash; still $6\%$ of beams land beyond ten units.)</p>
+<p><b>(d) No.</b> $\displaystyle\int_{-\infty}^{\infty}\frac{|y|}{\pi(1+y^2)}dy = \frac{2}{\pi}\int_0^\infty \frac{y\,dy}{1+y^2} = \frac{1}{\pi}\big[\ln(1+y^2)\big]_0^\infty = \infty$: truncating at $M=1000$ already gives $4.397614$ and it grows like $\frac2\pi\ln M$ forever. Since $\mathbb{E}[|Y|]=\infty$, $\mathbb{E}[Y]$ is undefined &mdash; the two tails are individually infinite and their "cancellation" is not a legitimate value.</p>
+<p><b>Answer.</b> $\;f_Y(y) = \dfrac{1}{\pi(1+y^2)}$ (standard Cauchy); $\;\mathbf{P}(|Y|\le1)=0.5$; $\;\mathbb{E}[Y]$ does <b>not</b> exist.</p>
+<p><b>Trap.</b> Answering $\mathbb{E}[Y]=0$ "by symmetry". Symmetry gives the <em>median</em> $0$ (simulation median: $-0.0014$), but a mean requires absolute integrability first. Averaging Cauchy samples does not converge: the sample mean of $n$ Cauchy draws is itself Cauchy, no matter how large $n$ is.</p>
+<p class="srcref">Tool: G3 &sect;4.1 (CDF method), &sect;4.2 (change of variables for monotonic $g$) &middot; B&amp;T &sect;4.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q63" data-diff="2" data-topic="convolution">
+<p><b>Q63.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Convolution &middot; <span class="ref">G3 &sect;4.6</span></span></p>
+<p>A packet's total delay is $Z = X + Y$, where the queueing delay $X \sim U(0,1)$ and the transmission delay $Y \sim \text{Exp}(1)$ are independent (milliseconds). Find $f_Z$, verify it integrates to $1$, and compute $\mathbb{E}[Z]$ and $\operatorname{var}(Z)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> For independent continuous $X,Y$, the density of the sum is the convolution (G3 &sect;4.6)
+$$f_Z(z) = \int_{-\infty}^{\infty} f_X(x)\,f_Y(z-x)\,dx .$$
+Here $f_X(x)=1$ only for $0 \le x \le 1$, and $f_Y(z-x) = e^{-(z-x)}$ only for $z-x \ge 0$, i.e. $x \le z$. The integrand is therefore supported on $x \in [0, \min(z,1)]$, and $f_Z(z)=0$ for $z \lt 0$. Two cases follow.</p>
+<p><b>Case 1: $0 \le z \le 1$.</b> The upper limit is $z$:
+$$f_Z(z) = \int_0^{z} e^{-(z-x)}dx = e^{-z}\int_0^z e^{x}dx = e^{-z}\big(e^{z}-1\big) = 1 - e^{-z} .$$
+At $z=0.5$: $1-e^{-0.5} = 0.393469$. At $z=1$: $1-e^{-1}=0.632121$.</p>
+<p><b>Case 2: $z \gt 1$.</b> The uniform runs out first, so the upper limit is $1$:
+$$f_Z(z) = \int_0^{1} e^{-(z-x)}dx = e^{-z}\big(e^{1}-1\big) = (e-1)e^{-z} = 1.718282\,e^{-z} .$$
+At $z=1$ this gives $1.718282 \times 0.367879 = 0.632121$ &mdash; matching Case 1, so $f_Z$ is continuous at the seam &#10003;. At $z=2$: $1.718282 \times 0.135335 = 0.232544$.</p>
+<p><b>Normalization check.</b>
+$$\int_0^1\big(1-e^{-z}\big)dz = 1 - \big(1-e^{-1}\big) = e^{-1} = 0.367879, \qquad \int_1^\infty (e-1)e^{-z}dz = (e-1)e^{-1} = 1-e^{-1} = 0.632121 ,$$
+and $0.367879+0.632121 = 1$ &#10003;.</p>
+<p><b>Moments &mdash; no integration needed.</b> Linearity of expectation gives $\mathbb{E}[Z] = \mathbb{E}[X]+\mathbb{E}[Y] = 0.5 + 1 = 1.5$ ms; independence lets variances add,
+$$\operatorname{var}(Z) = \frac{(1-0)^2}{12} + \frac{1}{1^2} = 0.083333 + 1 = 1.083333 = \tfrac{13}{12}.$$
+Simulation ($4\times10^6$): $\mathbb{E}[Z]\approx1.5007$, $\operatorname{var}\approx1.0849$, $\mathbf{P}(Z\le1)\approx0.36796$ vs. the exact $e^{-1}=0.367879$ &#10003;.</p>
+<p><b>Answer.</b> $\;f_Z(z) = 1-e^{-z}$ for $0\le z\le 1$ and $(e-1)e^{-z}$ for $z \gt 1$; $\;\mathbb{E}[Z]=1.5$, $\;\operatorname{var}(Z)=13/12\approx1.083333$.</p>
+<p><b>Trap.</b> Using the single formula $\int_0^z e^{-(z-x)}dx$ for all $z$, giving $f_Z(z) = 1-e^{-z} \to 1$ as $z\to\infty$ &mdash; a density that does not decay, and whose integral diverges. The finite support of $f_X$ must cap the integration limit.</p>
+<p class="srcref">Tool: G3 &sect;4.6 (continuous convolution), &sect;4.8 (variance of a sum) &middot; B&amp;T &sect;4.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q64" data-diff="2" data-topic="covariance">
+<p><b>Q64.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Uncorrelated but dependent &middot; <span class="ref">G3 &sect;4.8</span></span></p>
+<p>A point is chosen uniformly on the unit circle: $\Theta \sim U(0,2\pi)$, $X = \cos\Theta$, $Y = \sin\Theta$. (a) Compute $\operatorname{cov}(X,Y)$ and $\rho(X,Y)$. &nbsp; (b) <b>True or false, with reason:</b> $X$ and $Y$ are independent. &nbsp; (c) Give a single conditional probability that settles (b) beyond argument.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $\Theta$ has density $\frac{1}{2\pi}$ on $[0,2\pi]$; expectations of functions of $\Theta$ are integrals against it (the expected-value rule).</p>
+<p><b>(a) Covariance.</b> Each of $\cos$ and $\sin$ integrates to zero over a full period:
+$$\mathbb{E}[X] = \frac{1}{2\pi}\int_0^{2\pi}\cos\theta\,d\theta = \frac{1}{2\pi}\big[\sin\theta\big]_0^{2\pi} = 0, \qquad \mathbb{E}[Y] = \frac{1}{2\pi}\big[-\cos\theta\big]_0^{2\pi} = 0 .$$
+For the cross term use the double-angle identity $\sin\theta\cos\theta = \frac12\sin2\theta$:
+$$\mathbb{E}[XY] = \frac{1}{2\pi}\int_0^{2\pi}\tfrac12\sin2\theta\,d\theta = \frac{1}{2\pi}\Big[-\frac{\cos2\theta}{4}\Big]_0^{2\pi} = 0 .$$
+Therefore
+$$\operatorname{cov}(X,Y) = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y] = 0 - 0 = 0, \qquad \rho(X,Y) = 0$$
+(the correlation is defined, since $\operatorname{var}(X) = \frac{1}{2\pi}\int_0^{2\pi}\cos^2\theta\,d\theta = \frac12 \gt 0$). Simulation of $4\times10^6$ angles: sample covariance $-0.000057$ &#10003;.</p>
+<p><b>(b) False.</b> $X$ and $Y$ are <em>as dependent as possible</em>: they satisfy the exact relation $X^2+Y^2 = \cos^2\Theta+\sin^2\Theta = 1$, so knowing $X$ pins $|Y|$ completely. Zero correlation only says there is no <em>linear</em> trend; the dependence here is perfectly circular, and the positive contributions to $\mathbb{E}[XY]$ from the first and third quadrants exactly cancel the negative ones from the second and fourth.</p>
+<p><b>(c) The decisive conditional probability.</b> Unconditionally, $\mathbf{P}(|Y| \le 0.1) = \frac{2\arcsin(0.1)}{\pi} = 0.063769 \gt 0$. But given $X = 0.9$ we must have $|Y| = \sqrt{1-0.81} = \sqrt{0.19} = 0.435890$, so
+$$\mathbf{P}(|Y| \le 0.1 \mid X = 0.9) = 0 \ne 0.063769 = \mathbf{P}(|Y| \le 0.1) .$$
+Conditioning changed the probability, which is the definition of dependence. (Simulation restricted to $|X-0.9| \lt 0.01$: the empirical conditional frequency is exactly $0$ &#10003;.)</p>
+<p><b>Answer.</b> $\;\operatorname{cov}(X,Y)=0$ and $\rho=0$, yet $X$ and $Y$ are <b>dependent</b> (they satisfy $X^2+Y^2=1$).</p>
+<p><b>Trap.</b> "$\rho = 0 \Rightarrow$ independent." The implication runs one way only: independence forces $\rho=0$, never the reverse. (The one important exception, worth remembering: for a <em>jointly normal</em> pair, zero correlation does imply independence.)</p>
+<p class="srcref">Tool: G3 &sect;4.8 (covariance, correlation, and what $\rho=0$ does not mean), &sect;2.4 (independence) &middot; B&amp;T &sect;4.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q65" data-diff="2" data-topic="normal">
+<p><b>Q65.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Sum of independent normals &middot; <span class="ref">G3 &sect;4.7</span></span></p>
+<p>A part is made in two stages. Stage one adds length $X \sim N(10, 0.04)$ mm and stage two adds $Y \sim N(15, 0.09)$ mm, independently (the second arguments are variances). The part is scrapped if the total exceeds $25.5$ mm. What fraction is scrapped? Use $\Phi(1.39) = 0.9177$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The sum of independent normals is normal (G3 &sect;4.7) &mdash; a fact you may quote, and one that is special to the normal family. Means add always; variances add because of independence.</p>
+<p><b>Step 1 &mdash; the distribution of the total.</b> $T = X+Y$ with
+$$\mathbb{E}[T] = 10+15 = 25 \text{ mm}, \qquad \operatorname{var}(T) = 0.04+0.09 = 0.13 \text{ mm}^2, \qquad \sigma_T = \sqrt{0.13} = 0.360555 \text{ mm},$$
+so $T \sim N(25, 0.13)$.</p>
+<p><b>Step 2 &mdash; standardize.</b>
+$$z = \frac{25.5-25}{0.360555} = \frac{0.5}{0.360555} = 1.386750 \approx 1.39 .$$
+</p>
+<p><b>Step 3 &mdash; the tail.</b>
+$$\mathbf{P}(T \gt 25.5) = 1 - \Phi(1.39) = 1 - 0.9177 = 0.0823 ,$$
+i.e. about $8.2\%$ of parts are scrapped. Exact value with $z = 1.386750$: $1 - 0.917241 = 0.082759$; a $4\times10^6$-part simulation gives $0.082992$ &#10003;.</p>
+<p><b>Answer.</b> $\;\mathbf{P}(T \gt 25.5) \approx 0.0823$ (exact $0.08276$) &mdash; roughly $8\%$ scrapped.</p>
+<p><b>Trap.</b> Adding standard deviations: $0.2+0.3 = 0.5$, giving $z = 0.5/0.5 = 1$ and the answer $1-\Phi(1) = 0.158655$ &mdash; almost double the truth. <em>Variances</em> add under independence; standard deviations never do (here $\sqrt{0.13}=0.3606 \lt 0.5$, since $\sqrt{a^2+b^2} \lt a+b$).</p>
+<p class="srcref">Tool: G3 &sect;4.7 (sum of independent normals), &sect;1.7 (standardization) &middot; B&amp;T &sect;4.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q66" data-diff="2" data-topic="joint-pdf">
+<p><b>Q66.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Spot the error: independence &middot; <span class="ref">G3 &sect;2.4</span></span></p>
+<p>A student writes: "Let $f_{X,Y}(x,y) = 8xy$ for $0 \le y \le x \le 1$ and $0$ elsewhere. Since $8xy = (8x)\cdot(y)$ factors into a function of $x$ times a function of $y$, the variables $X$ and $Y$ are independent." Verify that $f_{X,Y}$ is a legitimate joint PDF, then find and explain the error, and demonstrate it with a numerical counterexample.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 &mdash; it is a legitimate PDF.</b> It is nonnegative on its support, and
+$$\int_0^1\!\!\int_0^{x} 8xy\,dy\,dx = \int_0^1 8x\Big[\frac{y^2}{2}\Big]_0^{x}dx = \int_0^1 4x^3\,dx = \big[x^4\big]_0^1 = 1 \;\text{&#10003;}$$
+So the setup is sound; only the conclusion is wrong.</p>
+<p><b>Step 2 &mdash; the error.</b> The factorization criterion (G3 &sect;2.4) is
+$$X \perp Y \iff f_{X,Y}(x,y) = f_X(x)f_Y(y) \quad \text{for \textbf{every} } (x,y) \in \mathbb{R}^2 ,$$
+including the points where the joint density is $0$. Here the formula $8xy$ factors, but it holds only on the triangle $\{0 \le y \le x \le 1\}$; off the triangle the joint density is $0$ while the product of two positive marginals is not. Equivalently: <b>if the support is not a rectangle (a product set), the variables cannot be independent</b>, whatever the algebra of the formula looks like. The constraint $Y \le X$ is itself a statement about $X$ and $Y$ jointly.</p>
+<p><b>Step 3 &mdash; the marginals.</b>
+$$f_X(x) = \int_0^{x} 8xy\,dy = 4x^3, \quad 0 \le x \le 1; \qquad f_Y(y) = \int_{y}^{1} 8xy\,dx = 8y\Big[\frac{x^2}{2}\Big]_{y}^{1} = 4y\big(1-y^2\big), \quad 0 \le y \le 1 .$$
+Both check: $\int_0^1 4x^3dx = 1$ and $\int_0^1 4y(1-y^2)dy = 4(\frac12-\frac14) = 1$ &#10003;. Note that the true marginals are <em>not</em> the naive factors $8x$ and $y$ &mdash; another sign something was wrong.</p>
+<p><b>Step 4 &mdash; the counterexample.</b> Take the point $(x,y) = (0.5, 0.75)$, which lies <em>outside</em> the triangle since $y \gt x$:
+$$f_{X,Y}(0.5,0.75) = 0, \qquad f_X(0.5)\,f_Y(0.75) = 4(0.5)^3 \cdot 4(0.75)\big(1-0.5625\big) = 0.5 \times 1.3125 = 0.65625 .$$
+Since $0 \ne 0.65625$, the factorization identity fails and $X$ and $Y$ are dependent. Common sense agrees: observing $X = 0.5$ tells you $Y \le 0.5$ with certainty.</p>
+<p><b>Answer.</b> The claim is <b>false</b>. The formula factors but the <em>support</em> does not: $f_{X,Y}(0.5,0.75) = 0 \ne 0.65625 = f_X(0.5)f_Y(0.75)$, so $X$ and $Y$ are dependent.</p>
+<p><b>Trap.</b> "It factors, so they're independent" is the single most reliable way to get an independence question wrong. Before factoring, always draw the support: rectangle (with sides parallel to the axes) means independence is <em>possible</em>; anything else &mdash; triangle, disk, wedge &mdash; rules it out immediately.</p>
+<p class="srcref">Tool: G3 &sect;2.4 (independence via factorization over the whole plane) &middot; B&amp;T &sect;3.5</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q67" data-diff="2" data-topic="exponential">
+<p><b>Q67.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Spot the error: memorylessness &middot; <span class="ref">G3 &sect;1.5</span></span></p>
+<p>A help-desk call duration $T$ is exponential with mean $5$ minutes. A student argues: "The exponential is memoryless, so if a call has already lasted $3$ minutes, then $\mathbb{E}[T \mid T \gt 3] = \mathbb{E}[T] = 5$ minutes." Is this right? Compute $\mathbb{E}[T \mid T \gt 3]$ correctly, in two ways.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>The verdict: wrong.</b> Memorylessness says the <em>remaining</em> time is a fresh $\text{Exp}(\lambda)$, not that the <em>total</em> time is. The student has conflated $T$ with $T-3$.</p>
+<p><b>Method 1 &mdash; memorylessness used correctly.</b> With $\lambda = 1/5 = 0.2$ per minute, memorylessness says
+$$(T - 3) \mid \{T \gt 3\} \;\sim\; \text{Exp}(0.2), \qquad \text{so } \mathbb{E}[T-3 \mid T \gt 3] = \frac{1}{0.2} = 5 .$$
+Adding back the elapsed $3$ minutes, which are not random once you condition on them,
+$$\mathbb{E}[T \mid T \gt 3] = 3 + 5 = 8 \text{ minutes}.$$
+</p>
+<p><b>Method 2 &mdash; brute force from the definition.</b> The conditional density is $f_{T\mid T\gt3}(t) = \dfrac{\lambda e^{-\lambda t}}{\mathbf{P}(T\gt3)}$ for $t \gt 3$, with $\mathbf{P}(T \gt 3) = e^{-0.6} = 0.548812$. Then
+$$\mathbb{E}[T\mid T\gt3] = \frac{\int_3^\infty t\,(0.2)e^{-0.2t}dt}{e^{-0.6}} .$$
+Integrating by parts, $\int_3^\infty t\lambda e^{-\lambda t}dt = \big[-\big(t+\tfrac1\lambda\big)e^{-\lambda t}\big]_3^\infty = (3+5)e^{-0.6}$, so the ratio is $(3+5) = 8$ exactly &mdash; the exponential factor cancels, which is memorylessness showing up in the algebra. Simulation of $4\times10^6$ calls: $8.0026$ &#10003;.</p>
+<p><b>Interpretation.</b> The "inspection" effect is real: a call you find in progress at minute $3$ is expected to run $60\%$ longer in total than a call picked at random. Nothing has been forgotten &mdash; you simply selected a long call by conditioning on it.</p>
+<p><b>Answer.</b> The claim is <b>false</b>; $\;\mathbb{E}[T \mid T \gt 3] = 3 + 1/\lambda = 8$ minutes.</p>
+<p><b>Trap.</b> The tempting wrong answer is $5$. Memorylessness is a statement about the <em>residual</em> lifetime; the correct slogan is "$\mathbb{E}[\text{remaining}] = 1/\lambda$ regardless of age", never "$\mathbb{E}[\text{total}] = 1/\lambda$ regardless of age".</p>
+<p class="srcref">Tool: G3 &sect;1.5 (exponential, memorylessness) &middot; B&amp;T &sect;3.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q68" data-diff="3" data-topic="derived">
+<p><b>Q68.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Two-branch CDF method &middot; <span class="ref">G3 &sect;4.1</span></span></p>
+<p>A calibration offset $X$ is uniform on $[-1,2]$ and the reported energy is $Y = X^2$. Find the CDF and PDF of $Y$ on the whole range, sketch-describe the density, and compute $\mathbb{E}[Y]$ two ways.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $f_X(x) = \frac{1}{2-(-1)} = \frac13$ on $[-1,2]$. The map $g(x)=x^2$ is <em>not</em> monotonic on $[-1,2]$ &mdash; it decreases on $[-1,0]$ and increases on $[0,2]$ &mdash; so the change-of-variables formula of &sect;4.2 does not apply as stated. Use the CDF method (G3 &sect;4.1): compute $\mathbf{P}(Y \le y)$ as the probability that $X$ lands in the preimage set, then differentiate. The range of $Y$ is $[0,4]$, and the asymmetry of $[-1,2]$ about $0$ splits it at $y=1$.</p>
+<p><b>Step 1 &mdash; the preimage, case $0 \le y \le 1$.</b> $\{X^2 \le y\} = \{-\sqrt y \le X \le \sqrt y\}$. Since $\sqrt y \le 1$, both endpoints lie inside $[-1,2]$, so the whole interval counts. Its length is $2\sqrt y$, and
+$$F_Y(y) = \frac{2\sqrt y}{3} .$$
+Check: $F_Y(0)=0$ and $F_Y(1) = 2/3$. Sample: $F_Y(0.25) = 2(0.5)/3 = 0.333333$.</p>
+<p><b>Step 2 &mdash; the preimage, case $1 \lt y \le 4$.</b> Now $\sqrt y \gt 1$, so the left endpoint $-\sqrt y$ falls below the support; the interval is clipped to $[-1, \sqrt y]$ (and $\sqrt y \le 2$ keeps the right endpoint inside). Its length is $\sqrt y + 1$, giving
+$$F_Y(y) = \frac{\sqrt y + 1}{3} .$$
+Continuity at the seam: $\frac{1+1}{3} = \frac23$, matching Step 1 &#10003;. At the top, $F_Y(4) = \frac{2+1}{3} = 1$ &#10003;. Sample: $F_Y(2) = (1.414214+1)/3 = 0.804738$.</p>
+<p><b>Step 3 &mdash; differentiate on each branch.</b>
+$$f_Y(y) = \frac{d}{dy}\frac{2y^{1/2}}{3} = \frac{1}{3\sqrt y} \;\;(0 \lt y \lt 1); \qquad f_Y(y) = \frac{d}{dy}\frac{y^{1/2}+1}{3} = \frac{1}{6\sqrt y} \;\;(1 \lt y \lt 4).$$
+Values: $f_Y(0.25) = 0.666667$, $f_Y(0.9) = 0.351364$, $f_Y(1.1) = 0.158910$. So the density blows up like $y^{-1/2}$ at $0$ (integrably), and <b>drops by a factor of exactly $2$ at $y=1$</b>: for $y \lt 1$ there are two source values of $x$ (one negative, one positive) feeding each $y$, while for $y \gt 1$ only the positive branch survives. That halving is the whole content of the problem.</p>
+<p><b>Step 4 &mdash; check the total mass.</b>
+$$\int_0^1\frac{dy}{3\sqrt y} = \frac{2\sqrt y}{3}\Big|_0^1 = 0.666667, \qquad \int_1^4\frac{dy}{6\sqrt y} = \frac{\sqrt y}{3}\Big|_1^4 = \frac{2-1}{3} = 0.333333 ,$$
+totaling $1$ &#10003;. (The split $\frac23:\frac13$ just re-states $\mathbf{P}(|X|\le1) = 2/3$.)</p>
+<p><b>Step 5 &mdash; the mean, two ways.</b> Directly from $f_Y$:
+$$\mathbb{E}[Y] = \int_0^1 \frac{y}{3\sqrt y}dy + \int_1^4\frac{y}{6\sqrt y}dy = \frac13\cdot\frac23 + \frac16\cdot\frac23\big(4^{3/2}-1\big) = 0.222222 + \frac{7}{9} = 0.222222+0.777778 = 1 .$$
+Or without any derived distribution at all, by the expected-value rule and $\operatorname{var}(X) = \frac{(2-(-1))^2}{12} = 0.75$, $\mathbb{E}[X] = 0.5$:
+$$\mathbb{E}[Y] = \mathbb{E}[X^2] = \operatorname{var}(X) + \big(\mathbb{E}[X]\big)^2 = 0.75 + 0.25 = 1 \;\text{&#10003;}$$
+Simulation ($4\times10^6$): $\mathbf{P}(Y \le 1) \approx 0.666640$, $\mathbb{E}[Y]\approx0.999735$ &#10003;.</p>
+<p><b>Answer.</b> $\;f_Y(y) = \dfrac{1}{3\sqrt y}$ on $(0,1)$ and $\dfrac{1}{6\sqrt y}$ on $(1,4)$; $\;\mathbb{E}[Y]=1$.</p>
+<p><b>Trap.</b> Writing $f_Y(y) = \frac{1}{6\sqrt y}$ on the whole of $(0,4)$ &mdash; the answer you get from the monotonic formula $f_X(x)/|2x|$ applied blindly with one root. It gives $f_Y(0.25) = 0.333333$ instead of $0.666667$ and integrates to only $\frac{2}{6}\cdot 2 = \frac23$, missing a third of the probability. Whenever $g$ is non-monotone, count the roots of $g(x)=y$ separately on each $y$-interval.</p>
+<p class="srcref">Tool: G3 &sect;4.1 (CDF method for derived distributions), &sect;4.2 (why the monotonic shortcut fails here) &middot; B&amp;T &sect;4.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q69" data-diff="3" data-topic="conditional">
+<p><b>Q69.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Conditioning on a curved region &middot; <span class="ref">G3 &sect;2.2&ndash;2.5</span></span></p>
+<p>$(X,Y)$ is uniform on the lens-shaped region $S = \{(x,y): 0 \le x \le 1,\; x^2 \le y \le x\}$ between the parabola $y=x^2$ and the line $y=x$. (a) Find $f_{X,Y}$. &nbsp; (b) Find both marginals. &nbsp; (c) Find $f_{X|Y}(x\mid y)$ and $\mathbb{E}[X \mid Y=y]$. &nbsp; (d) Compute $\mathbb{E}[X]$ from the marginal and verify it via the total expectation theorem.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> On $[0,1]$ we have $x^2 \le x$, so $S$ is nonempty and pinched shut at both $(0,0)$ and $(1,1)$. Uniform on $S$ means density $=1/\text{area}(S)$ (G3 &sect;2.1).</p>
+<p><b>(a) The joint density.</b>
+$$\text{area}(S) = \int_0^1 (x - x^2)\,dx = \Big[\frac{x^2}{2}-\frac{x^3}{3}\Big]_0^1 = 0.5-0.333333 = 0.166667 = \tfrac16 ,$$
+so $f_{X,Y}(x,y) = 6$ on $S$ and $0$ elsewhere.</p>
+<p><b>(b) Marginals.</b> Vertical slice at $x$: $y$ runs from $x^2$ to $x$, length $x-x^2$, so
+$$f_X(x) = 6\,(x - x^2), \qquad 0 \le x \le 1 .$$
+(This is the Beta$(2,2)$ density; $f_X(0.5) = 6(0.5-0.25) = 1.5$, its peak.) Horizontal slice at $y$: the constraints $y \le x$ and $x^2 \le y$ give $y \le x \le \sqrt y$, of length $\sqrt y - y$, so
+$$f_Y(y) = 6\big(\sqrt y - y\big), \qquad 0 \le y \le 1 .$$
+Checks: $\int_0^1 6(x-x^2)dx = 6(\frac12-\frac13)=1$ &#10003; and $\int_0^1 6(\sqrt y - y)dy = 6(\frac23-\frac12)=1$ &#10003;. Sample: $f_Y(0.25) = 6(0.5-0.25) = 1.5$.</p>
+<p><b>(c) Conditional density.</b> For $0 \lt y \lt 1$,
+$$f_{X|Y}(x \mid y) = \frac{f_{X,Y}(x,y)}{f_Y(y)} = \frac{6}{6(\sqrt y - y)} = \frac{1}{\sqrt y - y}, \qquad y \le x \le \sqrt y ,$$
+i.e. <b>given $Y=y$, $X$ is uniform on $[\,y,\ \sqrt y\,]$</b> &mdash; a constant slice renormalizes to a uniform. The conditional mean is the midpoint,
+$$\mathbb{E}[X \mid Y=y] = \frac{y + \sqrt y}{2} .$$
+At $y=0.25$: $(0.25+0.5)/2 = 0.375$; at $y = 0.81$: $(0.81+0.9)/2 = 0.855$. Notice the slice width $\sqrt y - y$ vanishes at both $y=0$ and $y=1$, which is why $f_Y$ dips to zero at both ends.</p>
+<p><b>(d) $\mathbb{E}[X]$, two ways.</b> From the marginal,
+$$\mathbb{E}[X] = \int_0^1 x\cdot6(x-x^2)\,dx = 6\Big(\frac13-\frac14\Big) = 6\cdot\frac{1}{12} = 0.5 .$$
+By the total expectation theorem $\mathbb{E}[X] = \mathbb{E}\big[\mathbb{E}[X\mid Y]\big]$, and the algebra collapses beautifully because $(\sqrt y + y)(\sqrt y - y) = y - y^2$:
+$$\int_0^1 \frac{y+\sqrt y}{2}\cdot 6\big(\sqrt y - y\big)\,dy = 3\int_0^1 \big(y - y^2\big)\,dy = 3\Big(\frac12-\frac13\Big) = 3\cdot\frac16 = 0.5 \;\text{&#10003;}$$
+For contrast, $\mathbb{E}[Y] = \int_0^1 y\cdot6(\sqrt y - y)dy = 6\big(\frac25-\frac13\big) = 0.4 \lt 0.5$, as it must be since $Y \le X$ on $S$. (Rejection-sampling $3\times10^6$ points of the unit square, acceptance rate $0.166736 \approx 1/6$: $\mathbb{E}[X]\approx0.499936$, $\mathbb{E}[Y]\approx0.399917$ &#10003;.)</p>
+<p><b>Answer.</b> $\;f_{X,Y}=6$ on $S$; $\;f_X(x)=6(x-x^2)$, $\;f_Y(y)=6(\sqrt y - y)$; $\;X\mid Y=y \sim U[y,\sqrt y\,]$ with $\mathbb{E}[X\mid Y=y] = \frac{y+\sqrt y}{2}$; $\;\mathbb{E}[X]=0.5$.</p>
+<p><b>Trap.</b> Getting the conditional support backwards as $[\sqrt y,\, y]$: on $(0,1)$, $\sqrt y \gt y$, so $\sqrt y$ is the <em>upper</em> limit. Solve the two inequalities $y \le x$ and $x^2 \le y$ separately and intersect &mdash; never guess which curve is on top.</p>
+<p class="srcref">Tool: G3 &sect;2.1 (uniform on a region), &sect;2.2 (marginals), &sect;2.3 (conditional PDFs), &sect;2.5 (total expectation) &middot; B&amp;T &sect;3.4&ndash;3.5</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q70" data-diff="3" data-topic="covariance">
+<p><b>Q70.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Sum and difference &middot; <span class="ref">G3 &sect;4.8</span></span></p>
+<p>Let $X$ and $Y$ be independent, each uniform on $[0,1]$, and set $U = X+Y$, $V = X-Y$. (a) Show $\operatorname{cov}(U,V)=0$ and compute $\operatorname{var}(U)$, $\operatorname{var}(V)$. &nbsp; (b) <b>True or false, with reason:</b> $U$ and $V$ are independent. &nbsp; (c) State the condition under which the analogous $U,V$ <em>would</em> be independent.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $\operatorname{var}(X) = \operatorname{var}(Y) = \frac{(1-0)^2}{12} = 0.083333$, and $\operatorname{cov}(X,Y)=0$ by independence. Covariance is bilinear (G3 &sect;4.8): $\operatorname{cov}(aX+bY,\,cX+dY) = ac\operatorname{var}(X) + bd\operatorname{var}(Y) + (ad+bc)\operatorname{cov}(X,Y)$.</p>
+<p><b>(a) The computation.</b> With $a=b=1$ and $c=1$, $d=-1$:
+$$\operatorname{cov}(U,V) = (1)(1)\operatorname{var}(X) + (1)(-1)\operatorname{var}(Y) + \big((1)(-1)+(1)(1)\big)\cdot 0 = \operatorname{var}(X) - \operatorname{var}(Y) = 0.083333 - 0.083333 = 0 .$$
+The cancellation is structural: <em>sum and difference are uncorrelated whenever the two variables are uncorrelated and equally variable</em>. The variances are
+$$\operatorname{var}(U) = \operatorname{var}(X)+\operatorname{var}(Y) = 0.166667, \qquad \operatorname{var}(V) = \operatorname{var}(X)+(-1)^2\operatorname{var}(Y) = 0.166667 ,$$
+both equal to $1/6$, so $\rho(U,V) = 0/(0.166667) = 0$. Simulation: sample covariance $-0.000036$ &#10003;.</p>
+<p><b>(b) False &mdash; they are dependent.</b> The support settles it. Since $X,Y \ge 0$,
+$$|V| = |X-Y| \le X+Y = U \quad\text{always},$$
+so the pair $(U,V)$ is confined to the rotated square $\{|v| \le u,\ |v| \le 2-u\}$ &mdash; a diamond, not a rectangle. Knowing $U$ is small forces $V$ to be small. Concretely,
+$$\mathbf{P}\big(|V| \gt 0.5\big) = 0.25 \quad\text{(two corner triangles of the unit square, each of area } 0.125),$$
+$$\text{but}\qquad \mathbf{P}\big(|V| \gt 0.5 \;\big|\; U \lt 0.5\big) = 0 ,$$
+because $|V| \le U \lt 0.5$ on that event. The conditional probability differs from the unconditional one, so $U$ and $V$ are dependent. (Simulation confirms: $\mathbf{P}(|V|\gt0.5)\approx0.249989$; the joint event $\{|V|\gt0.5\} \cap \{U\lt0.5\}$ never occurred in $4\times10^6$ trials.)</p>
+<p><b>(c) The normal exception.</b> If instead $X,Y$ were i.i.d. $N(\mu,\sigma^2)$, then $(U,V)$ would be <em>jointly normal</em> (a linear map of a jointly normal pair is jointly normal), and for jointly normal variables zero correlation <em>is</em> independence. So $U=X+Y$ and $V=X-Y$ would be genuinely independent &mdash; a fact used constantly in statistics, where it separates the sample mean from the sample spread. Uniformity is what breaks it here: the support of $(X,Y)$ is bounded, so the support of $(U,V)$ is a diamond, and no bounded non-rectangular support can host independent coordinates.</p>
+<p><b>Answer.</b> $\;\operatorname{cov}(U,V)=0$, $\;\operatorname{var}(U)=\operatorname{var}(V)=1/6$; $U,V$ are <b>not</b> independent; they would be if $X,Y$ were i.i.d. normal.</p>
+<p><b>Trap.</b> Concluding independence from $\operatorname{cov}=0$ plus "$U$ and $V$ look unrelated". A quick support sketch &mdash; the diamond &mdash; kills the claim faster than any integral.</p>
+<p class="srcref">Tool: G3 &sect;4.8 (covariance, bilinearity, uncorrelated $\ne$ independent), &sect;4.7 (jointly normal) &middot; B&amp;T &sect;4.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q71" data-diff="3" data-topic="convolution">
+<p><b>Q71.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Convolving two exponentials &middot; <span class="ref">G3 &sect;4.6</span></span></p>
+<p>A request passes through two independent stages: stage one takes $X \sim \text{Exp}(1)$ and stage two takes $Y \sim \text{Exp}(2)$ (seconds; the rates differ). Let $Z = X+Y$. (a) Derive $f_Z$ by convolution. &nbsp; (b) Verify it is a density and locate its maximum. &nbsp; (c) Compute $\mathbf{P}(Z \gt 1)$, $\mathbb{E}[Z]$ and $\operatorname{var}(Z)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $f_X(x) = e^{-x}$ for $x\ge0$, $f_Y(y) = 2e^{-2y}$ for $y\ge0$. Both are supported on $[0,\infty)$, so in the convolution $f_Z(z) = \int f_X(x)f_Y(z-x)dx$ the integrand is nonzero exactly when $0 \le x \le z$ &mdash; a single finite window, and $f_Z(z)=0$ for $z \lt 0$.</p>
+<p><b>(a) The convolution.</b> For $z \ge 0$,
+$$f_Z(z) = \int_0^{z} e^{-x}\cdot 2e^{-2(z-x)}\,dx = 2e^{-2z}\int_0^{z} e^{-x}e^{2x}\,dx = 2e^{-2z}\int_0^z e^{x}\,dx = 2e^{-2z}\big(e^{z}-1\big),$$
+where the key move was collecting the exponents: $e^{-x}e^{-2z+2x} = e^{-2z}e^{x}$. Distributing,
+$$\boxed{\;f_Z(z) = 2\big(e^{-z} - e^{-2z}\big), \qquad z \ge 0 .\;}$$
+This is the <em>hypoexponential</em> density &mdash; a difference of two exponentials, not a single one.</p>
+<p><b>(b) Checks and the mode.</b> Nonnegative, since $e^{-z} \ge e^{-2z}$ for $z\ge0$ &#10003;. Total mass:
+$$\int_0^\infty 2\big(e^{-z}-e^{-2z}\big)dz = 2\Big(1 - \frac12\Big) = 1 \;\text{&#10003;}$$
+Also $f_Z(0) = 2(1-1) = 0$: the density starts at zero, unlike either exponential factor. Setting the derivative to zero,
+$$f_Z'(z) = 2\big(-e^{-z}+2e^{-2z}\big) = 0 \;\Longrightarrow\; 2e^{-2z} = e^{-z} \;\Longrightarrow\; e^{-z} = \tfrac12 \;\Longrightarrow\; z^\star = \ln 2 = 0.693147 ,$$
+with peak height $f_Z(\ln2) = 2(0.5 - 0.25) = 0.5$. So the sum has a genuine interior mode, whereas each summand peaks at $0$ &mdash; the shape signature of a sum of stages.</p>
+<p><b>(c) Numbers.</b>
+$$\mathbf{P}(Z \gt 1) = \int_1^\infty 2\big(e^{-z}-e^{-2z}\big)dz = 2\Big(e^{-1} - \frac{e^{-2}}{2}\Big) = 2e^{-1} - e^{-2} = 0.735759 - 0.135335 = 0.600424 .$$
+By linearity and independence,
+$$\mathbb{E}[Z] = \frac11 + \frac12 = 1.5 \text{ s}, \qquad \operatorname{var}(Z) = \frac{1}{1^2} + \frac{1}{2^2} = 1 + 0.25 = 1.25 .$$
+(Direct integration of $\int_0^\infty z f_Z(z)dz$ returns $1.5$ &#10003;.) Simulation of $4\times10^6$ requests: $\mathbb{E}[Z]\approx1.499827$, $\operatorname{var}\approx1.250191$, $\mathbf{P}(Z\gt1)\approx0.600394$ &#10003;.</p>
+<p><b>Answer.</b> $\;f_Z(z) = 2(e^{-z}-e^{-2z})$ for $z \ge 0$; mode at $\ln 2 \approx 0.693147$; $\;\mathbf{P}(Z\gt1) = 2e^{-1}-e^{-2} = 0.600424$, $\;\mathbb{E}[Z]=1.5$, $\;\operatorname{var}(Z)=1.25$.</p>
+<p><b>Trap.</b> Reaching for the Erlang formula $f_Z(z) = \lambda^2 z e^{-\lambda z}$, which would give $f_Z(1) = e^{-1} = 0.367879$ against the true $0.465088$. That formula is only valid when the rates are <em>equal</em>; with $\lambda_1 \ne \lambda_2$ you must convolve, and the correct density degenerates to the Erlang only in the limit $\lambda_2 \to \lambda_1$.</p>
+<p class="srcref">Tool: G3 &sect;4.6 (continuous convolution), &sect;1.5 (exponential) &middot; B&amp;T &sect;4.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q72" data-diff="3" data-topic="cdf">
+<p><b>Q72.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Censoring creates an atom &middot; <span class="ref">G3 &sect;1.4&ndash;1.5</span></span></p>
+<p>A test is run on a component whose lifetime $X \sim \text{Exp}(1)$ (in years), but the test is stopped at $2$ years, so the recorded value is $Y = \min\{X, 2\}$. (a) Find $F_Y$ and classify $Y$. &nbsp; (b) Compute $\mathbb{E}[Y]$ from first principles and verify it against the identity $\mathbb{E}[\min\{X,c\}] = \frac{1-e^{-\lambda c}}{\lambda}$. &nbsp; (c) Compute $\operatorname{var}(Y)$ and compare with $\operatorname{var}(X)=1$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The CDF.</b> For $0 \le y \lt 2$, the event $\{Y \le y\}$ is just $\{X \le y\}$ (capping at $2$ cannot pull a value below $2$), so
+$$F_Y(y) = 1 - e^{-y}, \qquad 0 \le y \lt 2 ,$$
+and $F_Y(y) = 1$ for $y \ge 2$, $F_Y(y)=0$ for $y \lt 0$. Since $\lim_{y\uparrow2} F_Y(y) = 1-e^{-2} = 1-0.135335 = 0.864665$, the CDF <b>jumps by $e^{-2} = 0.135335$ at $y=2$</b>. So $Y$ is a <b>mixed</b> random variable: a continuous part with density $f(y)=e^{-y}$ on $(0,2)$ carrying mass $0.864665$, plus a point mass $\mathbf{P}(Y=2) = \mathbf{P}(X \gt 2) = e^{-2} = 0.135335$ &mdash; that atom is precisely the probability the component outlived the test. Sample: $F_Y(1) = 1-e^{-1} = 0.632121$.</p>
+<p><b>(b) The mean.</b> Split into the density part and the atom:
+$$\mathbb{E}[Y] = \int_0^{2} y\,e^{-y}\,dy \;+\; 2\cdot\mathbf{P}(Y=2) .$$
+Integrating by parts, $\int_0^2 y e^{-y}dy = \big[-(y+1)e^{-y}\big]_0^2 = 1 - 3e^{-2} = 1 - 0.406006 = 0.593994$. The atom contributes $2 \times 0.135335 = 0.270671$. Hence
+$$\mathbb{E}[Y] = 0.593994 + 0.270671 = 0.864665 \text{ years}.$$
+Identity check with $\lambda=1$, $c=2$: $\frac{1-e^{-2}}{1} = 0.864665$ &#10003; &mdash; and indeed the tail formula $\mathbb{E}[Y] = \int_0^\infty \mathbf{P}(Y \gt y)dy = \int_0^2 e^{-y}dy = 1-e^{-2}$ gives it in one line, which is the elegant route. Simulation: $0.864566$ &#10003;.</p>
+<p><b>(c) The variance.</b> Same split for the second moment, with $\int_0^2 y^2e^{-y}dy = \big[-(y^2+2y+2)e^{-y}\big]_0^2 = 2 - 10e^{-2} = 2-1.353353 = 0.646647$:
+$$\mathbb{E}[Y^2] = 0.646647 + 2^2(0.135335) = 0.646647 + 0.541341 = 1.187988 ,$$
+$$\operatorname{var}(Y) = 1.187988 - (0.864665)^2 = 1.187988 - 0.747645 = 0.440343 .$$
+Simulation: $0.440286$ &#10003;. This is well under $\operatorname{var}(X) = 1$: censoring truncates the long right tail, which is exactly where an exponential's variance comes from. The general lesson &mdash; capped measurements always look less variable and shorter-lived than the truth &mdash; is the reason survival analysis treats censored observations specially rather than as ordinary data points.</p>
+<p><b>Answer.</b> $\;F_Y(y) = 1-e^{-y}$ on $[0,2)$ with a jump of $e^{-2}=0.135335$ at $y=2$ ($Y$ is mixed); $\;\mathbb{E}[Y] = 1-e^{-2} = 0.864665$; $\;\operatorname{var}(Y) = 0.440343 \lt 1$.</p>
+<p><b>Trap.</b> Reporting $\mathbb{E}[Y] = \mathbb{E}[X] = 1$ because "the exponential has mean $1$ and $2$ is a long way out". The cap costs $13.5\%$ of the probability its entire tail, worth $0.135$ years of mean. Equally wrong: treating $Y$ as continuous on $[0,2]$ with density $e^{-y}$ renormalized &mdash; that would give $\mathbb{E}[Y] = 0.593994/0.864665 = 0.687$, discarding the atom instead of placing it at $2$.</p>
+<p class="srcref">Tool: G3 &sect;1.4 (CDFs and mixed distributions), &sect;1.5 (exponential tail) &middot; B&amp;T &sect;3.2&ndash;3.3</p>
+</div></details>
+</div>

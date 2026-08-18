@@ -58,7 +58,10 @@ def main() -> int:
                 print(f"s{n}: BUILD FAILED\n{r.stdout}\n{r.stderr}")
                 failed.append(n)
                 continue
-            url = "file:///" + str(NOTES / f"{tmp}.html").replace("\\", "/")
+            # ?expand=1 opens every <details class="sol"> so review captures show
+            # the solutions (Chrome hides details content in its UA shadow DOM,
+            # which print CSS cannot override).
+            url = "file:///" + str(NOTES / f"{tmp}.html").replace("\\", "/") + "?expand=1"
             pdf = shots / f"_s{n}.pdf"
             run([EDGE, "--headless", "--disable-gpu", f"--print-to-pdf={pdf}",
                  "--no-pdf-header-footer", "--virtual-time-budget=45000", url], timeout=900)

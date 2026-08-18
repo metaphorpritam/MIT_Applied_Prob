@@ -20,7 +20,7 @@ NOTES = Path(__file__).resolve().parent.parent
 ROOT = NOTES.parent
 SLUGS = ["01_probability_basics", "02_discrete_rvs", "03_continuous_rvs",
          "04_expectation_processes", "05_markov_chains", "06_limits_bayesian",
-         "07_classical_inference"]
+         "07_classical_inference", "08_question_bank", "09_reference"]
 
 def build(slug: str, site: bool) -> None:
     args = [sys.executable, str(NOTES / "_build" / "build_note.py"), slug]

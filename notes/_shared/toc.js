@@ -120,3 +120,37 @@
     if (saved) document.documentElement.dataset.theme = saved;
   } catch (e) {}
 })();
+
+/* Solutions on paper, and for review captures.
+   `<details>` content is hidden by Chrome's UA shadow DOM, which no print CSS
+   rule can override — so the `open` attribute must actually be set. We set it
+   on beforeprint and restore afterwards, and honour ?expand=1 for the
+   screenshot/review pipeline. */
+(function () {
+  "use strict";
+  var forced = [];
+  function openAll() {
+    forced = [];
+    document.querySelectorAll("details.sol:not([open])").forEach(function (d) {
+      d.setAttribute("open", "");
+      forced.push(d);
+    });
+  }
+  function restoreAll() {
+    forced.forEach(function (d) { d.removeAttribute("open"); });
+    forced = [];
+  }
+  window.addEventListener("beforeprint", openAll);
+  window.addEventListener("afterprint", restoreAll);
+  if (window.matchMedia) {
+    try {
+      var mq = window.matchMedia("print");
+      var onChange = function (e) { (e.matches ? openAll : restoreAll)(); };
+      if (mq.addEventListener) mq.addEventListener("change", onChange);
+      else if (mq.addListener) mq.addListener(onChange);
+    } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    if (/[?&]expand=1/.test(location.search)) openAll();
+  });
+})();

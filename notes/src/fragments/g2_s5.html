@@ -649,6 +649,12 @@ without rebuilding (expected-value rule); decompose into indicators (linearity).
 <li><b>Four families.</b> Bernoulli($p$): $p$, $p(1-p)$. Uniform $\{a,\ldots,b\}$: $(a+b)/2$,
 $(b-a)(b-a+2)/12$. Binomial($n,p$): $np$, $np(1-p)$. Geometric($p$): $1/p$, $(1-p)/p^2$. Binomial and
 geometric are the two questions you can ask of the same Bernoulli stream. Fig. 5.2.</li>
+<li><b>And one multivariate family.</b> Multinomial$(n;\theta_1,\dots,\theta_r)$ — $n$ independent
+trials sorted into $r$ categories, joint PMF
+$\frac{n!}{n_1!\cdots n_r!}\theta_1^{n_1}\cdots\theta_r^{n_r}$ on $\sum_k n_k=n$. Each marginal is
+Binomial$(n,\theta_k)$, merged categories add their $\theta$'s and stay multinomial, and distinct
+counts are negatively correlated, $\operatorname{cov}(N_i,N_j)=-n\theta_i\theta_j$, because the counts
+must add to $n$. Derived in full in §4.11.</li>
 <li><b>The fault line.</b> Every expectation rule except $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$
 holds without independence; every variance-of-a-sum rule needs it. Linearity is free — use indicators.
 Example 5.1 (the hat problem) is the canonical case: $\mathbb{E}[X]=1$ in one line, but

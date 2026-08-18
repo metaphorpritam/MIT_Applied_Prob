@@ -316,6 +316,122 @@ show("r3_sim_n10", tot / trials, f"Monte-Carlo mean over {trials} runs")
 show("r3_sim_trials", trials)
 
 # =====================================================================
+# 3.5e  the waiting-time zoo: fair die coupon collector, and the four
+#       classic questions that sound alike (Example 3.10, recipe, P3.8-3.10)
+# =====================================================================
+print("\n=== 3.5e  waiting-time zoo ===")
+
+# --- (a) fair six-sided die, coupon collector, exact rationals ----------
+nd = 6
+for i in range(nd):
+    pi = F(nd - i, nd)
+    show(f"die_p{i}", pi, f"P(new face | {i} faces already seen)")
+    show(f"die_ET{i}", F(1, 1) / pi, f"E[T_{i}] = 6/(6-{i})")
+H6 = sum(F(1, k) for k in range(1, nd + 1))
+show("die_H6", H6, "H_6 exact")
+show("die_H6_dec", float(H6))
+show("die_EM", nd * H6, "E[M] = 6 H_6 exact")
+show("die_EM_dec", float(nd * H6))
+# variance: the phases are independent geometrics, so variances add
+die_var = sum((1 - F(nd - i, nd)) / F(nd - i, nd) ** 2 for i in range(nd))
+show("die_varM", die_var, "var(M) = sum (1-p_i)/p_i^2, exact")
+show("die_varM_dec", float(die_var))
+show("die_sdM", math.sqrt(float(die_var)))
+# closed form cross-check: var = n^2 sum 1/k^2 - n H_n
+die_var_cf = nd ** 2 * sum(F(1, k * k) for k in range(1, nd + 1)) - nd * H6
+show("die_varM_closedform", die_var_cf, "n^2 sum 1/k^2 - n H_n")
+show("die_varM_dev", float(abs(die_var_cf - die_var)))
+show("die_nlogn", nd * math.log(nd), "crude n log n for n = 6")
+show("die_ratio", float(nd * H6) / (nd * math.log(nd)))
+
+rng2 = np.random.default_rng(6041614)
+tr = 400000
+tot = 0
+tot2 = 0
+for _ in range(tr):
+    mask = 0
+    c = 0
+    while mask != 0b111111:
+        mask |= 1 << int(rng2.integers(0, 6))
+        c += 1
+    tot += c
+    tot2 += c * c
+show("die_sim_trials", tr)
+show("die_sim_EM", tot / tr, "Monte-Carlo mean")
+show("die_sim_varM", tot2 / tr - (tot / tr) ** 2, "Monte-Carlo variance")
+show("die_sim_dev", abs(tot / tr - float(nd * H6)))
+show("die_sim_se", math.sqrt(float(die_var) / tr), "standard error of the MC mean")
+
+# --- (b) the four classic questions, fair coin p = 1/2 ------------------
+p_coin = F(1, 2)
+show("zoo_geom_E", F(1, 1) / p_coin, "first head: geometric, 1/p")
+show("zoo_pascal_E", 2 / p_coin, "2 heads TOTAL: Pascal order 2, k/p")
+show("zoo_pascal_var", 2 * (1 - p_coin) / p_coin ** 2, "var = k(1-p)/p^2")
+show("zoo_HH_E", (1 + p_coin) / p_coin ** 2, "2 heads IN A ROW: (1+p)/p^2")
+show("zoo_gap", (1 + p_coin) / p_coin ** 2 - 2 / p_coin, "in-a-row minus total")
+show("zoo_coupon_E", nd * H6, "all six faces: n H_n")
+
+
+def pattern_wait(pat, p=0.5):
+    """Exact E[number of tosses until pattern first appears], by first-step
+    analysis on the states 'length of the longest suffix of what I have that
+    is a prefix of pat' (0..len(pat)-1); solved as a linear system."""
+    L = len(pat)
+
+    def nxt(state, c):
+        s = pat[:state] + c
+        for m in range(min(len(s), L), 0, -1):
+            if s[-m:] == pat[:m]:
+                return m
+        return 0
+
+    A = np.zeros((L, L))
+    b = np.ones(L)
+    for s in range(L):
+        A[s, s] = 1.0
+        for c, pr in (("H", p), ("T", 1 - p)):
+            t = nxt(s, c)
+            if t < L:
+                A[s, t] -= pr
+    return float(np.linalg.solve(A, b)[0])
+
+
+for pat in ("H", "HH", "HHH", "HTH", "HHT", "THH"):
+    show(f"pat_E_{pat}", pattern_wait(pat), f"E[tosses until {pat}], fair coin")
+
+rng3 = np.random.default_rng(20250819)
+for pat in ("HH", "HHH", "HTH"):
+    tot = 0
+    tr2 = 300000
+    for _ in range(tr2):
+        s = ""
+        c = 0
+        while not s.endswith(pat):
+            s += "H" if rng3.random() < 0.5 else "T"
+            c += 1
+        tot += c
+    show(f"pat_sim_{pat}", tot / tr2, f"Monte-Carlo, {tr2} runs")
+
+# --- (c) practice numbers ----------------------------------------------
+# P3.8  HTH vs HHH
+show("pq_38_HTH", pattern_wait("HTH"))
+show("pq_38_HHH", pattern_wait("HHH"))
+show("pq_38_diff", pattern_wait("HHH") - pattern_wait("HTH"))
+# P3.9  one die, four questions
+p6 = F(1, 6)
+show("pq_39_first_six", F(1, 1) / p6, "first six: 1/p")
+show("pq_39_three_sixes", 3 / p6, "three sixes total: k/p")
+show("pq_39_two_in_row", (1 + p6) / p6 ** 2, "two sixes in a row: (1+p)/p^2")
+show("pq_39_all_faces", nd * H6, "all six faces: n H_n")
+show("pq_39_all_faces_dec", float(nd * H6))
+# P3.10  partial progress
+show("pq_310_last_face", F(1, 1) / F(1, 6), "5 faces seen -> E extra rolls")
+show("pq_310_first_three", F(6, 6) + F(6, 5) + F(6, 4), "0 -> 3 distinct faces")
+show("pq_310_first_three_dec", float(F(6, 6) + F(6, 5) + F(6, 4)))
+show("pq_310_remaining", nd * H6 - (F(6, 6) + F(6, 5) + F(6, 4)), "3 -> 6 distinct faces")
+show("pq_310_remaining_dec", float(nd * H6 - (F(6, 6) + F(6, 5) + F(6, 4))))
+
+# =====================================================================
 # 3.6  widget verification: max deviation binomial vs Poisson
 # =====================================================================
 print("\n=== 3.6  widget check: max |binom(n, mu/n) - Poisson(mu)| ===")

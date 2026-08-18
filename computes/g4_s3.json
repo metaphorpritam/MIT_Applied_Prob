@@ -352,6 +352,149 @@
  "r3_EM10_approx": 29.298007578955783,
  "r3_sim_n10": 29.28928,
  "r3_sim_trials": 200000,
+ "die_p0": [
+  1,
+  1
+ ],
+ "die_ET0": [
+  1,
+  1
+ ],
+ "die_p1": [
+  5,
+  6
+ ],
+ "die_ET1": [
+  6,
+  5
+ ],
+ "die_p2": [
+  2,
+  3
+ ],
+ "die_ET2": [
+  3,
+  2
+ ],
+ "die_p3": [
+  1,
+  2
+ ],
+ "die_ET3": [
+  2,
+  1
+ ],
+ "die_p4": [
+  1,
+  3
+ ],
+ "die_ET4": [
+  3,
+  1
+ ],
+ "die_p5": [
+  1,
+  6
+ ],
+ "die_ET5": [
+  6,
+  1
+ ],
+ "die_H6": [
+  49,
+  20
+ ],
+ "die_H6_dec": 2.45,
+ "die_EM": [
+  147,
+  10
+ ],
+ "die_EM_dec": 14.7,
+ "die_varM": [
+  3899,
+  100
+ ],
+ "die_varM_dec": 38.99,
+ "die_sdM": 6.244197306299665,
+ "die_varM_closedform": [
+  3899,
+  100
+ ],
+ "die_varM_dev": 0.0,
+ "die_nlogn": 10.75055681536833,
+ "die_ratio": 1.3673710350505557,
+ "die_sim_trials": 400000,
+ "die_sim_EM": 14.7014375,
+ "die_sim_varM": 38.896287933593726,
+ "die_sim_dev": 0.0014375000000015348,
+ "die_sim_se": 0.009872942823697502,
+ "zoo_geom_E": [
+  2,
+  1
+ ],
+ "zoo_pascal_E": [
+  4,
+  1
+ ],
+ "zoo_pascal_var": [
+  4,
+  1
+ ],
+ "zoo_HH_E": [
+  6,
+  1
+ ],
+ "zoo_gap": [
+  2,
+  1
+ ],
+ "zoo_coupon_E": [
+  147,
+  10
+ ],
+ "pat_E_H": 2.0,
+ "pat_E_HH": 6.0,
+ "pat_E_HHH": 14.0,
+ "pat_E_HTH": 10.0,
+ "pat_E_HHT": 8.0,
+ "pat_E_THH": 8.0,
+ "pat_sim_HH": 6.00474,
+ "pat_sim_HHH": 13.988203333333333,
+ "pat_sim_HTH": 9.99102,
+ "pq_38_HTH": 10.0,
+ "pq_38_HHH": 14.0,
+ "pq_38_diff": 4.0,
+ "pq_39_first_six": [
+  6,
+  1
+ ],
+ "pq_39_three_sixes": [
+  18,
+  1
+ ],
+ "pq_39_two_in_row": [
+  42,
+  1
+ ],
+ "pq_39_all_faces": [
+  147,
+  10
+ ],
+ "pq_39_all_faces_dec": 14.7,
+ "pq_310_last_face": [
+  6,
+  1
+ ],
+ "pq_310_first_three": [
+  37,
+  10
+ ],
+ "pq_310_first_three_dec": 3.7,
+ "pq_310_remaining": [
+  11,
+  1
+ ],
+ "pq_310_remaining_dec": 11.0,
  "widget_maxdev_grid": {
   "mu0.5_n5": 0.024784670143683296,
   "mu0.5_n10": 0.011859375005987827,

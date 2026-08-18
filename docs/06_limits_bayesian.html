@@ -390,7 +390,13 @@ canvas.plot { width: 100%; display: block; }
   .widget .wcontrols { display: none; }
   .widget, .fig, .defn, .note, .thm, .ex, .warn, .recipe, .summary,
   details.sol, pre { box-shadow: none; }
-  details.sol { open: true; }
+  /* force solution panels open on paper: `open` is an HTML attribute, not a
+     CSS property, so the old `open: true` was silently discarded and printed
+     copies carried no solutions at all. */
+  details.sol > .body, details.sol:not([open]) > .body { display: block !important; }
+  details.sol > summary { list-style: none; }
+  details.sol > summary::marker, details.sol > summary::-webkit-details-marker { display: none; }
+  .qbfilter { display: none; }
   /* never leave a content-free colored strip (a box's bottom padding/border)
      stranded at the top of the next sheet */
   .defn, .note, .thm, .warn, .recipe, .summary, .widget,
@@ -483,6 +489,30 @@ canvas.plot { width: 100%; display: block; }
 #themetoggle:hover { background: var(--btnHover); border-color: var(--rule); }
 
 #sidebar #themetoggle { display: block; width: 100%; margin: 4px 0 10px 0; text-align: center; }
+
+/* ---------- question bank ---------- */
+.qbfilter {
+  position: sticky; top: 0; z-index: 20; background: var(--paper);
+  border-bottom: 1px solid var(--hairline); padding: 10px 0 12px;
+  margin: 0 0 18px; font-family: var(--ui); font-size: 12.5px;
+}
+.qbfilter .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.qbfilter .lbl { color: var(--muted); font-weight: 600; margin-right: 4px; }
+.qbchip {
+  border: 1px solid var(--rule); border-radius: 999px; padding: 3px 11px; cursor: pointer;
+  background: none; color: var(--ink); font: inherit; transition: background .13s, border-color .13s;
+}
+.qbchip:hover { background: var(--tocHover); }
+.qbchip.on { background: var(--s1); border-color: var(--s1); color: #fff; }
+.qbcount { color: var(--muted); font-variant-numeric: tabular-nums; }
+.qcard { scroll-margin-top: 70px; }
+.qcard.hide { display: none; }
+.qmeta {
+  font-family: var(--ui); font-size: 11px; color: var(--muted);
+  letter-spacing: .02em; margin-left: 6px;
+}
+.qmeta .stars { color: var(--s4); letter-spacing: .08em; }
+.qmeta .ref { color: var(--link); }
 
 </style>
 <script>
@@ -938,6 +968,40 @@ canvas.plot { width: 100%; display: block; }
     const saved = localStorage.getItem("theme6041");
     if (saved) document.documentElement.dataset.theme = saved;
   } catch (e) {}
+})();
+
+/* Solutions on paper, and for review captures.
+   `<details>` content is hidden by Chrome's UA shadow DOM, which no print CSS
+   rule can override — so the `open` attribute must actually be set. We set it
+   on beforeprint and restore afterwards, and honour ?expand=1 for the
+   screenshot/review pipeline. */
+(function () {
+  "use strict";
+  var forced = [];
+  function openAll() {
+    forced = [];
+    document.querySelectorAll("details.sol:not([open])").forEach(function (d) {
+      d.setAttribute("open", "");
+      forced.push(d);
+    });
+  }
+  function restoreAll() {
+    forced.forEach(function (d) { d.removeAttribute("open"); });
+    forced = [];
+  }
+  window.addEventListener("beforeprint", openAll);
+  window.addEventListener("afterprint", restoreAll);
+  if (window.matchMedia) {
+    try {
+      var mq = window.matchMedia("print");
+      var onChange = function (e) { (e.matches ? openAll : restoreAll)(); };
+      if (mq.addEventListener) mq.addEventListener("change", onChange);
+      else if (mq.addListener) mq.addListener(onChange);
+    } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    if (/[?&]expand=1/.test(location.search)) openAll();
+  });
 })();
 
 </script>
@@ -5594,7 +5658,7 @@ because it is built from the WLLN and the CLT of §1–§2 (B&amp;T §9.1).</p>
 </ul></div>
 
 <hr>
-<div class="small" style="text-align:center;">Compiled from MIT 6.041/6.431 F10 L19–L22 slide handouts, recitations 20–22 (+ official solutions), Bertsekas–Tsitsiklis chs. 5 & 8 on 2026-07-30. Every numerical value recomputed independently in Python; see computes/.</div>
+<div class="small" style="text-align:center;">Compiled from MIT 6.041/6.431 F10 L19–L22 slide handouts, recitations 20–22 (+ official solutions), Bertsekas–Tsitsiklis chs. 5 & 8 on 2026-08-19. Every numerical value recomputed independently in Python; see computes/.</div>
 </main>
 </body>
 </html>

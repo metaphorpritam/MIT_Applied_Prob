@@ -373,5 +373,95 @@
  "pr6d_tri": 0.25,
  "pr6d_tri_mc": 0.25014,
  "pr6d_trap_exact": "3/4",
- "pr6d_trap": 0.75
+ "pr6d_trap": 0.75,
+ "ie3_counts": {
+  "A": 4,
+  "B": 4,
+  "C": 4,
+  "AB": 1,
+  "AC": 1,
+  "BC": 1,
+  "ABC": 0
+ },
+ "ie3_cells_AB": [
+  [
+   1,
+   1
+  ]
+ ],
+ "ie3_cells_AC": [
+  [
+   1,
+   4
+  ]
+ ],
+ "ie3_cells_BC": [
+  [
+   4,
+   1
+  ]
+ ],
+ "ie3_cells_C": [
+  [
+   1,
+   4
+  ],
+  [
+   2,
+   3
+  ],
+  [
+   3,
+   2
+  ],
+  [
+   4,
+   1
+  ]
+ ],
+ "ie3_union_count": 9,
+ "ie3_alternating_sum": 9,
+ "ie3_identity_holds": true,
+ "ie3_naive_sum": 12,
+ "ie3_AB_union_count": 7,
+ "ie3_union_prob_exact": "9/16",
+ "ie3_union_prob_dec": 0.5625,
+ "ie3_cells_union": [
+  [
+   1,
+   1
+  ],
+  [
+   1,
+   2
+  ],
+  [
+   1,
+   3
+  ],
+  [
+   1,
+   4
+  ],
+  [
+   2,
+   1
+  ],
+  [
+   2,
+   3
+  ],
+  [
+   3,
+   1
+  ],
+  [
+   3,
+   2
+  ],
+  [
+   4,
+   1
+  ]
+ ]
 }

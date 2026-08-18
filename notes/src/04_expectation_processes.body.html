@@ -2729,6 +2729,176 @@ were Poisson processes with rates $0.1,0.07,0.05$ per second, the merged rate wo
 $0.22$ and the mean gap $1/0.22=4.545$ s — shorter, because the Bernoulli version wastes the
 seconds in which two species bite simultaneously.</p></div></details></div>
 
+<h4>Waiting times, disambiguated</h4>
+
+<p>Example 3.9 answered the coupon collector in general. Because the six-sided die is the instance
+everybody meets first — and the one exam questions usually mean — it is worth writing out with the
+numbers substituted; and because three <em>other</em> classic questions are phrased almost
+identically and have different answers, the recipe after it separates them.</p>
+
+<div class="ex"><b>Example 3.10 (the coupon collector on a fair die — Example 3.9 with $n=6$).</b>
+You roll a fair six-sided die repeatedly. Let $M$ be the number of rolls until every one of the six
+faces has appeared at least once. Find $\mathbb{E}[M]$ and $\operatorname{var}(M)$.
+<p><b>Solution.</b> <em>Step 1 — set up the phases.</em> This is Example 3.9 verbatim with the $n$
+papers replaced by the $6$ faces: each roll picks a face uniformly at random, independently, with
+replacement. Let $T_i$ be the number of rolls made while exactly $i$ distinct faces have already
+been seen — that is, the rolls needed to produce the $(i+1)$st new face. The rolls split into six
+consecutive phases, so
+$$M=T_0+T_1+T_2+T_3+T_4+T_5 .$$</p>
+<p><em>Step 2 — each phase is geometric, with its own $p$.</em> While $i$ faces are already in hand,
+a roll is a "success" if it shows one of the $6-i$ faces not yet seen. All six faces are equally
+likely, so by the discrete uniform probability law (G1 §1),
+$$p_i=\frac{6-i}{6},$$
+the same on every roll of the phase and independent of the other rolls; hence $T_i$ is geometric with
+parameter $p_i$ and, by the geometric mean of G2 §3, $\mathbb{E}[T_i]=1/p_i=6/(6-i)$. Stage by
+stage (<code>die_p0..5</code>, <code>die_ET0..5</code>):</p>
+<div style="overflow-x:auto"><table>
+<tr><th>faces already seen $i$</th><th>$0$</th><th>$1$</th><th>$2$</th><th>$3$</th><th>$4$</th><th>$5$</th></tr>
+<tr><td>success probability $p_i=\frac{6-i}6$</td><td>$1$</td><td>$\frac56$</td><td>$\frac46=\frac23$</td><td>$\frac36=\frac12$</td><td>$\frac26=\frac13$</td><td>$\frac16$</td></tr>
+<tr><td>expected wait $\mathbb{E}[T_i]=\frac6{6-i}$</td><td>$1$</td><td>$1.2$</td><td>$1.5$</td><td>$2$</td><td>$3$</td><td>$6$</td></tr>
+</table></div>
+<p><em>Step 3 — add them up.</em> By linearity of expectation, which needs no independence:
+$$\mathbb{E}[M]=\sum_{i=0}^{5}\frac{6}{6-i}
+=\frac66+\frac65+\frac64+\frac63+\frac62+\frac61
+=6\Big(1+\tfrac12+\tfrac13+\tfrac14+\tfrac15+\tfrac16\Big)=6H_6 ,$$
+the middle equality being the re-indexing $k=6-i$ of Example 3.9. Since
+$H_6=\tfrac{49}{20}=2.45$ exactly,
+$$\boxed{\ \mathbb{E}[M]=6\times\tfrac{49}{20}=\tfrac{147}{10}=14.7\ \text{rolls}\ }$$
+(<code>die_H6</code>, <code>die_EM</code>).</p>
+<p><em>Step 4 — the variance.</em> Unlike the mean, this one does need independence, and it is
+available: the phases are determined by disjoint blocks of rolls, so $T_0,\dots,T_5$ are
+independent and variances add (G2 §3 for the geometric variance
+$\operatorname{var}(T_i)=(1-p_i)/p_i^2$):
+$$\operatorname{var}(M)=\sum_{i=0}^{5}\frac{1-p_i}{p_i^2}
+=0+\frac{1/6}{(5/6)^2}+\frac{1/3}{(2/3)^2}+\frac{1/2}{(1/2)^2}+\frac{2/3}{(1/3)^2}+\frac{5/6}{(1/6)^2},$$
+i.e. $0+0.24+0.75+2+6+30=\tfrac{3899}{100}=38.99$, so the standard deviation is
+$\sqrt{38.99}=6.244197$ rolls (<code>die_varM</code>, <code>die_sdM</code>). The general closed form
+$\operatorname{var}(M)=n^2\sum_{k=1}^n k^{-2}-nH_n$ returns the same $\tfrac{3899}{100}$, difference
+$0$ (<code>die_varM_closedform</code>, <code>die_varM_dev</code>).</p>
+<p><em>Step 5 — Monte Carlo.</em> Simulating $400{,}000$ runs of the die gives a mean of
+$14.701437$ against the exact $14.7$ — a gap of $0.001437$, well inside the simulation's standard
+error $\sqrt{38.99/400000}=0.009873$ — and a sample variance of $38.896288$ against $38.99$
+(<code>die_sim_EM</code>, <code>die_sim_dev</code>, <code>die_sim_se</code>,
+<code>die_sim_varM</code>).</p>
+<p><b>Reading the answer.</b> Two features are worth carrying away. First, <b>the last face costs
+$6$ rolls on its own</b> — nearly half the total budget of $14.7$ goes on chasing one remaining
+face, exactly the effect that turns $n$ into $n\ln n$. Second, the spread is enormous:
+$14.7\pm6.2$, and the distribution is right-skewed, so "about fifteen rolls" is a statement about
+the average and not about your next attempt. (The crude asymptotic $n\ln n=6\ln6=10.750557$ is
+$27\%$ low at $n=6$; the harmonic sum, not its logarithm, is the answer to quote —
+<code>die_nlogn</code>, <code>die_ratio</code>.)</p></div>
+
+<div class="recipe"><b>Recipe (the waiting-time zoo — four exam questions that sound alike).</b>
+Every one of these asks "how many trials until …", and the four answers are different. Read the
+question for <em>what stops the clock</em>, then use the matching row. Numbers are for a fair coin,
+$p=\tfrac12$ (verified as <code>zoo_*</code>).
+<div style="overflow-x:auto"><table>
+<tr><th>The question stops at…</th><th>Model</th><th>$\mathbb{E}[\text{trials}]$</th><th>Fair-coin value</th><th>Derived in</th></tr>
+<tr><td><b>the first success</b> ("first head")</td><td>geometric$(p)$</td><td>$\dfrac1p$</td><td>$2$</td><td>G2 §3</td></tr>
+<tr><td><b>the $k$th success</b>, anywhere ("$2$ heads <em>total</em>")</td><td>Pascal / negative binomial of order $k$</td><td>$\dfrac kp$</td><td>$4$</td><td>§2.5</td></tr>
+<tr><td><b>a pattern</b> ("$2$ heads <em>in a row</em>", HH)</td><td>first-step analysis on a small state chain</td><td>$\dfrac{1+p}{p^2}$ for HH</td><td>$6$</td><td>G2 §3.8; general machinery G5 §4</td></tr>
+<tr><td><b>every category collected</b> ("all $6$ faces")</td><td>coupon collector: sum of $n$ geometrics</td><td>$nH_n=n\sum_{k=1}^n\frac1k$</td><td>$14.7$ for $n=6$</td><td>Examples 3.9–3.10</td></tr>
+</table></div>
+<ol>
+<li><b>"Total" or "in a row"?</b> This is the distinction that decides rows 2 and 3, and it is the
+one that gets missed. Two heads <em>total</em> takes $k/p=4$ tosses on average; two heads <em>in a
+row</em> takes $6$.</li>
+<li><b>Why the pattern costs more.</b> A run can be <em>broken</em>. In the Pascal problem every
+head is banked forever, so the waits for the two heads simply add: $2+2=4$. In the HH problem a tail
+after a lone head throws that head away and returns you to the start — progress is destroyed, not
+just paused. The extra $\mathbb{E}[\text{HH}]-\mathbb{E}[\text{2 heads total}]=6-4=2$ tosses are the
+price of those restarts (<code>zoo_gap</code>).</li>
+<li><b>"All of them" means coupon collector,</b> not "$n$ times as long as one of them". The phases
+have <em>different</em> success probabilities $(n-i)/n$, so you add $n/(n-i)$, not $n\cdot n$.</li>
+<li><b>Every row is a sum of geometrics</b> except row 3. Rows 1, 2 and 4 all decompose into
+independent geometric waits and are finished by linearity; row 3 cannot, because the state can go
+backwards — which is precisely when you draw the state diagram and write one equation per state.</li>
+</ol></div>
+
+<div class="warn"><b>Gotcha.</b> "Expected number of tries <em>before</em> you succeed" and
+"expected number of tries <em>until</em> you succeed" differ by exactly $1$: the geometric $X$
+counts the successful trial, so $\mathbb{E}[X]=1/p$, while the number of failures $X-1$ has mean
+$1/p-1=(1-p)/p$. The same $\pm1$ trap sits in Example 3.8(b)(i) above ($K=N-1$). Decide which one
+the question wants before you quote a number, and say so in your answer.</div>
+
+<div class="ex"><b>Practice 3.8 (the surprising pair).</b> A fair coin is tossed repeatedly. Find the
+expected number of tosses until the pattern <b>HTH</b> first appears, and until <b>HHH</b> first
+appears. Both patterns have probability $\tfrac18$ in any three specified tosses — do they take the
+same time?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>No, and that is the point. Use the row-3 method: a state records the length of the longest
+suffix of the tosses so far that is a prefix of the target pattern; $E_s$ is the expected number of
+further tosses from state $s$; the target state has $E=0$; and each state satisfies
+$E_s=1+\sum_{s'}\mathbf{P}(s\to s')E_{s'}$, the $1$ counting the toss you are about to make (G2 §3.8).</p>
+<p><b>HHH.</b> States $S_0,S_1,S_2$ = number of trailing heads banked. From $S_0$: heads
+(probability $\tfrac12$) $\to S_1$, tails $\to S_0$. From $S_1$: heads $\to S_2$, tails $\to S_0$
+(the tail wipes out the run). From $S_2$: heads $\to$ done, tails $\to S_0$. So
+$$E_0=1+\tfrac12E_1+\tfrac12E_0,\qquad E_1=1+\tfrac12E_2+\tfrac12E_0,\qquad
+E_2=1+\tfrac12\cdot0+\tfrac12E_0 .$$
+Substituting the third into the second, $E_1=1+\tfrac12(1+\tfrac12E_0)+\tfrac12E_0=\tfrac32+\tfrac34E_0$;
+substituting that into the first, $E_0=1+\tfrac12(\tfrac32+\tfrac34E_0)+\tfrac12E_0
+=\tfrac74+\tfrac78E_0$, so $\tfrac18E_0=\tfrac74$ and $\mathbb{E}=14$. This is the $k=3$ case of the
+formula $(1+p+\cdots+p^{k-1})/p^k$ of G2 §3.8 (<code>pq_38_HHH</code>).</p>
+<p><b>HTH.</b> States $S_0$ (nothing useful), $S_1$ (last toss H), $S_2$ (last two tosses HT). From
+$S_0$: H $\to S_1$, T $\to S_0$. From $S_1$: H $\to S_1$ (a second head is still a single useful
+trailing H, <em>not</em> a reset), T $\to S_2$. From $S_2$: H $\to$ done, T $\to S_0$. So
+$$E_0=1+\tfrac12E_1+\tfrac12E_0,\qquad E_1=1+\tfrac12E_1+\tfrac12E_2,\qquad
+E_2=1+\tfrac12\cdot0+\tfrac12E_0 .$$
+From the first, $E_0=2+E_1$. From the third, $E_2=1+\tfrac12E_0=1+\tfrac12(2+E_1)=2+\tfrac12E_1$.
+Putting that in the second, $E_1=1+\tfrac12E_1+\tfrac12(2+\tfrac12E_1)=2+\tfrac34E_1$, so
+$\tfrac14E_1=2$, $E_1=8$ and $\mathbb{E}=E_0=2+8=10$ (<code>pq_38_HTH</code>).</p>
+<p><b>Why HTH is faster by $4$ tosses</b> (<code>pq_38_diff</code>). Compare what a failure costs.
+In HHH, one tail at any point destroys <em>all</em> banked progress and sends you to $S_0$. In HTH,
+the failure in state $S_1$ is a head — but a head is itself the start of a fresh HTH, so you stay in
+$S_1$ and lose nothing at all. Patterns that overlap themselves badly (HHH agrees with a shift of
+itself in two places) wait longer than patterns that recover cheaply. Monte Carlo over
+$300{,}000$ runs each: $13.988203$ for HHH and $9.991020$ for HTH (<code>pat_sim_HHH</code>,
+<code>pat_sim_HTH</code>). For the record, HHT and THH both take $8$ (<code>pat_E_HHT</code>,
+<code>pat_E_THH</code>) — the answer depends on the <em>pattern</em>, not just on its length or its
+probability.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.9 (one fair die, four questions).</b> Roll a fair six-sided die
+repeatedly. Find the expected number of rolls until (a) the first $6$; (b) the third $6$; (c) two
+$6$s in a row; (d) all six faces have appeared. Identify which row of the zoo each one is.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>Throughout, $p=\mathbf{P}(\text{a specified face})=\tfrac16$ and $1-p=\tfrac56$.</p>
+<p>(a) <b>Row 1, geometric.</b> $\mathbb{E}=1/p=6$ rolls (<code>pq_39_first_six</code>).</p>
+<p>(b) <b>Row 2, Pascal of order $3$.</b> The waits for the first, second and third $6$ are i.i.d.
+geometric, so $\mathbb{E}=k/p=3\times6=18$ rolls (<code>pq_39_three_sixes</code>).</p>
+<p>(c) <b>Row 3, first-step analysis.</b> With $\mathbb{E}[N]=(1+p)/p^2$ from G2 §3.8,
+$$\mathbb{E}[N]=\frac{1+\tfrac16}{(\tfrac16)^2}=\frac{7/6}{1/36}=\frac{7\times36}{6}=42$$
+rolls (<code>pq_39_two_in_row</code>). Note $42\ne 2\times6=12$ and $42&gt;18$: with a low-$p$
+trial, a broken run is catastrophic, so the in-a-row question is far harder than the total-count
+question — the same gap as $6$ versus $4$ for the coin, but hugely amplified.</p>
+<p>(d) <b>Row 4, coupon collector.</b> $\mathbb{E}[M]=6H_6=14.7$ rolls, from Example 3.10
+(<code>pq_39_all_faces</code>).</p>
+<p><b>The point.</b> One die, four English sentences that a careless reader would call the same
+question, four answers: $6$, $18$, $14.7$, $42$. Notice also that (d) is <em>smaller</em> than (b):
+collecting all six faces is easier than waiting for three copies of one prescribed face, because in
+(d) every early roll makes progress toward <em>some</em> missing face.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 3.10 (progress already made).</b> You are rolling the fair die for all
+six faces. (a) You have seen five distinct faces so far. How many more rolls do you expect to need,
+and does it matter how many rolls you have already spent? (b) What is the expected number of rolls
+to get from $0$ to $3$ distinct faces, and from $3$ distinct faces to all $6$?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) The remaining wait is the single phase $T_5$, geometric with $p_5=\tfrac16$, so
+$\mathbb{E}[T_5]=6$ additional rolls (<code>pq_310_last_face</code>). It does <em>not</em> matter how
+long you have been rolling: the geometric is memoryless (G2 §3), so the $30$ rolls you may already
+have wasted on repeats change nothing about the future. This is the discrete twin of the
+memorylessness of §3.3, and it is why one stubborn face can eat the whole budget.</p>
+<p>(b) The first three faces cost
+$$\mathbb{E}[T_0]+\mathbb{E}[T_1]+\mathbb{E}[T_2]=\frac66+\frac65+\frac64=1+1.2+1.5=3.7$$
+rolls, and the last three cost
+$$\mathbb{E}[T_3]+\mathbb{E}[T_4]+\mathbb{E}[T_5]=\frac63+\frac62+\frac61=2+3+6=11$$
+rolls (<code>pq_310_first_three</code>, <code>pq_310_remaining</code>), and indeed
+$3.7+11=14.7$ as it must. <b>Reading:</b> the first half of the collection takes a quarter of the
+time and the second half takes three quarters. Collecting is cheap while most categories are still
+missing and expensive at the end — the shape of every coupon-collector problem.</p>
+</div></details></div>
+
 <div class="summary"><b>§3 cheatsheet — the Poisson process.</b>
 <ul>
 <li><b>Definition (L14 slide 3).</b> Time homogeneity ($P(k,\tau)$ depends only on $\tau$),
@@ -2753,6 +2923,12 @@ waiting-time question into a counting question and kills the Erlang integral.</l
 $n=t/\delta$, $p=\lambda\delta$, $np=\lambda t$, $\delta\to0$. Bernoulli merging is
 $p_1+p_2-p_1p_2$; Poisson merging is $\lambda_1+\lambda_2$, with the next arrival coming from
 process 1 with probability $\lambda_1/(\lambda_1+\lambda_2)$ (developed in §4).</li>
+<li><b>The waiting-time zoo (fair coin, $p=\tfrac12$).</b> First success $\to$ geometric,
+$1/p=2$ (G2 §3). The $k$th success <em>total</em> $\to$ Pascal, $k/p=4$ for $k=2$ (§2.5).
+A <em>pattern</em> such as HH $\to$ first-step analysis, $(1+p)/p^2=6$ (G2 §3.8; G5 §4 for the
+general machinery); HTH takes $10$ and HHH takes $14$. All $n$ categories $\to$ coupon collector,
+$nH_n$; for a fair die $6H_6=14.7$ rolls with $\operatorname{var}=38.99$ (Example 3.10). A broken
+run discards progress; a banked success never does — that is the whole $6$-versus-$4$ story.</li>
 <li><b>rec14 numbers.</b> P1: $p=0.1\Rightarrow\mathbb{E}[X]=10$, $\operatorname{var}=90$;
 $r=0.163\Rightarrow\mathbb{E}[Y]=6.134969$, $\operatorname{var}=31.502879$. P2:
 $\tfrac1{64}$; $p_K(k)=k(\tfrac14)^2(\tfrac34)^{k-1}$; $\mathbb{E}[M]=\tfrac92$,

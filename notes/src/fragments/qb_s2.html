@@ -1,0 +1,888 @@
+<h2 id="qb-s2">&sect;2 &nbsp; Discrete random variables</h2>
+<p class="srcref">Drills the tools of note G2 &middot; Bertsekas&ndash;Tsitsiklis Chapter 2 &middot; all numbers recomputed in <code>computes/qb_s2.py</code></p>
+
+<p>These twenty-two problems exercise the whole G2 toolkit: building a PMF from a described
+experiment, recognizing which member of the named zoo (Bernoulli, binomial, geometric,
+discrete uniform) a story actually produces, computing $\mathbb{E}[g(X)]$ by the expected-value
+rule rather than by the illegal substitution $g(\mathbb{E}[X])$, decomposing a count into
+indicator variables so that linearity does the work, applying $\operatorname{var}(aX+b)=a^2\operatorname{var}(X)$
+and $\operatorname{var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$, conditioning a PMF on an event and
+reassembling with the total expectation theorem, exploiting geometric memorylessness, and
+reading marginals, conditionals and independence off a joint PMF. Several items are traps:
+one asks you to find the error in a plausible-looking independence argument, one contrasts
+size-biased with uniform sampling, and one asks for the variance of a sum whose indicator
+summands are <em>not</em> independent. Work each with the tool named in its solution's
+&ldquo;Tool&rdquo; line, then check the closing remark for the wrong answer you were meant to avoid.</p>
+
+<div class="ex qcard" id="q26" data-diff="1" data-topic="pmf">
+<p><b>Q26.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Building a PMF &middot; <span class="ref">G2 &sect;1.2</span></span></p>
+<p>A drawer holds five raffle tickets numbered $1,2,3,4,5$. You reach in and pull out two
+tickets at once, all $\binom{5}{2}$ two-ticket subsets being equally likely. Let $X$ be the
+<em>larger</em> of the two numbers you draw.
+(a) Find the PMF $p_X(x)$ and verify it sums to $1$.
+(b) Compute $\mathbb{E}[X]$.
+(c) Compute $\mathbf{P}(X \ge 4)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The sample space is the set of unordered pairs $\{i,j\}$ with $1\le i&lt;j\le5$;
+there are $\binom{5}{2} = 10$ of them and each has probability $1/10$ by the discrete uniform law.
+$X$ is the function that maps a pair to its maximum, so $X$ takes values in $\{2,3,4,5\}$ (the
+value $1$ is impossible &mdash; $1$ can never be the larger of two distinct numbers).</p>
+<p><b>Step 1 &mdash; count the outcomes in $\{X=x\}$.</b> The event $\{X=x\}$ holds exactly when
+one drawn ticket is $x$ and the other is any number strictly below $x$. There are $x-1$ such
+partners, so $\{X=x\}$ contains $x-1$ of the ten equally likely pairs, and</p>
+<p>$$p_X(x) = \frac{x-1}{10}, \qquad x = 2,3,4,5,$$</p>
+<p>and $p_X(x)=0$ otherwise. Explicitly $p_X(2) = 1/10 = 0.1$, $p_X(3) = 2/10 = 0.2$,
+$p_X(4) = 3/10 = 0.3$, $p_X(5) = 4/10 = 0.4$.</p>
+<p><b>Step 2 &mdash; normalization.</b> $\;0.1+0.2+0.3+0.4 = \frac{1+2+3+4}{10} = \frac{10}{10} = 1$ &#10003;.
+(The four counts $1,2,3,4$ must add to $\binom52 = 10$, since every pair has exactly one maximum.)</p>
+<p><b>Step 3 &mdash; the expectation, by the definition $\mathbb{E}[X]=\sum_x x\,p_X(x)$.</b></p>
+<p>$$\mathbb{E}[X] = 2(0.1) + 3(0.2) + 4(0.3) + 5(0.4) = 0.2 + 0.6 + 1.2 + 2.0 = 4.0 .$$</p>
+<p><b>Step 4 &mdash; the tail probability.</b> By additivity over the disjoint values,
+$\mathbf{P}(X\ge4) = p_X(4)+p_X(5) = 0.3+0.4 = 0.7$.</p>
+<p><b>Answer.</b> $\;p_X(x) = (x-1)/10$ for $x=2,3,4,5$; $\;\mathbb{E}[X] = 4$; $\;\mathbf{P}(X\ge4)=0.7$.</p>
+<p><b>Trap.</b> A careless reader averages the ticket numbers and answers $\mathbb{E}[X]=3$ (the
+mean of $1,\dots,5$). That is the mean of a <em>single</em> uniformly drawn ticket. Taking a
+maximum tilts mass upward, which is why the answer $4$ sits above $3$; the PMF is increasing
+in $x$, not flat.</p>
+<p class="srcref">Tool: G2 &sect;1.2 (PMF from an experiment) &middot; B&amp;T &sect;2.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q27" data-diff="1" data-topic="pmf">
+<p><b>Q27.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Recognizing the named families &middot; <span class="ref">G2 &sect;1.6</span></span></p>
+<p>For each story, say which named discrete family (Bernoulli, binomial, geometric, discrete
+uniform, or <em>none of them</em>) describes the random variable, give its parameters, and give
+its mean.</p>
+<p>(a) A tester draws components one at a time from a very large lot in which $4\%$ are
+defective, independently, and stops at the first defective one. $N$ = number tested.<br>
+(b) Twelve patients are treated independently, each cured with probability $0.7$. $C$ = number
+cured.<br>
+(c) A fair $20$-sided die is rolled once. $D$ = the face shown.<br>
+(d) A box holds $10$ fuses of which exactly $3$ are bad. Four fuses are drawn <em>without
+replacement</em>. $B$ = number of bad fuses drawn.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Geometric with $p = 0.04$.</b> The defining picture is a stream of independent
+identical trials, and the variable counts trials up to and including the first success ("success"
+here = defective). "Very large lot" is what makes the per-draw probability stay at $0.04$ and the
+draws independent. $\;\mathbb{E}[N] = 1/p = 1/0.04 = 25$, and
+$\operatorname{var}(N) = (1-p)/p^2 = 0.96/0.0016 = 600$.</p>
+<p><b>(b) Binomial with $n=12$, $p=0.7$.</b> A <em>fixed</em> number of independent trials, and
+the variable counts successes. $\;\mathbb{E}[C] = np = 12(0.7) = 8.4$,
+$\operatorname{var}(C) = np(1-p) = 12(0.7)(0.3) = 2.52$.</p>
+<p><b>(c) Discrete uniform on $\{1,\dots,20\}$.</b> Every value equally likely, $p_D(d) = 1/20$.
+$\;\mathbb{E}[D] = (a+b)/2 = (1+20)/2 = 10.5$ and
+$\operatorname{var}(D) = \frac{(b-a)(b-a+2)}{12} = \frac{19\cdot21}{12} = \frac{399}{12} = 33.25$.</p>
+<p><b>(d) None of them.</b> Four trials, two outcomes each &mdash; it looks binomial, but the draws
+are <em>not independent</em>: removing a bad fuse changes the composition of the box, so the
+success probability of the second draw depends on the first. The correct PMF is hypergeometric,</p>
+<p>$$p_B(k) = \frac{\binom{3}{k}\binom{7}{4-k}}{\binom{10}{4}}, \qquad k = 0,1,2,3,$$</p>
+<p>giving $p_B(0) = \frac{1\cdot35}{210} = 0.1667$, $p_B(1) = \frac{3\cdot35}{210} = 0.5$,
+$p_B(2) = \frac{3\cdot 21}{210} = \frac{63}{210} = 0.3$,
+$p_B(3) = \frac{1\cdot7}{210} = \frac{7}{210} = 0.0333$ (sum $=1$ &#10003;).
+The <em>mean</em> is nevertheless $\mathbb{E}[B] = 4\cdot\frac{3}{10} = 1.2$, exactly the binomial
+value: writing $B = I_1+I_2+I_3+I_4$ with $I_j$ the indicator that the $j$th draw is bad, each
+$\mathbb{E}[I_j] = 0.3$ by symmetry, and linearity of expectation never asks whether the $I_j$ are
+independent.</p>
+<p><b>Answer.</b> $\;$(a) geometric($0.04$), mean $25$; (b) binomial($12,0.7$), mean $8.4$;
+(c) uniform on $\{1,\dots,20\}$, mean $10.5$; (d) not a named family (hypergeometric), mean $1.2$.</p>
+<p><b>Trap.</b> Calling (d) binomial($4,0.3$) gives $\mathbf{P}(B=1) = \binom41(0.3)(0.7)^3 = 0.4116$,
+whereas the truth is $0.5$ &mdash; an error of $0.088$. The mean survives the mistake; the PMF does not.</p>
+<p class="srcref">Tool: G2 &sect;1.6 (choosing among the named PMFs) &middot; B&amp;T &sect;2.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q28" data-diff="1" data-topic="expectation">
+<p><b>Q28.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Expected-value rule &middot; <span class="ref">G2 &sect;2.2</span></span></p>
+<p>A relief agency ships exactly $60$ tents to a region. The number of camps $X$ that will
+need to share them is not known in advance and is modeled as uniform on $\{1,2,3,4,5\}$. The
+tents are split evenly, so each camp receives $T = 60/X$ tents. Compute $\mathbb{E}[T]$, and
+compare it with $60/\mathbb{E}[X]$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $X$ is uniform on five values, so $p_X(x) = 1/5$ for $x=1,\dots,5$. $T = g(X)$
+with $g(x) = 60/x$. The expected-value rule says
+$\mathbb{E}[g(X)] = \sum_x g(x)\,p_X(x)$ &mdash; you reweight the <em>outputs</em> of $g$ by the PMF
+of $X$; you never need the PMF of $T$.</p>
+<p><b>Step 1 &mdash; apply the rule.</b></p>
+<p>$$\mathbb{E}[T] = \sum_{x=1}^{5} \frac{60}{x}\cdot\frac15
+= \frac{60}{5}\left(1 + \frac12 + \frac13 + \frac14 + \frac15\right)
+= 12\left(\frac{137}{60}\right) = \frac{137}{5} = 27.4 .$$</p>
+<p>(The bracket is $1+0.5+0.3333+0.25+0.2 = 2.283333 = 137/60$; equivalently
+$\mathbb{E}[1/X] = 137/300 = 0.456667$ and $60\times0.456667 = 27.4$.)</p>
+<p><b>Step 2 &mdash; the substitution answer, for contrast.</b>
+$\mathbb{E}[X] = (1+2+3+4+5)/5 = 15/5 = 3$, so $60/\mathbb{E}[X] = 60/3 = 20$.</p>
+<p><b>Step 3 &mdash; why they differ.</b> $g(x)=60/x$ is convex on $x&gt;0$, and averaging a convex
+function exceeds the function of the average. The gap here is $27.4 - 20 = 7.4$ tents per camp,
+a $37\%$ overshoot of the naive figure.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[T] = 27.4$ tents per camp, while $60/\mathbb{E}[X] = 20$.</p>
+<p><b>Trap.</b> Answering $20$ is the classic $\mathbb{E}[g(X)] = g(\mathbb{E}[X])$ error. That
+identity is valid only for <em>linear</em> $g$; $60/x$ is not linear, so the two numbers are
+genuinely different quantities, and neither rounding nor a finer grid will reconcile them.</p>
+<p class="srcref">Tool: G2 &sect;2.2 (expected-value rule) &middot; B&amp;T &sect;2.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q29" data-diff="1" data-topic="variance">
+<p><b>Q29.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; var$(aX+b)$ &middot; <span class="ref">G2 &sect;3.2</span></span></p>
+<p>A supplier's daily surplus $Y$ (in thousands of dollars) is related to the number of units
+sold $X$ by $Y = 7 - 2X$. You are told $\mathbb{E}[X] = 3$ and $\operatorname{var}(X) = 4$.
+Find $\mathbb{E}[Y]$, $\operatorname{var}(Y)$, and the standard deviation $\sigma_Y$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $Y = aX + b$ with $a = -2$ and $b = 7$. Two identities apply: linearity
+$\mathbb{E}[aX+b] = a\mathbb{E}[X]+b$, and $\operatorname{var}(aX+b) = a^2\operatorname{var}(X)$.</p>
+<p><b>Step 1 &mdash; the mean.</b>
+$\mathbb{E}[Y] = -2\,\mathbb{E}[X] + 7 = -2(3)+7 = -6+7 = 1$ thousand dollars.</p>
+<p><b>Step 2 &mdash; the variance.</b> The additive constant $b=7$ shifts the whole distribution
+without changing any deviation from the mean, so it drops out; the multiplier scales every
+deviation by $a$, and variance is quadratic in deviations:</p>
+<p>$$\operatorname{var}(Y) = a^2\operatorname{var}(X) = (-2)^2(4) = 4\cdot4 = 16 .$$</p>
+<p><b>Step 3 &mdash; the standard deviation.</b>
+$\sigma_X = \sqrt{4} = 2$ and $\sigma_Y = \sqrt{16} = 4 = |a|\,\sigma_X = 2\cdot 2$.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[Y] = 1$, $\;\operatorname{var}(Y) = 16$, $\;\sigma_Y = 4$.</p>
+<p><b>Trap.</b> Two wrong answers are common: $\operatorname{var}(Y) = -2(4) = -8$ (carrying $a$
+instead of $a^2$ &mdash; and a negative variance is impossible), and $\sigma_Y = -4$ (carrying the
+sign into a standard deviation). The scaling factor for a standard deviation is $|a|$, never $a$;
+spread has no sign.</p>
+<p class="srcref">Tool: G2 &sect;3.2 (variance of a linear function) &middot; B&amp;T &sect;2.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q30" data-diff="1" data-topic="geometric">
+<p><b>Q30.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Memorylessness &middot; <span class="ref">G2 &sect;3.5</span></span></p>
+<p>A modem redials a busy line; each attempt connects with probability $p = 0.2$, independently
+of the others. Let $X$ be the number of the attempt on which the first connection occurs, so $X$
+is geometric with parameter $0.2$. You have watched four attempts fail, i.e. you know $X &gt; 4$.
+Compute (a) $\mathbf{P}(X &gt; 7 \mid X &gt; 4)$, (b) $\mathbf{P}(X = 7\mid X&gt;4)$, and
+(c) $\mathbb{E}[X \mid X &gt; 4]$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> For a geometric variable with parameter $p$, $\mathbf{P}(X &gt; k) = (1-p)^k$:
+the event $\{X &gt; k\}$ says the first $k$ attempts all failed, and the attempts are independent.
+With $p = 0.2$ write $q = 1-p = 0.8$.</p>
+<p><b>(a) Step 1 &mdash; both tail probabilities.</b>
+$\mathbf{P}(X&gt;4) = 0.8^4 = 0.4096$ and $\mathbf{P}(X&gt;7) = 0.8^7 = 0.2097152$.
+Since $\{X&gt;7\}\subset\{X&gt;4\}$, the intersection is $\{X&gt;7\}$ itself.</p>
+<p><b>Step 2 &mdash; divide.</b></p>
+<p>$$\mathbf{P}(X&gt;7\mid X&gt;4) = \frac{\mathbf{P}(X&gt;7)}{\mathbf{P}(X&gt;4)}
+= \frac{0.2097152}{0.4096} = 0.512 = 0.8^{3} = \mathbf{P}(X&gt;3).$$</p>
+<p>The four wasted attempts have vanished: conditioned on $X&gt;4$, the number of <em>further</em>
+attempts is again geometric($0.2$).</p>
+<p><b>(b)</b> $\mathbf{P}(X=7\mid X&gt;4) = \dfrac{p_X(7)}{\mathbf{P}(X&gt;4)}
+= \dfrac{0.8^{6}(0.2)}{0.8^{4}} = 0.8^{2}(0.2) = 0.64(0.2) = 0.128 = p_X(3)$ &mdash; the
+same memorylessness, one value at a time.</p>
+<p><b>(c)</b> Because $X - 4$ given $\{X&gt;4\}$ is geometric($0.2$) with mean $1/p = 5$,</p>
+<p>$$\mathbb{E}[X\mid X&gt;4] = 4 + \frac1p = 4 + 5 = 9 .$$</p>
+<p>(Monte Carlo over $400{,}000$ geometric draws: conditional probability $0.5108$ and conditional
+mean $8.985$ &mdash; matching $0.512$ and $9$.)</p>
+<p><b>Answer.</b> $\;$(a) $0.512$, (b) $0.128$, (c) $\mathbb{E}[X\mid X&gt;4] = 9$.</p>
+<p><b>Trap.</b> The tempting answer to (c) is $\mathbb{E}[X\mid X&gt;4] = 1/p = 5$ &mdash; "it's
+memoryless, so nothing changed." What is memoryless is the <em>remaining</em> wait, $X-4$; the
+variable $X$ itself counts from the original start, so it must exceed $4$. Answering $5$
+contradicts the conditioning event.</p>
+<p class="srcref">Tool: G2 &sect;3.5 (geometric memorylessness) &middot; B&amp;T &sect;2.6</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q31" data-diff="1" data-topic="joint-pmf">
+<p><b>Q31.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Marginals and conditionals &middot; <span class="ref">G2 &sect;4.2</span></span></p>
+<p>Two random variables $X\in\{1,2,3\}$ (number of items a customer buys) and $Y\in\{0,1,2\}$
+(number of coupons used) have the joint PMF below; each table entry is the numerator over $20$,
+so e.g. $p_{X,Y}(2,1) = 3/20$.</p>
+<p>$$p_{X,Y}(x,y) = \frac{1}{20}\times\begin{array}{c|ccc}
+x\backslash y &amp; 0 &amp; 1 &amp; 2\\\hline
+1 &amp; 2 &amp; 1 &amp; 1\\
+2 &amp; 1 &amp; 3 &amp; 4\\
+3 &amp; 3 &amp; 4 &amp; 1
+\end{array}$$</p>
+<p>(a) Find both marginal PMFs. (b) Find $\mathbb{E}[X]$. (c) Find the conditional PMF
+$p_{X\mid Y}(x\mid 1)$ and $\mathbb{E}[X\mid Y=1]$. (d) Are $X$ and $Y$ independent?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The entries total $2+1+1+1+3+4+3+4+1 = 20$, so the table is a legitimate PMF.
+Marginals are obtained by summing the joint over the other variable:
+$p_X(x) = \sum_y p_{X,Y}(x,y)$.</p>
+<p><b>(a) Row and column sums.</b> Rows: $2+1+1 = 4$, $1+3+4 = 8$, $3+4+1 = 8$, so</p>
+<p>$$p_X(1) = \tfrac{4}{20} = 0.2,\qquad p_X(2) = \tfrac{8}{20} = 0.4,\qquad p_X(3) = \tfrac{8}{20} = 0.4 .$$</p>
+<p>Columns: $2+1+3 = 6$, $1+3+4 = 8$, $1+4+1 = 6$, so</p>
+<p>$$p_Y(0) = \tfrac{6}{20} = 0.3,\qquad p_Y(1) = \tfrac{8}{20} = 0.4,\qquad p_Y(2) = \tfrac{6}{20} = 0.3 .$$</p>
+<p>Both sets sum to $1$ &#10003;.</p>
+<p><b>(b)</b> $\mathbb{E}[X] = 1(0.2) + 2(0.4) + 3(0.4) = 0.2+0.8+1.2 = 2.2$.</p>
+<p><b>(c) Condition on the column $Y=1$</b> by dividing that column by its total $p_Y(1) = 8/20$:</p>
+<p>$$p_{X\mid Y}(x\mid 1) = \frac{p_{X,Y}(x,1)}{p_Y(1)}
+= \frac{1/20}{8/20},\;\frac{3/20}{8/20},\;\frac{4/20}{8/20}
+= 0.125,\; 0.375,\; 0.5 \quad (x=1,2,3),$$</p>
+<p>which sums to $1$ &#10003; &mdash; conditioning renormalizes a slice into a PMF of its own. Then</p>
+<p>$$\mathbb{E}[X\mid Y=1] = 1(0.125) + 2(0.375) + 3(0.5) = 0.125 + 0.75 + 1.5 = 2.375 .$$</p>
+<p><b>(d)</b> Not independent. Independence requires $p_{X,Y}(x,y) = p_X(x)p_Y(y)$ for
+<em>every</em> pair. Test $(1,1)$: $p_X(1)p_Y(1) = (0.2)(0.4) = 0.08$, but the table says
+$p_{X,Y}(1,1) = 1/20 = 0.05$. One violated cell settles it. (Consistently,
+$\mathbb{E}[X\mid Y=1] = 2.375 \neq 2.2 = \mathbb{E}[X]$: learning $Y$ changed the outlook for $X$.)</p>
+<p><b>Answer.</b> $\;p_X = (0.2,0.4,0.4)$, $p_Y = (0.3,0.4,0.3)$; $\mathbb{E}[X] = 2.2$;
+$p_{X\mid Y}(\cdot\mid1) = (0.125,0.375,0.5)$ with $\mathbb{E}[X\mid Y=1] = 2.375$; $X$ and $Y$
+are dependent.</p>
+<p><b>Trap.</b> The common slip in (c) is to weight $x$ by the raw joint entries and skip the
+division by $p_Y(1)$: $1(\tfrac1{20}) + 2(\tfrac3{20}) + 3(\tfrac4{20}) = \tfrac{19}{20} = 0.95$.
+That is $\mathbb{E}[X\,\mathbf{1}\{Y=1\}]$, not a conditional expectation &mdash; and $0.95$ is
+below every value $X$ can take, which is the giveaway. A conditional expectation must be an
+average against a PMF that sums to $1$; here the slice sums only to $p_Y(1) = 0.4$, and indeed
+$0.95/0.4 = 2.375$ recovers the right answer.</p>
+<p class="srcref">Tool: G2 &sect;4.2&ndash;4.3 (marginals, conditional PMFs) &middot; B&amp;T &sect;2.5&ndash;2.6</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q32" data-diff="1" data-topic="conditioning">
+<p><b>Q32.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Total expectation theorem &middot; <span class="ref">G2 &sect;3.6</span></span></p>
+<p>A print queue receives two kinds of job. With probability $0.4$ the job is a <em>form</em>,
+whose page count is uniform on $\{1,2,3,4,5\}$. With probability $0.6$ it is a <em>report</em>,
+whose page count is geometric with parameter $0.25$ (pages $1,2,3,\dots$). Let $X$ be the number
+of pages of the next job. Find $\mathbb{E}[X]$ and $\mathbf{P}(X = 2)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The events $A = \{\text{form}\}$ and $B = \{\text{report}\}$ partition the sample
+space with $\mathbf{P}(A) = 0.4$, $\mathbf{P}(B) = 0.6$. The total expectation theorem says
+$\mathbb{E}[X] = \mathbf{P}(A)\,\mathbb{E}[X\mid A] + \mathbf{P}(B)\,\mathbb{E}[X\mid B]$, and the
+matching statement for probabilities is the total probability theorem.</p>
+<p><b>Step 1 &mdash; the two conditional means.</b> Uniform on $\{1,\dots,5\}$:
+$\mathbb{E}[X\mid A] = (1+5)/2 = 3$. Geometric($0.25$): $\mathbb{E}[X\mid B] = 1/0.25 = 4$.</p>
+<p><b>Step 2 &mdash; weight and add.</b></p>
+<p>$$\mathbb{E}[X] = 0.4(3) + 0.6(4) = 1.2 + 2.4 = 3.6 \text{ pages}.$$</p>
+<p><b>Step 3 &mdash; the same partition for $\mathbf{P}(X=2)$.</b> Conditional values:
+$\mathbf{P}(X=2\mid A) = 1/5 = 0.2$, and $\mathbf{P}(X=2\mid B) = (1-0.25)^{1}(0.25)
+= (0.75)(0.25) = 0.1875$. Hence</p>
+<p>$$\mathbf{P}(X=2) = 0.4(0.2) + 0.6(0.1875) = 0.08 + 0.1125 = 0.1925 .$$</p>
+<p><b>Answer.</b> $\;\mathbb{E}[X] = 3.6$ pages and $\mathbf{P}(X=2) = 0.1925$.</p>
+<p><b>Trap.</b> Averaging the two conditional means without their weights gives
+$(3+4)/2 = 3.5$. The mixture weights are $0.4$ and $0.6$, not $0.5$ and $0.5$; the correct $3.6$
+leans toward the more likely report branch.</p>
+<p class="srcref">Tool: G2 &sect;3.6 (total expectation theorem) &middot; B&amp;T &sect;2.6</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q33" data-diff="2" data-topic="pmf">
+<p><b>Q33.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; The binomial PMF &middot; <span class="ref">G2 &sect;1.4</span></span></p>
+<p>A drug is given to $6$ patients who respond independently, each cured with probability
+$0.3$. Let $X$ be the number cured. (a) Compute $\mathbf{P}(X=2)$. (b) Without tabulating the
+whole PMF, use the ratio $p_X(k)/p_X(k-1)$ to find the most likely value of $X$. (c) Give
+$\mathbb{E}[X]$ and $\operatorname{var}(X)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $X$ is binomial with $n=6$, $p=0.3$:
+$p_X(k) = \binom6k (0.3)^k(0.7)^{6-k}$, $k=0,\dots,6$.</p>
+<p><b>(a)</b> $\binom62 = 15$, $(0.3)^2 = 0.09$, $(0.7)^4 = 0.2401$, so</p>
+<p>$$p_X(2) = 15(0.09)(0.2401) = 15(0.0216090) = 0.324135 .$$</p>
+<p><b>(b) Step 1 &mdash; form the ratio.</b> Using
+$\binom{n}{k}/\binom{n}{k-1} = (n-k+1)/k$,</p>
+<p>$$\frac{p_X(k)}{p_X(k-1)} = \frac{n-k+1}{k}\cdot\frac{p}{1-p}
+= \frac{7-k}{k}\cdot\frac{0.3}{0.7} = \frac{7-k}{k}\cdot 0.428571 .$$</p>
+<p><b>Step 2 &mdash; find where it crosses $1$.</b> At $k=2$: $\frac{5}{2}(0.428571) = 1.071429 &gt; 1$,
+so $p_X(2) &gt; p_X(1)$ &mdash; the PMF is still rising. At $k=3$:
+$\frac{4}{3}(0.428571) = 0.571429 &lt; 1$, so $p_X(3) &lt; p_X(2)$ &mdash; it has started falling. The
+ratio is decreasing in $k$, so the PMF rises to $k=2$ then falls: the mode is $k = 2$.
+Equivalently the mode is $\lfloor (n+1)p\rfloor = \lfloor 7(0.3)\rfloor = \lfloor 2.1\rfloor = 2$.</p>
+<p><b>Step 3 &mdash; sanity check by direct evaluation.</b> $p_X(1) = 6(0.3)(0.7)^5 = 0.302526$,
+$p_X(2) = 0.324135$, $p_X(3) = 20(0.027)(0.343) = 0.185220$. Indeed $k=2$ is the peak.</p>
+<p><b>(c)</b> $\mathbb{E}[X] = np = 6(0.3) = 1.8$ and
+$\operatorname{var}(X) = np(1-p) = 6(0.3)(0.7) = 1.26$.</p>
+<p><b>Answer.</b> $\;\mathbf{P}(X=2) = 0.324135$; the most likely value is $2$;
+$\mathbb{E}[X] = 1.8$, $\operatorname{var}(X) = 1.26$.</p>
+<p><b>Trap.</b> Do not conclude "the mode is the mean rounded." Here $\mathbb{E}[X] = 1.8$ rounds
+to $2$ and agrees by luck, but for $n=6$, $p=0.5$ the mean $3$ is the mode while for
+$n=5$, $p=0.5$ the mean $2.5$ is not an attainable value at all. The ratio test is the reliable
+route because it compares actual probabilities.</p>
+<p class="srcref">Tool: G2 &sect;1.4 (binomial PMF) &middot; B&amp;T &sect;2.2, &sect;2.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q34" data-diff="2" data-topic="expectation">
+<p><b>Q34.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Linearity via indicators &middot; <span class="ref">G2 &sect;4.8</span></span></p>
+<p>Five passengers board an elevator on the ground floor. Each independently selects one of the
+$8$ upper floors uniformly at random. Let $S$ be the number of floors at which the elevator
+stops. Find $\mathbb{E}[S]$, and explain why linearity of expectation is legitimate here even
+though the stop indicators for different floors are dependent.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Trying to build the PMF of $S$ directly is painful (it involves counting
+surjections). Instead decompose by <em>floor</em>: for $j = 1,\dots,8$ let</p>
+<p>$$I_j = \begin{cases}1, &amp; \text{the elevator stops at floor } j,\\ 0, &amp; \text{otherwise,}\end{cases}
+\qquad S = I_1 + I_2 + \cdots + I_8 .$$</p>
+<p><b>Step 1 &mdash; the mean of one indicator.</b> For a $0$&ndash;$1$ variable,
+$\mathbb{E}[I_j] = \mathbf{P}(I_j = 1)$. Floor $j$ is skipped exactly when all five passengers
+choose one of the other $7$ floors; each does so with probability $7/8$, independently, so</p>
+<p>$$\mathbf{P}(I_j = 0) = \left(\frac78\right)^5 = \frac{16807}{32768} = 0.512909,
+\qquad \mathbb{E}[I_j] = 1 - 0.512909 = 0.487091 .$$</p>
+<p><b>Step 2 &mdash; add up.</b> By linearity,</p>
+<p>$$\mathbb{E}[S] = \sum_{j=1}^{8}\mathbb{E}[I_j] = 8(0.487091) = 3.896729 \approx 3.90 \text{ stops}.$$</p>
+<p>(Monte Carlo, $20{,}000$ trials: $3.9011$ &#10003;.)</p>
+<p><b>Step 3 &mdash; why dependence does not matter.</b> The $I_j$ are certainly dependent: if
+seven floors are known to be skipped, the eighth must be a stop. But
+$\mathbb{E}[I_1+\cdots+I_8] = \sum_j\mathbb{E}[I_j]$ follows from the expected-value rule applied
+to the joint PMF and requires no independence assumption whatsoever. Independence would only be
+needed if the question asked for $\operatorname{var}(S)$ or for $\mathbb{E}[I_iI_j]$ to factor.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[S] = 8\big(1-(7/8)^5\big) = 3.8967$ stops.</p>
+<p><b>Trap.</b> Two wrong answers: $5$ ("one stop per passenger" &mdash; ignores collisions) and
+$8\cdot\frac58 = 5$ (a garbled proportionality). Both exceed the truth, because every pair of
+passengers sharing a floor removes a stop.</p>
+<p class="srcref">Tool: G2 &sect;4.8 (indicator decomposition, linearity) &middot; B&amp;T &sect;2.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q35" data-diff="2" data-topic="expectation">
+<p><b>Q35.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; $\mathbb{E}[g(X)]$ vs $g(\mathbb{E}[X])$ &middot; <span class="ref">G2 &sect;2.2</span></span></p>
+<p>A stall sells $X$ crates of fruit per hour with PMF $p_X(0) = 0.1$, $p_X(1) = 0.2$,
+$p_X(2) = 0.4$, $p_X(3) = 0.3$. Revenue net of spoilage is $g(X) = 3X - \tfrac12 X^2$ (in
+hundreds of dollars). (a) Compute $\mathbb{E}[g(X)]$. (b) Compute $g(\mathbb{E}[X])$.
+(c) Show that the difference equals $\tfrac12\operatorname{var}(X)$ and explain why.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The PMF sums to $0.1+0.2+0.4+0.3 = 1$ &#10003;. Because $g$ is a quadratic, the
+expected-value rule reduces to knowing the first two moments.</p>
+<p><b>Step 1 &mdash; the moments.</b></p>
+<p>$$\mathbb{E}[X] = 0(0.1)+1(0.2)+2(0.4)+3(0.3) = 0 + 0.2 + 0.8 + 0.9 = 1.9,$$</p>
+<p>$$\mathbb{E}[X^2] = 0(0.1)+1(0.2)+4(0.4)+9(0.3) = 0 + 0.2 + 1.6 + 2.7 = 4.5 .$$</p>
+<p><b>Step 2 &mdash; the variance,</b> from $\operatorname{var}(X) = \mathbb{E}[X^2]-(\mathbb{E}[X])^2
+= 4.5 - (1.9)^2 = 4.5 - 3.61 = 0.89$.</p>
+<p><b>(a)</b> By linearity applied <em>after</em> the expected-value rule,</p>
+<p>$$\mathbb{E}[g(X)] = 3\,\mathbb{E}[X] - \tfrac12\,\mathbb{E}[X^2]
+= 3(1.9) - 0.5(4.5) = 5.7 - 2.25 = 3.45 .$$</p>
+<p><b>(b)</b> $g(\mathbb{E}[X]) = 3(1.9) - 0.5(1.9)^2 = 5.7 - 0.5(3.61) = 5.7 - 1.805 = 3.895 .$</p>
+<p><b>(c)</b> Subtract:</p>
+<p>$$g(\mathbb{E}[X]) - \mathbb{E}[g(X)] = 3.895 - 3.45 = 0.445
+= \tfrac12(0.89) = \tfrac12\operatorname{var}(X).$$</p>
+<p>The reason is exact, not approximate: the only nonlinear term is $-\tfrac12X^2$, and
+$\mathbb{E}[X^2] - (\mathbb{E}[X])^2 = \operatorname{var}(X)$, so the two evaluations differ by
+precisely $\tfrac12\operatorname{var}(X)$. The curvature of $g$ is negative (concave), so the
+substituted value <em>over</em>states the true mean revenue.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[g(X)] = 3.45$, $\;g(\mathbb{E}[X]) = 3.895$, difference
+$0.445 = \tfrac12\operatorname{var}(X)$.</p>
+<p><b>Trap.</b> Reporting $3.895$ as "expected revenue" overstates it by $\$44.50$ per hour. Any
+time $g$ has curvature, plugging in the mean is a different computation from averaging the
+outputs &mdash; and here the size of the error is exactly a variance.</p>
+<p class="srcref">Tool: G2 &sect;2.2 (expected-value rule), &sect;3.2 (variance identity) &middot; B&amp;T &sect;2.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q36" data-diff="2" data-topic="variance">
+<p><b>Q36.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Variance from a PMF &middot; <span class="ref">G2 &sect;3.2</span></span></p>
+<p>On a commute you hit $X$ red lights, with $p_X(0) = 0.2$, $p_X(1) = 0.5$, $p_X(2) = 0.2$,
+$p_X(3) = 0.1$. Each red light costs exactly $40$ seconds, and the rest of the trip has a fixed
+overhead of $5$ seconds of delay, so total delay is $T = 40X + 5$ seconds. Find
+$\operatorname{var}(X)$, $\sigma_X$, $\mathbb{E}[T]$, $\operatorname{var}(T)$ and $\sigma_T$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The PMF sums to $0.2+0.5+0.2+0.1 = 1$ &#10003;. Use
+$\operatorname{var}(X) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$, which is almost always less work
+than $\mathbb{E}[(X-\mathbb{E}[X])^2]$ directly.</p>
+<p><b>Step 1 &mdash; first moment.</b></p>
+<p>$$\mathbb{E}[X] = 0(0.2) + 1(0.5) + 2(0.2) + 3(0.1) = 0 + 0.5 + 0.4 + 0.3 = 1.2 .$$</p>
+<p><b>Step 2 &mdash; second moment</b> (expected-value rule with $g(x)=x^2$):</p>
+<p>$$\mathbb{E}[X^2] = 0(0.2) + 1(0.5) + 4(0.2) + 9(0.1) = 0 + 0.5 + 0.8 + 0.9 = 2.2 .$$</p>
+<p><b>Step 3 &mdash; variance and standard deviation.</b></p>
+<p>$$\operatorname{var}(X) = 2.2 - (1.2)^2 = 2.2 - 1.44 = 0.76,
+\qquad \sigma_X = \sqrt{0.76} = 0.871780 .$$</p>
+<p><b>Step 4 &mdash; the transformed variable,</b> with $a = 40$, $b = 5$:</p>
+<p>$$\mathbb{E}[T] = 40(1.2) + 5 = 48 + 5 = 53 \text{ s},$$</p>
+<p>$$\operatorname{var}(T) = 40^2(0.76) = 1600(0.76) = 1216 \text{ s}^2,
+\qquad \sigma_T = \sqrt{1216} = 34.871192 \text{ s} = 40\,\sigma_X .$$</p>
+<p><b>Answer.</b> $\;\operatorname{var}(X) = 0.76$, $\sigma_X = 0.8718$;
+$\mathbb{E}[T] = 53$ s, $\operatorname{var}(T) = 1216\,\text{s}^2$, $\sigma_T = 34.87$ s.</p>
+<p><b>Trap.</b> Writing $\operatorname{var}(T) = 1600(0.76) + 5 = 1221$ carries the additive
+constant into the variance. A rigid shift of $5$ seconds moves every outcome and the mean by the
+same amount, so no deviation changes and the variance cannot move. Note also the units: variance
+is in seconds<sup>2</sup>, only $\sigma_T$ is in seconds.</p>
+<p class="srcref">Tool: G2 &sect;3.2 (variance, $\operatorname{var}(aX+b)$) &middot; B&amp;T &sect;2.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q37" data-diff="2" data-topic="geometric">
+<p><b>Q37.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Truncated geometric wait &middot; <span class="ref">G2 &sect;3.6</span></span></p>
+<p>A robot arm attempts to grip a part; each attempt succeeds with probability $p = 0.3$,
+independently. Policy allows at most $m = 4$ attempts: the arm stops at the first success, or
+after the fourth attempt, whichever comes first. Let $N$ be the number of attempts actually made,
+so $N = \min(X,4)$ where $X$ is geometric($0.3$). Derive a recursion for
+$a_m = \mathbb{E}[\min(X,m)]$ using the total expectation theorem, solve it for $m=4$, and
+compare with $\mathbb{E}[X]$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Write $q = 1-p = 0.7$. Define $a_m = \mathbb{E}[\min(X,m)]$ for $m = 0,1,2,\dots$,
+with $a_0 = \mathbb{E}[\min(X,0)] = 0$ (no attempts are allowed).</p>
+<p><b>Step 1 &mdash; condition on the first attempt.</b> Let $A$ be the event that attempt $1$
+succeeds, $\mathbf{P}(A) = p$, and $A^c$ its complement, $\mathbf{P}(A^c) = q$. Given $A$, exactly
+one attempt is made, so $\mathbb{E}[\min(X,m)\mid A] = 1$. Given $A^c$, one attempt has been spent
+and, by memorylessness, the process restarts with a budget of $m-1$ further attempts:</p>
+<p>$$\mathbb{E}[\min(X,m)\mid A^c] = 1 + \mathbb{E}[\min(X,m-1)] = 1 + a_{m-1}.$$</p>
+<p><b>Step 2 &mdash; total expectation theorem.</b></p>
+<p>$$a_m = p(1) + q(1 + a_{m-1}) = (p+q) + q\,a_{m-1} = 1 + q\,a_{m-1}, \qquad a_0 = 0 .$$</p>
+<p><b>Step 3 &mdash; iterate with $q = 0.7$.</b></p>
+<p>$$a_1 = 1 + 0.7(0) = 1,\qquad a_2 = 1 + 0.7(1) = 1.7,$$</p>
+<p>$$a_3 = 1 + 0.7(1.7) = 1 + 1.19 = 2.19,\qquad a_4 = 1 + 0.7(2.19) = 1 + 1.533 = 2.533 .$$</p>
+<p><b>Step 4 &mdash; closed form and check.</b> Unrolling the recursion gives a geometric sum:</p>
+<p>$$a_m = 1 + q + q^2 + \cdots + q^{m-1} = \frac{1-q^m}{1-q} = \frac{1-q^m}{p}.$$</p>
+<p>With $m=4$: $q^4 = (0.7)^4 = 0.2401$, so $a_4 = \dfrac{1-0.2401}{0.3} = \dfrac{0.7599}{0.3}
+= 2.533$ &#10003;. (Direct summation of $\sum_k \min(k,4)\,q^{k-1}p$ over $k\le 2000$ gives
+$2.5330$ &#10003;.)</p>
+<p><b>Step 5 &mdash; compare.</b> The untruncated mean is $\mathbb{E}[X] = 1/p = 3.3333$
+attempts; the cap removes $3.3333 - 2.533 = 0.8003$ attempts of expected work. Note also that the
+policy fails to grip with probability $q^4 = 0.2401$.</p>
+<p><b>Answer.</b> $\;a_m = 1 + q\,a_{m-1}$ with $a_0 = 0$, i.e. $a_m = (1-q^m)/p$; for $m=4$,
+$\mathbb{E}[N] = 2.533$ attempts versus $\mathbb{E}[X] = 3.3333$ uncapped.</p>
+<p><b>Trap.</b> $\mathbb{E}[\min(X,4)] \ne \min(\mathbb{E}[X],4) = \min(3.3333,4) = 3.3333$.
+The minimum is a nonlinear function, so it cannot be pushed through an expectation; the truth
+$2.533$ is strictly smaller because truncation only ever shortens outcomes.</p>
+<p class="srcref">Tool: G2 &sect;3.6 (total expectation), &sect;3.5 (memorylessness) &middot; B&amp;T &sect;2.6</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q38" data-diff="2" data-topic="joint-pmf">
+<p><b>Q38.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Independence of random variables &middot; <span class="ref">G2 &sect;4.5</span></span></p>
+<p>Let $X\in\{0,1\}$ and $Y\in\{0,1,2\}$ have joint PMF given by the table (entries are
+numerators over $24$):</p>
+<p>$$p_{X,Y}(x,y) = \frac{1}{24}\times\begin{array}{c|ccc}
+x\backslash y &amp; 0 &amp; 1 &amp; 2\\\hline
+0 &amp; 2 &amp; 4 &amp; 6\\
+1 &amp; 4 &amp; 2 &amp; 6
+\end{array}$$</p>
+<p>(a) Compute both marginals. (b) Decide whether $X$ and $Y$ are independent, checking every
+cell. (c) Compute $\mathbb{E}[XY]$ and $\mathbb{E}[X]\mathbb{E}[Y]$ and comment.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Marginals.</b> Row sums: $2+4+6 = 12$ and $4+2+6 = 12$, so
+$p_X(0) = p_X(1) = 12/24 = 0.5$. Column sums: $2+4 = 6$, $4+2 = 6$, $6+6 = 12$, so</p>
+<p>$$p_Y(0) = \tfrac{6}{24} = 0.25,\qquad p_Y(1) = \tfrac{6}{24} = 0.25,\qquad p_Y(2) = \tfrac{12}{24} = 0.5 .$$</p>
+<p><b>(b) The independence test, cell by cell.</b> Independence means
+$p_{X,Y}(x,y) = p_X(x)p_Y(y)$ for all six pairs. The products $p_X(x)p_Y(y)$ are
+$0.5(0.25) = 0.125$ in the $y=0$ and $y=1$ columns and $0.5(0.5) = 0.25$ in the $y=2$ column.
+Compare with the joint values:</p>
+<p>$$\begin{array}{c|ccc}
+(x,y) &amp; \text{joint} &amp; p_X p_Y &amp; \text{match?}\\\hline
+(0,0) &amp; 2/24 = 0.08333 &amp; 0.125 &amp; \text{no}\\
+(0,1) &amp; 4/24 = 0.16667 &amp; 0.125 &amp; \text{no}\\
+(0,2) &amp; 6/24 = 0.25 &amp; 0.25 &amp; \text{yes}\\
+(1,0) &amp; 4/24 = 0.16667 &amp; 0.125 &amp; \text{no}\\
+(1,1) &amp; 2/24 = 0.08333 &amp; 0.125 &amp; \text{no}\\
+(1,2) &amp; 6/24 = 0.25 &amp; 0.25 &amp; \text{yes}
+\end{array}$$</p>
+<p>Two cells agree, four do not. Independence is a statement about <em>all</em> pairs, so
+$X$ and $Y$ are dependent. Concretely, $p_{Y\mid X}(0\mid 0) = \frac{2/24}{12/24} = 1/6 = 0.1667$
+while $p_{Y\mid X}(0\mid 1) = \frac{4/24}{12/24} = 1/3 = 0.3333$: knowing $X$ changes the odds on $Y$.</p>
+<p><b>(c)</b> $\mathbb{E}[X] = 0(0.5)+1(0.5) = 0.5$ and
+$\mathbb{E}[Y] = 0(0.25)+1(0.25)+2(0.5) = 0 + 0.25 + 1 = 1.25$, so
+$\mathbb{E}[X]\mathbb{E}[Y] = 0.625$. Directly, only the $x=1$ row contributes to $XY$:</p>
+<p>$$\mathbb{E}[XY] = 1\cdot1\cdot\tfrac{2}{24} + 1\cdot2\cdot\tfrac{6}{24}
+= \tfrac{2}{24} + \tfrac{12}{24} = \tfrac{14}{24} = 0.583333 .$$</p>
+<p>Since $0.583333 \ne 0.625$, the product rule fails, which independently confirms dependence
+(the gap $-0.041667$ is the covariance, formalized in G3 &sect;4).</p>
+<p><b>Answer.</b> $\;p_X = (0.5,0.5)$, $p_Y = (0.25,0.25,0.5)$; $X$ and $Y$ are <em>not</em>
+independent; $\mathbb{E}[XY] = 0.5833 \ne 0.625 = \mathbb{E}[X]\mathbb{E}[Y]$.</p>
+<p><b>Trap.</b> Spot-checking a single cell such as $(0,2)$, where $0.25 = 0.25$, and declaring
+independence. Agreement on one cell &mdash; even on a whole column &mdash; proves nothing; the
+factorization must hold everywhere.</p>
+<p class="srcref">Tool: G2 &sect;4.5 (independence of random variables) &middot; B&amp;T &sect;2.7</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q39" data-diff="2" data-topic="conditioning">
+<p><b>Q39.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Two-stage experiment &middot; <span class="ref">G2 &sect;3.6</span></span></p>
+<p>First a number $N$ is drawn uniformly from $\{1,2,3\}$; then a fair coin is tossed $N$ times.
+Let $X$ be the number of heads obtained. (a) Find the PMF of $X$. (b) Find $\mathbb{E}[X]$ two
+ways: from the PMF, and by the total expectation theorem. (c) Find $\operatorname{var}(X)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Conditioned on $N = n$, $X$ is binomial($n, 1/2$), so
+$p_{X\mid N}(k\mid n) = \binom{n}{k}/2^n$. Each value of $N$ has probability $1/3$.</p>
+<p><b>(a) Total probability over the three branches.</b>
+$p_X(k) = \sum_{n=1}^{3}\tfrac13\,p_{X\mid N}(k\mid n)$. Branch by branch, in units of
+$\tfrac13$:</p>
+<p>$$n=1:\ \left(\tfrac12,\tfrac12\right);\qquad
+n=2:\ \left(\tfrac14,\tfrac24,\tfrac14\right);\qquad
+n=3:\ \left(\tfrac18,\tfrac38,\tfrac38,\tfrac18\right).$$</p>
+<p>Adding the columns with weight $1/3$ (common denominator $24$):</p>
+<p>$$p_X(0) = \tfrac13\left(\tfrac12+\tfrac14+\tfrac18\right) = \tfrac13\cdot\tfrac78 = \tfrac{7}{24} = 0.291667,$$</p>
+<p>$$p_X(1) = \tfrac13\left(\tfrac12+\tfrac12+\tfrac38\right) = \tfrac13\cdot\tfrac{11}{8} = \tfrac{11}{24} = 0.458333,$$</p>
+<p>$$p_X(2) = \tfrac13\left(0+\tfrac14+\tfrac38\right) = \tfrac13\cdot\tfrac58 = \tfrac{5}{24} = 0.208333,
+\qquad p_X(3) = \tfrac13\cdot\tfrac18 = \tfrac{1}{24} = 0.041667 .$$</p>
+<p>Check: $(7+11+5+1)/24 = 24/24 = 1$ &#10003;.</p>
+<p><b>(b) The mean, from the PMF:</b></p>
+<p>$$\mathbb{E}[X] = 0\cdot\tfrac{7}{24} + 1\cdot\tfrac{11}{24} + 2\cdot\tfrac{5}{24} + 3\cdot\tfrac{1}{24}
+= \frac{0 + 11 + 10 + 3}{24} = \frac{24}{24} = 1 .$$</p>
+<p>By the total expectation theorem: $\mathbb{E}[X\mid N=n] = n/2$, so</p>
+<p>$$\mathbb{E}[X] = \tfrac13\left(\tfrac12\right) + \tfrac13\left(\tfrac22\right) + \tfrac13\left(\tfrac32\right)
+= \tfrac13\cdot\tfrac{6}{2} = 1 \ \checkmark$$</p>
+<p>&mdash; the same answer with far less arithmetic, and it is just $\mathbb{E}[N]/2 = 2/2$.</p>
+<p><b>(c) Variance.</b> Second moment from the PMF:</p>
+<p>$$\mathbb{E}[X^2] = 0 + 1\cdot\tfrac{11}{24} + 4\cdot\tfrac{5}{24} + 9\cdot\tfrac{1}{24}
+= \frac{11+20+9}{24} = \frac{40}{24} = \frac53 = 1.666667,$$</p>
+<p>$$\operatorname{var}(X) = \frac53 - 1^2 = \frac23 = 0.666667 .$$</p>
+<p>(Monte Carlo, $40{,}000$ two-stage trials: mean $0.9987$, variance $0.6637$ &#10003;.)</p>
+<p><b>Answer.</b> $\;p_X = \left(\tfrac{7}{24},\tfrac{11}{24},\tfrac{5}{24},\tfrac{1}{24}\right)$,
+$\;\mathbb{E}[X] = 1$, $\;\operatorname{var}(X) = 2/3 = 0.6667$.</p>
+<p><b>Trap.</b> Averaging the conditional variances gives
+$\mathbb{E}[N]\cdot\tfrac12\cdot\tfrac12 = 2(0.25) = 0.5$, which is too small. That number
+accounts only for the coin-tossing noise <em>within</em> a branch and forgets the extra spread
+created by not knowing $N$. (The missing $0.1667$ is the variance of the conditional means
+$N/2$ &mdash; the law of total variance, developed in G4 &sect;1.)</p>
+<p class="srcref">Tool: G2 &sect;3.6 (total probability / total expectation) &middot; B&amp;T &sect;2.6</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q40" data-diff="2" data-topic="expectation">
+<p><b>Q40.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Inverting a size-biased sample &middot; <span class="ref">G2 &sect;2.5</span></span></p>
+<p>One evening a campus shuttle service ran an unknown number of vans, each carrying an unknown
+number of riders. Every rider was surveyed and asked how many people rode their van; because the
+survey reached all of them, picking a survey form at random is exactly picking a rider uniformly
+at random. Let $X$ be the number of riders on the van of a uniformly chosen rider. The completed
+survey gives</p>
+<p>$$p_X(8) = 0.1,\qquad p_X(12) = 0.15,\qquad p_X(20) = 0.25,\qquad p_X(40) = 0.5,$$</p>
+<p>and no other values occur. Assume no two vans carried the same number of riders. Let $Y$ be the
+number of riders on the van of a uniformly chosen <em>driver</em>.
+(a) Recover the total number of riders $T$ and the number of vans $k$ from the survey alone, and
+hence $\mathbb{E}[Y]$. (Hint for $k$: compute $\mathbb{E}[1/X]$.)
+(b) Compute $\mathbb{E}[X]$ and say which of $\mathbb{E}[X]$, $\mathbb{E}[Y]$ a rider experiences.
+(c) Each driver's attention is split equally among their riders, so a rider on a van of $n$ gets a
+share $1/n$. Compute $\mathbb{E}[1/Y]$ and compare it with $\mathbb{E}[1/X]$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup &mdash; what a rider-sampled PMF looks like.</b> Write $n_1,\dots,n_k$ for the van loads
+and $T=\sum_i n_i$ for the total ridership. A uniformly chosen rider has probability $1/T$; the
+event $\{X = n\}$ collects the riders of the (unique) van of load $n$, and there are $n$ of them,
+so</p>
+<p>$$p_X(n) = \frac{n}{T} .$$</p>
+<p>Probability proportional to the value itself: this is the <b>size-biased</b> PMF. Everything in
+this problem is read out of that one formula.</p>
+<p><b>(a) Step 1 &mdash; recover $T$.</b> Invert $p_X(n) = n/T$ at any reported value:
+$T = n/p_X(n) = 8/0.1 = 80$. The other three must agree, and they do &mdash;
+$12/0.15 = 80$, $20/0.25 = 80$, $40/0.5 = 80$ &mdash; which is the check that the survey really is
+size-biased. (Equivalently the four probabilities sum to $(8+12+20+40)/80 = 1$ &#10003;.)</p>
+<p><b>Step 2 &mdash; recover $k$.</b> The number of vans is not visible in $T$, but it is visible in
+$\mathbb{E}[1/X]$, because the weight $n/T$ cancels the $1/n$ exactly:</p>
+<p>$$\mathbb{E}\!\left[\frac1X\right] = \sum_n \frac1n\cdot\frac{n}{T} = \frac{k}{T} .$$</p>
+<p>Numerically $\mathbb{E}[1/X] = \frac{0.1}{8}+\frac{0.15}{12}+\frac{0.25}{20}+\frac{0.5}{40}
+= 0.0125\times 4 = 0.05$ (each term is the same $1/T$, as the identity predicts), so
+$k = T\,\mathbb{E}[1/X] = 80(0.05) = 4$ vans. The loads are therefore $8,12,20,40$.</p>
+<p><b>Step 3 &mdash; the driver-sampled mean.</b> Four drivers, one per van, each with probability
+$1/4$:</p>
+<p>$$\mathbb{E}[Y] = \frac{8+12+20+40}{4} = \frac{80}{4} = 20 = \frac{T}{k}
+= \frac{1}{\mathbb{E}[1/X]} \text{ riders}.$$</p>
+<p><b>(b) The rider-sampled mean.</b></p>
+<p>$$\mathbb{E}[X] = \sum_n n\cdot\frac{n}{T} = \frac{8^2+12^2+20^2+40^2}{80}
+= \frac{64+144+400+1600}{80} = \frac{2208}{80} = 27.6 \text{ riders}.$$</p>
+<p>A rider experiences $\mathbb{E}[X] = 27.6$; the figure $20$ is what a <em>driver</em> sees.
+Cross-check with the variance-to-mean identity: $\mathbb{E}[Y^2] = 2208/4 = 552$, so
+$\operatorname{var}(Y) = 552 - 20^2 = 152$, and</p>
+<p>$$\mathbb{E}[Y] + \frac{\operatorname{var}(Y)}{\mathbb{E}[Y]} = 20 + \frac{152}{20}
+= 20 + 7.6 = 27.6 = \mathbb{E}[X]\ \checkmark$$</p>
+<p>a $38\%$ overshoot, and the excess is exactly the dispersion of the loads.</p>
+<p><b>(c) The attention share.</b> From Step 2, $\mathbb{E}[1/X] = 0.05 = 1/20$: the average rider
+gets one-twentieth of a driver, i.e. total drivers over total riders. Averaging over drivers
+instead,</p>
+<p>$$\mathbb{E}\!\left[\frac1Y\right] = \frac14\left(\frac18+\frac1{12}+\frac1{20}+\frac1{40}\right)
+= \frac14(0.125+0.083333+0.05+0.025) = \frac{0.283333}{4} = 0.070833 .$$</p>
+<p><b>Interpretation.</b> The service can truthfully advertise "the average van gives each rider
+$0.0708$ of a driver's attention", while the average <em>rider</em> gets only $0.05$ &mdash;
+because half the riders sit in the $40$-seat van. Note which quantity is clean: it is
+$\mathbb{E}[1/X]$, the rider-averaged share, that equals the aggregate ratio $k/T$ exactly.</p>
+<p><b>Answer.</b> $\;$(a) $T = 80$ riders, $k = 4$ vans, $\mathbb{E}[Y] = 20$;
+(b) $\mathbb{E}[X] = 27.6$, which is the figure a rider experiences;
+(c) $\mathbb{E}[1/Y] = 0.0708$ versus $\mathbb{E}[1/X] = 0.05$.</p>
+<p><b>Trap.</b> Reading the identity backwards and reporting $1/\mathbb{E}[1/Y] = 1/0.070833
+= 14.12$ as "the average van load". That is the <em>harmonic</em> mean of $8,12,20,40$, and it is
+smaller than every route to the truth: the plain mean is $20$ and the rider-experienced mean is
+$27.6$. Only $\mathbb{E}[1/X]$ &mdash; the rider-side average &mdash; inverts to a plain mean.</p>
+<p class="srcref">Tool: G2 &sect;2.5 (size-biased vs uniform sampling), &sect;2.2 (expected-value rule) &middot; B&amp;T &sect;2.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q41" data-diff="2" data-topic="joint-pmf">
+<p><b>Q41.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Spot the error &middot; <span class="ref">G2 &sect;4.5</span></span></p>
+<p>Let $X$ be uniform on $\{-1,0,1\}$ and set $Y = |X|$. A student writes:</p>
+<p><em>"$\mathbb{E}[X] = 0$ and $\mathbb{E}[XY] = \frac13(-1)(1) + \frac13(0)(0) + \frac13(1)(1) = 0$,
+so $\mathbb{E}[XY] = \mathbb{E}[X]\mathbb{E}[Y]$. Therefore $X$ and $Y$ are independent, and in
+particular $\mathbf{P}(X = 0, Y = 0) = \mathbf{P}(X=0)\mathbf{P}(Y=0) = \frac13\cdot\frac13 = \frac19$."</em></p>
+<p>Identify the error, give the correct value of $\mathbf{P}(X=0,Y=0)$, and state precisely what
+the computation $\mathbb{E}[XY] = \mathbb{E}[X]\mathbb{E}[Y]$ does and does not establish.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 &mdash; the arithmetic is right.</b>
+$\mathbb{E}[X] = \frac{-1+0+1}{3} = 0$; $\;\mathbb{E}[Y] = \frac{1+0+1}{3} = \frac23 = 0.666667$;
+$\;\mathbb{E}[XY] = \mathbb{E}\big[X|X|\big] = \frac{(-1)(1) + 0 + (1)(1)}{3} = 0$. So indeed
+$\mathbb{E}[XY] = 0 = 0\cdot\frac23 = \mathbb{E}[X]\mathbb{E}[Y]$.</p>
+<p><b>Step 2 &mdash; the error is the implication.</b> The factorization
+$\mathbb{E}[XY] = \mathbb{E}[X]\mathbb{E}[Y]$ (equivalently $\operatorname{cov}(X,Y) = 0$,
+"uncorrelated") is a <em>consequence</em> of independence, not a criterion for it. Independence is
+the much stronger requirement $p_{X,Y}(x,y) = p_X(x)p_Y(y)$ for every pair $(x,y)$; a single
+scalar equation cannot certify a whole table.</p>
+<p><b>Step 3 &mdash; the correct probability.</b> Here $Y$ is a <em>function</em> of $X$, so knowing
+$X$ determines $Y$ completely. The event $\{X=0, Y=0\}$ is just $\{X=0\}$, because $X=0$ forces
+$Y = |0| = 0$:</p>
+<p>$$\mathbf{P}(X=0,\,Y=0) = \mathbf{P}(X=0) = \frac13 = 0.333333 \;\neq\; \frac19 = 0.111111 .$$</p>
+<p>The claimed value is off by a factor of $3$. Equivalently
+$\mathbf{P}(Y=0\mid X=0) = 1$ while $\mathbf{P}(Y=0) = \frac13$ &mdash; conditioning changes the
+distribution, the definition of dependence.</p>
+<p><b>Step 4 &mdash; what the zero covariance <em>does</em> buy.</b> It gives
+$\operatorname{var}(X+Y) = \operatorname{var}(X)+\operatorname{var}(Y)$, since the cross term
+$2\operatorname{cov}(X,Y)$ vanishes. Check: $\operatorname{var}(X) = \mathbb{E}[X^2] - 0 = \frac23
+= 0.666667$; $\operatorname{var}(Y) = \frac23 - \left(\frac23\right)^2 = \frac23-\frac49 = \frac29
+= 0.222222$; sum $= \frac89 = 0.888889$. Directly, $X+Y$ takes values $0,0,2$ each with the
+respective probabilities $\frac13,\frac13,\frac13$, so $\mathbb{E}[X+Y] = \frac23$,
+$\mathbb{E}[(X+Y)^2] = \frac43$, and $\operatorname{var}(X+Y) = \frac43-\frac49 = \frac89
+= 0.888889$ &#10003;.</p>
+<p><b>Answer.</b> $\;$The error is inferring independence from $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$.
+The correct value is $\mathbf{P}(X=0,Y=0) = 1/3$, not $1/9$. Uncorrelated does not imply
+independent; it only licenses variances to add.</p>
+<p><b>Trap.</b> The example is the canonical one: a symmetric $X$ and an even function of it are
+always uncorrelated and never independent (unless degenerate). Any argument of the form "the
+means multiplied, so the variables are independent" is unsalvageable.</p>
+<p class="srcref">Tool: G2 &sect;4.5 (independence), &sect;4.7 (variance of a sum) &middot; B&amp;T &sect;2.7</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q42" data-diff="2" data-topic="variance">
+<p><b>Q42.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; True or false, with reason &middot; <span class="ref">G2 &sect;5.4</span></span></p>
+<p>Decide true or false, and justify each in one or two lines.
+(a) If $\operatorname{var}(X) = 0$ then $X$ equals a constant with probability $1$.
+(b) $\operatorname{var}(2X-5) = 4\operatorname{var}(X) $ for every $X$ with finite variance.
+(c) For every positive random variable, $\mathbb{E}[1/X] = 1/\mathbb{E}[X]$.
+(d) If $X$ and $Y$ are independent, then $\operatorname{var}(X-Y) = \operatorname{var}(X) - \operatorname{var}(Y)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) True.</b> By definition
+$\operatorname{var}(X) = \sum_x (x-\mathbb{E}[X])^2 p_X(x)$, a sum of nonnegative terms. It is
+zero only if every term is zero, i.e. $p_X(x) = 0$ for every $x \ne \mathbb{E}[X]$. So all the
+mass sits at the single point $\mathbb{E}[X]$.</p>
+<p><b>(b) True.</b> $\operatorname{var}(aX+b) = a^2\operatorname{var}(X)$ with $a = 2$, $b = -5$:
+the shift $-5$ moves the mean by $-5$ as well, leaving every deviation unchanged, and the factor
+$2$ doubles each deviation, hence quadruples each squared deviation. So the multiplier is
+$a^2 = 4$.</p>
+<p><b>(c) False.</b> Counterexample: $X$ uniform on $\{1,2,3,4,5\}$ gives $\mathbb{E}[X] = 3$,
+so $1/\mathbb{E}[X] = 0.333333$, whereas
+$\mathbb{E}[1/X] = \frac15\left(1+\frac12+\frac13+\frac14+\frac15\right) = \frac{137}{300}
+= 0.456667$. The reciprocal is a nonlinear (convex) function, so it cannot be moved through an
+expectation; in fact $\mathbb{E}[1/X] \ge 1/\mathbb{E}[X]$ always, with equality only for a
+constant $X$.</p>
+<p><b>(d) False.</b> Variances never subtract. Writing $X - Y = X + (-1)Y$ and using independence,</p>
+<p>$$\operatorname{var}(X-Y) = \operatorname{var}(X) + (-1)^2\operatorname{var}(Y)
+= \operatorname{var}(X) + \operatorname{var}(Y).$$</p>
+<p>Subtracting an independent variable adds noise; it does not cancel it. The claimed rule would
+also allow negative variances (take $\operatorname{var}(Y) &gt; \operatorname{var}(X)$), which is
+impossible.</p>
+<p><b>Answer.</b> $\;$(a) True; (b) True; (c) False ($0.4567 \ne 0.3333$); (d) False &mdash; the
+variances <em>add</em>.</p>
+<p><b>Trap.</b> Statement (d) catches readers who remember "independence lets variances combine"
+but not that the combination is always addition, because the sign enters squared.</p>
+<p class="srcref">Tool: G2 &sect;3.2 (variance identities), &sect;4.7 (variance of a sum) &middot; B&amp;T &sect;2.4, &sect;2.7</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q43" data-diff="2" data-topic="geometric">
+<p><b>Q43.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Minimum of two geometrics &middot; <span class="ref">G2 &sect;3.5</span></span></p>
+<p>Two servers retry a task in synchronized rounds. In each round, server A succeeds with
+probability $0.25$ and server B with probability $0.40$, all attempts independent of each other
+and across rounds. Let $T$ be the number of the first round in which at least one server
+succeeds. Identify the distribution of $T$, then compute $\mathbb{E}[T]$,
+$\operatorname{var}(T)$ and $\mathbf{P}(T = 3)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 &mdash; the per-round success probability.</b> A round fails (for the pair) only if
+both servers fail. By independence within the round,</p>
+<p>$$\mathbf{P}(\text{round fails}) = (1-0.25)(1-0.40) = (0.75)(0.60) = 0.45,$$</p>
+<p>so the round succeeds with probability $p_T = 1 - 0.45 = 0.55$.</p>
+<p><b>Step 2 &mdash; identify the family.</b> Rounds are independent and identical, and $T$ counts
+rounds up to and including the first success. Hence $T$ is geometric with parameter $0.55$. The
+tail confirms it: $\mathbf{P}(T &gt; k) = 0.45^k$, since the first $k$ rounds must all fail.</p>
+<p><b>Step 3 &mdash; mean and variance,</b> from the geometric formulas $1/p$ and $(1-p)/p^2$:</p>
+<p>$$\mathbb{E}[T] = \frac{1}{0.55} = 1.818182 \text{ rounds},\qquad
+\operatorname{var}(T) = \frac{0.45}{0.55^2} = \frac{0.45}{0.3025} = 1.487603 .$$</p>
+<p><b>Step 4 &mdash; a specific value.</b>
+$\mathbf{P}(T=3) = (0.45)^2(0.55) = (0.2025)(0.55) = 0.111375$.</p>
+<p>(Monte Carlo, $300{,}000$ paired runs: $\mathbb{E}[T] \approx 1.8137$,
+$\operatorname{var}(T) \approx 1.4760$ &#10003;.)</p>
+<p><b>Answer.</b> $\;T\sim$ geometric($0.55$); $\mathbb{E}[T] = 1.8182$,
+$\operatorname{var}(T) = 1.4876$, $\mathbf{P}(T=3) = 0.111375$.</p>
+<p><b>Trap.</b> Two tempting wrong routes: (i) "the faster server dominates, so
+$\mathbb{E}[T] = \min(1/0.25,\,1/0.40) = 2.5$" &mdash; the minimum of the two waits is faster than
+<em>either</em> alone, not equal to the faster one; (ii) adding probabilities,
+$0.25+0.40 = 0.65$ &mdash; that double-counts rounds in which both succeed, which have probability
+$0.25(0.40) = 0.10$; note $0.65 - 0.10 = 0.55$ &#10003;, recovering the correct $p_T$.</p>
+<p class="srcref">Tool: G2 &sect;3.5 (geometric tail probabilities), &sect;4.5 (independence) &middot; B&amp;T &sect;2.2, &sect;2.7</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q44" data-diff="3" data-topic="conditioning">
+<p><b>Q44.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; State recursion &middot; <span class="ref">G2 &sect;3.8</span></span></p>
+<p>A fair coin is tossed repeatedly. Let $L$ be the number of tosses needed until the pattern
+<b>HT</b> (a head immediately followed by a tail) first appears. Set up and solve a system of
+conditional-expectation equations for $\mathbb{E}[L]$. Then compare with the known answer $6$ for
+the pattern <b>HH</b>, and explain in words why the two differ even though both patterns have
+probability $1/4$ in any fixed pair of tosses.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup &mdash; define states by "useful progress so far".</b> What matters about the past is
+only whether the previous toss was an H waiting for its T. Define</p>
+<p>$$\mu_0 = \mathbb{E}[\text{further tosses needed}\mid \text{no pending H}],\qquad
+\mu_1 = \mathbb{E}[\text{further tosses needed}\mid \text{last toss was H}].$$</p>
+<p>We want $\mathbb{E}[L] = \mu_0$, the value at the start.</p>
+<p><b>Step 1 &mdash; the equation at state 1.</b> From state $1$ we toss once (cost $1$). With
+probability $\tfrac12$ we get T and the pattern HT is complete; with probability $\tfrac12$ we get
+H, and the last toss is again a pending H, i.e. we return to state $1$. By the total expectation
+theorem,</p>
+<p>$$\mu_1 = 1 + \tfrac12(0) + \tfrac12\,\mu_1 \;\Longrightarrow\; \tfrac12\mu_1 = 1
+\;\Longrightarrow\; \mu_1 = 2 .$$</p>
+<p><b>Step 2 &mdash; the equation at state 0.</b> Toss once (cost $1$): with probability $\tfrac12$
+an H moves us to state $1$; with probability $\tfrac12$ a T leaves us in state $0$ (a T is useless
+as the first symbol of HT). So</p>
+<p>$$\mu_0 = 1 + \tfrac12\mu_1 + \tfrac12\mu_0 \;\Longrightarrow\;
+\tfrac12\mu_0 = 1 + \tfrac12(2) = 2 \;\Longrightarrow\; \mu_0 = 4 .$$</p>
+<p><b>Step 3 &mdash; the HH comparison.</b> For HH the same method gives
+$\nu_1 = 1 + \tfrac12(0) + \tfrac12\nu_0$ and $\nu_0 = 1 + \tfrac12\nu_1 + \tfrac12\nu_0$, whose
+solution is $\nu_0 = 6$ and $\nu_1 = 4$. So HT takes $4$ tosses on average and HH takes $6$; the
+gap is $2$.</p>
+<p>(Monte Carlo, $60{,}000$ runs each: HT $\to 4.0044$, HH $\to 5.9913$ &#10003;.)</p>
+<p><b>Step 4 &mdash; why they differ.</b> The two patterns have the same probability $1/4$ of
+occupying any <em>given</em> pair of positions, but waiting times depend on how a failed attempt
+sets you back. For HT, once you have seen an H you can never lose that progress: every subsequent
+H keeps you in state $1$, so you sit there until the first T. For HH, a mismatch (an H followed by
+a T) destroys the progress entirely and sends you back to state $0$. Self-overlapping patterns are
+"clumpy": HH occurrences cluster (HHH contains two), and to keep the long-run rate at $1/4$ the
+gaps between clusters must be longer.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[L] = 4$ tosses for HT, versus $6$ for HH.</p>
+<p><b>Trap.</b> The tempting answer is "both are $4$" (or "both are $1/(1/4) = 4$"), reasoning that
+a pattern of probability $1/4$ should take $4$ trials as with a geometric variable. Successive
+overlapping pairs are not independent trials, so the geometric formula does not apply &mdash; it
+happens to give the right number for HT and the wrong one for HH.</p>
+<p class="srcref">Tool: G2 &sect;3.8 (state recursions), &sect;3.6 (total expectation) &middot; B&amp;T &sect;2.6</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q45" data-diff="3" data-topic="variance">
+<p><b>Q45.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Variance of a sum of dependent indicators &middot; <span class="ref">G2 &sect;4.10</span></span></p>
+<p>A fair coin is tossed $5$ times. Let $X$ be the number of positions $i \in\{1,2,3,4\}$ such
+that tosses $i$ and $i+1$ are <em>both</em> heads (so $X$ counts adjacent HH pairs, and overlapping
+pairs are counted separately: HHH contributes $2$). Compute $\mathbb{E}[X]$ and
+$\operatorname{var}(X)$ using indicators, showing the cross terms explicitly.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> For $i=1,\dots,4$ let $I_i$ indicate that tosses $i$ and $i+1$ are both heads, so
+$X = I_1+I_2+I_3+I_4$. Each $I_i$ is Bernoulli with
+$\mathbb{E}[I_i] = \mathbf{P}(\text{two specified tosses are H}) = \tfrac14$.</p>
+<p><b>Step 1 &mdash; the mean.</b> By linearity (no independence needed),</p>
+<p>$$\mathbb{E}[X] = 4\left(\tfrac14\right) = 1 .$$</p>
+<p><b>Step 2 &mdash; expand the second moment.</b> Since $I_i^2 = I_i$ for a $0$&ndash;$1$ variable,</p>
+<p>$$\mathbb{E}[X^2] = \mathbb{E}\Big[\sum_i I_i^2 + \sum_{i\ne j} I_iI_j\Big]
+= \sum_{i}\mathbb{E}[I_i] + \sum_{i\ne j}\mathbb{E}[I_iI_j]
+= 1 + \sum_{i\ne j}\mathbb{E}[I_iI_j],$$</p>
+<p>where the sum runs over all $4\cdot3 = 12$ <em>ordered</em> pairs $i \ne j$.</p>
+<p><b>Step 3 &mdash; the two kinds of cross term.</b> $\mathbb{E}[I_iI_j] = \mathbf{P}(I_i = I_j = 1)$.</p>
+<p><em>Overlapping pairs</em> ($|i-j| = 1$): $I_iI_{i+1} = 1$ requires three consecutive heads, so
+$\mathbb{E}[I_iI_{i+1}] = (1/2)^3 = 1/8 = 0.125$. The ordered pairs of this type are
+$(1,2),(2,3),(3,4)$ and their reverses: $6$ of them.</p>
+<p><em>Disjoint pairs</em> ($|i-j| \ge 2$): the two indicators involve four distinct tosses, and
+distinct tosses are independent, so $\mathbb{E}[I_iI_j] = \tfrac14\cdot\tfrac14 = 1/16 = 0.0625$.
+The ordered pairs of this type are $(1,3),(2,4),(1,4)$ and their reverses: $6$ of them.</p>
+<p><b>Step 4 &mdash; add.</b></p>
+<p>$$\sum_{i\ne j}\mathbb{E}[I_iI_j] = 6\left(\tfrac18\right) + 6\left(\tfrac1{16}\right)
+= 0.75 + 0.375 = 1.125,$$</p>
+<p>$$\mathbb{E}[X^2] = 1 + 1.125 = 2.125,\qquad
+\operatorname{var}(X) = 2.125 - 1^2 = 1.125 = \tfrac98 .$$</p>
+<p><b>Step 5 &mdash; verification by full enumeration.</b> Over all $2^5 = 32$ equally likely
+sequences the PMF is $p_X(0) = 13/32 = 0.40625$, $p_X(1) = 10/32 = 0.3125$,
+$p_X(2) = 6/32 = 0.1875$, $p_X(3) = 2/32 = 0.0625$, $p_X(4) = 1/32 = 0.03125$ (summing to $1$),
+giving mean $1$ and variance $1.125$ &#10003;. Monte Carlo over $300{,}000$ runs: $0.9959$ and
+$1.1215$ &#10003;.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[X] = 1$ and $\operatorname{var}(X) = 9/8 = 1.125$.</p>
+<p><b>Trap.</b> Treating $X$ as binomial($4,1/4$) gives $\operatorname{var}(X) = 4(0.25)(0.75)
+= 0.75$ &mdash; too small by $0.375$. The mean survives that mistake (linearity never needed
+independence), but the variance does not: overlapping indicators are <em>positively</em>
+correlated, since a run of heads triggers several at once, and positive correlation inflates the
+spread.</p>
+<p class="srcref">Tool: G2 &sect;4.10 (indicators without independence), &sect;4.7 (variance of a sum) &middot; B&amp;T &sect;2.7</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q46" data-diff="3" data-topic="geometric">
+<p><b>Q46.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; A sum of geometrics &middot; <span class="ref">G2 &sect;3.7</span></span></p>
+<p>A cereal box contains one of three equally likely toy types, independently across boxes. Let
+$T$ be the number of boxes you must buy to collect all three types. Compute $\mathbb{E}[T]$ and
+$\operatorname{var}(T)$ by decomposing $T$ into independent geometric stages.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup &mdash; the stage decomposition.</b> Split the purchase sequence at the moments when
+your collection grows. Let $T_1$ be the number of boxes needed to get your first distinct type,
+$T_2$ the number of <em>further</em> boxes needed to get a second distinct type, and $T_3$ the
+number of further boxes to get the third. Then $T = T_1+T_2+T_3$.</p>
+<p><b>Step 1 &mdash; each stage is geometric.</b> During stage $i$ you already hold $i-1$ distinct
+types, so each new box is "useful" with probability $p_i = \frac{3-(i-1)}{3}$, independently of
+everything before it (each box is an independent draw). Hence $T_i$ is geometric($p_i$) with</p>
+<p>$$p_1 = \frac33 = 1,\qquad p_2 = \frac23 = 0.666667,\qquad p_3 = \frac13 = 0.333333 .$$</p>
+<p>Moreover the $T_i$ are independent, because the stages depend on disjoint sets of boxes.</p>
+<p><b>Step 2 &mdash; the mean, by linearity and $\mathbb{E}[\text{geom}(p)] = 1/p$.</b></p>
+<p>$$\mathbb{E}[T] = \frac1{p_1} + \frac1{p_2} + \frac1{p_3} = 1 + 1.5 + 3
+= 3\left(1 + \frac12 + \frac13\right) = 3\left(\frac{11}{6}\right) = \frac{11}{2} = 5.5 \text{ boxes}.$$</p>
+<p><b>Step 3 &mdash; the variance.</b> Because the stages are independent, variances add, and
+$\operatorname{var}(\text{geom}(p)) = (1-p)/p^2$:</p>
+<p>$$\operatorname{var}(T_1) = \frac{0}{1} = 0,\qquad
+\operatorname{var}(T_2) = \frac{1/3}{(2/3)^2} = \frac{1/3}{4/9} = 0.75,\qquad
+\operatorname{var}(T_3) = \frac{2/3}{(1/3)^2} = \frac{2/3}{1/9} = 6 ,$$</p>
+<p>$$\operatorname{var}(T) = 0 + 0.75 + 6 = 6.75,\qquad \sigma_T = \sqrt{6.75} = 2.598076 .$$</p>
+<p>(The first stage has zero variance because the very first box is always useful:
+$T_1 \equiv 1$. Monte Carlo, $50{,}000$ runs: $\mathbb{E}[T]\approx 5.518$ &#10003;.)</p>
+<p><b>Interpretation.</b> Almost all of the waiting &mdash; and nearly all of the uncertainty
+&mdash; sits in the last stage, where only one of three types is still useful. This is the general
+shape of the coupon-collector problem: the mean is $n\sum_{k=1}^{n}1/k$ and the final coupon
+dominates.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[T] = 5.5$ boxes, $\operatorname{var}(T) = 6.75$,
+$\sigma_T = 2.598$.</p>
+<p><b>Trap.</b> Answering $3$ ("three types, three boxes") ignores repeats entirely. Note also
+that the variances may be added <em>only</em> because the stages are independent; the linearity
+step for the mean would have been valid regardless.</p>
+<p class="srcref">Tool: G2 &sect;3.7 (geometric mean and variance), &sect;4.7 (variance of a sum) &middot; B&amp;T &sect;2.4, &sect;2.7</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q47" data-diff="3" data-topic="expectation">
+<p><b>Q47.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; The tail-sum formula &middot; <span class="ref">G2 &sect;2.2</span></span></p>
+<p>(a) Let $X$ be a random variable taking values in $\{0,1,2,\dots,n\}$. Prove that</p>
+<p>$$\mathbb{E}[X] = \sum_{k=1}^{n} \mathbf{P}(X \ge k).$$</p>
+<p>(b) Use it to compute $\mathbb{E}[M]$ where $M$ is the maximum of two independent rolls of a
+fair six-sided die, and verify the result against the direct definition.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Step 1 &mdash; write each value as a count of thresholds.</b> For an integer $x \ge 0$,</p>
+<p>$$x = \sum_{k=1}^{n} \mathbf{1}\{x \ge k\},$$</p>
+<p>because exactly the $x$ thresholds $k = 1,2,\dots,x$ are met and the rest are not.</p>
+<p><b>Step 2 &mdash; take expectations and exchange the two finite sums.</b></p>
+<p>$$\mathbb{E}[X] = \sum_{x=0}^{n} x\,p_X(x)
+= \sum_{x=0}^{n} \left(\sum_{k=1}^{n}\mathbf{1}\{x\ge k\}\right)p_X(x)
+= \sum_{k=1}^{n}\sum_{x=0}^{n}\mathbf{1}\{x\ge k\}\,p_X(x)
+= \sum_{k=1}^{n}\mathbf{P}(X\ge k).$$</p>
+<p>The exchange is legitimate because both sums are finite. The inner sum
+$\sum_x \mathbf{1}\{x\ge k\}p_X(x)$ is precisely $\mathbf{P}(X\ge k)$, by additivity over the
+values $x \ge k$. $\blacksquare$</p>
+<p><b>(b) Step 1 &mdash; the tail probabilities of the maximum.</b> $M \ge k$ fails only if both
+dice show at most $k-1$; by independence,</p>
+<p>$$\mathbf{P}(M \le k-1) = \left(\frac{k-1}{6}\right)^2,\qquad
+\mathbf{P}(M \ge k) = 1 - \frac{(k-1)^2}{36}.$$</p>
+<p>Numerically: $\mathbf{P}(M\ge1) = 1$, $\mathbf{P}(M\ge2) = 1-\tfrac1{36} = 0.972222$,
+$\mathbf{P}(M\ge3) = 1-\tfrac4{36} = 0.888889$, $\mathbf{P}(M\ge4) = 1-\tfrac9{36} = 0.75$,
+$\mathbf{P}(M\ge5) = 1-\tfrac{16}{36} = 0.555556$, $\mathbf{P}(M\ge6) = 1-\tfrac{25}{36} = 0.305556$.</p>
+<p><b>Step 2 &mdash; add them.</b></p>
+<p>$$\mathbb{E}[M] = \sum_{k=1}^{6}\left(1 - \frac{(k-1)^2}{36}\right)
+= 6 - \frac{0+1+4+9+16+25}{36} = 6 - \frac{55}{36} = 6 - 1.527778 = 4.472222 = \frac{161}{36}.$$</p>
+<p><b>Step 3 &mdash; verification by the definition.</b> The PMF of the maximum is
+$p_M(m) = \mathbf{P}(M\le m) - \mathbf{P}(M\le m-1) = \frac{m^2-(m-1)^2}{36} = \frac{2m-1}{36}$,
+i.e. $\tfrac1{36},\tfrac3{36},\tfrac5{36},\tfrac7{36},\tfrac9{36},\tfrac{11}{36}$ for
+$m=1,\dots,6$ (summing to $36/36 = 1$ &#10003;). Then</p>
+<p>$$\mathbb{E}[M] = \frac{1(1) + 2(3) + 3(5) + 4(7) + 5(9) + 6(11)}{36}
+= \frac{1+6+15+28+45+66}{36} = \frac{161}{36} = 4.472222 \ \checkmark$$</p>
+<p>(Monte Carlo, $400{,}000$ paired rolls: $4.4776$ &#10003;.)</p>
+<p><b>Answer.</b> $\;\mathbb{E}[X] = \sum_{k\ge1}\mathbf{P}(X\ge k)$, and for the maximum of two
+fair dice $\mathbb{E}[M] = 161/36 = 4.4722$.</p>
+<p><b>Trap.</b> Answering $3.5$ &mdash; the mean of a single die &mdash; or "$3.5$ for each die so
+$3.5$ for the max". Taking a maximum is nonlinear and strictly raises the mean whenever the two
+rolls can differ; the excess here is $4.4722 - 3.5 = 0.9722$. A second common slip is summing
+$\mathbf{P}(X &gt; k)$ from $k=1$, which drops the $k=1$ term and undercounts by
+$\mathbf{P}(X\ge1)$.</p>
+<p class="srcref">Tool: G2 &sect;2.2 (expected-value rule), &sect;1.2 (PMF of a derived variable) &middot; B&amp;T &sect;2.4</p>
+</div></details>
+</div>

@@ -287,5 +287,30 @@ show("pr6d_tri_mc", round(float(np.mean(ys >= 2 * xs)), 5))
 show("pr6d_trap_exact", str(F(1, 2) + F(1, 4)))
 show("pr6d_trap", 0.75)
 
+# --- 1.2: three-set inclusion-exclusion on the fair 4x4 tetrahedral grid
+# A = {X = 1}, B = {Y = 1}, C = {X + Y = 5}
+setA = {o for o in OMEGA if o[0] == 1}
+setB = {o for o in OMEGA if o[1] == 1}
+setC = {o for o in OMEGA if o[0] + o[1] == 5}
+ie3 = {
+    "A": len(setA), "B": len(setB), "C": len(setC),
+    "AB": len(setA & setB), "AC": len(setA & setC), "BC": len(setB & setC),
+    "ABC": len(setA & setB & setC),
+}
+ie3_alt = (ie3["A"] + ie3["B"] + ie3["C"] - ie3["AB"] - ie3["AC"] - ie3["BC"] + ie3["ABC"])
+show("ie3_counts", ie3)
+show("ie3_cells_AB", sorted([list(c) for c in setA & setB]))
+show("ie3_cells_AC", sorted([list(c) for c in setA & setC]))
+show("ie3_cells_BC", sorted([list(c) for c in setB & setC]))
+show("ie3_cells_C", sorted([list(c) for c in setC]))
+show("ie3_union_count", len(setA | setB | setC))
+show("ie3_alternating_sum", ie3_alt)
+show("ie3_identity_holds", ie3_alt == len(setA | setB | setC))
+show("ie3_naive_sum", ie3["A"] + ie3["B"] + ie3["C"])
+show("ie3_AB_union_count", len(setA | setB))
+show("ie3_union_prob_exact", str(F(len(setA | setB | setC), 16)))
+show("ie3_union_prob_dec", len(setA | setB | setC) / 16)
+show("ie3_cells_union", sorted([list(c) for c in setA | setB | setC]))
+
 Path(__file__).with_suffix(".json").write_text(json.dumps(R, indent=1), encoding="utf-8")
 print("\nwrote", Path(__file__).with_suffix(".json"))

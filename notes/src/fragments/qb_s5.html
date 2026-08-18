@@ -1,0 +1,489 @@
+<h2 id="qb-s5">&sect;5 &nbsp; Markov chains</h2>
+<p class="srcref">Drills G5 &sect;1&ndash;&sect;5 &middot; Bertsekas&ndash;Tsitsiklis &sect;7.1&ndash;&sect;7.4 &middot; every number recomputed in <code>computes/qb_s5.py</code></p>
+
+<p>Twenty questions on discrete-time Markov chains. The first five ask you to <em>choose the state</em> &mdash; to check that a proposed matrix is legitimate, to turn a story into transition probabilities, and (Q99) to catch a process whose obvious state is too small for the Markov property to hold. Q100&ndash;Q103 drill classification: recurrent versus transient classes, periodicity, and the two distinct ways the steady-state convergence theorem fails. Q104&ndash;Q110 are the steady-state block &mdash; balance equations small enough to solve by hand, the frequency interpretation of $\pi_j$ (what it counts, and what it does <em>not</em> count), local balance on birth&ndash;death chains, and a finite-buffer queue read through its load factor $\rho$. Q111 is a pure "which system of equations" question: one chain, four questions, four different linear systems. Q112&ndash;Q114 are first-step analysis &mdash; absorption probabilities, expected time to absorption, and a gambler's-ruin item where the fair-game answer is the trap.</p>
+
+<div class="ex qcard" id="q95" data-diff="1" data-topic="markov-model">
+<p><b>Q95.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Transition matrices &middot; <span class="ref">G5 &sect;1.1</span></span></p>
+<p>A student proposes the following as the transition matrix of a three-state chain on $\{1,2,3\}$, where $p_{ij}=\mathbf{P}(X_{n+1}=j\mid X_n=i)$:
+$$P=\begin{pmatrix}0.5&amp;0.3&amp;0.3\\0.2&amp;0.5&amp;0.3\\0.4&amp;-0.1&amp;0.7\end{pmatrix}.$$
+(a) List every way this fails the definition of a transition matrix. (b) The student also worries that "the columns don't add to 1". Is that a defect? (c) Repair the matrix, touching only the rows that are defective, and confirm your repair.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> A matrix $P$ is a transition matrix iff (i) $p_{ij}\ge0$ for all $i,j$, and (ii) every <em>row</em> sums to $1$, because row $i$ is the conditional PMF of $X_{n+1}$ given $X_n=i$, and a PMF is nonnegative and sums to $1$.</p>
+<p><b>Step 1 (row sums).</b> Row 1: $0.5+0.3+0.3=1.1$, which exceeds $1$ by $0.1$. Row 2: $0.2+0.5+0.3=1.0\;\checkmark$. Row 3: $0.4+(-0.1)+0.7=1.0$ &mdash; it sums correctly, but only because a negative entry cancels an excess.</p>
+<p><b>Step 2 (nonnegativity).</b> $p_{32}=-0.1&lt;0$. A conditional probability cannot be negative, so this is a second, independent violation. So there are exactly two defects: row 1 does not sum to 1, and $p_{32}$ is negative.</p>
+<p><b>Step 3 (part b &mdash; the column question).</b> The column sums are $1.1,\;0.7,\;1.3$. This is <em>not</em> a defect. Column $j$ collects $p_{1j},p_{2j},p_{3j}$, which are probabilities of the <em>same</em> event $\{X_{n+1}=j\}$ under three <em>different</em> conditioning events. There is no rule forcing them to add to anything in particular. (Matrices whose columns happen to also sum to 1 are called doubly stochastic and are special &mdash; see Q108.)</p>
+<p><b>Step 4 (part c &mdash; the repair).</b> Fix row 1 by removing the excess $0.1$ from one entry, say $p_{13}:0.3\to0.2$. Fix row 3 by replacing $p_{32}=-0.1$ with $p_{32}=0.1$ and absorbing the change into $p_{33}:0.7\to0.5$ so the row still sums to 1. The result is
+$$P'=\begin{pmatrix}0.5&amp;0.3&amp;0.2\\0.2&amp;0.5&amp;0.3\\0.4&amp;0.1&amp;0.5\end{pmatrix},$$
+with row sums $1.0,\;1.0,\;1.0\;\checkmark$ and all entries in $[0,1]\;\checkmark$. Its column sums are $1.1,\;0.9,\;1.0$ &mdash; still not 1, and still fine.</p>
+<p><b>Answer.</b> $\;$(a) row 1 sums to $1.1$, and $p_{32}=-0.1&lt;0$; (b) no &mdash; column sums are unconstrained; (c) e.g. $p_{13}=0.2$, $p_{32}=0.1$, $p_{33}=0.5$, giving row sums $(1,1,1)$.</p>
+<p><b>Trap.</b> The tempting wrong answer is "row 3 is fine, it sums to 1". Summing to 1 is necessary but not sufficient: nonnegativity is a separate requirement, and a negative entry hidden by a compensating large entry still destroys the probabilistic meaning of the row.</p>
+<p class="srcref">Tool: G5 &sect;1.1 (transition probabilities, row-sum property) &middot; B&amp;T &sect;7.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q96" data-diff="1" data-topic="markov-model">
+<p><b>Q96.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; $n$-step probabilities &middot; <span class="ref">G5 &sect;1.3</span></span></p>
+<p>A chain on $\{1,2,3\}$ has transition matrix
+$$P=\begin{pmatrix}0.5&amp;0.4&amp;0.1\\0.2&amp;0.3&amp;0.5\\0&amp;0.6&amp;0.4\end{pmatrix}.$$
+Write $r_{ij}(n)=\mathbf{P}(X_n=j\mid X_0=i)$. Compute (a) $\mathbf{P}(X_1=2,\;X_2=3\mid X_0=1)$, (b) $r_{13}(2)$, and (c) $r_{13}(3)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Part (a) is a single path, so multiply transition probabilities along it. Parts (b),(c) need the Chapman&ndash;Kolmogorov recursion $r_{ij}(n)=\sum_{k}r_{ik}(n-1)\,p_{kj}$, which is total probability over the state at time $n-1$ with the Markov property used to drop the earlier history.</p>
+<p><b>Step 1 (part a).</b> By the multiplication rule and the Markov property,
+$$\mathbf{P}(X_1=2,X_2=3\mid X_0=1)=p_{12}\,p_{23}=(0.4)(0.5)=0.2 .$$</p>
+<p><b>Step 2 (part b).</b> Sum over the intermediate state $k$ at time 1:
+$$r_{13}(2)=\sum_{k=1}^{3}p_{1k}p_{k3}=(0.5)(0.1)+(0.4)(0.5)+(0.1)(0.4)=0.05+0.2+0.04=0.29 .$$
+The middle term $0.2$ is exactly part (a) &mdash; one of three disjoint routes.</p>
+<p><b>Step 3 (the full two-step row).</b> For part (c) we need all of row 1 of $P^2$:
+$$r_{11}(2)=(0.5)(0.5)+(0.4)(0.2)+(0.1)(0)=0.25+0.08+0=0.33,$$
+$$r_{12}(2)=(0.5)(0.4)+(0.4)(0.3)+(0.1)(0.6)=0.20+0.12+0.06=0.38,$$
+and $r_{13}(2)=0.29$ from Step 2. Check: $0.33+0.38+0.29=1.00\;\checkmark$.</p>
+<p><b>Step 4 (part c).</b> Apply the recursion once more, now summing over the state at time 2:
+$$r_{13}(3)=\sum_{k=1}^{3}r_{1k}(2)\,p_{k3}=(0.33)(0.1)+(0.38)(0.5)+(0.29)(0.4)=0.033+0.19+0.116=0.339 .$$
+A Monte-Carlo run of $400{,}000$ paths gives $0.2901$ and $0.3372$ for (b) and (c), confirming both.</p>
+<p><b>Answer.</b> $\;$(a) $0.2$, (b) $r_{13}(2)=0.29$, (c) $r_{13}(3)=0.339$.</p>
+<p><b>Trap.</b> A careless reader reports $0.2$ for part (b) as well, having found "the" path $1\to2\to3$. $r_{13}(2)$ is the probability of being at 3 at time 2 by <em>any</em> route, including $1\to1\to3$ and $1\to3\to3$; those add another $0.05+0.04=0.09$.</p>
+<p class="srcref">Tool: G5 &sect;1.3 (Chapman&ndash;Kolmogorov recursion) &middot; B&amp;T &sect;7.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q97" data-diff="2" data-topic="markov-model">
+<p><b>Q97.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Building a chain from a story &middot; <span class="ref">G5 &sect;1.1&ndash;1.3</span></span></p>
+<p>Every Monday a streaming subscriber is in one of three states: <b>A</b>ctive, <b>P</b>aused, or <b>C</b>ancelled. From Active, next Monday she is Active with probability $0.80$, Paused with probability $0.15$, and Cancelled with probability $0.05$. From Paused, she is Active with probability $0.30$, Paused with probability $0.55$, and Cancelled with probability $0.15$. Cancellation is permanent. (a) Write the transition matrix with states ordered $(A,P,C)$. (b) Given that she is Active this Monday, what is the probability she is Cancelled three Mondays later? (c) A colleague says "the cancellation rate is $5\%$ per week, so over three weeks it is about $3\times0.05=0.15$." Why is his number wrong, and in which direction?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Each sentence of the story is one row of $P$. "Cancellation is permanent" means $C$ is absorbing: $p_{CC}=1$ and $p_{CA}=p_{CP}=0$.</p>
+<p><b>Step 1 (part a).</b>
+$$P=\begin{pmatrix}0.80&amp;0.15&amp;0.05\\0.30&amp;0.55&amp;0.15\\0&amp;0&amp;1\end{pmatrix},$$
+row sums $0.80+0.15+0.05=1$, $0.30+0.55+0.15=1$, $0+0+1=1\;\checkmark$.</p>
+<p><b>Step 2 (two steps from A).</b> Using $r_{Aj}(2)=\sum_k p_{Ak}p_{kj}$,
+$$r_{AA}(2)=(0.80)(0.80)+(0.15)(0.30)+(0.05)(0)=0.64+0.045=0.685,$$
+$$r_{AP}(2)=(0.80)(0.15)+(0.15)(0.55)+(0.05)(0)=0.12+0.0825=0.2025,$$
+$$r_{AC}(2)=(0.80)(0.05)+(0.15)(0.15)+(0.05)(1)=0.04+0.0225+0.05=0.1125 .$$
+Check: $0.685+0.2025+0.1125=1.0000\;\checkmark$.</p>
+<p><b>Step 3 (part b &mdash; three steps).</b> Recurse once more into column $C$:
+$$r_{AC}(3)=r_{AA}(2)\,p_{AC}+r_{AP}(2)\,p_{PC}+r_{AC}(2)\,p_{CC}$$
+$$=(0.685)(0.05)+(0.2025)(0.15)+(0.1125)(1)=0.034250+0.030375+0.112500=0.177125 .$$
+Note the third term: probability already absorbed <em>stays</em> absorbed, which is why $p_{CC}=1$ carries it forward. A Monte-Carlo run of $400{,}000$ subscribers gives $0.1765\;\checkmark$.</p>
+<p><b>Step 4 (part c).</b> The colleague's $0.15$ is wrong for two compounding reasons, which push in opposite directions. Adding $0.05$ three times double-counts: after week 1 the subscriber may already be Cancelled, so the same event is counted again. That inflates the estimate. But he also ignores the Paused state, which cancels at the higher rate $0.15$ and which the subscriber enters with probability $0.15$ per week. Numerically the net effect is that the true value $0.177125$ <em>exceeds</em> $0.15$: the Paused channel more than offsets the double count.</p>
+<p><b>Answer.</b> $\;$(a) as displayed; (b) $\mathbf{P}(X_3=C\mid X_0=A)=0.177125$; (c) $0.15$ neither accounts for absorption already having occurred nor for the higher hazard from Paused, and the true answer is larger.</p>
+<p><b>Trap.</b> Writing $1-(0.95)^3=0.142625$ is the "improved" wrong answer: it fixes the double count but still assumes the cancellation probability is $0.05$ every week regardless of state, which is false as soon as the subscriber pauses.</p>
+<p class="srcref">Tool: G5 &sect;1.1 (modeling recipe), &sect;1.3 ($n$-step recursion) &middot; B&amp;T &sect;7.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q98" data-diff="2" data-topic="markov-model">
+<p><b>Q98.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Initial distributions and running the chain backwards &middot; <span class="ref">G5 &sect;1.3</span></span></p>
+<p>A web server is Up (state 1) or Down (state 2) each hour, with
+$$P=\begin{pmatrix}0.9&amp;0.1\\0.4&amp;0.6\end{pmatrix},$$
+and at hour $0$ it is Up with probability $0.3$ and Down with probability $0.7$. (a) Compute $\mathbf{P}(X_2=1)$. (b) Compute $\mathbf{P}(X_0=1\mid X_1=1)$. (c) A classmate says "the Markov property says the past doesn't matter, so $\mathbf{P}(X_0=1\mid X_1=1)=\mathbf{P}(X_0=1)=0.3$." Diagnose the error.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Write the time-$n$ distribution as a row vector $\pi^{(n)}=(\mathbf{P}(X_n=1),\mathbf{P}(X_n=2))$. Then $\pi^{(n+1)}=\pi^{(n)}P$, which is the total probability theorem applied to the state one step earlier. Part (b) runs the other way and therefore needs Bayes' rule.</p>
+<p><b>Step 1 (one step).</b>
+$$\mathbf{P}(X_1=1)=\mathbf{P}(X_0=1)p_{11}+\mathbf{P}(X_0=2)p_{21}=(0.3)(0.9)+(0.7)(0.4)=0.27+0.28=0.55,$$
+so $\pi^{(1)}=(0.55,\,0.45)$.</p>
+<p><b>Step 2 (part a &mdash; second step).</b>
+$$\mathbf{P}(X_2=1)=(0.55)(0.9)+(0.45)(0.4)=0.495+0.180=0.675 .$$</p>
+<p><b>Step 3 (part b &mdash; Bayes).</b> The joint probability of the numerator event was already computed in Step 1 as the first term:
+$$\mathbf{P}(X_0=1,\;X_1=1)=\mathbf{P}(X_0=1)\,p_{11}=(0.3)(0.9)=0.27 .$$
+Divide by $\mathbf{P}(X_1=1)=0.55$:
+$$\mathbf{P}(X_0=1\mid X_1=1)=\frac{0.27}{0.55}=0.490909 .$$
+(Complement: $0.28/0.55=0.509091$; the two sum to $1\;\checkmark$.) A Monte-Carlo run of $600{,}000$ paths gives $0.4905\;\checkmark$.</p>
+<p><b>Step 4 (part c &mdash; the diagnosis).</b> The Markov property says the <em>future</em> is conditionally independent of the past <em>given the present</em>: $\mathbf{P}(X_{n+1}=j\mid X_n=i,\text{ earlier})=p_{ij}$. It says nothing about the past given the future. Here observing $X_1=1$ is evidence about $X_0$, because state 1 is much easier to reach from state 1 ($0.9$) than from state 2 ($0.4$); that evidence raises the posterior on $X_0=1$ from the prior $0.3$ to $0.490909$. Independence of past and future would require $\mathbf{P}(X_0=1,X_1=1)=\mathbf{P}(X_0=1)\mathbf{P}(X_1=1)=(0.3)(0.55)=0.165$, but the true joint is $0.27$.</p>
+<p><b>Answer.</b> $\;$(a) $\mathbf{P}(X_2=1)=0.675$; (b) $\mathbf{P}(X_0=1\mid X_1=1)=0.490909$; (c) the Markov property conditions on the present and constrains the future, not the past.</p>
+<p><b>Trap.</b> $0.3$ is the tempting answer, and it is the prior, not the posterior. A second trap in part (a) is reading $r_{11}(2)=0.85$ off $P^2$ and reporting it &mdash; that is $\mathbf{P}(X_2=1\mid X_0=1)$, which ignores the initial distribution.</p>
+<p class="srcref">Tool: G5 &sect;1.3 (initial distribution, $n$-step probabilities) &middot; G1 &sect;2.4 (Bayes' rule) &middot; B&amp;T &sect;7.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q99" data-diff="3" data-topic="markov-model">
+<p><b>Q99.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; When the obvious state is not a state &middot; <span class="ref">G5 &sect;1.1</span></span></p>
+<p>Two coins sit on a table: coin $A$ lands heads with probability $0.8$, coin $B$ with probability $0.3$. At time $0$ you pick one of the two uniformly at random, you are <em>not</em> told which, and from then on you flip <em>that same coin</em> forever, the flips being conditionally independent given the coin. Let $X_n\in\{H,T\}$ be the outcome of flip $n$, $n=1,2,\dots$ (a) Show that $\{X_n\}$ is not a Markov chain on $\{H,T\}$ by comparing $\mathbf{P}(X_2=H\mid X_1=H)$ with $\mathbf{P}(X_3=H\mid X_2=H,X_1=H)$. (b) Enlarge the state so that the Markov property holds, write the transition matrix, and classify the resulting chain.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $C\in\{A,B\}$ be the identity of the chosen coin, $\mathbf{P}(C=A)=0.5$. Given $C$, the flips are i.i.d. Bernoulli. Unconditionally the flips are <em>exchangeable but not independent</em>, because every flip carries information about $C$, and $C$ affects every future flip.</p>
+<p><b>Step 1 (the joint probabilities of head runs).</b> Condition on the coin and use conditional independence:
+$$\mathbf{P}(X_1=H)=(0.5)(0.8)+(0.5)(0.3)=0.40+0.15=0.55,$$
+$$\mathbf{P}(X_1=X_2=H)=(0.5)(0.8)^2+(0.5)(0.3)^2=(0.5)(0.64)+(0.5)(0.09)=0.320+0.045=0.365,$$
+$$\mathbf{P}(X_1=X_2=X_3=H)=(0.5)(0.8)^3+(0.5)(0.3)^3=(0.5)(0.512)+(0.5)(0.027)=0.2560+0.0135=0.2695 .$$</p>
+<p><b>Step 2 (part a &mdash; the two conditionals).</b>
+$$\mathbf{P}(X_2=H\mid X_1=H)=\frac{0.365}{0.55}=0.663636,\qquad
+\mathbf{P}(X_3=H\mid X_2=H,X_1=H)=\frac{0.2695}{0.365}=0.738356 .$$
+The same "current state" $H$ gives two different predictions, differing by $0.074720$. If $\{X_n\}$ were Markov on $\{H,T\}$ both would equal $p_{HH}$. So the Markov property fails.</p>
+<p><b>Step 3 (why, in words).</b> The extra head in the conditioning event is evidence about the coin. By Bayes' rule,
+$$\mathbf{P}(C=A\mid X_1=X_2=H)=\frac{(0.5)(0.64)}{0.365}=\frac{0.320}{0.365}=0.876712,$$
+and then the predictive probability is the mixture
+$$(0.876712)(0.8)+(1-0.876712)(0.3)=0.701370+0.036986=0.738356\;\checkmark,$$
+matching Step 2. The single symbol $H$ is a lossy summary: it does not record how much evidence has accumulated about $C$.</p>
+<p><b>Step 4 (part b &mdash; the repair).</b> Take the state to be the pair $Y_n=(C,X_n)$, four states $(A,H),(A,T),(B,H),(B,T)$. Since $C$ never changes and the next flip depends only on $C$,
+$$p_{(A,\cdot)\to(A,H)}=0.8,\quad p_{(A,\cdot)\to(A,T)}=0.2,\quad p_{(B,\cdot)\to(B,H)}=0.3,\quad p_{(B,\cdot)\to(B,T)}=0.7,$$
+all other entries $0$. Ordering the states $(A,H),(A,T),(B,H),(B,T)$,
+$$P=\begin{pmatrix}0.8&amp;0.2&amp;0&amp;0\\0.8&amp;0.2&amp;0&amp;0\\0&amp;0&amp;0.3&amp;0.7\\0&amp;0&amp;0.3&amp;0.7\end{pmatrix},$$
+row sums all $1\;\checkmark$. This is Markov because the transition law depends on the past only through $(C,X_n)$, and in fact only through $C$.</p>
+<p><b>Step 5 (classification).</b> $P$ is block diagonal: $\{(A,H),(A,T)\}$ and $\{(B,H),(B,T)\}$ are two separate recurrent classes, each aperiodic, with no transient states. Consequently the limit remembers the start: $P^{10}$ from $(A,H)$ is $(0.8,\,0.2,\,0,\,0)$, whereas from $(B,H)$ it is $(0,\,0,\,0.3,\,0.7)$. That is exactly the modeling content of the story &mdash; you never learn which coin you have <em>with certainty</em>, and the chain never forgets it.</p>
+<p><b>Answer.</b> $\;$(a) $0.663636\ne0.738356$, so $\{X_n\}$ is not Markov on $\{H,T\}$; (b) $Y_n=(C,X_n)$ is Markov, with the block-diagonal $P$ above &mdash; two aperiodic recurrent classes, no transient states.</p>
+<p><b>Trap.</b> "The flips are independent tosses of one coin, so of course the process is Markov (indeed i.i.d.)." They are independent only <em>conditionally on $C$</em>. Marginalizing over an unknown, permanent parameter creates dependence that reaches arbitrarily far back &mdash; the whole history matters, which is why the repair must put the parameter into the state.</p>
+<p class="srcref">Tool: G5 &sect;1.1 (choosing a state; Markov property test) &middot; G1 &sect;2.4 (Bayes' rule) &middot; B&amp;T &sect;7.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q100" data-diff="1" data-topic="classification">
+<p><b>Q100.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Recurrent and transient classes &middot; <span class="ref">G5 &sect;2.1&ndash;2.3</span></span></p>
+<p>A chain on $\{1,\dots,6\}$ has the nonzero transitions
+$$p_{11}=0.2,\;p_{12}=0.3,\;p_{13}=0.5;\qquad p_{21}=0.4,\;p_{25}=0.6;$$
+$$p_{34}=1;\qquad p_{43}=0.7,\;p_{44}=0.3;\qquad p_{56}=1;\qquad p_{65}=1 .$$
+Identify the recurrent classes, the transient states, and the period of each recurrent class.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> State $j$ is accessible from $i$ if $r_{ij}(n)&gt;0$ for some $n\ge0$. State $i$ is recurrent if every $j$ accessible from $i$ can reach $i$ back; otherwise it is transient. Recurrent states split into classes of mutually accessible states.</p>
+<p><b>Step 1 (accessible sets).</b> From 3 you go to 4 and from 4 back to 3, and nothing else is reachable: the accessible set of 3 is $\{3,4\}$. Likewise 5 goes to 6 and 6 to 5, so the accessible set of 5 is $\{5,6\}$. Both sets are closed (no arrow leaves them), so $\{3,4\}$ and $\{5,6\}$ are recurrent classes.</p>
+<p><b>Step 2 (the transient states).</b> From 1 you can reach 3 (probability $0.5$), and from 3 there is no path back to 1, since $\{3,4\}$ is closed. Hence 1 is transient. From 2 you can reach 5 with probability $0.6$, and $\{5,6\}$ is closed, so 2 is transient too. States 1 and 2 communicate with each other ($1\to2$ and $2\to1$), so they form one transient class $\{1,2\}$.</p>
+<p><b>Step 3 (periods).</b> Class $\{3,4\}$: state 4 has a self-transition $p_{44}=0.3&gt;0$, so a return to 4 is possible in $1$ step and also in $2$ steps ($4\to3\to4$); $\gcd(1,2)=1$, so the class is aperiodic. Class $\{5,6\}$: every arrow goes $5\to6$ or $6\to5$, so returns to 5 occur only at even times; $\gcd$ of the possible return times is $2$, so this class has period $2$.</p>
+<p><b>Step 4 (what this predicts).</b> The chain has two recurrent classes, so the limit of $r_{ij}(n)$ depends on the starting state, and one of the classes is periodic, so for starts leading into $\{5,6\}$ the limit fails to exist at all. Numerically, from state 1, $r_{1\cdot}(200)=(0,\,0,\,0.302768,\,0.432526,\,0.215686,\,0.049020)$ while $r_{1\cdot}(201)=(0,\,0,\,0.302768,\,0.432526,\,0.049020,\,0.215686)$ &mdash; the $\{3,4\}$ entries have settled, the $\{5,6\}$ entries oscillate forever.</p>
+<p><b>Answer.</b> $\;$Recurrent classes $\{3,4\}$ (aperiodic) and $\{5,6\}$ (period 2); transient states $1$ and $2$.</p>
+<p><b>Trap.</b> Calling $\{1,2\}$ a recurrent class because 1 and 2 communicate with each other. Communication is not enough &mdash; the class must also be <em>closed</em>, and $\{1,2\}$ leaks out through $p_{13}$ and $p_{25}$.</p>
+<p class="srcref">Tool: G5 &sect;2.1&ndash;2.2 (accessibility, recurrent classes), &sect;2.3 (periodicity) &middot; B&amp;T &sect;7.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q101" data-diff="2" data-topic="classification">
+<p><b>Q101.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Periodicity &middot; <span class="ref">G5 &sect;2.3</span></span></p>
+<p>A chain on $\{1,2,3,4\}$ has $p_{12}=1$, $p_{23}=1$, $p_{31}=0.6$, $p_{34}=0.4$, $p_{41}=1$, and no other nonzero entries. (a) Is the chain irreducible (one recurrent class)? (b) Find its period. (c) True or false, with reason: "a chain in which no state has a self-transition must be periodic." (d) For which $n\le12$ is $r_{11}(n)=0$?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The period of a recurrent class containing state $i$ is $d=\gcd\{n\ge1:r_{ii}(n)&gt;0\}$; every state in a class has the same period. The quickest route to $d$ is to find the lengths of the cycles through one state and take their gcd.</p>
+<p><b>Step 1 (part a).</b> From 1 you reach 2, 3, then 1 again, and also 4 via $3\to4$; from 4 you return to 1. So all four states are mutually accessible and the chain is irreducible &mdash; one recurrent class, no transient states.</p>
+<p><b>Step 2 (part b &mdash; the cycles through state 1).</b> There are exactly two simple cycles through 1:
+$$1\to2\to3\to1\quad\text{(length }3),\qquad 1\to2\to3\to4\to1\quad\text{(length }4).$$
+Every return to 1 is a concatenation of these, so the set of possible return times is $\{3a+4b:a,b\ge0,\;a+b\ge1\}=\{3,4,6,7,8,9,10,\dots\}$. Its gcd is $\gcd(3,4)=1$, so the chain is <b>aperiodic</b>, $d=1$.</p>
+<p><b>Step 3 (part c).</b> False, and this chain is the counterexample: no state has a self-transition, yet the chain is aperiodic. Aperiodicity needs only <em>two return times whose gcd is 1</em>; a self-transition is one convenient way to get that (a return time of 1 forces $d=1$) but it is not necessary.</p>
+<p><b>Step 4 (part d).</b> The impossible return times are the positive integers not representable as $3a+4b$: $n=1,2,5$. Direct computation of $r_{11}(n)$ for $n=1,\dots,12$ gives
+$$0,\;0,\;0.6,\;0.4,\;0,\;0.36,\;0.48,\;0.16,\;0.216,\;0.432,\;0.288,\;0.1936,$$
+zero exactly at $n=1,2,5$ and strictly positive for every $n\ge6\;\checkmark$ &mdash; the hallmark of an aperiodic chain. Consistently, $r_{1\cdot}(100)$ and $r_{1\cdot}(101)$ both equal $(0.294118,\,0.294118,\,0.294118,\,0.117647)=(5/17,5/17,5/17,2/17)$: the limit exists and does not oscillate.</p>
+<p><b>Answer.</b> $\;$(a) yes, irreducible; (b) period $d=\gcd(3,4)=1$, aperiodic; (c) false &mdash; this chain has no self-transitions and is aperiodic; (d) $r_{11}(n)=0$ exactly for $n=1,2,5$.</p>
+<p><b>Trap.</b> Reading the "obvious" loop $1\to2\to3\to1$ and answering "period 3". The period is the gcd over <em>all</em> return times, and the branch $3\to4$ supplies a return of length 4, which collapses the gcd to 1.</p>
+<p class="srcref">Tool: G5 &sect;2.3 (periodicity, gcd of return times) &middot; B&amp;T &sect;7.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q102" data-diff="2" data-topic="classification">
+<p><b>Q102.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; The two ways convergence fails &middot; <span class="ref">G5 &sect;2.4</span></span></p>
+<p>The steady-state convergence theorem says: if a chain has a single recurrent class and that class is aperiodic, then $r_{ij}(n)\to\pi_j$ for every $i$. For each of the two chains below, say which hypothesis fails, and describe precisely what $r_{ij}(n)$ actually does.</p>
+<p>Chain A on $\{1,2\}$: $p_{12}=p_{21}=1$. &nbsp;&nbsp; Chain B on $\{1,2,3,4\}$:
+$$P=\begin{pmatrix}0.7&amp;0.3&amp;0&amp;0\\0.4&amp;0.6&amp;0&amp;0\\0&amp;0&amp;0.5&amp;0.5\\0&amp;0&amp;0.1&amp;0.9\end{pmatrix}.$$</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Two hypotheses, two failure modes. Periodicity destroys the <em>existence</em> of the limit; multiple recurrent classes destroy its <em>independence of $i$</em>.</p>
+<p><b>Step 1 (Chain A: the aperiodicity hypothesis fails).</b> The chain is irreducible &mdash; a single recurrent class $\{1,2\}$ &mdash; so that hypothesis holds. But every return to 1 takes an even number of steps, so $d=2$. Concretely
+$$r_{11}(n)=\begin{cases}1,&amp;n\text{ even},\\0,&amp;n\text{ odd},\end{cases}$$
+so $r_{11}(10)=1$ and $r_{11}(11)=0$: no limit exists. What <em>is</em> still true is that the balance equations $\pi_1=\pi_2$, $\pi_1+\pi_2=1$ have the unique solution $\pi=(0.5,0.5)$, and the frequency interpretation survives: the long-run fraction of time in state 1 is $0.5$. Averaging the first $2000$ powers of $P$ gives row 1 equal to $(0.5,\,0.5)$ to six decimals $\checkmark$. So $\pi$ is still meaningful as a time-average, just not as a limit of $r_{ij}(n)$.</p>
+<p><b>Step 2 (Chain B: the single-class hypothesis fails).</b> $P$ is block diagonal, so $\{1,2\}$ and $\{3,4\}$ are two separate closed classes, each recurrent and each aperiodic (self-transitions $p_{11},p_{22},p_{33},p_{44}&gt;0$). Every $r_{ij}(n)$ converges &mdash; but to a limit that depends on where you started.</p>
+<p><b>Step 3 (the two limits).</b> Solve balance inside each block. Block $\{1,2\}$: $0.3\pi_1=0.4\pi_2$, so $\pi_1/\pi_2=4/3$ and with $\pi_1+\pi_2=1$,
+$$(\pi_1,\pi_2)=(4/7,\,3/7)=(0.571429,\,0.428571).$$
+Block $\{3,4\}$: $0.5\pi_3=0.1\pi_4$, so $\pi_3/\pi_4=1/5$ and
+$$(\pi_3,\pi_4)=(1/6,\,5/6)=(0.166667,\,0.833333).$$
+Numerically $P^{200}$ has rows 1 and 2 equal to $(0.571429,\,0.428571,\,0,\,0)$ and rows 3 and 4 equal to $(0,\,0,\,0.166667,\,0.833333)\;\checkmark$. In particular $r_{13}(n)\to0$ while $r_{33}(n)\to0.166667$: the "steady state" is not one vector but two, selected by the initial state.</p>
+<p><b>Answer.</b> $\;$Chain A fails aperiodicity ($d=2$): $r_{11}(n)$ oscillates $1,0,1,0,\dots$ and has no limit, though the time-average frequencies are still $(0.5,0.5)$. Chain B fails the single-recurrent-class hypothesis: every $r_{ij}(n)$ converges, but to $(4/7,3/7,0,0)$ from states 1,2 and to $(0,0,1/6,5/6)$ from states 3,4.</p>
+<p><b>Trap.</b> Solving $\pi=\pi P$ for Chain B and reporting "the" answer. That system is degenerate here &mdash; any mixture $\alpha(4/7,3/7,0,0)+(1-\alpha)(0,0,1/6,5/6)$ satisfies it, so the balance equations plus normalization no longer pin down a unique $\pi$. Uniqueness of the solution is a <em>consequence</em> of having one recurrent class, not an assumption you may take for granted.</p>
+<p class="srcref">Tool: G5 &sect;2.4 (steady-state convergence theorem and its two failure modes) &middot; B&amp;T &sect;7.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q103" data-diff="3" data-topic="classification">
+<p><b>Q103.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; True or false, with reason &middot; <span class="ref">G5 &sect;2.1&ndash;2.4</span></span></p>
+<p>Decide true or false and justify each. (a) Every finite-state Markov chain has at least one recurrent state. (b) If a chain has exactly one recurrent class, then $r_{ij}(n)$ converges to a limit that does not depend on $i$. (c) If a chain has a single aperiodic recurrent class together with some transient states, then $\pi_j=0$ for every transient $j$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Recall: $i$ is recurrent iff every state accessible from $i$ can reach $i$ back; $\pi_j$ is the unique solution of the balance equations $\pi_j=\sum_k\pi_kp_{kj}$ with $\sum_j\pi_j=1$, and equals the long-run fraction of time spent in $j$.</p>
+<p><b>Step 1 (part a &mdash; TRUE).</b> Suppose every state were transient. Start at any state $i_1$. Because $i_1$ is transient, there is a state $i_2$ accessible from $i_1$ that cannot reach $i_1$ back. Then the accessible set of $i_2$ is a <em>strict</em> subset of that of $i_1$: it is contained in it (anything reachable from $i_2$ is reachable from $i_1$) and it omits $i_1$. Repeat from $i_2$. Each step strictly shrinks a subset of a finite state space, so the process must terminate &mdash; and it terminates exactly at a state that is not transient. Hence at least one recurrent state exists. (This argument uses finiteness essentially; an infinite chain such as the unbiased random walk on $\mathbb{Z}$ modified to drift right can have all states transient.)</p>
+<p><b>Step 2 (part b &mdash; FALSE).</b> The single-class hypothesis is not sufficient; aperiodicity is also needed. Counterexample: the two-state chain $p_{12}=p_{21}=1$ is irreducible, hence has exactly one recurrent class $\{1,2\}$, yet
+$$r_{11}(200)=1,\qquad r_{11}(201)=0,$$
+so $r_{11}(n)$ has no limit at all. The correct statement adds "and that class is aperiodic".</p>
+<p><b>Step 3 (part c &mdash; TRUE).</b> $\pi_j$ is the long-run fraction of time in $j$. A transient state is visited only finitely many times with probability 1, so the number of visits in $n$ steps stays bounded while $n\to\infty$, and the fraction tends to $0$. Algebraically the balance equations force the same conclusion, since the unique normalized solution puts all mass on the recurrent class. Example: with
+$$P=\begin{pmatrix}0.5&amp;0.5&amp;0\\0&amp;0.6&amp;0.4\\0&amp;0.3&amp;0.7\end{pmatrix}$$
+state 1 is transient (it can reach the closed class $\{2,3\}$ but not return) and the balance equations give
+$$\pi=(0,\;3/7,\;4/7)=(0,\;0.428571,\;0.571429),$$
+confirmed by $r_{1\cdot}(200)=(0,\,0.428571,\,0.571429)$.</p>
+<p><b>Answer.</b> $\;$(a) True; (b) False &mdash; aperiodicity is also required, e.g. $p_{12}=p_{21}=1$; (c) True, $\pi_j=0$ for transient $j$.</p>
+<p><b>Trap.</b> In (c), reading $\pi_j=0$ as "the chain never visits $j$". It does visit $j$ &mdash; possibly many times, and $\mathbf{P}(X_0=j)$ may even be 1 &mdash; but the number of visits is finite, so its share of an infinitely long run is zero. $\pi_j$ measures frequency, not possibility.</p>
+<p class="srcref">Tool: G5 &sect;2.1 (recurrence), &sect;2.4 (convergence theorem), &sect;3.3 (frequency interpretation) &middot; B&amp;T &sect;7.2&ndash;7.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q104" data-diff="1" data-topic="steady-state">
+<p><b>Q104.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Balance equations, two states &middot; <span class="ref">G5 &sect;3.1&ndash;3.2</span></span></p>
+<p>A machine is Working (state 1) or Under repair (state 2) on each day, with $p_{12}=0.15$ and $p_{21}=0.25$ (so $p_{11}=0.85$, $p_{22}=0.75$). (a) Find the steady-state probabilities. (b) Over $400$ days, about how many do you expect the machine to be working? (c) What is the mean recurrence time of state 2?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The chain is irreducible (both $p_{12},p_{21}&gt;0$) and aperiodic ($p_{11}&gt;0$), so a unique $\pi$ exists and $r_{ij}(n)\to\pi_j$.</p>
+<p><b>Step 1 (balance).</b> The balance equation for state 1 reads
+$$\pi_1=\pi_1p_{11}+\pi_2p_{21}=0.85\,\pi_1+0.25\,\pi_2 .$$
+Move $0.85\pi_1$ across: $0.15\,\pi_1=0.25\,\pi_2$. (In two states this is also the cut equation: flow $1\to2$ equals flow $2\to1$.)</p>
+<p><b>Step 2 (normalize).</b> From $0.15\pi_1=0.25\pi_2$ we get $\pi_1=\frac{0.25}{0.15}\pi_2=\frac{5}{3}\pi_2=1.666667\,\pi_2$. Substituting into $\pi_1+\pi_2=1$:
+$$\tfrac53\pi_2+\pi_2=\tfrac83\pi_2=1\;\Longrightarrow\;\pi_2=\tfrac38=0.375,\qquad \pi_1=\tfrac58=0.625 .$$
+Check against the other balance equation: $\pi_2=0.15(0.625)+0.75(0.375)=0.09375+0.28125=0.375\;\checkmark$. Also $P^{50}$ has first row $(0.625,\,0.375)\;\checkmark$.</p>
+<p><b>Step 3 (part b).</b> By the frequency interpretation, the long-run fraction of days working is $\pi_1=0.625$, so over $400$ days the expected number is $400(0.625)=250$ days.</p>
+<p><b>Step 4 (part c).</b> The mean recurrence time of a state is the reciprocal of its steady-state probability:
+$$t_2^{*}=\frac{1}{\pi_2}=\frac{1}{0.375}=\frac83=2.666667\ \text{days}.$$
+Reading: repairs recur on average once every $2.67$ days &mdash; consistent with the machine being under repair $37.5\%$ of the time.</p>
+<p><b>Answer.</b> $\;\pi=(0.625,\,0.375)$; about $250$ working days out of $400$; $t_2^{*}=8/3=2.666667$ days.</p>
+<p><b>Trap.</b> Answering $\pi_1=0.15/(0.15+0.25)=0.375$ &mdash; the ratio is inverted. The state that is <em>hard to leave</em> (small $p_{12}$) gets the <em>large</em> steady-state probability, so $\pi_1=p_{21}/(p_{12}+p_{21})=0.25/0.40=0.625$.</p>
+<p class="srcref">Tool: G5 &sect;3.1&ndash;3.2 (balance equations), &sect;4.4 (mean recurrence time $t_i^{*}=1/\pi_i$) &middot; B&amp;T &sect;7.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q105" data-diff="2" data-topic="steady-state">
+<p><b>Q105.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Balance equations, three states &middot; <span class="ref">G5 &sect;3.2&ndash;3.3</span></span></p>
+<p>A kiosk holds at most 2 sandwiches. Let $X_n$ be the number left at the <em>end</em> of day $n$. If the kiosk ends a day empty, the supplier refills it to 2 the next morning; otherwise no delivery is made. Daily demand $D$ is $0,1,2$ with probabilities $0.3,0.5,0.2$, independent across days, and unmet demand is lost. (a) Write the transition matrix on $\{0,1,2\}$. (b) Solve the balance equations. (c) On what fraction of days is a delivery made, and how many deliveries per year (365 days) is that?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The day starts with $s=2$ if $X_n=0$ (refilled) and $s=X_n$ otherwise; then $X_{n+1}=\max(s-D,0)$. Since $D$ is independent of the past, $X_{n+1}$ depends on the history only through $X_n$: the Markov property holds.</p>
+<p><b>Step 1 (part a &mdash; the rows).</b> From $X_n=0$: the day starts with $s=2$, so $X_{n+1}=2$ if $D=0$ (prob $0.3$), $=1$ if $D=1$ (prob $0.5$), $=0$ if $D=2$ (prob $0.2$). Row $0=(0.2,\,0.5,\,0.3)$. From $X_n=1$: $s=1$, so $X_{n+1}=1$ if $D=0$ (prob $0.3$) and $X_{n+1}=0$ if $D\ge1$ (prob $0.5+0.2=0.7$). Row $1=(0.7,\,0.3,\,0)$. From $X_n=2$: $s=2$, identical to the first case. Row $2=(0.2,\,0.5,\,0.3)$. So
+$$P=\begin{pmatrix}0.2&amp;0.5&amp;0.3\\0.7&amp;0.3&amp;0\\0.2&amp;0.5&amp;0.3\end{pmatrix},$$
+row sums all $1\;\checkmark$. The chain is irreducible and aperiodic ($p_{00}&gt;0$), so $\pi$ is unique.</p>
+<p><b>Step 2 (part b &mdash; exploit the repeated row).</b> Rows 0 and 2 are identical, which simplifies everything. Write $s=\pi_0+\pi_2$. The balance equation for state 2 is
+$$\pi_2=0.3\pi_0+0\cdot\pi_1+0.3\pi_2=0.3(\pi_0+\pi_2)=0.3\,s .$$
+The balance equation for state 1 is
+$$\pi_1=0.5\pi_0+0.3\pi_1+0.5\pi_2=0.5\,s+0.3\pi_1\;\Longrightarrow\;0.7\,\pi_1=0.5\,s\;\Longrightarrow\;\pi_1=\tfrac57\,s .$$</p>
+<p><b>Step 3 (normalize).</b> Since $s+\pi_1=1$,
+$$s+\tfrac57 s=\tfrac{12}{7}s=1\;\Longrightarrow\;s=\tfrac{7}{12},\qquad \pi_1=\tfrac57\cdot\tfrac7{12}=\tfrac{5}{12}=0.416667 .$$
+Then $\pi_2=0.3\,s=0.3\cdot\frac7{12}=\frac{21}{120}=\frac{7}{40}=0.175$, and
+$$\pi_0=s-\pi_2=\tfrac{7}{12}-\tfrac{7}{40}=\tfrac{70}{120}-\tfrac{21}{120}=\tfrac{49}{120}=0.408333 .$$
+Check the remaining balance equation for state 0: $0.2(0.408333)+0.7(0.416667)+0.2(0.175)=0.081667+0.291667+0.035=0.408333\;\checkmark$, and $\frac{49+50+21}{120}=1\;\checkmark$. A simulation of $200{,}000$ chains run 400 steps gives $(0.4092,\,0.4176,\,0.1732)\;\checkmark$.</p>
+<p><b>Step 4 (part c).</b> A delivery is made on the morning following a day that ended empty, so the long-run fraction of days with a delivery equals the long-run fraction of days ending empty, $\pi_0=0.408333$. Over a year: $365(0.408333)=149.0417$, about $149$ deliveries.</p>
+<p><b>Answer.</b> $\;\pi=(49/120,\,5/12,\,7/40)=(0.408333,\,0.416667,\,0.175)$; deliveries on $40.8333\%$ of days, about $149$ per year.</p>
+<p><b>Trap.</b> Defining the state as "stock at the start of the day, after any delivery". That state can never equal 0 (a 0 is immediately refilled to 2), so the naive three-state chain degenerates and the delivery frequency has to be recovered indirectly. Choosing the end-of-day stock &mdash; the quantity that actually determines the next day's dynamics &mdash; is what makes the model clean.</p>
+<p class="srcref">Tool: G5 &sect;3.2 (solving balance equations), &sect;3.3 (frequency interpretation) &middot; B&amp;T &sect;7.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q106" data-diff="2" data-topic="steady-state">
+<p><b>Q106.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; What $\pi_j$ actually counts &middot; <span class="ref">G5 &sect;3.3</span></span></p>
+<p>A chain on $\{1,2,3\}$ has
+$$P=\begin{pmatrix}0.60&amp;0.20&amp;0.20\\0.40&amp;0.50&amp;0.10\\0.40&amp;0.25&amp;0.35\end{pmatrix},$$
+and you are told its steady-state vector is $\pi=(0.5,\,0.3,\,0.2)$. (a) Verify $\pi$ by checking the balance equation for state 2. (b) In a long run of $1000$ transitions, about how many time steps are spent in state 1? (c) About how many of those $1000$ transitions are transitions from 2 to 3? (d) What is the mean recurrence time of state 3?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Two distinct frequency statements. $\pi_j$ is the long-run fraction of <em>time</em> in $j$; $\pi_ip_{ij}$ is the long-run frequency of <em>transitions</em> $i\to j$ per unit time. The second is the product of "how often you are at $i$" and "how often you leave $i$ for $j$ when you are there".</p>
+<p><b>Step 1 (part a).</b> The balance equation for state 2 is $\pi_2=\sum_k\pi_kp_{k2}$:
+$$0.5(0.20)+0.3(0.50)+0.2(0.25)=0.10+0.15+0.05=0.30=\pi_2\;\checkmark .$$
+(For completeness, state 1: $0.5(0.60)+0.3(0.40)+0.2(0.40)=0.30+0.12+0.08=0.50\;\checkmark$; state 3: $0.5(0.20)+0.3(0.10)+0.2(0.35)=0.10+0.03+0.07=0.20\;\checkmark$.)</p>
+<p><b>Step 2 (part b).</b> Expected number of visits to state 1 in $1000$ steps $\approx 1000\,\pi_1=1000(0.5)=500$. Simulation over $2{,}000{,}000$ steps gives an empirical fraction $0.5006\;\checkmark$.</p>
+<p><b>Step 3 (part c).</b> The long-run frequency of $2\to3$ transitions is
+$$\pi_2\,p_{23}=(0.3)(0.10)=0.03\ \text{per step},$$
+so in $1000$ steps the expected count is $1000(0.03)=30$. Simulation gives an empirical rate $0.0296\;\checkmark$. In words: you are in state 2 about $300$ of the $1000$ steps, and on about $10\%$ of those you jump to 3.</p>
+<p><b>Step 4 (part d).</b> The mean recurrence time of state 3 is
+$$t_3^{*}=\frac{1}{\pi_3}=\frac{1}{0.2}=5\ \text{steps}.$$
+(Likewise $t_1^{*}=1/0.5=2$.) Interpretation: visits to state 3 are spaced 5 steps apart on average, which is another way of saying the chain is in state 3 one step in five.</p>
+<p><b>Answer.</b> $\;$(a) $0.10+0.15+0.05=0.30=\pi_2\;\checkmark$; (b) $\approx500$ steps; (c) $\approx30$ transitions; (d) $t_3^{*}=5$ steps.</p>
+<p><b>Trap.</b> Answering $1000\,p_{23}=100$ in part (c). $p_{23}=0.10$ is a <em>conditional</em> frequency &mdash; the fraction of the visits to state 2 that go on to 3 &mdash; not a fraction of all time steps. You must weight it by how often you are at 2, giving $\pi_2p_{23}=0.03$ and hence $30$, not $100$.</p>
+<p class="srcref">Tool: G5 &sect;3.3 (frequency interpretation of $\pi_j$ and of $\pi_ip_{ij}$), &sect;4.4 (mean recurrence time) &middot; B&amp;T &sect;7.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q107" data-diff="2" data-topic="birth-death">
+<p><b>Q107.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Spot the error: local balance &middot; <span class="ref">G5 &sect;3.4</span></span></p>
+<p>A chain on $\{0,1,2,3\}$ has
+$$P=\begin{pmatrix}0.4&amp;0.4&amp;0.2&amp;0\\0.3&amp;0.4&amp;0.3&amp;0\\0&amp;0.5&amp;0.2&amp;0.3\\0&amp;0&amp;0.6&amp;0.4\end{pmatrix}.$$
+A student writes "this is a birth&ndash;death chain, so I can use local balance": $\pi_0p_{01}=\pi_1p_{10}$, i.e. $0.4\pi_0=0.3\pi_1$, giving $\pi_1=\frac43\pi_0$. (a) Identify the error. (b) Write the correct cut equation across the boundary separating $\{0\}$ from $\{1,2,3\}$ and deduce the true ratio $\pi_1/\pi_0$. (c) The true steady state is $\pi=(5/27,\,10/27,\,8/27,\,4/27)$; verify it satisfies the cut equation separating $\{0,1\}$ from $\{2,3\}$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Cut (or "flow balance") equations are always valid for any partition of the state space: in steady state, the long-run rate of transitions from $S$ to $S^{c}$ equals the rate from $S^{c}$ to $S$, because every crossing one way must eventually be matched by a crossing back. The <em>local balance</em> shortcut $\pi_ip_{i,i+1}=\pi_{i+1}p_{i+1,i}$ is the special case where the only way across the cut $\{0,\dots,i\}\mid\{i+1,\dots\}$ is the single pair of arrows $i\leftrightarrow i+1$ &mdash; i.e. a genuine birth&ndash;death chain.</p>
+<p><b>Step 1 (part a &mdash; the error).</b> This chain is <em>not</em> birth&ndash;death: $p_{02}=0.2&gt;0$ is a jump of two states at once. So the cut between $\{0\}$ and $\{1,2,3\}$ is crossed not only by $0\to1$ but also by $0\to2$, and the student's equation leaves out that flow. The chain also lacks the return arrow $2\to0$, so the two sides of his equation are not even the same cut.</p>
+<p><b>Step 2 (part b &mdash; the correct cut).</b> Flow out of $\{0\}$: $\pi_0(p_{01}+p_{02})=\pi_0(0.4+0.2)=0.6\,\pi_0$. Flow into $\{0\}$: $\pi_1p_{10}+\pi_2p_{20}+\pi_3p_{30}=0.3\,\pi_1+0+0=0.3\,\pi_1$. Equating,
+$$0.6\,\pi_0=0.3\,\pi_1\;\Longrightarrow\;\pi_1=2\,\pi_0 .$$
+The true ratio is $2$, not the student's $4/3=1.333333$ &mdash; a $50\%$ error, and it propagates. Carrying his pairwise ratios all the way up and normalizing gives $\pi^{\text{student}}=(0.283019,\,0.377358,\,0.226415,\,0.113208)$ against the truth $(0.185185,\,0.370370,\,0.296296,\,0.148148)$: he overstates $\pi_0$ by $0.097834$, because he has ignored an escape route out of state 0 and so made state 0 look stickier than it is.</p>
+<p><b>Step 3 (part c &mdash; verify the other cut).</b> Across $\{0,1\}\mid\{2,3\}$ the crossing arrows are $0\to2$ ($0.2$), $1\to2$ ($0.3$) going out, and $2\to1$ ($0.5$) coming back ($p_{30}=p_{31}=0$). With $\pi_0=5/27=0.185185$, $\pi_1=10/27=0.370370$, $\pi_2=8/27=0.296296$:
+$$\text{out}=\pi_0(0.2)+\pi_1(0.3)=0.037037+0.111111=0.148148,$$
+$$\text{in}=\pi_2(0.5)=(0.296296)(0.5)=0.148148\;\checkmark .$$
+The two match exactly, confirming both $\pi$ and the principle: cut equations hold in general, pairwise local balance does not.</p>
+<p><b>Answer.</b> $\;$(a) the chain is not birth&ndash;death ($p_{02}=0.2$), so local balance does not apply; (b) $0.6\pi_0=0.3\pi_1$, hence $\pi_1=2\pi_0$; (c) both sides of the $\{0,1\}\mid\{2,3\}$ cut equal $0.148148\;\checkmark$.</p>
+<p><b>Trap.</b> Concluding "cut equations are unreliable here, use the full balance equations". Cut equations are perfectly reliable &mdash; what fails is the assumption that a cut is crossed by exactly one arrow in each direction. Write the cut with <em>all</em> crossing arrows and it works on any chain.</p>
+<p class="srcref">Tool: G5 &sect;3.4 (birth&ndash;death chains, cut/local balance equations) &middot; B&amp;T &sect;7.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q108" data-diff="3" data-topic="steady-state">
+<p><b>Q108.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Doubly stochastic chains &middot; <span class="ref">G5 &sect;3.1&ndash;3.2</span></span></p>
+<p>Call an $m\times m$ transition matrix <em>doubly stochastic</em> if its columns as well as its rows sum to 1. (a) Prove that the uniform vector $\pi_j=1/m$ satisfies the balance equations for any doubly stochastic $P$. (b) Apply this to
+$$P=\begin{pmatrix}0.5&amp;0.2&amp;0.3&amp;0\\0.1&amp;0.4&amp;0.2&amp;0.3\\0.2&amp;0.3&amp;0.1&amp;0.4\\0.2&amp;0.1&amp;0.4&amp;0.3\end{pmatrix}$$
+and state the mean recurrence time of each state. (c) What additional hypotheses are needed before you may conclude $r_{ij}(n)\to1/m$, and give a doubly stochastic chain where that conclusion fails?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The balance equations are $\pi_j=\sum_{k=1}^{m}\pi_kp_{kj}$ for each $j$, together with $\sum_j\pi_j=1$. "Column $j$ sums to 1" says $\sum_{k=1}^{m}p_{kj}=1$.</p>
+<p><b>Step 1 (part a &mdash; the proof).</b> Substitute the candidate $\pi_k=1/m$ into the right-hand side of the balance equation for an arbitrary $j$:
+$$\sum_{k=1}^{m}\pi_kp_{kj}=\sum_{k=1}^{m}\frac1m\,p_{kj}=\frac1m\sum_{k=1}^{m}p_{kj}=\frac1m\cdot1=\frac1m=\pi_j\;\checkmark,$$
+where the third equality is exactly the doubly stochastic hypothesis. Normalization holds too: $\sum_{j}1/m=1\;\checkmark$. So the uniform distribution is always a stationary distribution of a doubly stochastic chain. $\blacksquare$</p>
+<p><b>Step 2 (part b &mdash; check the hypothesis).</b> Row sums: $0.5+0.2+0.3+0=1$; $0.1+0.4+0.2+0.3=1$; $0.2+0.3+0.1+0.4=1$; $0.2+0.1+0.4+0.3=1\;\checkmark$. Column sums: $0.5+0.1+0.2+0.2=1$; $0.2+0.4+0.3+0.1=1$; $0.3+0.2+0.1+0.4=1$; $0+0.3+0.4+0.3=1\;\checkmark$. Hence $\pi=(0.25,\,0.25,\,0.25,\,0.25)$. Every entry of $P^{50}$ equals $0.25$ to ten decimals $\checkmark$, and a simulation of $200{,}000$ chains gives $(0.2485,\,0.2519,\,0.2497,\,0.2500)\;\checkmark$. Mean recurrence times: $t_i^{*}=1/\pi_i=1/0.25=4$ steps for every state.</p>
+<p><b>Step 3 (part c &mdash; from stationary to limiting).</b> Part (a) only shows uniform is <em>a</em> stationary distribution. To conclude $r_{ij}(n)\to1/m$ for every $i$ you need the steady-state convergence theorem: a single recurrent class (which also makes $\pi$ unique) and aperiodicity. The chain in part (b) has all entries of $P^2$ positive, so it satisfies both. A counterexample: $p_{12}=p_{21}=1$ on two states is doubly stochastic (each column sums to $0+1=1$) and its unique stationary distribution is $(0.5,0.5)$, but $r_{11}(n)$ alternates $1,0,1,0,\dots$ and never converges. A second kind of failure is the identity matrix $P=I$, doubly stochastic with $m$ separate recurrent classes: uniform is stationary but $r_{ij}(n)=\delta_{ij}$ for all $n$.</p>
+<p><b>Answer.</b> $\;$(a) $\sum_k(1/m)p_{kj}=(1/m)\sum_kp_{kj}=1/m$; (b) $\pi=(0.25,0.25,0.25,0.25)$, $t_i^{*}=4$ for all $i$; (c) need a single, aperiodic recurrent class &mdash; e.g. $p_{12}=p_{21}=1$ is doubly stochastic yet $r_{11}(n)$ oscillates.</p>
+<p><b>Trap.</b> Concluding from part (a) that "doubly stochastic $\Rightarrow$ the long-run distribution is uniform whatever the start". The identity matrix refutes it: the chain simply stays where it began. Stationarity of the uniform vector is an algebraic fact; convergence to it is a dynamical one requiring the classification hypotheses.</p>
+<p class="srcref">Tool: G5 &sect;3.1&ndash;3.2 (balance equations), &sect;2.4 (convergence theorem) &middot; B&amp;T &sect;7.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q109" data-diff="1" data-topic="birth-death">
+<p><b>Q109.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Birth&ndash;death chain by local balance &middot; <span class="ref">G5 &sect;3.4</span></span></p>
+<p>A dock holds $0,1,2$ or $3$ kayaks. Over one hour the count goes up by one with probability $p_i$ and down by one with probability $q_i$, otherwise stays put, where
+$$p_0=0.5,\;p_1=0.4,\;p_2=0.3;\qquad q_1=0.6,\;q_2=0.5,\;q_3=0.7,$$
+so that the transition matrix is
+$$P=\begin{pmatrix}0.5&amp;0.5&amp;0&amp;0\\0.6&amp;0&amp;0.4&amp;0\\0&amp;0.5&amp;0.2&amp;0.3\\0&amp;0&amp;0.7&amp;0.3\end{pmatrix}.$$
+Find the steady-state distribution using local balance, and the long-run average number of kayaks at the dock.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The chain moves only to neighboring states, so it is a birth&ndash;death chain and the cut between $\{0,\dots,i\}$ and $\{i+1,\dots,3\}$ is crossed by exactly one arrow each way. Local balance therefore applies: $\pi_ip_i=\pi_{i+1}q_{i+1}$ for $i=0,1,2$.</p>
+<p><b>Step 1 (the three ratios).</b>
+$$\pi_1=\frac{p_0}{q_1}\pi_0=\frac{0.5}{0.6}\pi_0=\frac56\pi_0,\qquad
+\pi_2=\frac{p_1}{q_2}\pi_1=\frac{0.4}{0.5}\cdot\frac56\pi_0=\frac45\cdot\frac56\pi_0=\frac23\pi_0,$$
+$$\pi_3=\frac{p_2}{q_3}\pi_2=\frac{0.3}{0.7}\cdot\frac23\pi_0=\frac37\cdot\frac23\pi_0=\frac27\pi_0 .$$</p>
+<p><b>Step 2 (normalize).</b> Put everything over 42:
+$$1+\tfrac56+\tfrac23+\tfrac27=\tfrac{42}{42}+\tfrac{35}{42}+\tfrac{28}{42}+\tfrac{12}{42}=\tfrac{117}{42}=\tfrac{39}{14}=2.785714 .$$
+Hence $\pi_0=\dfrac{42}{117}=\dfrac{14}{39}=0.358974$, and
+$$\pi_1=\tfrac{35}{117}=0.299145,\qquad \pi_2=\tfrac{28}{117}=0.239316,\qquad \pi_3=\tfrac{12}{117}=\tfrac{4}{39}=0.102564 .$$
+Sum: $\frac{42+35+28+12}{117}=\frac{117}{117}=1\;\checkmark$. Solving the full $4\times4$ balance system numerically reproduces the same vector, and a simulation of $200{,}000$ chains gives $(0.3582,\,0.2969,\,0.2416,\,0.1033)\;\checkmark$.</p>
+<p><b>Step 3 (the average).</b>
+$$\mathbb{E}[X]=\sum_{i=0}^{3}i\,\pi_i=0+1(0.299145)+2(0.239316)+3(0.102564)=0.299145+0.478632+0.307692=1.085470 .$$</p>
+<p><b>Answer.</b> $\;\pi=(14/39,\,35/117,\,28/117,\,4/39)=(0.358974,\,0.299145,\,0.239316,\,0.102564)$; average $1.085470$ kayaks.</p>
+<p><b>Trap.</b> Using the self-transition probabilities in the local balance equations. Only the crossing arrows count: $p_{22}=0.2$ and $p_{33}=0.3$ never appear, because a step that stays in place crosses no cut. They are already accounted for by the rows summing to 1.</p>
+<p class="srcref">Tool: G5 &sect;3.4 (birth&ndash;death chains and local balance) &middot; B&amp;T &sect;7.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q110" data-diff="2" data-topic="birth-death">
+<p><b>Q110.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; A queue and its load factor &middot; <span class="ref">G5 &sect;3.5</span></span></p>
+<p>Tickets arrive at a help desk in one-minute slots. In each slot a new ticket arrives with probability $p=0.2$ and, independently, the agent finishes one with probability $q=0.5$ &mdash; provided a ticket is present to be finished. The system holds at most $4$ tickets; an arrival finding $4$ present is turned away. Let $X_n$ be the number in the system at the end of slot $n$. In the interior, moving up requires an arrival and no departure and moving down requires a departure and no arrival, so for $i=1,2,3$
+$$p_{i,i+1}=p(1-q)=0.1,\qquad p_{i,i-1}=q(1-p)=0.4 .$$
+At the boundaries the mechanism changes: from $0$ no departure is possible, so $p_{01}=p=0.2$; at $4$ an arrival is blocked and lost, so $p_{43}=q=0.5$. (a) Compute the interior load factor $\rho=p_{i,i+1}/p_{i,i-1}$. (b) Find $\pi_0,\dots,\pi_4$ by local balance. (c) Find $\mathbb{E}[X]$. (d) Redo the calculation for an unlimited buffer.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Every transition is to a neighbor, so this is a birth&ndash;death chain and local balance applies at every cut: $\pi_i\,p_{i,i+1}=\pi_{i+1}\,p_{i+1,i}$. The full matrix, with the self-transition probabilities filling each row to 1, is
+$$P=\begin{pmatrix}0.8&amp;0.2&amp;0&amp;0&amp;0\\0.4&amp;0.5&amp;0.1&amp;0&amp;0\\0&amp;0.4&amp;0.5&amp;0.1&amp;0\\0&amp;0&amp;0.4&amp;0.5&amp;0.1\\0&amp;0&amp;0&amp;0.5&amp;0.5\end{pmatrix},$$
+row sums all $1\;\checkmark$.</p>
+<p><b>Step 1 (part a).</b>
+$$\rho=\frac{p(1-q)}{q(1-p)}=\frac{(0.2)(0.5)}{(0.5)(0.8)}=\frac{0.1}{0.4}=0.25 .$$
+Since $\rho&lt;1$ the queue is stable: in the interior, going down is four times as likely as going up, so the distribution decays geometrically by a factor $0.25$ per ticket.</p>
+<p><b>Step 2 (part b &mdash; the four cut equations).</b> The boundary cuts do <em>not</em> use $\rho$:
+$$\pi_0(0.2)=\pi_1(0.4)\;\Longrightarrow\;\pi_1=\tfrac{0.2}{0.4}\pi_0=0.5\,\pi_0,$$
+$$\pi_1(0.1)=\pi_2(0.4)\;\Longrightarrow\;\pi_2=0.25\,\pi_1=0.125\,\pi_0,$$
+$$\pi_2(0.1)=\pi_3(0.4)\;\Longrightarrow\;\pi_3=0.25\,\pi_2=0.03125\,\pi_0,$$
+$$\pi_3(0.1)=\pi_4(0.5)\;\Longrightarrow\;\pi_4=0.2\,\pi_3=0.00625\,\pi_0 .$$</p>
+<p><b>Step 3 (normalize).</b> The relative weights are $1,\;0.5,\;0.125,\;0.03125,\;0.00625$, summing to $1.6625$. Hence $\pi_0=1/1.6625=0.601504$ and
+$$\pi=(0.601504,\;0.300752,\;0.075188,\;0.018797,\;0.003759).$$
+Solving the full $5\times5$ balance system numerically reproduces this exactly, and $200{,}000$ simulated chains give $(0.6022,\,0.3005,\,0.0745,\,0.0192,\,0.0037)\;\checkmark$.</p>
+<p><b>Step 4 (part c).</b>
+$$\mathbb{E}[X]=\sum_{i=0}^{4}i\,\pi_i=0.300752+2(0.075188)+3(0.018797)+4(0.003759)$$
+$$=0.300752+0.150376+0.056391+0.015038=0.522556\ \text{tickets}.$$</p>
+<p><b>Step 5 (part d &mdash; unlimited buffer).</b> Now $\pi_i=0.5\,\rho^{\,i-1}\pi_0$ for every $i\ge1$, so
+$$\frac{1}{\pi_0}=1+0.5\sum_{i\ge1}\rho^{\,i-1}=1+\frac{0.5}{1-0.25}=1+\frac{0.5}{0.75}=1.666667\;\Longrightarrow\;\pi_0=0.6 .$$
+For the mean, use $\sum_{i\ge1}i\,r^{\,i-1}=1/(1-r)^2$ with $r=\rho=0.25$:
+$$\mathbb{E}[X]=0.6(0.5)\sum_{i\ge1}i\,\rho^{\,i-1}=\frac{0.3}{(0.75)^2}=\frac{0.3}{0.5625}=\frac{8}{15}=0.533333 ,$$
+matching a direct 400-term summation $\checkmark$. So capping the buffer at 4 costs almost nothing: $0.522556$ versus $0.533333$, because $\pi_4=0.003759$ is already tiny. Truncation only bites when $\rho\to1$, where $\mathbb{E}[X]$ diverges and the buffer becomes the binding constraint.</p>
+<p><b>Answer.</b> $\;\rho=0.25$; $\pi=(0.601504,\,0.300752,\,0.075188,\,0.018797,\,0.003759)$; $\mathbb{E}[X]=0.522556$; with an unlimited buffer $\pi_0=0.6$ and $\mathbb{E}[X]=8/15=0.533333$.</p>
+<p><b>Trap.</b> Writing $\pi_i=\pi_0\rho^{\,i}$ straight down from $i=0$. That ignores the boundary row: at the empty state there is no departure to cancel the arrival, so the up-probability there is $p=0.2$, not $p(1-q)=0.1$, and the first ratio is $0.5$, not $0.25$. The pure-geometric shortcut returns $\pi_0=0.750733$ and $\mathbb{E}[X]=0.328446$ &mdash; a $37\%$ underestimate of the queue length. A second trap is $\rho=p/q=0.4$: it forgets that an arrival and a departure in the same slot cancel.</p>
+<p class="srcref">Tool: G5 &sect;3.5 (the queue, load factor $\rho$), &sect;3.4 (local balance) &middot; B&amp;T &sect;7.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q111" data-diff="2" data-topic="markov-model">
+<p><b>Q111.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Which system of equations? &middot; <span class="ref">G5 &sect;5.1</span></span></p>
+<p>A chain on $\{1,2,3,4,5\}$ has
+$$P=\begin{pmatrix}0.2&amp;0.5&amp;0.1&amp;0.2&amp;0\\0.3&amp;0.1&amp;0.4&amp;0&amp;0.2\\0&amp;0.4&amp;0.2&amp;0.1&amp;0.3\\0&amp;0&amp;0&amp;1&amp;0\\0&amp;0&amp;0&amp;0&amp;1\end{pmatrix}.$$
+For each question below, name the system of equations you would set up, write its unknowns and boundary conditions, and give the answer. (i) $\mathbf{P}(X_3=2\mid X_0=1)$. (ii) Starting from 1, the probability of ending up absorbed in state 4. (iii) Starting from 1, the expected number of steps until absorption. (iv) The long-run fraction of time spent in state 2.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> States 4 and 5 are absorbing; $\{1,2,3\}$ is a transient class, since from 1 you can reach 4 and never return. Each of the four questions is a different linear system &mdash; recognizing which is the entire skill.</p>
+<p><b>Step 1 (i) &mdash; $n$-step recursion.</b> Unknowns $r_{ij}(n)$; recursion $r_{ij}(n)=\sum_kr_{ik}(n-1)p_{kj}$ with initial condition $r_{ij}(0)=\delta_{ij}$. No boundary conditions and no solving &mdash; just iterate (equivalently, read off $P^3$). Iterating gives
+$$\mathbf{P}(X_3=2\mid X_0=1)=0.21 ,$$
+confirmed by $400{,}000$ simulated paths ($0.2100$).</p>
+<p><b>Step 2 (ii) &mdash; absorption equations.</b> Unknowns $a_i=\mathbf{P}(\text{absorbed at }4\mid X_0=i)$ for the transient $i$; equations $a_i=\sum_{j}p_{ij}a_j$ with the boundary conditions $a_4=1$, $a_5=0$. That is
+$$a_1=0.2a_1+0.5a_2+0.1a_3+0.2,\quad a_2=0.3a_1+0.1a_2+0.4a_3,\quad a_3=0.4a_2+0.2a_3+0.1 .$$
+Solving the $3\times3$ system: $(a_1,a_2,a_3)=(0.446203,\,0.262658,\,0.256329)$, so the answer is $a_1=0.446203$. Simulation gives $0.4461\;\checkmark$. Note there is no "$1+$" here &mdash; these are probabilities, and time does not enter.</p>
+<p><b>Step 3 (iii) &mdash; expected-time equations.</b> Unknowns $\mu_i=\mathbb{E}[\text{steps to absorption}\mid X_0=i]$; equations $\mu_i=1+\sum_{j\text{ transient}}p_{ij}\mu_j$ with $\mu_4=\mu_5=0$. The "$1+$" counts the step you are about to take. Solving gives
+$$(\mu_1,\mu_2,\mu_3)=(4.082278,\,3.892405,\,3.196203),$$
+so the answer is $\mu_1=4.082278$ steps. Same coefficient matrix $I-Q$ as in (ii), different right-hand side (all ones instead of the absorption column).</p>
+<p><b>Step 4 (iv) &mdash; balance equations, and a warning.</b> The relevant system is $\pi_j=\sum_k\pi_kp_{kj}$, $\sum_j\pi_j=1$. But state 2 is transient, so it is visited only finitely often and $\pi_2=0$: the long-run fraction of time in state 2 is $0$. Moreover this chain has two recurrent classes $\{4\}$ and $\{5\}$, so the balance system does not have a unique solution &mdash; every vector $(0,0,0,\alpha,1-\alpha)$ satisfies it. The <em>correct</em> long-run answer conditional on the start is $(0,0,0,0.446203,\,0.553797)$ from state 1, which is exactly the absorption probabilities from Step 2. This is the sense in which question (iv) is really question (ii) in disguise.</p>
+<p><b>Answer.</b> $\;$(i) $n$-step recursion, $0.21$; (ii) absorption equations with $a_4=1,a_5=0$, $a_1=0.446203$; (iii) expected-time equations with the $1+$ and $\mu_4=\mu_5=0$, $\mu_1=4.082278$; (iv) balance equations &mdash; but $\pi_2=0$ because 2 is transient, and the balance system is not uniquely solvable here.</p>
+<p><b>Trap.</b> Setting up the absorption system with a "$1+$" (that is question iii) or the time system without it (that would give $\mu_i=0$). A second trap is expecting a nonzero $\pi_2$: a chain with absorbing states has all its steady-state mass on the absorbing states, so "what fraction of time in state 2?" always answers $0$, however long it lingers there first.</p>
+<p class="srcref">Tool: G5 &sect;5.1 (the three Markov question types), &sect;1.3, &sect;3.1, &sect;4.1&ndash;4.2 &middot; B&amp;T &sect;7.1, &sect;7.3&ndash;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q112" data-diff="1" data-topic="absorption">
+<p><b>Q112.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Absorption probability by first-step analysis &middot; <span class="ref">G5 &sect;4.1</span></span></p>
+<p>A token sits on one of four squares $1,2,3,4$. Squares 1 and 4 end the game. From square 2 the token moves to 1 with probability $0.3$ and to 3 with probability $0.7$; from square 3 it moves to 2 with probability $0.5$ and to 4 with probability $0.5$. Starting on square 2, what is the probability that the game ends on square 4?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $a_i=\mathbf{P}(\text{absorbed at }4\mid X_0=i)$. The boundary conditions are $a_4=1$ and $a_1=0$. First-step analysis conditions on the first move and uses the Markov property to restart the same problem from the new state: $a_i=\sum_jp_{ij}a_j$ for the transient $i=2,3$.</p>
+<p><b>Step 1 (the two equations).</b>
+$$a_2=0.3\,a_1+0.7\,a_3=0.3(0)+0.7a_3=0.7\,a_3,$$
+$$a_3=0.5\,a_2+0.5\,a_4=0.5\,a_2+0.5(1)=0.5\,a_2+0.5 .$$</p>
+<p><b>Step 2 (substitute).</b> Put the first into the second:
+$$a_3=0.5(0.7a_3)+0.5=0.35\,a_3+0.5\;\Longrightarrow\;0.65\,a_3=0.5\;\Longrightarrow\;a_3=\frac{0.5}{0.65}=\frac{10}{13}=0.769231 .$$</p>
+<p><b>Step 3 (back-substitute).</b>
+$$a_2=0.7\,a_3=0.7\cdot\frac{10}{13}=\frac{7}{13}=0.538462 .$$
+Check the first equation directly: $0.3(0)+0.7(0.769231)=0.538462\;\checkmark$. Monte Carlo with $300{,}000$ games gives $0.5382$ from square 2 and $0.7689$ from square 3 $\checkmark$.</p>
+<p><b>Answer.</b> $\;a_2=7/13=0.538462$ (so the game ends on square 1 with probability $6/13=0.461538$).</p>
+<p><b>Trap.</b> Guessing $0.5$ "by symmetry" because square 2 sits between the two ends. The chain is not symmetric: from 2 the token heads toward 4 with probability $0.7$ but toward 1 with only $0.3$, while square 3 is an even coin flip. That bias is what pushes $a_2$ above $0.5$.</p>
+<p class="srcref">Tool: G5 &sect;4.1 (absorption probabilities, first-step analysis) &middot; B&amp;T &sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q113" data-diff="2" data-topic="absorption">
+<p><b>Q113.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Expected time to absorption &middot; <span class="ref">G5 &sect;4.2</span></span></p>
+<p>A beetle wanders among three chambers $1,2,3$ and an exit, state $4$, moving once per minute according to
+$$P=\begin{pmatrix}0.4&amp;0.6&amp;0&amp;0\\0.3&amp;0.2&amp;0.5&amp;0\\0&amp;0.6&amp;0&amp;0.4\\0&amp;0&amp;0&amp;1\end{pmatrix}.$$
+Starting in chamber 1, how long on average until the beetle exits? Give $\mu_1,\mu_2,\mu_3$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $\mu_i=\mathbb{E}[\text{minutes until state 4}\mid X_0=i]$, with $\mu_4=0$. First-step analysis: take one step (costing 1 minute), then face the same problem from wherever you land:
+$$\mu_i=1+\sum_{j=1}^{4}p_{ij}\,\mu_j,\qquad i=1,2,3 .$$</p>
+<p><b>Step 1 (write the three equations).</b>
+$$\mu_1=1+0.4\mu_1+0.6\mu_2,\qquad
+\mu_2=1+0.3\mu_1+0.2\mu_2+0.5\mu_3,\qquad
+\mu_3=1+0.6\mu_2+0.4(0)=1+0.6\mu_2 .$$</p>
+<p><b>Step 2 (eliminate $\mu_1$).</b> From the first, $0.6\mu_1=1+0.6\mu_2$, so
+$$\mu_1=\frac{1}{0.6}+\mu_2=\frac53+\mu_2=1.666667+\mu_2 .$$</p>
+<p><b>Step 3 (substitute both into the middle equation).</b>
+$$\mu_2=1+0.3\left(\tfrac53+\mu_2\right)+0.2\mu_2+0.5\left(1+0.6\mu_2\right)$$
+$$=1+0.5+0.3\mu_2+0.2\mu_2+0.5+0.3\mu_2=2+0.8\,\mu_2 .$$
+Hence $0.2\,\mu_2=2$ and $\mu_2=10$.</p>
+<p><b>Step 4 (back-substitute).</b>
+$$\mu_3=1+0.6(10)=7,\qquad \mu_1=\tfrac53+10=\tfrac{35}{3}=11.666667 .$$
+Check the middle equation: $1+0.3(11.666667)+0.2(10)+0.5(7)=1+3.5+2+3.5=10=\mu_2\;\checkmark$. A Monte-Carlo run of $200{,}000$ beetles started in chamber 1 gives a mean exit time of $11.6482$ minutes $\checkmark$.</p>
+<p><b>Answer.</b> $\;\mu_1=35/3=11.666667$ minutes, $\mu_2=10$, $\mu_3=7$.</p>
+<p><b>Trap.</b> Dropping the "$+1$" and solving $\mu_i=\sum_jp_{ij}\mu_j$. That homogeneous system has only the solution $\mu_1=\mu_2=\mu_3=0$ &mdash; a clear signal that you have written the equations for an absorption <em>probability</em> (Q112) rather than an expected time. The $+1$ is the minute spent on the step you just took.</p>
+<p class="srcref">Tool: G5 &sect;4.2 (expected time to absorption) &middot; B&amp;T &sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q114" data-diff="3" data-topic="absorption">
+<p><b>Q114.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Gambler's ruin &middot; <span class="ref">G5 &sect;4.3</span></span></p>
+<p>A player starts with $4$ chips and plays rounds until she holds either $0$ chips (she stops, ruined) or $10$ chips (she stops, satisfied). Each round she gains one chip with probability $p=0.45$ and loses one with probability $0.55$, independently. (a) What is the probability she reaches $10$? (b) What is the expected number of rounds she plays? (c) Compare both answers with the fair-game case $p=0.5$ and comment.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> This is a birth&ndash;death chain on $\{0,1,\dots,10\}$ with $0$ and $m=10$ absorbing. Write $a_i$ for the probability of reaching $m$ before $0$ from $i$ chips, and $D_i$ for the expected number of rounds from $i$. The standard results for $p\ne1/2$, with
+$$\rho=\frac{1-p}{p},$$
+are
+$$a_i=\frac{1-\rho^{\,i}}{1-\rho^{\,m}},\qquad D_i=\frac{i-m\,a_i}{1-2p}.$$
+Both come from first-step analysis; $a_i$ from telescoping the differences $a_{i+1}-a_i=\rho^{\,i}(a_1-a_0)$, and $D_i$ from a particular solution linear in $i$ plus the homogeneous solution $A(1-\rho^{\,i})$.</p>
+<p><b>Step 1 (the ratio).</b>
+$$\rho=\frac{1-0.45}{0.45}=\frac{0.55}{0.45}=\frac{11}{9}=1.222222 .$$
+Because $\rho&gt;1$ the walk drifts downward: unfavorable odds.</p>
+<p><b>Step 2 (part a).</b> With $i=4$, $m=10$:
+$$\rho^{4}=(1.222222)^4=2.231520,\qquad \rho^{10}=(1.222222)^{10}=7.438781,$$
+$$a_4=\frac{1-2.231520}{1-7.438781}=\frac{-1.231520}{-6.438781}=0.191266 .$$
+So she reaches 10 chips with probability about $19.13\%$, and is ruined with probability $1-0.191266=0.808734$. Monte Carlo over $300{,}000$ sessions gives $0.1914\;\checkmark$.</p>
+<p><b>Step 3 (part b).</b> With $1-2p=1-0.90=0.10$ and $m\,a_4=10(0.191266)=1.912660$:
+$$D_4=\frac{4-1.912660}{0.10}=\frac{2.087340}{0.10}=20.873404\ \text{rounds}.$$
+Simulation gives $20.931\;\checkmark$. Sanity check on the sign: the numerator $i-m\,a_i$ is the expected <em>loss</em> in chips, $4-1.912660=2.087340$, and $1-2p=0.10$ is the expected loss per round, so $D_i$ is total expected loss divided by loss per round &mdash; a Wald-style identity, and both quantities are positive, so $D_4&gt;0\;\checkmark$.</p>
+<p><b>Step 4 (part c &mdash; the fair game).</b> For $p=0.5$ the formulas degenerate ($\rho=1$ makes both numerator and denominator zero) and the limits are $a_i=i/m$ and $D_i=i(m-i)$:
+$$a_4=\frac{4}{10}=0.4,\qquad D_4=4(10-4)=24\ \text{rounds}.$$
+Comment: shaving the win probability from $0.50$ to $0.45$ &mdash; a $5$ percentage-point edge for the house &mdash; cuts her success probability from $0.4$ to $0.191266$, less than half. The reason is that the edge compounds: it is the <em>ratio</em> $\rho^{\,i}$ that appears, so the disadvantage is exponentiated by the distance she must travel. The expected duration falls only mildly, from $24$ to $20.873404$ rounds, because most of her sessions end in ruin either way &mdash; she just gets there a little faster.</p>
+<p><b>Answer.</b> $\;$(a) $a_4=0.191266$; (b) $D_4=20.873404$ rounds; (c) the fair game would give $0.4$ and $24$ rounds.</p>
+<p><b>Trap.</b> Reporting $4/10=0.4$ on the grounds that "she needs 6 more chips and can afford to lose 4, so it is roughly proportional". That reasoning is exactly the fair-game formula and is off by more than a factor of two here. A second trap is writing $\rho=p/(1-p)=0.818182$ instead of $(1-p)/p$; that inverts the drift and returns $a_4=0.637586$, i.e. it makes an unfavorable game look favorable.</p>
+<p class="srcref">Tool: G5 &sect;4.3 (gambler's ruin: absorption probability and expected duration) &middot; B&amp;T &sect;7.4</p>
+</div></details>
+</div>

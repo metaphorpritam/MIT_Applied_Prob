@@ -82,6 +82,17 @@ $$\int_{1/2}^{1}\Big(\frac{x}{2}+\frac18\Big)dx = \Big[\frac{x^2}{4}+\frac{x}{8}
 <p>$\{Y \gt X\}$ is the half-plane above the diagonal; it cuts the disk into two congruent halves, so $\mathbf{P} = \frac12$. (The boundary line $Y=X$ has zero area and so contributes nothing, per Gotcha item 2.)</p>
 </div></details></div>
 
+<div class="defn"><b>Definition (joint CDF — B&amp;T §3.4).</b> The <b>joint cumulative distribution function</b> of a pair $X,Y$ is
+$$F_{X,Y}(x,y) \;=\; \mathbf{P}(X\le x,\ Y\le y) \;=\; \int_{-\infty}^{y}\!\!\int_{-\infty}^{x} f_{X,Y}(s,t)\,ds\,dt ,$$
+the second equality being the definition above applied to the quarter-plane $S = (-\infty,x]\times(-\infty,y]$, and holding only in the jointly continuous case. Here $x$ and $y$ are the two <em>thresholds</em>, and $s,t$ are dummy integration variables. This is the two-dimensional analogue of the one-variable CDF $F_X(x)=\mathbf{P}(X\le x)$ of §1.4: there the region was a half-line and $F_X(x)$ accumulated density to the <em>left</em> of $x$; here it is a quarter-plane and $F_{X,Y}(x,y)$ accumulates volume to the <em>south-west</em> of the point $(x,y)$. As in §1.4 the definition needs no density at all — it works for discrete, continuous and mixed pairs alike, which is exactly what made the CDF the universal object there.</div>
+
+<div class="thm"><b>Property (recovering the density and the marginals from $F_{X,Y}$ — B&amp;T §3.4).</b> Wherever the derivatives exist,
+$$f_{X,Y}(x,y) \;=\; \frac{\partial^2 F_{X,Y}}{\partial x\,\partial y}(x,y) ,$$
+and the marginal CDFs are obtained by sending the unwanted threshold to infinity:
+$$F_X(x) = \lim_{y\to\infty} F_{X,Y}(x,y), \qquad F_Y(y) = \lim_{x\to\infty} F_{X,Y}(x,y) .$$</div>
+
+<p><b>Why.</b> Both statements come out of the double integral. Differentiating $F_{X,Y}$ with respect to $y$ removes the outer integral by the fundamental theorem of calculus and leaves $\int_{-\infty}^{x} f_{X,Y}(s,y)\,ds$; differentiating <em>that</em> with respect to $x$ removes the remaining integral and leaves $f_{X,Y}(x,y)$. So the mixed partial undoes the double accumulation, exactly as $f_X = dF_X/dx$ undid the single accumulation in §1.4; the order of the two differentiations is immaterial when $f_{X,Y}$ is continuous. For the limits, the events $\{X\le x,\ Y\le y\}$ increase to $\{X\le x\}$ as $y\to\infty$ — no constraint on $Y$ survives — so their probabilities converge to $\mathbf{P}(X\le x)$ by the continuity property of probability (G1 §1.7). This is the CDF form of marginalization, and it is the same fact as §2.2 one derivative away: differentiating $F_X(x) = \int_{-\infty}^{\infty}\!\int_{-\infty}^{x} f_{X,Y}(s,y)\,ds\,dy$ in $x$ gives $f_X(x) = \int_{-\infty}^{\infty} f_{X,Y}(x,y)\,dy$.</p>
+
 <h3>2.2 From the joint to the marginal</h3>
 
 <p>L09 slide 3 writes the line</p>
@@ -332,6 +343,7 @@ $$f_{X,Y}(x,y) = f_X(x)\,f_Y(y) \qquad \text{for all } x,y .$$
 <ol>
 <li>$f_{X,Y}(x,y) = f_X(x)f_Y(y)$ for all $x,y$;</li>
 <li>$f_{X|Y}(x\mid y) = f_X(x)$ for all $x$ and all $y$ with $f_Y(y)\gt0$;</li>
+<li>$F_{X,Y}(x,y) = F_X(x)F_Y(y)$ for all $x,y$ — the joint CDF of §2.1 factors. (It is item 4 read for the quadrants $A=(-\infty,x]$, $B=(-\infty,y]$; conversely, applying $\partial^2/\partial x\,\partial y$ to both sides returns item 1, since $\partial^2\big(F_X(x)F_Y(y)\big)/\partial x\,\partial y = f_X(x)f_Y(y)$.)</li>
 <li>$\mathbf{P}(X\in A,\ Y\in B) = \mathbf{P}(X\in A)\mathbf{P}(Y\in B)$ for all sets $A, B$.</li>
 </ol>
 Moreover independence implies $\mathbb{E}[g(X)h(Y)] = \mathbb{E}[g(X)]\,\mathbb{E}[h(Y)]$ for any functions $g,h$; in particular $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$, $\operatorname{cov}(X,Y)=0$, and $\operatorname{var}(X+Y)=\operatorname{var}(X)+\operatorname{var}(Y)$.</div>
@@ -720,6 +732,18 @@ Cross-check by the expected value rule without ever finding $f_Z$: $\mathbb{E}[\
 <p>(iii) <b>False.</b> Linearity of expectation holds for any jointly distributed pair (§2.5); only <em>products</em>, $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$, and $\operatorname{var}(X+Y)=\operatorname{var}X+\operatorname{var}Y$ need independence (or at least zero covariance).</p>
 <p>(iv) <b>True.</b> The slice of a constant function is constant, and renormalizing a constant leaves it constant — uniform on the slice (§2.7c, Practice 2.6).</p>
 <p>(v) <b>False.</b> The marginal is the <em>length</em> of the slice times the constant, and slice lengths vary: the triangle gives $f_Y(y)=2(1-y)$, the disk gives the semicircle law (Practice 2.3). It is uniform only when the region is a rectangle with sides parallel to the axes.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 2.19.</b> For the running density $f_{X,Y}(x,y)=x+y$ on the unit square (Example 2.1), find the joint CDF $F_{X,Y}(x,y)$ on the square, recover the density from it by the mixed partial of §2.1, obtain $F_X$ by the limit rule, and check independence with the third criterion of §2.4.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>The CDF.</b> For $0\le x\le1$, $0\le y\le1$ the quarter-plane meets the support in the rectangle $[0,x]\times[0,y]$, so
+$$F_{X,Y}(x,y) = \int_0^x\!\!\int_0^y (s+t)\,dt\,ds .$$
+Inner integral, antiderivative $st+\frac{t^2}{2}$: $\big[st+\frac{t^2}{2}\big]_0^{y} = sy+\frac{y^2}{2}$. Outer, antiderivative $\frac{s^2y}{2}+\frac{sy^2}{2}$:
+$$F_{X,Y}(x,y) = \Big[\frac{s^2y}{2}+\frac{sy^2}{2}\Big]_0^{x} = \frac{x^2y+xy^2}{2} = \frac{xy(x+y)}{2} .$$
+Two checks: $F_{X,Y}(x,0)=0$ (a degenerate rectangle carries no probability) and $F_{X,Y}(1,1)=\frac{1\cdot1\cdot2}{2}=1$ ✓, the normalization of Example 2.1.</p>
+<p><b>Mixed partial.</b> $\dfrac{\partial}{\partial y}\dfrac{x^2y+xy^2}{2} = \dfrac{x^2+2xy}{2}$, and then $\dfrac{\partial}{\partial x}\dfrac{x^2+2xy}{2} = \dfrac{2x+2y}{2} = x+y = f_{X,Y}(x,y)$ ✓.</p>
+<p><b>Marginal.</b> The support ends at $y=1$, so $F_{X,Y}(x,y)=F_{X,Y}(x,1)$ for every $y\ge1$ and the limit is just that value: $F_X(x) = \frac{x(x+1)}{2} = \frac{x^2+x}{2}$ on $[0,1]$. Differentiating (§1.4) gives $f_X(x)=x+\frac12$, the marginal of Example 2.2 ✓.</p>
+<p><b>Independence.</b> By symmetry $F_Y(y)=\frac{y(y+1)}{2}$, so $F_X(x)F_Y(y) = \frac{x(x+1)y(y+1)}{4}$ — a quartic, whereas $F_{X,Y}$ is a cubic. They cannot agree for all $x,y$, so $X$ and $Y$ are dependent, confirming Example 2.2 by the CDF criterion instead of the density one.</p>
 </div></details></div>
 
 <div class="summary"><b>§2 cheatsheet.</b>

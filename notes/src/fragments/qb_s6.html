@@ -1,0 +1,848 @@
+<h2 id="qb-s6">&sect;6 &nbsp; Limit theorems &amp; Bayesian inference</h2>
+
+<p class="srcref">Drills G6 &sect;1&ndash;&sect;5 &middot; Bertsekas&ndash;Tsitsiklis &sect;5.1&ndash;5.4, &sect;8.1&ndash;8.4 &middot; every number recomputed in <code>computes/qb_s6.py</code></p>
+
+<p>Twenty questions on the two halves of G6. The first half asks what you may claim about a sum or
+an average: Markov and Chebyshev bounds (and how far above the truth they sit), the weak law and
+the four things it does <em>not</em> say, sample sizes priced by Chebyshev against sample sizes
+priced by the central limit theorem, and normal approximations including the $\tfrac12$ continuity
+correction and the regime where the approximation quietly fails. The second half asks what you may
+claim about an unknown: posteriors for discrete and continuous parameters, a conjugate coin-bias
+calculation, MAP against the conditional mean and the cases where they disagree by a factor of
+three, and LMS / linear LMS estimation with the orthogonality property and the
+$(1-\rho^2)\operatorname{var}(\Theta)$ error formula. Every number below is recomputed in
+<code>computes/qb_s6.py</code>, with Monte-Carlo cross-checks on the tails, the posteriors and the
+estimators.</p>
+
+<div class="ex qcard" id="q115" data-diff="1" data-topic="markov-chebyshev">
+<p><b>Q115.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Two bounds from mean and variance &middot; <span class="ref">G6 &sect;1.1&ndash;1.2</span></span></p>
+<p>A server's weekly downtime $X$, in hours, is nonnegative with $\mathbb{E}[X]=6$ and
+$\operatorname{var}(X)=9$. Nothing else about its distribution is known. (a) Bound
+$\mathbf{P}(X\ge 15)$ using Markov. (b) Bound the same probability using Chebyshev. (c) How many
+standard deviations above the mean is $15$, and does your Chebyshev answer agree with the
+$k$-sigma form $1/k^2$?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $\mu=\mathbb{E}[X]=6$, $\sigma^2=\operatorname{var}(X)=9$, so
+$\sigma=\sqrt{9}=3$. The threshold is $a=15$.</p>
+<p><b>(a) Markov.</b> $X\ge 0$ and $a=15&gt;0$, so the hypothesis of Markov's inequality is met and
+$$\mathbf{P}(X\ge 15)\;\le\;\frac{\mathbb{E}[X]}{15}=\frac{6}{15}=0.4 .$$</p>
+<p><b>(b) Chebyshev.</b> Chebyshev bounds a <em>two-sided</em> event, so first embed the one-sided
+one. If $X\ge 15$ then $X-6\ge 9$, hence $|X-6|\ge 9$, so
+$\{X\ge15\}\subseteq\{|X-6|\ge 9\}$ and monotonicity of probability gives
+$$\mathbf{P}(X\ge 15)\;\le\;\mathbf{P}(|X-6|\ge 9)\;\le\;\frac{\sigma^2}{9^2}
+=\frac{9}{81}=0.111111 .$$
+Chebyshev is tighter than Markov by a factor $0.4/0.111111=3.6$, and the extra hypothesis paying
+for that is one number, the variance.</p>
+<p><b>(c) In sigma units.</b> $(15-6)/3=3$, so $15$ is exactly $k=3$ standard deviations above the
+mean, and the $k$-sigma form gives $1/k^2=1/9=0.111111$ &mdash; the same number, as it must be,
+since $c=k\sigma$ is what was substituted in (b).</p>
+<p><b>Answer.</b> $\;\mathbf{P}(X\ge15)\le 0.4$ (Markov), $\;\le 0.111111$ (Chebyshev);
+$15$ is $3\sigma$ above the mean.</p>
+<p><b>The tempting wrong answer.</b> Writing $\mathbf{P}(X\ge 15)\le \sigma^2/15^2=9/225=0.04$.
+That is a correct bound on $\mathbf{P}(|X-6|\ge 15)$ &mdash; a strictly smaller event, requiring a
+deviation of $15$ rather than $9$ &mdash; so it does not bound the event asked for. Chebyshev's $c$
+is a distance from the mean, never a raw threshold.</p>
+<p class="srcref">Tool: G6 &sect;1.1&ndash;1.2 (Markov, Chebyshev, the one-sided embedding) &middot; B&amp;T &sect;5.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q116" data-diff="1" data-topic="markov-chebyshev">
+<p><b>Q116.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; When Chebyshev is worse than Markov &middot; <span class="ref">G6 &sect;1.2</span></span></p>
+<p>True or false, with reasons: <em>"For a nonnegative random variable, the Chebyshev bound on
+$\mathbf{P}(X\ge a)$ is always at least as tight as the Markov bound, since it uses more
+information."</em> Use the $X$ of Q115 ($\mu=6$, $\sigma^2=9$) and find the threshold $a$ above
+which Chebyshev actually is the better of the two.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>The claim is false.</b> More information does not automatically mean a tighter number: the two
+inequalities bound different quantities and their bounds cross.</p>
+<p><b>A counterexample.</b> Take $a=7$, barely above the mean. Markov gives
+$$\mathbf{P}(X\ge 7)\le \frac{6}{7}=0.857143 ,$$
+while Chebyshev, via $\{X\ge7\}\subseteq\{|X-6|\ge1\}$, gives
+$$\mathbf{P}(X\ge 7)\le\frac{9}{1^2}=9 ,$$
+which is <em>vacuous</em> &mdash; it says a probability is at most $9$, i.e. nothing at all. Markov
+wins outright here.</p>
+<p><b>Where they cross.</b> The two bounds are $\mu/a=6/a$ and $\sigma^2/(a-\mu)^2=9/(a-6)^2$.
+Setting them equal, $6(a-6)^2=9a$, i.e.
+$$6a^2-72a+216=9a\quad\Longrightarrow\quad 6a^2-81a+216=0 .$$
+Its roots are $a=3.657671$ and $a=9.842329$. Only the second exceeds the mean and is therefore
+relevant; at that point both bounds equal $0.609612$. For $a&gt;9.842329$ Chebyshev is the tighter,
+for $\mu&lt;a&lt;9.842329$ Markov is. Check just past the crossing, at $a=10$: Markov gives
+$6/10=0.6$, Chebyshev $9/16=0.5625$ &mdash; Chebyshev now leads, and by Q115 the lead grows to
+$3.6\times$ at $a=15$.</p>
+<p><b>Answer.</b> $\;$False; for this $X$ Chebyshev only overtakes Markov for
+$a&gt;9.842329$ (both bounds equal $0.609612$ there).</p>
+<p><b>What the reasoning behind the false claim gets wrong.</b> Chebyshev spends its variance on a
+symmetric event, half of which ($X\le \mu-c$) is irrelevant to a one-sided question; near the mean
+that waste swamps the extra information. The right summary is "Chebyshev dominates <em>in the
+tail</em>", not "always".</p>
+<p class="srcref">Tool: G6 &sect;1.2 (Gotcha &mdash; four traps in Chebyshev) &middot; B&amp;T &sect;5.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q117" data-diff="2" data-topic="markov-chebyshev">
+<p><b>Q117.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Bounds versus the true tail &middot; <span class="ref">G6 &sect;1.1&ndash;1.2</span></span></p>
+<p>The number of hardware faults a machine suffers in a year is $X\sim\text{Poisson}(4)$, so
+$\mathbb{E}[X]=\operatorname{var}(X)=4$. Bound $\mathbf{P}(X\ge10)$ by Markov and by Chebyshev,
+compute the exact value, and report each bound as a multiple of the truth. Repeat at the threshold
+$20$ and say what the comparison shows about where bounds are useful.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Threshold $10$ &mdash; the two bounds.</b> $X\ge0$, so Markov applies:
+$$\mathbf{P}(X\ge10)\le\frac{4}{10}=0.4 .$$
+For Chebyshev, $X\ge 10$ forces $X-4\ge 6$, so $\{X\ge10\}\subseteq\{|X-4|\ge6\}$ and
+$$\mathbf{P}(X\ge10)\le\frac{4}{6^2}=\frac{4}{36}=0.111111 .$$</p>
+<p><b>The truth.</b> Summing the Poisson PMF,
+$\mathbf{P}(X\ge10)=1-\sum_{k=0}^{9}e^{-4}4^k/k!=0.008132$ (four million simulated years give
+$0.008145$ &mdash; agreement to three decimals).</p>
+<p><b>Looseness.</b> $0.4/0.008132=49.19$ and $0.111111/0.008132=13.66$: Markov overstates the truth
+by a factor of $49$, Chebyshev by $14$.</p>
+<p><b>Threshold $20$.</b> Markov: $4/20=0.2$. Chebyshev: $\{X\ge20\}\subseteq\{|X-4|\ge16\}$, so
+$4/16^2=4/256=0.015625$. Exact: $\mathbf{P}(X\ge20)=1.020052\times10^{-8}$. Now Chebyshev
+overstates by $0.015625/1.020052\times10^{-8}=1.53\times10^{6}$.</p>
+<p><b>What it shows.</b> Both bounds decay <em>polynomially</em> in the threshold ($1/a$ and
+$1/(a-\mu)^2$) while a Poisson tail decays faster than exponentially. So the further into the tail
+you go, the worse the ratio &mdash; the bounds are least informative exactly where tail
+probabilities matter most. They remain the only legal statements when all you know is a mean and a
+variance &mdash; but neither displayed number is the best such statement. Over the class of all
+nonnegative $X$ with mean $4$ and variance $4$, the sharp value of $\mathbf{P}(X\ge10)$ is the
+one-sided (Cantelli) bound of Q118,
+$$\sup_X\ \mathbf{P}(X\ge10)=\frac{\sigma^2}{\sigma^2+(10-\mu)^2}=\frac{4}{4+36}=0.1 ,$$
+attained by the two-point law $\mathbf{P}(X=10)=0.1$, $\mathbf{P}(X=10/3)=0.9$ (mean
+$0.1(10)+0.9(3.333333)=4$&nbsp;&#10003;, variance $0.1(36)+0.9(4/9)=4$&nbsp;&#10003;). So both
+bounds above are <em>strictly conservative</em> for this event: no admissible distribution reaches
+either $0.4$ or $0.111111$.</p>
+<p><b>Answer.</b> $\;$Markov $0.4$, Chebyshev $0.111111$, exact $0.008132$ (factors $49.19$ and
+$13.66$); at $20$ the factors become $1.96\times10^{7}$ and $1.53\times10^{6}$.</p>
+<p><b>The tempting wrong answer.</b> Concluding "the bounds are wrong / useless" &mdash; or, at the
+other extreme, "they are tight, so some distribution in the class attains them". Both are wrong.
+They are valid but not sharp here. Chebyshev's $0.111111$ is attained only by the <em>two-sided</em>
+event $|X-4|\ge6$, which would need mass at $X=-2$ &mdash; impossible for a count. Markov's $0.4$ is
+attained only by $\mathbf{P}(X=10)=0.4$, $\mathbf{P}(X=0)=0.6$, whose variance is
+$0.4(36)+0.6(16)=24$, not $4$, so pinning the variance rules it out too. The sharp value over the
+class is $0.1$, and the Poisson's $0.008132$ is far below even that.</p>
+<p class="srcref">Tool: G6 &sect;1.1&ndash;1.2 (bounds vs. truth), G6 &sect;5.1 Example 5.1 (the same comparison on an exponential) &middot; B&amp;T &sect;5.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q118" data-diff="3" data-topic="markov-chebyshev">
+<p><b>Q118.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Derivation: the one-sided Chebyshev &middot; <span class="ref">G6 &sect;1.1&ndash;1.2</span></span></p>
+<p>Let $X$ have mean $\mu$ and variance $\sigma^2$, both finite, and let $c&gt;0$. Prove the
+<em>one-sided</em> Chebyshev inequality
+$$\mathbf{P}(X-\mu\ge c)\;\le\;\frac{\sigma^2}{\sigma^2+c^2}$$
+by applying Markov's inequality to $(X-\mu+t)^2$ for a well-chosen $t&gt;0$. Then evaluate it for
+the Poisson$(4)$ of Q117 at $c=6$ and say how much it improved matters &mdash; and how much it did
+not.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 &mdash; build a nonnegative random variable.</b> Markov needs a nonnegative quantity, and
+$X-\mu$ is not one; but $Y=(X-\mu+t)^2$ is nonnegative for every constant $t$. Fix any $t&gt;0$.</p>
+<p><b>Step 2 &mdash; relate the events.</b> If $X-\mu\ge c$ then, adding $t&gt;0$ to both sides,
+$X-\mu+t\ge c+t&gt;0$; squaring a positive inequality preserves it, so $(X-\mu+t)^2\ge(c+t)^2$.
+Hence $\{X-\mu\ge c\}\subseteq\{Y\ge (c+t)^2\}$, and by monotonicity of probability
+$$\mathbf{P}(X-\mu\ge c)\le\mathbf{P}\big(Y\ge (c+t)^2\big).$$</p>
+<p><b>Step 3 &mdash; Markov on $Y$.</b> Since $Y\ge0$ and $(c+t)^2&gt;0$,
+$$\mathbf{P}\big(Y\ge(c+t)^2\big)\le\frac{\mathbb{E}[Y]}{(c+t)^2},\qquad
+\mathbb{E}[Y]=\mathbb{E}\big[(X-\mu)^2\big]+2t\,\mathbb{E}[X-\mu]+t^2=\sigma^2+0+t^2 ,$$
+using linearity of expectation and $\mathbb{E}[X-\mu]=0$. So for every $t&gt;0$,
+$$\mathbf{P}(X-\mu\ge c)\le\frac{\sigma^2+t^2}{(c+t)^2}=:g(t).$$</p>
+<p><b>Step 4 &mdash; choose the best $t$.</b> Every $t$ gives a valid bound, so take the smallest.
+Differentiating,
+$$g'(t)=\frac{2t(c+t)^2-2(c+t)(\sigma^2+t^2)}{(c+t)^4}
+=\frac{2\big(t(c+t)-(\sigma^2+t^2)\big)}{(c+t)^3}=\frac{2(tc-\sigma^2)}{(c+t)^3},$$
+which is negative for $t&lt;\sigma^2/c$ and positive for $t&gt;\sigma^2/c$: the minimum is at
+$t^\ast=\sigma^2/c$. Substituting,
+$$g(t^\ast)=\frac{\sigma^2+\sigma^4/c^2}{(c+\sigma^2/c)^2}
+=\frac{\sigma^2(c^2+\sigma^2)/c^2}{(c^2+\sigma^2)^2/c^2}
+=\frac{\sigma^2}{\sigma^2+c^2}.\qquad\blacksquare$$</p>
+<p><b>Step 5 &mdash; the numbers.</b> With $\sigma^2=4$ and $c=6$: $t^\ast=4/6=0.666667$ and
+$$\mathbf{P}(X-4\ge6)\le\frac{4}{4+36}=\frac{4}{40}=0.1 .$$
+A numerical sweep of $g(t)$ over $t\in(0,20]$ bottoms out at $0.100000$ at $t=0.666672$ &mdash;
+confirming both the minimizer and the value. The two-sided bound of Q117 was $0.111111$, so the
+improvement is a factor $1.111111$, and the exact probability is still $0.008132$: the one-sided
+bound remains $12.30$ times the truth.</p>
+<p><b>Answer.</b> $\;\mathbf{P}(X-\mu\ge c)\le\sigma^2/(\sigma^2+c^2)$, attained by $t=\sigma^2/c$;
+here $0.1$ against the two-sided $0.111111$ and the exact $0.008132$.</p>
+<p><b>The tempting wrong answer.</b> Expecting the one-sided version to be roughly twice as tight,
+"because it drops half the event". It is not: as $c$ grows,
+$\sigma^2/(\sigma^2+c^2)\to\sigma^2/c^2$, so the two bounds merge. The symmetric half is cheap;
+what makes both loose is that they use only two moments.</p>
+<p class="srcref">Tool: G6 &sect;1.1 (Markov applied to a transformed variable), G6 &sect;1.2 (Chebyshev derived the same way) &middot; B&amp;T &sect;5.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q119" data-diff="2" data-topic="wlln">
+<p><b>Q119.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Weak law &amp; sample size &middot; <span class="ref">G6 &sect;1.4</span></span></p>
+<p>You measure a battery's voltage $n$ times. The measurements $X_1,\dots,X_n$ are i.i.d. with
+unknown mean $\mu$ and known standard deviation $\sigma=0.3$&nbsp;V, and $M_n$ is their average. You
+want $\mathbf{P}(|M_n-\mu|\ge 0.05)\le 0.02$. (a) How large must $n$ be by Chebyshev / the weak law?
+(b) How large by the CLT? (c) What does Chebyshev say about the CLT's $n$, and what does the CLT say
+about Chebyshev's $n$?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $\mathbb{E}[M_n]=\mu$ and $\operatorname{var}(M_n)=\sigma^2/n=0.09/n$, since
+independent variances add and dividing by $n$ divides the variance by $n^2$. Write
+$\epsilon=0.05$ and $\delta=0.02$.</p>
+<p><b>(a) Chebyshev.</b> Applying Chebyshev to $M_n$,
+$$\mathbf{P}(|M_n-\mu|\ge0.05)\le\frac{\sigma^2}{n\epsilon^2}=\frac{0.09}{n(0.0025)}=\frac{36}{n},$$
+and $36/n\le0.02$ requires $n\ge 36/0.02=1800$. So $n=1800$.</p>
+<p><b>(b) CLT.</b> Standardize: $(M_n-\mu)/(\sigma/\sqrt n)$ is approximately standard normal, so
+$$\mathbf{P}(|M_n-\mu|\ge\epsilon)\approx 2\Big(1-\Phi\big(\tfrac{\epsilon\sqrt n}{\sigma}\big)\Big),$$
+by symmetry of the normal. Setting this to $0.02$ needs
+$\epsilon\sqrt n/\sigma=z_{0.99}=2.326348$, so
+$$\sqrt n=\frac{2.326348\times 0.3}{0.05}=13.958087,\qquad n=194.828200\ \Rightarrow\ n=195 .$$</p>
+<p><b>(c) Each about the other.</b> At $n=195$ Chebyshev's guarantee is
+$36/195=0.184615$ &mdash; more than nine times the tolerance, so Chebyshev cannot certify the CLT's
+sample size. At $n=1800$ the CLT's forecast is
+$2\big(1-\Phi(0.05\sqrt{1800}/0.3)\big)=2\big(1-\Phi(7.071068)\big)=1.54\times10^{-12}$: the
+Chebyshev-sized experiment is astronomically better than its own promise. The ratio of sample sizes
+is $1800/195=9.23$.</p>
+<p><b>Answer.</b> $\;n=1800$ by Chebyshev, $n=195$ by the CLT (a factor $9.23$); Chebyshev's bound at
+$n=195$ is $0.184615$ and the CLT's probability at $n=1800$ is $1.54\times10^{-12}$.</p>
+<p><b>The tempting wrong answer.</b> Using $z_{0.98}=2.053749$ &mdash; that is the $98$th percentile,
+appropriate to a <em>one-sided</em> requirement. The event $|M_n-\mu|\ge\epsilon$ has two tails of
+$0.01$ each, so the percentile needed is $z_{1-\delta/2}=z_{0.99}$. Getting this wrong understates
+$n$ by about $22\%$.</p>
+<p class="srcref">Tool: G6 &sect;1.4 (turning the weak law into a sample size), G6 &sect;2.5 (Chebyshev versus the CLT) &middot; B&amp;T &sect;5.2, &sect;5.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q120" data-diff="2" data-topic="wlln">
+<p><b>Q120.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Counts spread, frequencies concentrate &middot; <span class="ref">G6 &sect;1.5</span></span></p>
+<p>A student writes: <em>"The weak law says the fair-coin count settles down, so the gap
+$|S_n-n/2|$ between heads and half the tosses shrinks as $n$ grows."</em> Decide whether that is
+right by computing $\mathbb{E}\big[|S_n-n/2|\big]$ for $n=100$ and $n=10{,}000$, and by computing
+$\mathbf{P}(|M_n-\tfrac12|&lt;0.01)$ at $n=10{,}000$, where $S_n$ is the number of heads and
+$M_n=S_n/n$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $S_n\sim\text{Binomial}(n,\tfrac12)$, $\mathbb{E}[S_n]=n/2$,
+$\operatorname{var}(S_n)=n/4$, $\sigma_{S_n}=\sqrt n/2$. The weak law is a statement about
+$M_n=S_n/n$, not about $S_n$.</p>
+<p><b>The absolute gap grows.</b> Summing $\sum_k |k-n/2|\,p_{S_n}(k)$ exactly:
+$$\mathbb{E}\big[|S_{100}-50|\big]=3.979462,\qquad
+\mathbb{E}\big[|S_{10000}-5000|\big]=39.893231 .$$
+Two million simulated runs at $n=10{,}000$ give $39.880865$ &nbsp;&#10003;. The normal
+approximation explains the pattern: for a nearly normal variable
+$\mathbb{E}|S_n-n/2|\approx\sigma_{S_n}\sqrt{2/\pi}=0.797885\,\sigma_{S_n}$, which is
+$3.989423$ at $n=100$ and $39.894228$ at $n=10{,}000$. Multiplying $n$ by $100$ multiplied the
+typical gap by $\sqrt{100}=10$. At $n=10^6$ it would be $398.942280$.</p>
+<p><b>The relative gap shrinks.</b> Dividing by $n$ is what the weak law watches. Exactly,
+$$\mathbf{P}\big(|M_{10000}-\tfrac12|\ge0.01\big)=\mathbf{P}(|S_{10000}-5000|\ge100)=0.046586,$$
+so $\mathbf{P}(|M_n-\tfrac12|&lt;0.01)=0.953414$. The CLT approximation,
+$2\big(1-\Phi(100/50)\big)=2(1-\Phi(2))=0.045500$, tracks it closely.</p>
+<p><b>Reading the two.</b> The gap in <em>counts</em> grows like $\sqrt n$; the gap in
+<em>frequency</em> shrinks like $1/\sqrt n$, because it is the count gap divided by $n$. The weak
+law says the second goes to zero for every fixed tolerance, and says nothing whatever about the
+first. As a coda, the single most likely count has probability
+$\mathbf{P}(S_{10000}=5000)=0.007979$ &mdash; under one percent &mdash; so "settles down to
+exactly $n/2$" is false in the strongest possible way.</p>
+<p><b>Answer.</b> $\;$The student is wrong: $\mathbb{E}|S_n-n/2|$ grows from $3.979462$ to
+$39.893231$, while $\mathbf{P}(|M_n-\tfrac12|&lt;0.01)=0.953414$ at $n=10{,}000$.</p>
+<p><b>Why the misreading is tempting.</b> "Law of averages" language invites you to attach the
+convergence to $S_n$. Always write the weak law with the $1/n$ visible:
+$\mathbf{P}(|S_n/n-\mu|\ge\epsilon)\to0$. It is a statement about a ratio, for a
+<em>fixed</em> $\epsilon$, and about probabilities, not about any particular sequence of outcomes.</p>
+<p class="srcref">Tool: G6 &sect;1.3 (the sample mean and the weak law), G6 &sect;1.5 (Gotcha &mdash; what the weak law does not say) &middot; B&amp;T &sect;5.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q121" data-diff="1" data-topic="wlln">
+<p><b>Q121.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Which tool can be signed &middot; <span class="ref">G6 &sect;1.4</span></span></p>
+<p>An engineer must sign a statement about $n=30$ i.i.d. measurements whose common variance is known
+to be at most $0.25$ and whose mean $\mu$ is unknown: <em>"the sample mean $M_{30}$ misses $\mu$ by
+$0.2$ or more with probability at most $p$."</em> Which of Markov, Chebyshev, the weak law, and the
+CLT can supply a defensible $p$, and what is it? If the engineer needs $p=0.05$ guaranteed, how many
+measurements are required?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Markov: not applicable.</b> Markov requires a nonnegative random variable. $M_{30}-\mu$ takes
+both signs, and $|M_{30}-\mu|$ is nonnegative but its mean is not among the given data.</p>
+<p><b>The weak law: not by itself.</b> The weak law is a limit statement, "the probability tends to
+$0$ as $n\to\infty$". It certifies nothing at a fixed $n=30$. Its finite-$n$ content is exactly the
+Chebyshev computation below &mdash; that is how it is proved.</p>
+<p><b>Chebyshev: yes, and here is the number.</b> $\operatorname{var}(M_{30})=\sigma^2/30\le
+0.25/30=0.008333$, so
+$$\mathbf{P}(|M_{30}-\mu|\ge0.2)\le\frac{\sigma^2}{n\epsilon^2}
+=\frac{0.25}{30\times(0.2)^2}=\frac{0.25}{1.2}=0.208333 .$$
+This is a theorem, valid for every distribution with variance at most $0.25$, so it can be
+signed.</p>
+<p><b>CLT: a number, but not a guarantee.</b> With $z=0.2\sqrt{30}/0.5=2.190890$ the CLT suggests
+$2\big(1-\Phi(2.190890)\big)=0.028460$ &mdash; seven times smaller. But it is an approximation with
+no error bound, and at $n=30$ with an unknown summand distribution it may be poor. It is the right
+number for planning, the wrong number for a signature.</p>
+<p><b>The sample size for a guaranteed $0.05$.</b> Solve $\sigma^2/(n\epsilon^2)\le0.05$:
+$$n\ge\frac{0.25}{(0.2)^2\times0.05}=\frac{0.25}{0.002}=125 .$$</p>
+<p><b>Answer.</b> $\;$Chebyshev, giving $p=0.208333$; a guaranteed $p=0.05$ needs $n\ge125$.</p>
+<p><b>The tempting wrong answer.</b> Quoting the CLT's $0.028460$ as the guarantee. The word in the
+statement is "at most", which is a contract; only an inequality valid for every admissible
+distribution can back it.</p>
+<p class="srcref">Tool: G6 &sect;1.4 (sample size from the weak law), G6 &sect;5.1 (Recipe &mdash; picking a tool for a tail probability) &middot; B&amp;T &sect;5.1&ndash;5.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q122" data-diff="3" data-topic="wlln">
+<p><b>Q122.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Convergence in probability &middot; <span class="ref">G6 &sect;1.5</span></span></p>
+<p>Let $X_1,X_2,\dots$ be i.i.d. uniform on $[0,2]$, so $\mu=1$ and $\sigma^2=1/3$, and let
+$M_n$ be the sample mean. (a) Prove directly &mdash; without quoting any continuous-mapping theorem
+&mdash; that $M_n^2$ converges in probability to $1$, by converting a tolerance on $M_n^2$ into a
+tolerance on $M_n$. (b) Evaluate your bound at $\epsilon=0.1$ for $n=100$ and $n=10{,}000$ and
+compare with the true probabilities.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Step 1 &mdash; a deterministic implication.</b> Suppose $|M_n-1|\le\delta$ for some
+$\delta&gt;0$. Then, factoring the difference of squares,
+$$|M_n^2-1|=|M_n-1|\cdot|M_n+1|\le \delta\,(2+\delta),$$
+using $|M_n+1|\le |M_n-1|+2\le\delta+2$ by the triangle inequality. So if we choose $\delta$ with
+$\delta(2+\delta)\le\epsilon$, the event $\{|M_n-1|\le\delta\}$ is contained in
+$\{|M_n^2-1|\le\epsilon\}$; equivalently, taking complements,
+$$\{|M_n^2-1|&gt;\epsilon\}\subseteq\{|M_n-1|&gt;\delta\}.$$</p>
+<p><b>Step 2 &mdash; solve for $\delta$.</b> $\delta(2+\delta)=\epsilon$ is
+$\delta^2+2\delta-\epsilon=0$, whose positive root is $\delta=\sqrt{1+\epsilon}-1$.</p>
+<p><b>Step 3 &mdash; Chebyshev.</b> Applying the weak-law bound to $M_n$,
+$$\mathbf{P}\big(|M_n^2-1|&gt;\epsilon\big)\le\mathbf{P}\big(|M_n-1|&gt;\delta\big)
+\le\frac{\sigma^2}{n\delta^2}\xrightarrow[n\to\infty]{}0$$
+for every fixed $\epsilon&gt;0$, since $\delta&gt;0$ does not depend on $n$. That is convergence in
+probability of $M_n^2$ to $1$. $\blacksquare$</p>
+<p><b>(b) The numbers.</b> With $\epsilon=0.1$: $\delta=\sqrt{1.1}-1=0.048809$, and a check,
+$\delta(2+\delta)=0.100000$&nbsp;&#10003;. The bound is
+$$\frac{\sigma^2}{n\delta^2}=\frac{1/3}{n(0.048809)^2}=\frac{139.920590}{n}.$$
+At $n=100$ this is $1.399206$ &mdash; vacuous. The truth there, from $200{,}000$ simulated sample
+means, is $0.387150$: large, so the bound at least is not lying, but it certifies nothing.
+At $n=10{,}000$ the bound is $0.013992$. The truth is far smaller: $\operatorname{sd}(M_n)=
+\sqrt{(1/3)/10^4}=0.005774$, and the event needs $M_n\ge\sqrt{1.1}=1.048809$ (that is
+$z=8.453940$ standard deviations up) or $M_n\le\sqrt{0.9}=0.948683$ ($z=8.888314$ down), for a
+total probability of about $1.44\times10^{-17}$; $4{,}000$ simulated runs at $n=10{,}000$
+produced $0$ exceedances, as expected.</p>
+<p><b>Answer.</b> $\;\mathbf{P}(|M_n^2-1|&gt;0.1)\le 139.920590/n$, i.e. $1.399206$ (vacuous) at
+$n=100$ and $0.013992$ at $n=10{,}000$, against a true value near $1.4\times10^{-17}$ &mdash; the
+bound exceeds the truth by some $10^{15}$.</p>
+<p><b>The tempting wrong answer.</b> "Apply Chebyshev to $M_n^2$ directly with variance
+$\operatorname{var}(M_n^2)$." That is legal but requires fourth moments of $X$ and a computation of
+$\operatorname{var}(M_n^2)$; the $\delta$-conversion needs only what the weak law already gives.
+Worse is to let $\delta$ depend on $n$ &mdash; then $\sigma^2/(n\delta^2)$ need not vanish and the
+proof collapses.</p>
+<p class="srcref">Tool: G6 &sect;1.5 (convergence in probability; the four things it does not say), G6 &sect;1.3 (the weak-law bound) &middot; B&amp;T &sect;5.2&ndash;5.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q123" data-diff="1" data-topic="clt">
+<p><b>Q123.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Standardizing a sum &middot; <span class="ref">G6 &sect;2.3</span></span></p>
+<p>A call center handles $200$ calls in a shift. Handling times are i.i.d. with mean $3$ minutes and
+standard deviation $2$ minutes. Approximate the probability that the total handling time exceeds
+$620$ minutes.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 &mdash; the sum's mean and standard deviation.</b> With $S=X_1+\cdots+X_{200}$,
+$$\mathbb{E}[S]=200\times3=600,\qquad
+\operatorname{var}(S)=200\times2^2=800,\qquad \sigma_S=2\sqrt{200}=28.284271,$$
+variances adding because the calls are independent.</p>
+<p><b>Step 2 &mdash; standardize.</b>
+$$\mathbf{P}(S&gt;620)=\mathbf{P}\!\left(\frac{S-600}{28.284271}&gt;\frac{620-600}{28.284271}\right)
+=\mathbf{P}(Z_n&gt;0.707107).$$</p>
+<p><b>Step 3 &mdash; read the normal table.</b> By the CLT, $Z_n$ is approximately standard normal, so
+$$\mathbf{P}(S&gt;620)\approx 1-\Phi(0.707107)=1-0.760250=0.239750 .$$
+Sanity check: $\mathbf{P}(S&gt;600)\approx 1-\Phi(0)=0.5$, as it should be, since $600$ is the
+mean.</p>
+<p><b>Answer.</b> $\;\mathbf{P}(S&gt;620)\approx 0.239750$.</p>
+<p><b>The tempting wrong answer.</b> Standardizing with $\sigma/\sqrt n=2/\sqrt{200}=0.141421$
+instead of $\sigma\sqrt n=28.284271$. The first is the standard deviation of the <em>average</em>,
+the second of the <em>sum</em>; using it would give $z=141.42$ and a probability of $0$. Decide
+first which of $S_n$ and $M_n$ the question is about, then pick the matching scale.</p>
+<p class="srcref">Tool: G6 &sect;2.3 (the normal approximation recipe) &middot; B&amp;T &sect;5.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q124" data-diff="2" data-topic="clt">
+<p><b>Q124.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; De Moivre&ndash;Laplace &middot; <span class="ref">G6 &sect;2.4</span></span></p>
+<p>A basketball player takes $n=100$ independent free throws, each successful with probability
+$p=0.4$; let $S$ be the number made. (a) Approximate $\mathbf{P}(S=45)$ with the $\tfrac12$
+correction and compare with the exact binomial value. (b) Approximate
+$\mathbf{P}(35\le S\le 45)$ both with and without the correction, and compare both with the exact
+value. Quantify what the correction bought.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $\mathbb{E}[S]=np=100(0.4)=40$ and
+$\sigma_S=\sqrt{np(1-p)}=\sqrt{100(0.4)(0.6)}=\sqrt{24}=4.898979$.</p>
+<p><b>(a) A point probability.</b> A normal density assigns probability $0$ to any single point, so
+first turn the point into the unit interval it "owns": since $S$ is integer valued,
+$\mathbf{P}(S=45)=\mathbf{P}(44.5\le S\le 45.5)$ <em>exactly</em>. Then
+$$\mathbf{P}(S=45)\approx\Phi\!\left(\frac{45.5-40}{4.898979}\right)-
+\Phi\!\left(\frac{44.5-40}{4.898979}\right)=\Phi(1.122683)-\Phi(0.918559)=0.048377 .$$
+Exactly, $\binom{100}{45}(0.4)^{45}(0.6)^{55}=0.047811$. The relative error is
+$0.011837$, i.e. $1.18\%$.</p>
+<p><b>(b) An interval.</b> The event $\{35\le S\le45\}$ owns the interval $[34.5,45.5]$, so with the
+correction
+$$\mathbf{P}(35\le S\le45)\approx\Phi\!\left(\frac{45.5-40}{4.898979}\right)-
+\Phi\!\left(\frac{34.5-40}{4.898979}\right)=\Phi(1.122683)-\Phi(-1.122683)=0.738428 .$$
+Without it, cutting at the integers themselves,
+$$\Phi\!\left(\frac{45-40}{4.898979}\right)-\Phi\!\left(\frac{35-40}{4.898979}\right)
+=\Phi(1.020621)-\Phi(-1.020621)=0.692566 .$$
+The exact binomial value is $0.738573$.</p>
+<p><b>What the correction bought.</b> Absolute errors: $0.000145$ with the correction,
+$0.046007$ without &mdash; the corrected answer is $317$ times more accurate, and the uncorrected
+one is wrong in the third percentage point. The uncorrected version omits half the bar at $35$ and
+half the bar at $45$, worth $\tfrac12\big(p_S(35)+p_S(45)\big)=0.048472$ &mdash; within $5\%$ of
+the observed gap $0.046007$, the remainder being the curvature of the density across those two
+bars.</p>
+<p><b>Answer.</b> $\;\mathbf{P}(S=45)\approx0.048377$ (exact $0.047811$);
+$\mathbf{P}(35\le S\le45)\approx0.738428$ corrected and $0.692566$ uncorrected, against the exact
+$0.738573$.</p>
+<p><b>An equally good alternative for (a).</b> The <em>local</em> form of De Moivre&ndash;Laplace
+approximates the bar by the density at its center, $p_S(k)\approx\phi(z_k)/\sigma_S$ with
+$z_k=(k-np)/\sigma_S$. Here $z_{45}=1.020621$, $\phi(1.020621)=0.236982$ and
+$$\mathbf{P}(S=45)\approx\frac{0.236982}{4.898979}=0.048374 ,$$
+a relative error of $1.18\%$ &mdash; the same accuracy as the $\Phi(1.122683)-\Phi(0.918559)$ route
+above, of which it is the midpoint-rule approximation (one bar is one unit wide, so the integral of
+$\phi$ across it is about its center value). Either is a correct answer to (a).</p>
+<p><b>The tempting wrong answer.</b> Answering $0$, on the grounds that a normal density gives any
+single point probability $0$ &mdash; the point is precisely that a discrete $S$ must first be given
+its unit bar. Also common: shifting both endpoints the same way in (b), e.g. using $[34.5,44.5]$.
+The rule is that the interval must <em>expand</em> by $\tfrac12$ at each end &mdash; every included
+integer keeps its whole unit bar; $[34.5,44.5]$ silently drops the bar at $45$ and would give
+$\Phi(0.918559)-\Phi(-1.122683)=0.690051$.</p>
+<p class="srcref">Tool: G6 &sect;2.4 (De Moivre&ndash;Laplace and the $\tfrac12$ correction) &middot; B&amp;T &sect;5.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q125" data-diff="2" data-topic="clt">
+<p><b>Q125.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; When the CLT is the wrong limit &middot; <span class="ref">G6 &sect;2.2</span></span></p>
+<p>Each of $n=200$ components fails during a mission independently with probability $p=0.01$; let
+$S$ be the number of failures. Estimate $\mathbf{P}(S\ge6)$ with the normal approximation (using the
+$\tfrac12$ correction), then with a Poisson approximation, and compare both with the exact binomial
+value. Diagnose which approximation is appropriate and why.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $\mathbb{E}[S]=np=200(0.01)=2$ and
+$\sigma_S=\sqrt{np(1-p)}=\sqrt{200(0.01)(0.99)}=\sqrt{1.98}=1.407125$.</p>
+<p><b>Normal approximation.</b> With the correction, $\{S\ge6\}$ starts at $5.5$:
+$$\mathbf{P}(S\ge6)\approx 1-\Phi\!\left(\frac{5.5-2}{1.407125}\right)=1-\Phi(2.487342)=0.006435 .$$
+(Without the correction it would be $1-\Phi(2.842676)=0.002237$, worse still.)</p>
+<p><b>Poisson approximation.</b> $n$ is large and $p$ small with $np=2$ moderate, so
+$S\approx\text{Poisson}(2)$ and
+$$\mathbf{P}(S\ge6)\approx 1-\sum_{k=0}^{5}e^{-2}\frac{2^k}{k!}=0.016564 .$$</p>
+<p><b>Exact.</b> $\mathbf{P}(S\ge6)=1-\sum_{k=0}^{5}\binom{200}{k}(0.01)^k(0.99)^{200-k}=0.016023$;
+four million simulated missions give $0.015986$&nbsp;&#10003;.</p>
+<p><b>Diagnosis.</b> The normal answer is off by a factor
+$0.016023/0.006435=2.49$ &mdash; it understates the risk by more than half. The Poisson answer is off
+by $3.37\%$. The reason is that the CLT's quality depends on $n$ only through how many summands
+actually vary: here the binomial's own skewness is
+$(1-2p)/\sqrt{np(1-p)}=0.98/1.407125=0.696456$, far from the normal's $0$, and the common rule of thumb
+$np\ge5$ fails badly ($np=2$). To reach $np=5$ at this $p$ you would need
+$n\ge 5/0.01=500$. When $p$ is small and $np$ is fixed, the binomial's natural limit is Poisson, not
+normal.</p>
+<p><b>Answer.</b> $\;$normal $0.006435$, Poisson $0.016564$, exact $0.016023$ &mdash; the normal
+approximation understates by a factor $2.49$ and should not be used here.</p>
+<p><b>The tempting wrong answer.</b> Reasoning "$n=200$ is large, so the CLT applies". The CLT is a
+statement about $n\to\infty$ with the summand distribution held fixed; when the interesting events
+are rare, $n=200$ is not large in the relevant sense. Check $np$ and $n(1-p)$ before trusting a
+normal approximation to a binomial.</p>
+<p class="srcref">Tool: G6 &sect;2.2 (what the CLT does not say), G6 &sect;2.4 rider (large $n$ needed when $p$ is near $0$ or $1$), G4 &sect;3 (Poisson as the rare-event limit) &middot; B&amp;T &sect;5.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q126" data-diff="2" data-topic="clt">
+<p><b>Q126.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Spot the error: sum scale vs. mean scale &middot; <span class="ref">G6 &sect;2.3</span></span></p>
+<p>Spot the error. Fifty jobs have i.i.d. exponential service times with mean $1$ hour, and $S$ is
+the total. A student writes:</p>
+<p><em>"$\mathbb{E}[S]=50$ and $\sigma=1$, so
+$\mathbf{P}(S\ge65)\approx1-\Phi\big(\frac{65-50}{1/\sqrt{50}}\big)=1-\Phi(106.066)\approx 0$."</em></p>
+<p>Identify the mistake, give the correct CLT value, and compare it with the exact value (the sum of
+$50$ i.i.d. Exponential$(1)$ variables is Erlang/Gamma with shape $50$ and scale $1$).</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>The mistake.</b> The student used $\sigma/\sqrt n$, the standard deviation of the sample
+<em>mean</em> $M_n$, to standardize the <em>sum</em> $S_n$. Since $\operatorname{var}(S_n)=n\sigma^2$
+for independent terms, the correct scale is
+$$\sigma_{S}=\sigma\sqrt n=1\times\sqrt{50}=7.071068,$$
+not $1/\sqrt{50}=0.141421$ &mdash; a factor of $50$ too small, which is why the reported
+$z$-score $106.066$ is absurd. (A $z$-score above about $6$ should always prompt a re-read of the
+scaling.)</p>
+<p><b>The correct CLT value.</b>
+$$\mathbf{P}(S\ge65)\approx1-\Phi\!\left(\frac{65-50}{7.071068}\right)=1-\Phi(2.121320)
+=0.016947 .$$
+No continuity correction: $S$ is a continuous random variable, and the $\tfrac12$ shift applies only
+to integer-valued sums.</p>
+<p><b>The exact value.</b> $S\sim\text{Gamma}(50,1)$, and
+$\mathbf{P}(S\ge65)=0.023512$; four million simulated totals give $0.023488$&nbsp;&#10003;.</p>
+<p><b>Reading the comparison.</b> The CLT value is $0.016947/0.023512=0.72$ of the truth &mdash; it
+<em>understates</em> the right tail by $28\%$, even at $n=50$. The exponential is right-skewed
+(skewness $2$), so the sum's skewness is $2/\sqrt{50}=0.282843$, still positive, and a symmetric
+normal cannot reproduce a fatter right tail. The approximation is fine near the mean and
+optimistic out at $2\sigma$.</p>
+<p><b>Answer.</b> $\;$The scale should be $\sigma\sqrt n=7.071068$; the CLT gives
+$\mathbf{P}(S\ge65)\approx0.016947$ against the exact $0.023512$.</p>
+<p><b>The tempting wrong answer.</b> Besides the scale slip, adding a $\tfrac12$ correction "for
+safety": $1-\Phi((64.5-50)/7.071068)=0.020152$ happens to land closer to the truth here, but only by
+accident &mdash; the correction is a statement about probability bars of a discrete variable, and
+using it on a continuous sum is unjustified.</p>
+<p class="srcref">Tool: G6 &sect;2.3 (normal approximation recipe), G6 &sect;2.4 (when the $\tfrac12$ correction applies) &middot; B&amp;T &sect;5.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q127" data-diff="2" data-topic="clt">
+<p><b>Q127.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Sizing a buffer, and what the CLT does not guarantee &middot; <span class="ref">G6 &sect;2.3</span></span></p>
+<p>A data center receives $50$ independent daily upload batches, each of size exponential with mean
+$5$&nbsp;GB. You must size a buffer $C$ so that the total of the $50$ batches exceeds $C$ with
+probability at most $0.01$. (a) Give $C$ from the CLT. (b) The exact distribution of the total is
+Gamma with shape $50$ and scale $5$; what overflow probability does your $C$ actually deliver, and
+what $C$ would have been correct?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The CLT sizing.</b> Each batch has mean $5$ and standard deviation $5$ (for an exponential,
+$\sigma=$ mean). So
+$$\mathbb{E}[S]=50\times5=250,\qquad \sigma_S=5\sqrt{50}=35.355339 .$$
+We need $\mathbf{P}(S&gt;C)\le0.01$, i.e. $1-\Phi\big((C-250)/35.355339\big)=0.01$, i.e.
+$(C-250)/35.355339=z_{0.99}=2.326348$. Hence
+$$C=250+2.326348\times35.355339=250+82.248818=332.248818\ \text{GB}.$$</p>
+<p><b>(b) What it actually delivers.</b> Under the exact Gamma$(50,\text{scale }5)$ law,
+$$\mathbf{P}(S&gt;332.248818)=0.015495 ,$$
+confirmed by four million simulated totals at $0.015419$. That is $1.55$ times the $0.01$ you
+promised. The correct $99$th percentile is
+$$C_{\text{exact}}=339.516808\ \text{GB},$$
+so the CLT undersized the buffer by $339.516808-332.248818=7.267990$&nbsp;GB, about $2.2\%$.</p>
+<p><b>Why the error goes this way.</b> Exponential summands are right-skewed (skewness $2$ each,
+$2/\sqrt{50}=0.282843$ for the sum), so the true distribution has a heavier right tail than the
+fitted normal. A symmetric approximation therefore always underestimates a far-right tail for
+right-skewed data &mdash; and underestimating an overflow probability is the dangerous direction.</p>
+<p><b>Answer.</b> $\;C_{\text{CLT}}=332.248818$&nbsp;GB, which really overflows with probability
+$0.015495$; the correct value is $C=339.516808$&nbsp;GB.</p>
+<p><b>The tempting wrong answer.</b> Reporting "the overflow risk is $1\%$" as a fact. The CLT
+returns a number, not a bound (G6 &sect;5.1): with $n=50$ skewed summands the number is off by half
+again. If a guarantee is needed, either use the exact law when you have it, or add margin.</p>
+<p class="srcref">Tool: G6 &sect;2.3 (normal approximation recipe), G6 &sect;2.2 (moderate $n$, and what the theorem does not promise) &middot; B&amp;T &sect;5.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q128" data-diff="1" data-topic="bayesian">
+<p><b>Q128.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Discrete prior, discrete observation &middot; <span class="ref">G6 &sect;3.1&ndash;3.2</span></span></p>
+<p>A monitoring system's alarm rate $\Theta$, in alarms per hour, is one of $1$, $2$ or $3$, with
+prior probabilities $0.5$, $0.3$, $0.2$. Given $\Theta=\theta$, the number of alarms in one hour is
+Poisson$(\theta)$. You observe $X=4$ alarms in an hour. Compute the posterior PMF of $\Theta$, the
+MAP estimate, and $\mathbb{E}[\Theta\mid X=4]$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 &mdash; the likelihoods.</b> $p_{X|\Theta}(4\mid\theta)=e^{-\theta}\theta^4/4!$, so
+$$p_{X|\Theta}(4\mid1)=0.015328,\quad p_{X|\Theta}(4\mid2)=0.090224,\quad
+p_{X|\Theta}(4\mid3)=0.168031 .$$</p>
+<p><b>Step 2 &mdash; multiply by the prior.</b> The Bayes numerator
+$p_\Theta(\theta)p_{X|\Theta}(4\mid\theta)$ takes the values
+$$0.5\times0.015328=0.007664,\qquad
+0.3\times0.090224=0.027067,\qquad
+0.2\times0.168031=0.033606 .$$</p>
+<p><b>Step 3 &mdash; normalize.</b> The denominator is the total probability of the data,
+$$p_X(4)=0.007664+0.027067+0.033606=0.068337 ,$$
+so the posterior PMF is
+$$p_{\Theta|X}(1\mid4)=\frac{0.007664}{0.068337}=0.112152,\quad
+p_{\Theta|X}(2\mid4)=0.396079,\quad
+p_{\Theta|X}(3\mid4)=0.491769 ,$$
+which sum to $1$&nbsp;&#10003;.</p>
+<p><b>Step 4 &mdash; the two summaries.</b> The largest posterior probability is at $\theta=3$, so
+$\hat\theta_{\text{MAP}}=3$, and it is wrong with probability $1-0.491769=0.508231$. The
+conditional expectation is
+$$\mathbb{E}[\Theta\mid X=4]=1(0.112152)+2(0.396079)+3(0.491769)
+=0.112152+0.792159+1.475308=2.379618 ,$$
+against a prior mean of $1(0.5)+2(0.3)+3(0.2)=1.7$: the data pulled the estimate up.</p>
+<p><b>Answer.</b> $\;$posterior $(0.112152,\;0.396079,\;0.491769)$;
+$\hat\theta_{\text{MAP}}=3$; $\mathbb{E}[\Theta\mid X=4]=2.379618$.</p>
+<p><b>The tempting wrong answer.</b> Reporting $2.379618$ as "the most likely rate". It is not a
+possible value of $\Theta$ at all. The conditional mean is the best <em>squared-error</em> summary;
+if you must name one of the three rates, MAP is the rule that minimizes the probability of naming
+the wrong one.</p>
+<p class="srcref">Tool: G6 &sect;3.1&ndash;3.2 (discrete prior, discrete observation), G6 &sect;3.3 (MAP versus conditional expectation) &middot; B&amp;T &sect;8.1&ndash;8.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q129" data-diff="2" data-topic="bayesian">
+<p><b>Q129.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Conjugate Beta coin bias &middot; <span class="ref">G6 &sect;3.2</span></span></p>
+<p>A coin's bias $\Theta$ has prior density $f_\Theta(\theta)=6\theta(1-\theta)$ on $[0,1]$ &mdash; a
+Beta$(2,2)$, peaked at $\tfrac12$. You toss the coin $10$ times, independently given $\Theta$, and
+see $7$ heads. (a) Find the posterior density, including its normalizing constant. (b) Give its
+mean, mode and standard deviation, and compare the mean with the sample frequency $7/10$. (c) Show
+that the posterior mean is a weighted average of the prior mean and the sample frequency, and give
+the weights. (d) Compute $\mathbf{P}(\Theta&gt;\tfrac12\mid \text{data})$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The posterior.</b> Given $\Theta=\theta$, the count $K$ of heads is binomial:
+$\mathbf{P}(K=7\mid\Theta=\theta)=\binom{10}{7}\theta^7(1-\theta)^3$. Bayes for a continuous unknown
+with discrete data gives
+$$f_{\Theta|K}(\theta\mid7)=\frac{f_\Theta(\theta)\mathbf{P}(K=7\mid\Theta=\theta)}
+{\int_0^1 f_\Theta(t)\mathbf{P}(K=7\mid\Theta=t)\,dt} .$$
+The constants $6$ and $\binom{10}{7}=120$ appear in numerator and denominator alike and cancel, so
+$$f_{\Theta|K}(\theta\mid7)\propto \theta(1-\theta)\cdot\theta^7(1-\theta)^3=\theta^{8}(1-\theta)^{4},$$
+which is the Beta$(9,5)$ shape. Its normalizing constant is $1/B(9,5)=13!/(8!\,4!)=6435$, so
+$$f_{\Theta|K}(\theta\mid 7)=6435\,\theta^{8}(1-\theta)^{4},\qquad 0\le\theta\le1 .$$
+This is conjugacy at work: a Beta prior with $a$ heads-worth and $b$ tails-worth of prior belief,
+plus $k$ heads in $n$ tosses, gives Beta$(a+k,\,b+n-k)=\text{Beta}(2+7,\,2+3)$.</p>
+<p><b>(b) Summaries.</b> For Beta$(a,b)$ the mean is $a/(a+b)$, the mode (for $a,b&gt;1$) is
+$(a-1)/(a+b-2)$, and the variance is $ab/\big((a+b)^2(a+b+1)\big)$. With $a=9$, $b=5$:
+$$\mathbb{E}[\Theta\mid K=7]=\frac{9}{14}=0.642857,\qquad
+\hat\theta_{\text{MAP}}=\frac{8}{12}=0.666667,$$
+$$\operatorname{var}(\Theta\mid K=7)=\frac{9\times5}{14^2\times15}=\frac{45}{2940}=0.015306,
+\qquad \text{sd}=0.123718 .$$
+Four million draws from Beta$(9,5)$ average $0.642802$&nbsp;&#10003;. Both summaries sit below the
+sample frequency $0.7$, pulled toward the prior mean $0.5$.</p>
+<p><b>(c) The weights.</b> Write the posterior mean with $a_0=b_0=2$, $n=10$, $k=7$:
+$$\frac{a_0+k}{a_0+b_0+n}=\frac{a_0+b_0}{a_0+b_0+n}\cdot\frac{a_0}{a_0+b_0}
++\frac{n}{a_0+b_0+n}\cdot\frac{k}{n},$$
+which is an identity (expand the right side and the numerators add to $a_0+k$). Numerically the
+weights are $4/14=0.285714$ on the prior mean $0.5$ and $10/14=0.714286$ on the frequency $0.7$:
+$$0.285714(0.5)+0.714286(0.7)=0.142857+0.5=0.642857\ \checkmark$$
+Ten tosses are worth $10$ "pseudo-observations" against the prior's $a_0+b_0=4$; as $n$ grows the
+prior's weight $\to0$ and the posterior mean $\to$ the sample frequency.</p>
+<p><b>(d) The posterior probability of a head-biased coin.</b> We want
+$\mathbf{P}(\Theta&gt;\tfrac12\mid K=7)=\int_{1/2}^1 6435\,\theta^8(1-\theta)^4\,d\theta$. Rather
+than integrate by parts nine times, use the Beta-to-binomial identity: for integer $a,b\ge1$ and any
+$x\in[0,1]$, a Beta$(a,b)$ variable satisfies
+$$\mathbf{P}\big(\text{Beta}(a,b)&gt;x\big)=\mathbf{P}\big(\text{Binomial}(a+b-1,\,x)\le a-1\big).$$
+(Both sides are the probability that, among $a+b-1$ i.i.d. uniforms on $[0,1]$, at most $a-1$ land
+below $x$ &mdash; the left side because the $a$th smallest of them <em>is</em> a Beta$(a,b)$ variable,
+and "the $a$th smallest exceeds $x$" is exactly "fewer than $a$ fall below $x$".) With $a=9$, $b=5$,
+$x=\tfrac12$, so $a+b-1=13$:
+$$\mathbf{P}\big(\Theta&gt;\tfrac12\mid K=7\big)=\sum_{j=0}^{8}\binom{13}{j}\Big(\tfrac12\Big)^{13}
+=\frac{1+13+78+286+715+1287+1716+1716+1287}{8192}=\frac{7099}{8192}=0.866577 .$$
+So the data make "head-biased" about $6.5$ times as likely as not, but far from certain.</p>
+<p><b>Answer.</b> $\;f_{\Theta|K}(\theta\mid7)=6435\,\theta^8(1-\theta)^4$; mean $9/14=0.642857$,
+mode $0.666667$, sd $0.123718$; weights $0.285714$ and $0.714286$;
+$\mathbf{P}(\Theta&gt;\tfrac12\mid\text{data})=0.866577$.</p>
+<p><b>The tempting wrong answer.</b> Reporting $0.7$ &mdash; the value maximizing the likelihood
+$\theta^7(1-\theta)^3$ &mdash; as "the Bayesian estimate". That ignores the prior entirely; it is the
+maximum-likelihood estimate of G7 &sect;2. The MAP estimate maximizes prior $\times$ likelihood and
+comes out at $0.666667$, and the LMS estimate is $0.642857$. Also do not drop the prior's
+$\theta(1-\theta)$ factor as "just a constant": it depends on $\theta$, and it is what shifts $0.7$
+down to $0.642857$.</p>
+<p class="srcref">Tool: G6 &sect;3.2 (continuous unknown, discrete data; conjugacy), G6 &sect;3.3 (MAP versus the mean) &middot; B&amp;T &sect;8.1&ndash;8.2 (Example 8.4)</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q130" data-diff="2" data-topic="map">
+<p><b>Q130.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; MAP vs conditional mean &middot; <span class="ref">G6 &sect;3.3</span></span></p>
+<p>A component's failure rate $\Theta$ has prior density $f_\Theta(\theta)=e^{-\theta}$ for
+$\theta\ge0$ (exponential with parameter $1$). Given $\Theta=\theta$, the component's lifetime $T$
+is exponential with parameter $\theta$, so $f_{T|\Theta}(t\mid\theta)=\theta e^{-\theta t}$. One
+component fails at $t=1$. (a) Find the posterior density of $\Theta$. (b) Give the MAP estimate and
+the conditional mean. (c) Compute the conditional mean squared error of each, and say which you
+would report.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The posterior.</b> By Bayes for two continuous variables,
+$$f_{\Theta|T}(\theta\mid1)=\frac{f_\Theta(\theta)f_{T|\Theta}(1\mid\theta)}
+{\int_0^\infty f_\Theta(s)f_{T|\Theta}(1\mid s)\,ds}
+=\frac{e^{-\theta}\cdot\theta e^{-\theta}}{\int_0^\infty s e^{-2s}\,ds}
+=\frac{\theta e^{-2\theta}}{1/4}=4\theta e^{-2\theta},\quad\theta\ge0,$$
+using $\int_0^\infty se^{-2s}ds=1/2^2=0.25$. This is the Gamma density with shape $2$ and rate
+$2$.</p>
+<p><b>(b) The two point estimates.</b> For the MAP, maximize $\theta e^{-2\theta}$:
+$$\frac{d}{d\theta}\big(\theta e^{-2\theta}\big)=(1-2\theta)e^{-2\theta}=0
+\;\Longrightarrow\;\hat\theta_{\text{MAP}}=0.5 ,$$
+and the derivative is positive before and negative after, so this is the maximum. For the
+conditional mean, a Gamma$(2,\text{rate }2)$ has mean $2/2$:
+$$\mathbb{E}[\Theta\mid T=1]=\int_0^\infty\theta\cdot4\theta e^{-2\theta}d\theta
+=4\cdot\frac{2!}{2^3}=1 .$$
+(Four million posterior draws average $1.000260$&nbsp;&#10003;.) The posterior variance is
+$2/2^2=0.5$ and, for reference, the posterior median is $0.839173$ &mdash; mode $&lt;$ median $&lt;$
+mean, the signature of a right-skewed posterior.</p>
+<p><b>(c) The mean squared errors.</b> For any constant report $c$,
+$$\mathbb{E}\big[(\Theta-c)^2\mid T=1\big]=\operatorname{var}(\Theta\mid T=1)
++\big(\mathbb{E}[\Theta\mid T=1]-c\big)^2 = 0.5+(1-c)^2 .$$
+At $c=1$ (the mean) this is $0.5$ &mdash; the minimum. At $c=0.5$ (the MAP) it is
+$0.5+0.25=0.75$, a factor $1.5$ worse; simulation gives $0.749709$&nbsp;&#10003;. At the median it
+is $0.525865$.</p>
+<p><b>Which to report.</b> If the loss is squared error, report $1$; the MAP costs $50\%$ more
+mean squared error. If the loss is "how often am I exactly right", neither matters, since
+$\mathbf{P}(\hat\Theta=\Theta)=0$ for any estimator of a continuous $\Theta$. Best of all, report
+the posterior $4\theta e^{-2\theta}$, which shows the skew that no single number conveys.</p>
+<p><b>Answer.</b> $\;f_{\Theta|T}(\theta\mid1)=4\theta e^{-2\theta}$;
+$\hat\theta_{\text{MAP}}=0.5$, $\mathbb{E}[\Theta\mid T=1]=1$, with conditional MSEs $0.75$ and
+$0.5$.</p>
+<p><b>The tempting wrong answer.</b> "MAP minimizes the probability of error, so it is the better
+estimate." That optimality is a theorem about <em>discrete</em> $\Theta$; with a continuous
+posterior the probability of being exactly right is $0$ for every rule, so the property is vacuous
+and the mode is simply the wrong summary for a squared-error question.</p>
+<p class="srcref">Tool: G6 &sect;3.2 (continuous prior, continuous observation), G6 &sect;3.3 (MAP versus conditional expectation; the Gotcha on MAP optimality) &middot; B&amp;T &sect;8.1&ndash;8.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q131" data-diff="3" data-topic="map">
+<p><b>Q131.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; MAP under reparametrization &middot; <span class="ref">G6 &sect;3.3</span></span></p>
+<p>Continue Q130: the posterior for the failure rate is $f_{\Theta}(\theta)=4\theta e^{-2\theta}$ on
+$\theta\ge0$ (conditioning on the data is suppressed in the notation). A colleague prefers to work
+with the mean lifetime $\Phi=1/\Theta$. (a) Derive the posterior density of $\Phi$. (b) Find its
+MAP estimate and compare with $1/\hat\theta_{\text{MAP}}$. (c) Compare $\mathbb{E}[\Phi]$ with
+$1/\mathbb{E}[\Theta]$. What general lesson does each comparison teach?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Change of variables.</b> $\phi=g(\theta)=1/\theta$ is a decreasing bijection of
+$(0,\infty)$ onto itself with inverse $\theta=1/\phi$ and
+$\big|\tfrac{d\theta}{d\phi}\big|=1/\phi^2$. The density transformation rule (G3 &sect;4) gives
+$$f_\Phi(\phi)=f_\Theta\!\left(\frac1\phi\right)\cdot\frac{1}{\phi^2}
+=4\cdot\frac1\phi e^{-2/\phi}\cdot\frac{1}{\phi^2}
+=\frac{4}{\phi^{3}}e^{-2/\phi},\qquad \phi&gt;0 .$$
+(Numerically integrating this from $10^{-4}$ to $20$ gives $0.995321$, and the tail beyond $20$ is
+about $4/(2\cdot20^2)=0.005$ &mdash; it integrates to $1$&nbsp;&#10003;.)</p>
+<p><b>(b) The MAP in the new variable.</b> Maximizing $f_\Phi$ is easier through its logarithm,
+$\ln f_\Phi(\phi)=\ln4-3\ln\phi-2/\phi$:
+$$\frac{d}{d\phi}\ln f_\Phi(\phi)=-\frac{3}{\phi}+\frac{2}{\phi^{2}}
+=\frac{2-3\phi}{\phi^{2}}=0\;\Longrightarrow\;\hat\phi_{\text{MAP}}=\frac{2}{3}=0.666667,$$
+positive before and negative after, so a maximum (a grid search over $(0,20]$ agrees, returning
+$0.666667$). But transforming the old answer gives
+$$\frac{1}{\hat\theta_{\text{MAP}}}=\frac{1}{0.5}=2 .$$
+The two disagree by a factor of $3$. <b>MAP is not invariant under reparametrization</b>: a density
+picks up the Jacobian $|d\theta/d\phi|$, here $1/\phi^2$, which is not constant, so it moves the
+peak. Both answers are "the MAP" &mdash; of different questions.</p>
+<p><b>(c) The means.</b>
+$$\mathbb{E}[\Phi]=\mathbb{E}\!\left[\frac1\Theta\right]
+=\int_0^\infty\frac1\theta\,4\theta e^{-2\theta}\,d\theta
+=4\int_0^\infty e^{-2\theta}d\theta=\frac{4}{2}=2 ,$$
+(four million draws give $1.996161$&nbsp;&#10003;), whereas $1/\mathbb{E}[\Theta]=1/1=1$. Also not
+equal &mdash; but for a different reason: $x\mapsto1/x$ is strictly convex on $(0,\infty)$, so
+Jensen's inequality forces $\mathbb{E}[1/\Theta]&gt;1/\mathbb{E}[\Theta]$, and indeed $2&gt;1$.</p>
+<p><b>The two lessons.</b> (i) The MAP failure is a defect of the estimator: the mode of a density
+is not a property of the underlying random variable, so "the most likely value" depends on the
+coordinates you chose. (ii) The mean's failure is not a defect at all: $\mathbb{E}[\Phi]$ is still
+the correct LMS estimate of $\Phi$, and it is simply a fact that the LMS estimate of $1/\Theta$ is
+not $1/(\text{LMS estimate of }\Theta)$. Decide which quantity you are being scored on
+<em>before</em> you estimate.</p>
+<p><b>Answer.</b> $\;f_\Phi(\phi)=4\phi^{-3}e^{-2/\phi}$; $\hat\phi_{\text{MAP}}=2/3=0.666667$
+against $1/\hat\theta_{\text{MAP}}=2$; and $\mathbb{E}[\Phi]=2$ against
+$1/\mathbb{E}[\Theta]=1$.</p>
+<p><b>The tempting wrong answer.</b> "The MAP estimate is invariant, like the maximum-likelihood
+estimate." The ML estimate <em>is</em> invariant, because a likelihood is a function of the
+parameter with no Jacobian attached &mdash; you are reindexing the same numbers. A posterior is a
+<em>density</em> in the parameter, and densities transform with a Jacobian. The distinction is
+exactly the one in G6 &sect;3.2's Gotcha that a likelihood is not a density in $\theta$.</p>
+<p class="srcref">Tool: G6 &sect;3.3 (Gotcha &mdash; MAP is not invariant under reparametrization), G3 &sect;4 (change of variables for densities) &middot; B&amp;T &sect;8.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q132" data-diff="1" data-topic="lms">
+<p><b>Q132.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; The no-data baseline &middot; <span class="ref">G6 &sect;4.1&ndash;4.2</span></span></p>
+<p>An unknown quantity $\Theta$ has $\mathbb{E}[\Theta]=8$ and $\operatorname{var}(\Theta)=5$, and
+you observe nothing. (a) What constant $c$ minimizes $\mathbb{E}[(\Theta-c)^2]$, and what is the
+minimum? (b) What is the mean squared error if you report $9$ instead? (c) A colleague proposes
+estimating $\Theta$ from an observation $X$ that is independent of $\Theta$. Can that beat your
+answer to (a)?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The identity.</b> Expand around the mean:
+$$\mathbb{E}[(\Theta-c)^2]=\mathbb{E}\big[\big((\Theta-8)+(8-c)\big)^2\big]
+=\mathbb{E}[(\Theta-8)^2]+2(8-c)\underbrace{\mathbb{E}[\Theta-8]}_{=0}+(8-c)^2
+=\operatorname{var}(\Theta)+(c-8)^2 .$$
+The first term does not involve $c$ and the second is a square, so the minimum is at $c=8$ with
+value $\operatorname{var}(\Theta)=5$.</p>
+<p><b>(b) Reporting $9$.</b> Substituting $c=9$: $5+(9-8)^2=5+1=6$, a penalty factor
+$6/5=1.2$. A miss of one unit in the estimate costs one unit of mean squared error &mdash; errors in
+the estimate add in quadrature with the irreducible spread.</p>
+<p><b>(c) An independent observation.</b> No. The LMS estimator is $\mathbb{E}[\Theta\mid X]$, and
+independence gives $\mathbb{E}[\Theta\mid X]=\mathbb{E}[\Theta]=8$ for every value of $X$, with mean
+squared error $\mathbb{E}[\operatorname{var}(\Theta\mid X)]=\operatorname{var}(\Theta)=5$. Since no
+estimator can beat the LMS estimator, $5$ stands. Data that carry no information about $\Theta$
+cannot reduce the error &mdash; and using them can only add noise.</p>
+<p><b>Answer.</b> $\;c=8$ with MSE $5$; reporting $9$ gives MSE $6$; an independent $X$ cannot
+improve on $5$.</p>
+<p><b>The tempting wrong answer.</b> Reporting the mode of $\Theta$. With no distribution given, the
+mode is not even determined by the data in the problem &mdash; and even when it is known, it
+minimizes the probability of error, not the mean squared error. Under squared-error loss the
+no-data answer is always the mean.</p>
+<p class="srcref">Tool: G6 &sect;4.1 (the baseline with no data at all), G6 &sect;4.2 (the LMS theorem) &middot; B&amp;T &sect;8.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q133" data-diff="2" data-topic="lms">
+<p><b>Q133.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Linear LMS &middot; <span class="ref">G6 &sect;4.5</span></span></p>
+<p>A part's true mass $\Theta$ (grams) has $\mathbb{E}[\Theta]=70$ and $\operatorname{var}(\Theta)=8$.
+A gauge reports $X=2\Theta+W$, where the factor $2$ is a known gain and the noise $W$ is independent
+of $\Theta$ with $\mathbb{E}[W]=0$ and $\operatorname{var}(W)=2$. No distributions are given.
+(a) Find the linear LMS estimator $\hat\Theta_L=aX+b$. (b) Give $\rho^2$ and the resulting mean
+squared error, and say what fraction of the prior variance the gauge removed. (c) Evaluate the
+estimate at $x=150$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1 &mdash; the five numbers.</b> By linearity of expectation,
+$\mathbb{E}[X]=2\mathbb{E}[\Theta]+\mathbb{E}[W]=2(70)+0=140$. By independence (variances add, and a
+constant factor squares),
+$$\operatorname{var}(X)=2^2\operatorname{var}(\Theta)+\operatorname{var}(W)=4(8)+2=34 .$$
+For the covariance, bilinearity plus $\operatorname{cov}(W,\Theta)=0$ under independence:
+$$\operatorname{cov}(X,\Theta)=\operatorname{cov}(2\Theta+W,\Theta)=2\operatorname{var}(\Theta)=2(8)=16 .$$
+The fifth number is $\operatorname{var}(\Theta)=8$, needed only for the error.</p>
+<p><b>Step 2 &mdash; the estimator.</b>
+$$a=\frac{\operatorname{cov}(X,\Theta)}{\operatorname{var}(X)}=\frac{16}{34}=0.470588,\qquad
+b=\mathbb{E}[\Theta]-a\,\mathbb{E}[X]=70-0.470588(140)=70-65.882353=4.117647 ,$$
+so $\hat\Theta_L=0.470588\,X+4.117647$. A least-squares fit to four million simulated pairs returns
+$a=0.470561$, $b=4.121381$&nbsp;&#10003;.</p>
+<p><b>Step 3 &mdash; the error.</b>
+$$\rho^2=\frac{\operatorname{cov}(X,\Theta)^2}{\operatorname{var}(X)\operatorname{var}(\Theta)}
+=\frac{16^2}{34\times8}=\frac{256}{272}=0.941176,\qquad \rho=0.970143,$$
+$$\mathbb{E}\big[(\Theta-\hat\Theta_L)^2\big]=(1-\rho^2)\operatorname{var}(\Theta)
+=0.058824\times8=0.470588 .$$
+Simulation gives $0.470601$&nbsp;&#10003;, and the closed form for this model agrees:
+$\operatorname{var}(\Theta)\operatorname{var}(W)/\big(4\operatorname{var}(\Theta)+\operatorname{var}(W)\big)
+=8(2)/34=0.470588$. Against the no-data baseline $\operatorname{var}(\Theta)=8$, the gauge removed
+$94.117647\%$ of the variance.</p>
+<p><b>Step 4 &mdash; at $x=150$.</b>
+$\hat\theta_L=0.470588(150)+4.117647=70.588235+4.117647=74.705882$ grams. Sensible: a reading of
+$150$ suggests $\Theta\approx75$, and the estimate is shrunk slightly toward the prior mean
+$70$.</p>
+<p><b>Answer.</b> $\;\hat\Theta_L=0.470588X+4.117647$; $\rho^2=0.941176$ and MSE $=0.470588$
+($94.117647\%$ of the prior variance removed); at $x=150$ the estimate is $74.705882$ g.</p>
+<p><b>The tempting wrong answer.</b> Taking $\operatorname{cov}(X,\Theta)=\operatorname{var}(\Theta)=8$
+&mdash; correct only when $X=\Theta+W$ with unit gain. It gives $a=8/34=0.235294$ and, at $x=150$,
+an estimate of $72.352941$ g, badly biased toward the prior. Whenever the observation is scaled, the
+gain appears once in the covariance and twice in $\operatorname{var}(X)$.</p>
+<p class="srcref">Tool: G6 &sect;4.5 (linear LMS: the formula and the $(1-\rho^2)\operatorname{var}(\Theta)$ error) &middot; B&amp;T &sect;8.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q134" data-diff="3" data-topic="lms">
+<p><b>Q134.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Orthogonality is not independence &middot; <span class="ref">G6 &sect;4.4</span></span></p>
+<p>True or false, with a proof or a counterexample: <em>"Because the LMS estimation error
+$\tilde\Theta=\mathbb{E}[\Theta\mid X]-\Theta$ satisfies $\mathbb{E}[\tilde\Theta\,h(X)]=0$ for
+every function $h$, the error is independent of the observation $X$."</em> Test the claim on the
+model in which $X$ is uniform on $[-1,1]$ and, given $X=x$, $\Theta$ is uniform on
+$[-|x|,\,|x|]$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>The claim is false.</b> Orthogonality is a statement about correlations &mdash; expectations of
+products that are <em>linear</em> in $\tilde\Theta$ &mdash; and uncorrelatedness never implies
+independence.</p>
+<p><b>Step 1 &mdash; the estimator in this model.</b> Given $X=x$, $\Theta$ is uniform on a symmetric
+interval, so $\mathbb{E}[\Theta\mid X=x]=0$ for every $x$. Hence $\hat\Theta\equiv0$ and
+$\tilde\Theta=\hat\Theta-\Theta=-\Theta$.</p>
+<p><b>Step 2 &mdash; the error variance.</b> A uniform on $[-|x|,|x|]$ has variance
+$(2|x|)^2/12=x^2/3$, so $\mathbb{E}[\Theta^2\mid X=x]=x^2/3$. By the law of iterated expectations,
+with $\mathbb{E}[X^2]=\int_{-1}^{1}\tfrac12 x^2dx=1/3$,
+$$\operatorname{var}(\Theta)=\mathbb{E}[\Theta^2]=\mathbb{E}\!\left[\frac{X^2}{3}\right]
+=\frac{1}{3}\cdot\frac13=\frac19=0.111111,$$
+which is also the mean squared error, since $\hat\Theta\equiv0$. Four million simulated pairs give
+$0.111195$&nbsp;&#10003;. The variance decomposition checks out:
+$\operatorname{var}(\Theta)=\operatorname{var}(\hat\Theta)+\operatorname{var}(\tilde\Theta)
+=0+1/9$&nbsp;&#10003;.</p>
+<p><b>Step 3 &mdash; orthogonality does hold.</b> For any $h$,
+$\mathbb{E}[\tilde\Theta h(X)]=\mathbb{E}\big[h(X)\mathbb{E}[\tilde\Theta\mid X]\big]=0$ since the
+inner conditional expectation is $0$. Simulation with $h(x)=x^2$ returns
+$0.000113$, and $\operatorname{cov}(\Theta,X)=0.000123$ &mdash; both zero to Monte-Carlo
+accuracy&nbsp;&#10003;.</p>
+<p><b>Step 4 &mdash; but the error is not independent of $X$.</b> Its <em>spread</em> is driven by
+$X$: the conditional error variance is $x^2/3$, which equals $0.27$ at $x=0.9$ and
+$0.003333$ at $x=0.1$ &mdash; a factor of $81$. Formally, if $\tilde\Theta$ and $X$ were
+independent then $\tilde\Theta^2$ and $X^2$ would be too, forcing
+$\mathbb{E}[\tilde\Theta^2X^2]=\mathbb{E}[\tilde\Theta^2]\mathbb{E}[X^2]$. But
+$$\mathbb{E}[\tilde\Theta^2X^2]=\mathbb{E}\!\left[\frac{X^4}{3}\right]=\frac{1/5}{3}=0.066667,
+\qquad
+\mathbb{E}[\tilde\Theta^2]\mathbb{E}[X^2]=\frac19\cdot\frac13=0.037037,$$
+using $\mathbb{E}[X^4]=\int_{-1}^1\tfrac12x^4dx=1/5$. The gap is $0.029630$ (simulation gives
+$0.066751$ for the left side&nbsp;&#10003;), so independence fails.</p>
+<p><b>Answer.</b> $\;$False. Here orthogonality holds exactly while
+$\mathbb{E}[\tilde\Theta^2X^2]=0.066667\neq0.037037=\mathbb{E}[\tilde\Theta^2]\mathbb{E}[X^2]$,
+so the error depends on $X$ through its variance.</p>
+<p><b>Why this matters, and the tempting wrong answer.</b> "The residual is uncorrelated with
+everything the data could tell you" is the correct reading of orthogonality; "the residual knows
+nothing about $X$" is not. Concretely, an engineer who reports the single number
+$\mathbb{E}[\tilde\Theta^2]=0.111111$ as the accuracy of the estimate is misleading the reader: at
+$x=0.1$ the estimate is nearly exact and at $x=0.9$ it is $81$ times worse. Always quote the
+conditional spread $\operatorname{var}(\Theta\mid X=x)$ alongside the estimate. (The one case where
+independence does follow is joint normality, where zero correlation is independence.)</p>
+<p class="srcref">Tool: G6 &sect;4.4 (properties of the estimation error: orthogonality and the variance decomposition), G6 &sect;4.2 (the LMS theorem) &middot; B&amp;T &sect;8.3</p>
+</div></details>
+</div>

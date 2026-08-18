@@ -1,0 +1,493 @@
+<h2 id="qb-s4">&sect;4 &nbsp; Iterated expectations &amp; arrival processes</h2>
+
+<p class="srcref">Drills G4 &sect;1&ndash;&sect;4 &middot; Bertsekas&ndash;Tsitsiklis &sect;4.3&ndash;4.5, &sect;6.1&ndash;6.3 &middot; every number recomputed in <code>computes/qb_s4.py</code></p>
+
+<p>Twenty-two problems on conditioning as a <em>machine</em> and on the two arrival processes it powers. The first block insists on the distinction that the whole chapter rests on: $\mathbb{E}[X\mid Y=y]$ is a number, $\mathbb{E}[X\mid Y]$ is a random variable, and the law of iterated expectations says the second one averages back to $\mathbb{E}[X]$ &mdash; followed by the law of total variance and the between/within reading that makes it useful. The second block adds a random number of terms: the mean and variance of $Y=X_1+\dots+X_N$, including the term everyone drops. The third block runs the Bernoulli process &mdash; geometric interarrivals, the Pascal PMF for the $k$th success, and the fresh-start property that makes the gambler's-fallacy answer wrong. The fourth block runs the Poisson process: counts over intervals, exponential interarrivals, the Erlang $k$th arrival, and what the small-interval definition actually asserts. The last block merges and splits: competing exponentials, the split streams that are genuinely independent even though they sum to a common total, and the length-biased world of random incidence, where the gap you land in is not the average gap. Where a problem has a trap, the solution names the wrong answer you were about to give.</p>
+
+<div class="ex qcard" id="q73" data-diff="2" data-topic="iterated-expectation">
+<p><b>Q73.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; $\mathbb{E}[X\mid Y]$ as a random variable &middot; <span class="ref">G4 &sect;1.1&ndash;1.3</span></span></p>
+<p>A machine picks a rod length $Y$ at random from $\{1,2,4\}$ metres, each with probability $1/3$. Given $Y=y$, it then cuts the rod at a point $X$ that is uniform on $[0,y]$.</p>
+<p>(a) Compute $\mathbb{E}[X\mid Y=2]$. Is it a number or a random variable? &nbsp; (b) Write $\mathbb{E}[X\mid Y]$ explicitly and give its PMF. &nbsp; (c) Use the law of iterated expectations to get $\mathbb{E}[X]$. &nbsp; (d) Use the law of total variance to get $\operatorname{var}(X)$, and verify it directly.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Conditioned on $Y=y$ the cut point is $U(0,y)$, so $\mathbb{E}[X\mid Y=y]=y/2$ and $\operatorname{var}(X\mid Y=y)=y^2/12$ (the uniform mean and variance, G4 &sect;1.1).</p>
+<p><b>(a) A number.</b> Substituting $y=2$: $\mathbb{E}[X\mid Y=2]=2/2=1$. Once you have <em>fixed</em> the conditioning value, the averaging is done and what is left is a constant, $1$ metre.</p>
+<p><b>(b) A random variable.</b> Do not fix $y$: the map $y\mapsto y/2$ evaluated at the random $Y$ is the random variable $\mathbb{E}[X\mid Y]=Y/2$. It is a function of $Y$, so it inherits $Y$'s randomness:
+$$\mathbb{E}[X\mid Y]=\begin{cases}0.5 &amp; \text{w.p. } 1/3\ (Y=1),\\ 1 &amp; \text{w.p. } 1/3\ (Y=2),\\ 2 &amp; \text{w.p. } 1/3\ (Y=4).\end{cases}$$
+</p>
+<p><b>(c) Iterated expectations.</b> $\mathbb{E}[X]=\mathbb{E}\big[\mathbb{E}[X\mid Y]\big]$ &mdash; average the random variable from (b) over $Y$:
+$$\mathbb{E}[X]=\tfrac13(0.5)+\tfrac13(1)+\tfrac13(2)=\frac{3.5}{3}=1.166667=\tfrac76 \text{ m}.$$
+</p>
+<p><b>(d) Total variance.</b> Within-group first:
+$$\mathbb{E}\big[\operatorname{var}(X\mid Y)\big]=\tfrac13\Big(\tfrac{1}{12}+\tfrac{4}{12}+\tfrac{16}{12}\Big)=\tfrac13(0.083333+0.333333+1.333333)=0.583333=\tfrac{21}{36}.$$
+Between-group next. $\mathbb{E}\big[(Y/2)^2\big]=\tfrac13(0.25+1+4)=\tfrac{5.25}{3}=1.75$, so
+$$\operatorname{var}\big(\mathbb{E}[X\mid Y]\big)=1.75-(1.166667)^2=1.75-1.361111=0.388889 .$$
+Adding, $\operatorname{var}(X)=0.583333+0.388889=0.972222$. Direct check: $\mathbb{E}[X^2\mid Y=y]=y^2/3$, so $\mathbb{E}[X^2]=\tfrac13\big(\tfrac13+\tfrac43+\tfrac{16}{3}\big)=\tfrac{21}{9}=2.333333$ and $\operatorname{var}(X)=2.333333-1.361111=0.972222$ &mdash; identical. A $2\times10^6$-draw simulation gives $\mathbb{E}[X]\approx1.166325$, $\operatorname{var}(X)\approx0.972754$.</p>
+<p><b>Answer.</b> $\;$(a) $1$, a number. (b) $\mathbb{E}[X\mid Y]=Y/2$, taking $0.5,1,2$ each w.p. $1/3$. (c) $\mathbb{E}[X]=7/6\approx1.166667$. (d) $\operatorname{var}(X)=0.583333+0.388889=0.972222$.</p>
+<p><b>Trap.</b> Writing "$\mathbb{E}[X\mid Y]=7/6$". That is $\mathbb{E}[X]$, the number you get <em>after</em> averaging away $Y$; $\mathbb{E}[X\mid Y]$ still varies with $Y$ and has variance $0.388889$. A quantity with positive variance is not a constant.</p>
+<p class="srcref">Tool: G4 &sect;1.1 (capital vs lowercase conditioning), &sect;1.2 (iterated expectations), &sect;1.3 (total variance) &middot; B&amp;T &sect;4.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q74" data-diff="1" data-topic="iterated-expectation">
+<p><b>Q74.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Law of iterated expectations &middot; <span class="ref">G4 &sect;1.2</span></span></p>
+<p>Every incoming support ticket is routed to exactly one of three tiers: tier 1 with probability $0.50$, tier 2 with probability $0.35$, tier 3 with probability $0.15$. Mean handling time is $6$ minutes in tier 1, $18$ minutes in tier 2, and $47$ minutes in tier 3. Let $T$ be the handling time of a ticket.</p>
+<p>(a) Find $\mathbb{E}[T]$. &nbsp; (b) Agent time is billed at $\$1.20$ per minute; find the expected cost per ticket. &nbsp; (c) What fraction of all agent minutes is consumed by tier 3? Comment on the number.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $S\in\{1,2,3\}$ be the tier. The problem hands you $\mathbb{E}[T\mid S=s]$ for each $s$ and the PMF of $S$ &mdash; exactly the two ingredients of the law of iterated expectations, $\mathbb{E}[T]=\sum_s \mathbf{P}(S=s)\,\mathbb{E}[T\mid S=s]$ (G4 &sect;1.2).</p>
+<p><b>(a) Weighted average.</b> Term by term:
+$$0.50\times6=3.0,\qquad 0.35\times18=6.3,\qquad 0.15\times47=7.05,$$
+so $\mathbb{E}[T]=3.0+6.3+7.05=16.35$ minutes.</p>
+<p><b>(b) Linearity.</b> Cost $C=1.20\,T$, so $\mathbb{E}[C]=1.20\times16.35=\$19.62$. (Linearity applies to any random variable, no independence needed.)</p>
+<p><b>(c) Reading the terms.</b> Each product $\mathbf{P}(S=s)\mathbb{E}[T\mid S=s]$ <em>is</em> the mean minutes per ticket contributed by tier $s$. Tier 3's share is
+$$\frac{7.05}{16.35}=0.431193, \text{ i.e. } 43.119266\%,$$
+while tier 1's is $3.0/16.35=0.183486$. So the tier that receives $15\%$ of tickets eats $43\%$ of the labour, and the tier receiving half the tickets eats $18\%$. Iterated expectations is not just a formula: its summands are a workload budget.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[T]=16.35$ min, $\;\mathbb{E}[C]=\$19.62$, $\;$tier 3 consumes $43.12\%$ of agent minutes.</p>
+<p><b>Trap.</b> Averaging the three tier means unweighted, $(6+18+47)/3=23.666667$. That answers a different question &mdash; the mean over a randomly chosen <em>tier</em>, not over a randomly chosen <em>ticket</em>.</p>
+<p class="srcref">Tool: G4 &sect;1.2 (law of iterated expectations, divide-and-conquer form) &middot; B&amp;T &sect;4.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q75" data-diff="2" data-topic="total-variance">
+<p><b>Q75.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Total variance: between and within &middot; <span class="ref">G4 &sect;1.3</span></span></p>
+<p>A plant runs three shifts. A randomly chosen production hour is a day shift with probability $0.5$, an evening shift with probability $0.3$, a night shift with probability $0.2$. Let $X$ be the number of defective units produced in that hour. Conditional on the shift, $X$ has mean and variance
+$$\text{day: } (40,\,25),\qquad \text{evening: } (52,\,64),\qquad \text{night: } (70,\,144).$$
+(a) Find $\mathbb{E}[X]$ and $\operatorname{var}(X)$. &nbsp; (b) Split $\operatorname{var}(X)$ into its within-shift and between-shift parts and say in words what each measures. &nbsp; (c) Management can either (i) retrain so that all three shifts have the same mean $49.6$, keeping the conditional variances, or (ii) do nothing. What does the standard deviation of $X$ become under (i)?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $S$ be the shift. The law of total variance (G4 &sect;1.3) reads
+$$\operatorname{var}(X)=\underbrace{\mathbb{E}\big[\operatorname{var}(X\mid S)\big]}_{\text{within}}+\underbrace{\operatorname{var}\big(\mathbb{E}[X\mid S]\big)}_{\text{between}} .$$
+</p>
+<p><b>(a1) Overall mean.</b> $\mathbb{E}[X]=0.5(40)+0.3(52)+0.2(70)=20+15.6+14=49.6$ defectives.</p>
+<p><b>(a2) Within.</b> Average the conditional variances:
+$$\mathbb{E}\big[\operatorname{var}(X\mid S)\big]=0.5(25)+0.3(64)+0.2(144)=12.5+19.2+28.8=60.5 .$$
+</p>
+<p><b>(a3) Between.</b> The random variable $\mathbb{E}[X\mid S]$ takes values $40,52,70$ with probabilities $0.5,0.3,0.2$. Its second moment is
+$$0.5(1600)+0.3(2704)+0.2(4900)=800+811.2+980=2591.2,$$
+so $\operatorname{var}\big(\mathbb{E}[X\mid S]\big)=2591.2-(49.6)^2=2591.2-2460.16=131.04$.</p>
+<p><b>(a4) Total.</b> $\operatorname{var}(X)=60.5+131.04=191.54$, i.e. $\sigma_X=\sqrt{191.54}=13.839798$.</p>
+<p><b>(b) Interpretation.</b> The within term $60.5$ is the average scatter you would still see if you were <em>told</em> the shift &mdash; irreducible hour-to-hour noise inside a shift. The between term $131.04$ is the scatter of the shift <em>averages</em> themselves &mdash; how much of the spread is explained by simply knowing which shift it is. Here $131.04/191.54=0.684139$, so $68.4\%$ of the variance is between-shift: shift identity is the dominant driver.</p>
+<p><b>(c) Equalizing the means.</b> Making all conditional means equal to $49.6$ makes $\mathbb{E}[X\mid S]$ a constant, so the between term collapses to $0$ and only the within term survives:
+$$\operatorname{var}(X)=60.5,\qquad \sigma_X=\sqrt{60.5}=7.778175 .$$
+The standard deviation falls from $13.84$ to $7.78$, a $44\%$ reduction &mdash; and no hour ever became individually more predictable.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[X]=49.6$; $\;\operatorname{var}(X)=60.5+131.04=191.54$ ($\sigma=13.839798$); within $=60.5$, between $=131.04$ ($68.41\%$); after retraining $\sigma=7.778175$.</p>
+<p><b>Trap.</b> Averaging the conditional variances alone and reporting $\operatorname{var}(X)=60.5$. That is the variance you would have if the shift were known; pooling three differently centred populations adds the between term $131.04$ on top.</p>
+<p class="srcref">Tool: G4 &sect;1.3 (law of total variance, between/within reading) &middot; B&amp;T &sect;4.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q76" data-diff="2" data-topic="total-variance">
+<p><b>Q76.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; True or false, with reason &middot; <span class="ref">G4 &sect;1.3</span></span></p>
+<p>Decide true or false and justify each. $X,Y$ are random variables with finite variance.</p>
+<p>(a) $\operatorname{var}(X)\ \ge\ \mathbb{E}\big[\operatorname{var}(X\mid Y)\big]$ always. &nbsp;
+(b) If $\mathbb{E}[X\mid Y]$ is the same constant for every value of $Y$, then $X$ and $Y$ are independent. &nbsp;
+(c) If $\mathbb{E}\big[\operatorname{var}(X\mid Y)\big]=0$, then $X$ is (with probability 1) a function of $Y$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) True.</b> Total variance gives $\operatorname{var}(X)=\mathbb{E}[\operatorname{var}(X\mid Y)]+\operatorname{var}(\mathbb{E}[X\mid Y])$. The second term is a variance, hence $\ge0$, so the first term alone can never exceed $\operatorname{var}(X)$. In words: conditioning on extra information can only reduce the average remaining variance. Equality holds exactly when $\mathbb{E}[X\mid Y]$ is constant.</p>
+<p><b>(b) False.</b> A constant conditional <em>mean</em> kills only the between term; $Y$ can still control the conditional <em>spread</em>. Counterexample: $Y$ is $1$ or $2$ with probability $1/2$ each; given $Y=1$, $X=\pm1$ equally likely; given $Y=2$, $X=\pm2$ equally likely. Then $\mathbb{E}[X\mid Y]=0$ for both values, so $\operatorname{var}(\mathbb{E}[X\mid Y])=0$, yet
+$$\operatorname{var}(X\mid Y=1)=1,\quad \operatorname{var}(X\mid Y=2)=4,\quad \operatorname{var}(X)=0.5(1)+0.5(4)+0=2.5 .$$
+Dependence is visible in the PMF: $\mathbf{P}(X=2)=0.5\times0.5=0.25$ but $\mathbf{P}(X=2\mid Y=1)=0$. Since $0\ne0.25$, $X$ and $Y$ are dependent. (What <em>does</em> follow from a constant $\mathbb{E}[X\mid Y]$ is $\operatorname{cov}(X,Y)=0$ &mdash; uncorrelated, not independent.)</p>
+<p><b>(c) True.</b> $\operatorname{var}(X\mid Y=y)\ge0$ for every $y$, so an average of zero forces $\operatorname{var}(X\mid Y=y)=0$ for every $y$ that occurs with positive probability. A random variable with zero variance is a constant, so given $Y=y$ the value of $X$ is pinned to the single number $\mathbb{E}[X\mid Y=y]=g(y)$. Hence $X=g(Y)$ almost surely, and then $\operatorname{var}(X)=\operatorname{var}(\mathbb{E}[X\mid Y])$: all of the variance is between-group.</p>
+<p><b>Answer.</b> $\;$(a) True. (b) False &mdash; constant conditional mean gives $\operatorname{cov}=0$, not independence; the counterexample has $\operatorname{var}(X)=2.5$ with all of it within-group. (c) True.</p>
+<p class="srcref">Tool: G4 &sect;1.3 (total variance; nonnegativity of each term) &middot; G3 &sect;4 (uncorrelated $\ne$ independent) &middot; B&amp;T &sect;4.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q77" data-diff="1" data-topic="random-sums">
+<p><b>Q77.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Sum of a random number of terms &middot; <span class="ref">G4 &sect;2.2</span></span></p>
+<p>A food truck serves $N$ customers in a day, where $\mathbb{E}[N]=120$ and $\operatorname{var}(N)=200$. The $i$th customer spends $X_i$ dollars; the $X_i$ are i.i.d. with $\mathbb{E}[X]=14$ and $\operatorname{var}(X)=36$, and are independent of $N$. Let $Y=X_1+\dots+X_N$ be the day's revenue.</p>
+<p>(a) Find $\mathbb{E}[Y]$ and $\operatorname{var}(Y)$. &nbsp; (b) Which source of randomness &mdash; how many customers, or how much each spends &mdash; contributes more to $\operatorname{var}(Y)$, and by how much?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> This is the random-sum formula (G4 &sect;2.2), which needs only the four moments given &mdash; no distributional assumption about $N$ or $X$:
+$$\mathbb{E}[Y]=\mathbb{E}[N]\,\mathbb{E}[X],\qquad \operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)+\big(\mathbb{E}[X]\big)^2\operatorname{var}(N).$$
+</p>
+<p><b>(a1) Mean.</b> $\mathbb{E}[Y]=120\times14=\$1680$.</p>
+<p><b>(a2) Variance.</b> Substituting term by term:
+$$\underbrace{\mathbb{E}[N]\operatorname{var}(X)}_{120\times36\;=\;4320}+\underbrace{(\mathbb{E}[X])^2\operatorname{var}(N)}_{14^2\times200\;=\;196\times200\;=\;39\,200}=43\,520\ \text{dollars}^2,$$
+so $\sigma_Y=\sqrt{43\,520}=208.614477$ dollars.</p>
+<p><b>(b) Which term wins.</b> The count term is $39\,200/43\,520=0.900735$, i.e. $90.07\%$ of the variance. Uncertainty in <em>how many</em> customers show up dominates uncertainty in <em>what each one spends</em>, because the per-customer noise averages out across $120$ customers while the count noise is multiplied by the full mean ticket $\mathbb{E}[X]=14$. A $60\,000$-day simulation gives $\mathbb{E}[Y]\approx1681.35$ and $\operatorname{var}(Y)\approx43\,389$.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[Y]=\$1680$, $\;\operatorname{var}(Y)=4320+39\,200=43\,520$ ($\sigma_Y=\$208.61$); the customer count supplies $90.07\%$ of the variance.</p>
+<p class="srcref">Tool: G4 &sect;2.2 (mean and variance of a random sum) &middot; B&amp;T &sect;4.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q78" data-diff="2" data-topic="random-sums">
+<p><b>Q78.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Spot the error &middot; <span class="ref">G4 &sect;2.2</span></span></p>
+<p>A student writes: "$Y=X_1+\dots+X_N$ is a sum of $N$ i.i.d. terms, so conditioning on $N$ gives $\operatorname{var}(Y\mid N)=N\operatorname{var}(X)$, and therefore $\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)$."</p>
+<p>Test the claim on this case: $N$ is uniform on $\{0,1,2,3\}$ and every $X_i$ equals exactly $5$ (so $\operatorname{var}(X)=0$). Identify the missing step, state the correct formula, and give the correct $\operatorname{var}(Y)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Step 1: what the test case says.</b> With $X_i\equiv5$ we have $Y=5N$ exactly. Since $N$ is uniform on $\{0,1,2,3\}$, $\mathbb{E}[N]=1.5$ and $\operatorname{var}(N)=\frac{4^2-1}{12}=1.25$. Then
+$$\mathbb{E}[Y]=5(1.5)=7.5,\qquad \operatorname{var}(Y)=\operatorname{var}(5N)=25\operatorname{var}(N)=25(1.25)=31.25 .$$
+The student's formula gives $\mathbb{E}[N]\operatorname{var}(X)=1.5\times0=0$. A random variable taking the four distinct values $0,5,10,15$ cannot have zero variance, so the formula is wrong.</p>
+<p><b>Step 2: the missing step.</b> The student computed only $\mathbb{E}\big[\operatorname{var}(Y\mid N)\big]$ and stopped. The law of total variance has a second term:
+$$\operatorname{var}(Y)=\mathbb{E}\big[\operatorname{var}(Y\mid N)\big]+\operatorname{var}\big(\mathbb{E}[Y\mid N]\big).$$
+Here $\mathbb{E}[Y\mid N]=N\mathbb{E}[X]$ is <em>not</em> constant &mdash; it moves with $N$ &mdash; so its variance is $(\mathbb{E}[X])^2\operatorname{var}(N)$, which the student silently set to zero.</p>
+<p><b>Step 3: the correct formula, applied.</b>
+$$\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)+\big(\mathbb{E}[X]\big)^2\operatorname{var}(N)=1.5(0)+25(1.25)=0+31.25=31.25,$$
+matching the exact computation. A $2\times10^6$-run simulation gives $31.242124$.</p>
+<p><b>Step 4: when is the student right?</b> Only when $\operatorname{var}(N)=0$, i.e. $N$ is a deterministic constant $n_0$ &mdash; then $\operatorname{var}(Y)=n_0\operatorname{var}(X)$, the ordinary i.i.d. formula. The random-sum formula degenerates to the student's whenever the count stops being random.</p>
+<p><b>Answer.</b> $\;$The step $\operatorname{var}\big(\mathbb{E}[Y\mid N]\big)=(\mathbb{E}[X])^2\operatorname{var}(N)$ is missing; correctly $\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)+(\mathbb{E}[X])^2\operatorname{var}(N)=31.25$, not $0$.</p>
+<p class="srcref">Tool: G4 &sect;2.2 (random sums via total variance) &middot; G4 &sect;1.3 &middot; B&amp;T &sect;4.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q79" data-diff="2" data-topic="random-sums">
+<p><b>Q79.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Compound Poisson: derivation plus numbers &middot; <span class="ref">G4 &sect;2.2, &sect;3.2</span></span></p>
+<p>An insurer receives $N$ claims per day, $N\sim\text{Poisson}(\lambda)$ with $\lambda=8$. Claim sizes $X_i$ are i.i.d. with mean $\mu=\$2500$ and standard deviation $\sigma=\$4000$, independent of $N$. Let $Y$ be the day's total payout.</p>
+<p>(a) Show in general that $\operatorname{var}(Y)=\lambda\,\mathbb{E}[X^2]$. &nbsp; (b) Compute $\mathbb{E}[Y]$, $\operatorname{var}(Y)$ and $\sigma_Y$. &nbsp; (c) Report the coefficient of variation $\sigma_Y/\mathbb{E}[Y]$ and interpret it.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Derivation.</b> Start from the random-sum variance formula (G4 &sect;2.2):
+$$\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)+\big(\mathbb{E}[X]\big)^2\operatorname{var}(N).$$
+For a Poisson count the mean and variance coincide, $\mathbb{E}[N]=\operatorname{var}(N)=\lambda$ (G4 &sect;3.2). Substituting both:
+$$\operatorname{var}(Y)=\lambda\operatorname{var}(X)+\lambda\big(\mathbb{E}[X]\big)^2=\lambda\Big(\operatorname{var}(X)+(\mathbb{E}[X])^2\Big)=\lambda\,\mathbb{E}[X^2],$$
+the last equality being the definition of variance rearranged. Note the second moment, not the variance, is what matters: a claim distribution with mean $0$ risk but huge spread costs exactly as much variance as its spread.</p>
+<p><b>(b) Numbers.</b> $\mathbb{E}[Y]=\lambda\mu=8\times2500=\$20\,000$ per day. The second moment is
+$$\mathbb{E}[X^2]=\sigma^2+\mu^2=4000^2+2500^2=16\,000\,000+6\,250\,000=22\,250\,000 .$$
+Hence
+$$\operatorname{var}(Y)=8\times22\,250\,000=178\,000\,000\ \text{dollars}^2,\qquad \sigma_Y=\sqrt{178\,000\,000}=\$13\,341.66 .$$
+Split into the two original terms as a check: sizes contribute $8\times16{,}000{,}000=128$ million, the random count contributes $2500^2\times8=50$ million, total $178$ million. A $60\,000$-day simulation with gamma-distributed claim sizes gives $\mathbb{E}[Y]\approx19\,953$ and $\operatorname{var}(Y)\approx1.7773\times10^8$.</p>
+<p><b>(c) Interpretation.</b> $\sigma_Y/\mathbb{E}[Y]=13\,341.66/20\,000=0.667083$. Daily payout has a standard deviation two-thirds the size of its mean &mdash; the insurer cannot budget on the mean alone. Here $128/178=71.9\%$ of the variance comes from the heavy claim sizes, the reverse of Q77, because $\sigma=4000$ far exceeds $\mu=2500$.</p>
+<p><b>Answer.</b> $\;\operatorname{var}(Y)=\lambda\mathbb{E}[X^2]$; numerically $\mathbb{E}[Y]=\$20\,000$, $\operatorname{var}(Y)=1.78\times10^8$, $\sigma_Y=\$13\,341.66$, $\;\sigma_Y/\mathbb{E}[Y]=0.667083$.</p>
+<p><b>Trap.</b> Writing $\operatorname{var}(Y)=\lambda\operatorname{var}(X)=8\times16{,}000{,}000=1.28\times10^8$. That drops the $\mu^2\lambda=5\times10^7$ contributed by the random number of claims and understates $\sigma_Y$ by about $\$2000$ a day.</p>
+<p class="srcref">Tool: G4 &sect;2.2 (random sums), &sect;3.2 (Poisson mean $=$ variance $=\lambda$) &middot; B&amp;T &sect;4.4, &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q80" data-diff="1" data-topic="bernoulli-process">
+<p><b>Q80.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Bernoulli process: the $k$th success &middot; <span class="ref">G4 &sect;2.3, &sect;2.5</span></span></p>
+<p>An inspector tests items one at a time, independently; each is defective with probability $p=0.15$. Let $T_1$ be the trial index of the first defective and $T_3$ that of the third.</p>
+<p>(a) Find $\mathbf{P}(T_3=7)$. &nbsp; (b) Find $\mathbb{E}[T_3]$ and $\operatorname{var}(T_3)$. &nbsp; (c) Find $\mathbf{P}(T_1\le5)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Independent trials with a common success probability form a Bernoulli process (G4 &sect;2.3). The $k$th success time has the Pascal PMF
+$$\mathbf{P}(T_k=t)=\binom{t-1}{k-1}p^k(1-p)^{t-k},\qquad t=k,k+1,\dots$$
+and $T_1$ is geometric.</p>
+<p><b>(a) Pascal at $k=3$, $t=7$.</b> The event is "exactly $2$ defectives among the first $6$ trials, and a defective on trial $7$", so
+$$\mathbf{P}(T_3=7)=\binom{6}{2}p^3(1-p)^4=15\times(0.15)^3\times(0.85)^4=15\times0.003375\times0.522006 .$$
+Multiplying: $0.003375\times0.522006=0.001762$, and $15\times0.001762=0.026427$.</p>
+<p><b>(b) Moments.</b> $T_3$ is the sum of three i.i.d. geometric interarrival times, each with mean $1/p$ and variance $(1-p)/p^2$ (G4 &sect;2.4&ndash;2.5). By linearity and independence,
+$$\mathbb{E}[T_3]=\frac{3}{0.15}=20\ \text{trials},\qquad \operatorname{var}(T_3)=\frac{3(1-0.15)}{0.15^2}=\frac{3\times0.85}{0.0225}=\frac{2.55}{0.0225}=113.333333,$$
+so $\sigma_{T_3}=10.645813$ trials &mdash; a very wide distribution around $20$.</p>
+<p><b>(c) Geometric tail.</b> $\mathbf{P}(T_1&gt;5)=(1-p)^5=(0.85)^5=0.443705$, hence $\mathbf{P}(T_1\le5)=1-0.443705=0.556295$.</p>
+<p><b>Answer.</b> $\;\mathbf{P}(T_3=7)=0.026427$, $\;\mathbb{E}[T_3]=20$, $\;\operatorname{var}(T_3)=113.333333$, $\;\mathbf{P}(T_1\le5)=0.556295$.</p>
+<p><b>Trap.</b> Answering (a) with the binomial $\binom{7}{3}p^3(1-p)^4=0.061662$. That is $\mathbf{P}(\text{exactly 3 defectives in 7 trials})$, which allows the seventh trial to be clean; $T_3=7$ requires trial $7$ itself to be the third defective, which is why the coefficient is $\binom{6}{2}=15$, not $\binom{7}{3}=35$.</p>
+<p class="srcref">Tool: G4 &sect;2.5 (Pascal PMF for the $k$th success), &sect;2.4 (geometric interarrivals) &middot; B&amp;T &sect;6.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q81" data-diff="2" data-topic="bernoulli-process">
+<p><b>Q81.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Memorylessness and fresh start &middot; <span class="ref">G4 &sect;2.4</span></span></p>
+<p>A monitoring system polls a sensor once per second; each poll independently raises an alarm with probability $p=0.02$.</p>
+<p>(a) Given that the first $100$ polls raised no alarm, what is the expected number of <em>additional</em> polls until the first alarm? &nbsp; (b) Given the same information, find $\mathbf{P}(\text{no alarm in polls }101\text{ through }150)$. &nbsp; (c) Suppose instead that the first $100$ polls raised exactly $1$ alarm. A colleague reasons: "alarms average $2$ per $100$ polls; we saw only $1$ in the first $100$, so we should expect about $3$ in the next $100$ to make up the shortfall." Evaluate. &nbsp; (d) From time $0$, find the mean and variance of the poll index at which the <em>second</em> alarm occurs.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Polls are i.i.d. Bernoulli($0.02$) trials, so this is a Bernoulli process (G4 &sect;2.3). Its fresh-start property (G4 &sect;2.4): for any fixed time $n$, the trials after $n$ form a Bernoulli process with the same $p$, independent of everything up to $n$.</p>
+<p><b>(a) Memorylessness.</b> Conditioned on no alarm in the first $100$ polls, the remaining wait $T-100$ has the same geometric distribution as $T$ itself. Hence the expected additional wait is
+$$\mathbb{E}[T-100\mid T&gt;100]=\frac1p=\frac{1}{0.02}=50\ \text{polls}.$$
+The $100$ wasted polls buy nothing: the process has no memory of them.</p>
+<p><b>(b) A clean 50-trial block.</b> By fresh start, polls $101,\dots,150$ are $50$ fresh independent trials, so
+$$\mathbf{P}(\text{no alarm in those }50)=(1-p)^{50}=(0.98)^{50}=0.364170 .$$
+(Unconditionally, $\mathbf{P}(\text{no alarm in first }100)=(0.98)^{100}=0.132620$ &mdash; but that number plays no role here, because conditioning on it changes nothing about the future.)</p>
+<p><b>(c) The gambler's fallacy.</b> False. Counts over disjoint blocks of trials are independent, so the number of alarms in polls $101$&ndash;$200$ is Binomial($100,0.02$) whatever happened before, with mean $100\times0.02=2$, not $3$. Coins and sensors do not "make up" shortfalls; only an <em>estimate of $p$</em> would be revised by past data, and here $p$ is known.</p>
+<p><b>(d) Second alarm.</b> The time of the second alarm is the sum of two i.i.d. geometric interarrivals, so
+$$\mathbb{E}[T_2]=\frac{2}{p}=\frac{2}{0.02}=100\ \text{polls},\qquad \operatorname{var}(T_2)=\frac{2(1-p)}{p^2}=\frac{2\times0.98}{0.0004}=4900,$$
+i.e. a standard deviation of $70$ polls.</p>
+<p><b>Answer.</b> $\;$(a) $50$ polls. (b) $0.364170$. (c) False &mdash; the expectation is $2$, by independence of disjoint blocks. (d) $\mathbb{E}[T_2]=100$, $\operatorname{var}(T_2)=4900$.</p>
+<p><b>Trap.</b> In (a), answering "$50-100&lt;0$, so an alarm is overdue" or computing $\mathbb{E}[T\mid T&gt;100]$ and reporting $50$ as the total. The <em>total</em> is $100+50=150$; the <em>additional</em> wait is $50$. Read which one the question asks for.</p>
+<p class="srcref">Tool: G4 &sect;2.4 (memorylessness and the fresh-start property), &sect;2.3 (independence of disjoint blocks) &middot; B&amp;T &sect;6.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q82" data-diff="2" data-topic="merging-splitting">
+<p><b>Q82.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Merging Bernoulli processes &middot; <span class="ref">G4 &sect;2.6</span></span></p>
+<p>Two independent sensors report in each one-second slot: sensor A reports with probability $p_A=0.10$, sensor B with probability $p_B=0.25$, independently of each other and across slots. The control room records a "report slot" whenever at least one sensor reports.</p>
+<p>(a) Show that the record is a Bernoulli process and find its parameter. &nbsp; (b) Find the expected number of slots until the first report slot. &nbsp; (c) Given that a slot is a report slot, find the probabilities that it came from A alone, B alone, and both. &nbsp; (d) Find the expected number of slots until the first slot in which <em>both</em> sensors report.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The merged parameter.</b> Slots are independent (both sources are, and across slots too), and each slot independently is a report slot with the same probability, so the merged record is a Bernoulli process (G4 &sect;2.6). Its parameter is
+$$p=\mathbf{P}(A\cup B)=p_A+p_B-p_Ap_B=0.10+0.25-0.025=0.325,$$
+where $p_Ap_B=0.10\times0.25=0.025$ is subtracted because a slot with both reports would otherwise be counted twice. Equivalently $p=1-(1-0.10)(1-0.25)=1-0.9\times0.75=1-0.675=0.325$.</p>
+<p><b>(b) Geometric wait.</b> The first arrival of a Bernoulli($0.325$) process is geometric, so
+$$\mathbb{E}[T_1]=\frac{1}{0.325}=3.076923\ \text{slots}.$$
+</p>
+<p><b>(c) Attribution, by conditional probability.</b> Divide each disjoint case by $p=0.325$:
+$$\mathbf{P}(\text{A only}\mid\text{report})=\frac{0.10\times0.75}{0.325}=\frac{0.075}{0.325}=0.230769,$$
+$$\mathbf{P}(\text{B only}\mid\text{report})=\frac{0.25\times0.90}{0.325}=\frac{0.225}{0.325}=0.692308,\qquad \mathbf{P}(\text{both}\mid\text{report})=\frac{0.025}{0.325}=0.076923 .$$
+The three sum to $1.000000$, as they must.</p>
+<p><b>(d) A rarer merged process.</b> "Both report" is itself a Bernoulli process with parameter $p_Ap_B=0.025$, so the wait for the first such slot is geometric with mean $1/0.025=40$ slots.</p>
+<p><b>Answer.</b> $\;$(a) Bernoulli with $p=0.325$. (b) $3.076923$ slots. (c) A only $0.230769$, B only $0.692308$, both $0.076923$. (d) $40$ slots.</p>
+<p><b>Trap.</b> Taking the merged parameter to be $p_A+p_B=0.35$ (which would give $\mathbb{E}[T_1]=2.857143$). Bernoulli merging is <em>not</em> additive, because two sensors can report in the same slot; the overlap $0.025$ must come off. Poisson merging <em>is</em> additive precisely because simultaneous arrivals have probability zero in continuous time (Q88).</p>
+<p class="srcref">Tool: G4 &sect;2.6 (merging Bernoulli processes) &middot; G4 &sect;2.4 (geometric waits) &middot; B&amp;T &sect;6.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q83" data-diff="3" data-topic="bernoulli-process">
+<p><b>Q83.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; A random number of geometric waits &middot; <span class="ref">G4 &sect;2.2, &sect;2.4</span></span></p>
+<p>A game works as follows. First a fair spinner picks $K$ uniformly from $\{1,2,3,4\}$. The player then tosses a biased coin repeatedly, with $\mathbf{P}(\text{head})=p=0.4$ per toss independently, and stops at the $K$th head. Let $T$ be the total number of tosses.</p>
+<p>(a) Find $\mathbb{E}[T]$ and $\operatorname{var}(T)$. &nbsp; (b) Find $\mathbf{P}(T=2)$ exactly. &nbsp; (c) Explain why you cannot get $\operatorname{var}(T)$ by writing "$T$ is Pascal with $k=\mathbb{E}[K]=2.5$".</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $T=X_1+\dots+X_K$ where the $X_i$ are i.i.d. geometric($0.4$) interarrival times of the Bernoulli process (G4 &sect;2.4) and $K$ is independent of them. That is exactly the random-sum structure of G4 &sect;2.2 with the count $K$.</p>
+<p><b>(a1) The four moments.</b> For $K$ uniform on $\{1,2,3,4\}$: $\mathbb{E}[K]=2.5$ and $\operatorname{var}(K)=\frac{4^2-1}{12}=\frac{15}{12}=1.25$. For a geometric with $p=0.4$:
+$$\mathbb{E}[X]=\frac1p=2.5,\qquad \operatorname{var}(X)=\frac{1-p}{p^2}=\frac{0.6}{0.16}=3.75 .$$
+</p>
+<p><b>(a2) Substitute.</b>
+$$\mathbb{E}[T]=\mathbb{E}[K]\mathbb{E}[X]=2.5\times2.5=6.25\ \text{tosses},$$
+$$\operatorname{var}(T)=\underbrace{\mathbb{E}[K]\operatorname{var}(X)}_{2.5\times3.75\,=\,9.375}+\underbrace{(\mathbb{E}[X])^2\operatorname{var}(K)}_{6.25\times1.25\,=\,7.8125}=17.1875,$$
+so $\sigma_T=\sqrt{17.1875}=4.145781$ tosses. A $2\times10^5$-game simulation gives $\mathbb{E}[T]\approx6.2364$ and $\operatorname{var}(T)\approx16.99$.</p>
+<p><b>(b) The PMF at its smallest interesting value.</b> Condition on $K$ and use total probability. $T=2$ needs $K\le2$, since $T\ge K$ always.
+<br>&bull; $K=1$: the first head must land on toss $2$, so $\mathbf{P}=(1-p)p=0.6\times0.4=0.24$; weighted, $0.25\times0.24=0.06$.
+<br>&bull; $K=2$: both tosses must be heads, $\mathbf{P}=p^2=0.16$; weighted, $0.25\times0.16=0.04$.
+<br>&bull; $K=3,4$: impossible, contributing $0$.
+<br>Total $\mathbf{P}(T=2)=0.06+0.04=0.10$. The simulation gives $0.100055$.</p>
+<p><b>(c) Why the shortcut fails.</b> Replacing the random $K$ by its mean destroys exactly the term $(\mathbb{E}[X])^2\operatorname{var}(K)=7.8125$. A Pascal variable with a fixed $k=2.5$ heads would have variance $2.5\times3.75=9.375$, understating the true $17.1875$ by $45\%$ &mdash; and it is not even a legal distribution, since $k$ must be a positive integer. More generally, plugging a mean into a nonlinear place is the error $\mathbb{E}[g(K)]\ne g(\mathbb{E}[K])$; here the variance is linear in $k$ but the <em>randomness</em> of $k$ contributes separately.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[T]=6.25$, $\;\operatorname{var}(T)=9.375+7.8125=17.1875$ ($\sigma_T=4.145781$), $\;\mathbf{P}(T=2)=0.10$.</p>
+<p class="srcref">Tool: G4 &sect;2.2 (random sums), &sect;2.4&ndash;2.5 (geometric interarrivals, Pascal) &middot; B&amp;T &sect;4.4, &sect;6.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q84" data-diff="1" data-topic="poisson-process">
+<p><b>Q84.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Poisson counts over intervals &middot; <span class="ref">G4 &sect;3.1&ndash;3.2</span></span></p>
+<p>Patients arrive at a rural clinic as a Poisson process with rate $\lambda=3$ per hour.</p>
+<p>(a) Find the probability of exactly $2$ arrivals in a given $30$-minute window. &nbsp; (b) Find the probability of at least one arrival in a $2$-hour window. &nbsp; (c) Find the probability of exactly $2$ arrivals in the first half-hour <em>and</em> none in the second half-hour. &nbsp; (d) Given $2$ arrivals in the first half-hour, what is the probability of none in the second?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> For a Poisson process of rate $\lambda$, the count $N_\tau$ over an interval of length $\tau$ is Poisson with parameter $\lambda\tau$, and counts over <em>disjoint</em> intervals are independent (G4 &sect;3.1):
+$$\mathbf{P}(N_\tau=k)=e^{-\lambda\tau}\frac{(\lambda\tau)^k}{k!} .$$
+</p>
+<p><b>(a) Half an hour.</b> Here $\tau=0.5$ h, so $\lambda\tau=3\times0.5=1.5$ expected arrivals and
+$$\mathbf{P}(N=2)=e^{-1.5}\frac{1.5^2}{2!}=0.223130\times\frac{2.25}{2}=0.223130\times1.125=0.251021 .$$
+A $2\times10^6$-sample check gives $0.250866$.</p>
+<p><b>(b) Two hours, complement.</b> $\lambda\tau=3\times2=6$, so
+$$\mathbf{P}(N\ge1)=1-\mathbf{P}(N=0)=1-e^{-6}=1-0.002479=0.997521 .$$
+</p>
+<p><b>(c) Two disjoint windows.</b> The half-hours are disjoint, so the counts are independent and the probabilities multiply:
+$$\mathbf{P}=\underbrace{0.251021}_{\text{2 in first}}\times\underbrace{e^{-1.5}}_{=\,0.223130\ \text{(0 in second)}}=0.056010 .$$
+</p>
+<p><b>(d) Conditioning changes nothing.</b> By the same independence, $\mathbf{P}(N_{\text{2nd}}=0\mid N_{\text{1st}}=2)=\mathbf{P}(N_{\text{2nd}}=0)=e^{-1.5}=0.223130$. Consistency check: $0.056010/0.251021=0.223130$. &#10003;</p>
+<p><b>Answer.</b> $\;$(a) $0.251021$, (b) $0.997521$, (c) $0.056010$, (d) $0.223130$.</p>
+<p><b>Trap.</b> Using $\lambda\tau=3$ in (a) because the rate is $3$. The Poisson parameter is rate $\times$ length; over half an hour it is $1.5$, and using $3$ would give $e^{-3}3^2/2=0.224042$ &mdash; close enough to look plausible, which is what makes it dangerous.</p>
+<p class="srcref">Tool: G4 &sect;3.1 (defining properties, independent disjoint intervals), &sect;3.2 (Poisson PMF of counts) &middot; B&amp;T &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q85" data-diff="2" data-topic="poisson-process">
+<p><b>Q85.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Exponential interarrivals, memorylessness &middot; <span class="ref">G4 &sect;3.3</span></span></p>
+<p>Emergency calls reach a dispatcher as a Poisson process with rate $\lambda=5$ per hour. Let $T$ be the time until the next call, measured in minutes from now.</p>
+<p>(a) State the distribution of $T$ and its mean. &nbsp; (b) Find $\mathbf{P}(T&gt;20)$. &nbsp; (c) Eight minutes pass with no call. Find the probability of a further wait exceeding $20$ minutes, and the expected further wait. &nbsp; (d) Find $\mathbf{P}(5&lt;T&lt;15)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Interarrival times of a Poisson process are exponential with the same rate (G4 &sect;3.3). Converting units: $\lambda=5$/hour $=5/60=0.083333$ per minute, so $T\sim\text{Exp}(1/12)$ with $\mathbb{E}[T]=1/\lambda=12$ minutes and $\mathbf{P}(T&gt;t)=e^{-t/12}$.</p>
+<p><b>(a)</b> $T$ is exponential with rate $0.083333$ per minute; $\mathbb{E}[T]=12$ minutes.</p>
+<p><b>(b) Tail.</b> $\mathbf{P}(T&gt;20)=e^{-20/12}=e^{-1.666667}=0.188876$.</p>
+<p><b>(c) Memorylessness.</b> The exponential is memoryless: for $s,t\ge0$, $\mathbf{P}(T&gt;s+t\mid T&gt;s)=\mathbf{P}(T&gt;t)$. Hence
+$$\mathbf{P}(T&gt;28\mid T&gt;8)=\mathbf{P}(T&gt;20)=e^{-20/12}=0.188876,$$
+identical to (b), and the expected further wait is again $1/\lambda=12$ minutes (so the expected <em>total</em> wait, counted from the original start, is $8+12=20$ minutes). The eight elapsed minutes carry no information because a Poisson process restarts afresh at every fixed time.</p>
+<p><b>(d) An interval probability.</b> Use the two tails:
+$$\mathbf{P}(5&lt;T&lt;15)=\mathbf{P}(T&gt;5)-\mathbf{P}(T&gt;15)=e^{-5/12}-e^{-15/12}=0.659241-0.286505=0.372736 .$$
+</p>
+<p><b>Answer.</b> $\;$(a) Exponential, mean $12$ min. (b) $0.188876$. (c) $0.188876$ and $12$ more minutes. (d) $0.372736$.</p>
+<p><b>Trap.</b> In (c), "subtracting the elapsed time" to get $\mathbf{P}(T&gt;20-8)=e^{-12/12}=0.367879$. That treats the wait as a fixed budget being drawn down. Memorylessness says the opposite: after any wait, the remaining time has the <em>original</em> distribution, so the answer is $0.188876$, not $0.367879$.</p>
+<p class="srcref">Tool: G4 &sect;3.3 (exponential interarrivals, memorylessness) &middot; B&amp;T &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q86" data-diff="2" data-topic="poisson-process">
+<p><b>Q86.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Erlang, and which tool to use &middot; <span class="ref">G4 &sect;3.4</span></span></p>
+<p>Same dispatcher as Q85: calls are Poisson with $\lambda=5$ per hour. Let $Y_5$ be the time (in hours from now) of the <em>fifth</em> call.</p>
+<p>(a) Name the distribution of $Y_5$, write its PDF, and evaluate the PDF at $t=1$ hour. &nbsp; (b) Find $\mathbb{E}[Y_5]$ and $\operatorname{var}(Y_5)$. &nbsp; (c) Find $\mathbf{P}(Y_5&gt;1.5)$ &mdash; and explain why the count representation is the right tool rather than integrating the PDF.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Erlang of order 5.</b> $Y_5=X_1+\dots+X_5$ is a sum of five i.i.d. Exp($\lambda$) interarrivals, which is Erlang of order $5$ (G4 &sect;3.4):
+$$f_{Y_5}(t)=\frac{\lambda^5 t^4 e^{-\lambda t}}{4!},\qquad t\ge0 .$$
+At $t=1$ with $\lambda=5$: $\lambda^5=3125$, $e^{-5}=0.006738$, $4!=24$, so
+$$f_{Y_5}(1)=\frac{3125\times1\times0.006738}{24}=\frac{21.056}{24}=0.877337\ \text{per hour}.$$
+</p>
+<p><b>(b) Moments by linearity.</b> Each $X_i$ has mean $1/\lambda=0.2$ h and variance $1/\lambda^2=0.04$ h$^2$, and they are independent, so
+$$\mathbb{E}[Y_5]=\frac{5}{5}=1\ \text{hour},\qquad \operatorname{var}(Y_5)=\frac{5}{25}=0.2\ \text{h}^2,$$
+giving $\sigma=\sqrt{0.2}=0.447214$ h $=26.832816$ minutes.</p>
+<p><b>(c) Counts beat integration.</b> The key equivalence (G4 &sect;3.4) is
+$$\{Y_5&gt;1.5\}=\{\text{fewer than 5 arrivals by time }1.5\}=\{N_{1.5}\le4\},$$
+and $N_{1.5}$ is Poisson with parameter $\lambda\tau=5\times1.5=7.5$. So the answer is a finite sum instead of an integral of $t^4e^{-5t}$ (which needs four integrations by parts). With $e^{-7.5}=0.000553$:
+$$\mathbf{P}(N_{1.5}\le4)=e^{-7.5}\Big(1+7.5+\frac{7.5^2}{2}+\frac{7.5^3}{6}+\frac{7.5^4}{24}\Big)$$
+$$=0.000553+0.004148+0.015555+0.038889+0.072916=0.132062 .$$
+A gamma-survival-function evaluation gives $0.132062$ and a $2\times10^6$-draw simulation gives $0.131954$. So a $1.5$-hour wait for the fifth call, though its mean is only $1$ hour, still happens about $13\%$ of the time.</p>
+<p><b>Answer.</b> $\;$(a) Erlang order $5$; $f_{Y_5}(1)=0.877337$/h. (b) $\mathbb{E}[Y_5]=1$ h, $\operatorname{var}(Y_5)=0.2$ h$^2$. (c) $\mathbf{P}(Y_5&gt;1.5)=0.132062$.</p>
+<p><b>Trap.</b> Writing $\{Y_5&gt;1.5\}=\{N_{1.5}&lt;5\}$ but then computing $\mathbf{P}(N_{1.5}\le5)=0.241436$ by including $k=5$. Five arrivals by time $1.5$ means the fifth has already happened, so $k=5$ belongs to the complementary event.</p>
+<p class="srcref">Tool: G4 &sect;3.4 (Erlang PDF and the count equivalence), &sect;3.3 &middot; B&amp;T &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q87" data-diff="2" data-topic="poisson-process">
+<p><b>Q87.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; What the small-interval definition actually says &middot; <span class="ref">G4 &sect;3.1&ndash;3.2</span></span></p>
+<p>The Poisson process of rate $\lambda$ is often defined by: over an interval of length $\delta$, $\mathbf{P}(0\text{ arrivals})\approx1-\lambda\delta$, $\mathbf{P}(1\text{ arrival})\approx\lambda\delta$, and $\mathbf{P}(2\text{ or more})$ is negligible &mdash; all as $\delta\to0$.</p>
+<p>(a) With $\lambda=2$ per minute and $\delta=0.001$ minute, compute the exact $\mathbf{P}(\ge1\text{ arrival})$ and compare it to $\lambda\delta$. &nbsp; (b) Compute the exact $\mathbf{P}(\ge2)$ and the ratio $\mathbf{P}(\ge2)/\delta$; then recompute the ratio at $\delta/2$. What does the comparison establish? &nbsp; (c) Splitting one minute into $1000$ slots of length $\delta$ and calling each slot a Bernoulli trial with $p=\lambda\delta=0.002$, compare $\mathbf{P}(3\text{ arrivals in the minute})$ under the binomial and the Poisson.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The linear term.</b> Exactly, $\mathbf{P}(\ge1)=1-e^{-\lambda\delta}$ with $\lambda\delta=2\times0.001=0.002$:
+$$1-e^{-0.002}=1-0.998002=0.001998 \quad\text{versus}\quad \lambda\delta=0.002 .$$
+The relative error is $100\times|0.001998-0.002|/0.001998=0.100033\%$ &mdash; the approximation is the first term of $1-e^{-x}=x-x^2/2+\dots$, and the discarded $x^2/2$ is what you see.</p>
+<p><b>(b) "Negligible" means $o(\delta)$, not "small".</b> Exactly,
+$$\mathbf{P}(\ge2)=1-e^{-\lambda\delta}(1+\lambda\delta)=1-0.998002\times1.002=1.997335\times10^{-6}.$$
+The ratio to $\delta$ is $1.997335\times10^{-6}/0.001=0.001997$. Halving to $\delta=0.0005$ gives ratio $0.000999$ &mdash; also halved. So $\mathbf{P}(\ge2)/\delta\to0$: multiple arrivals vanish <em>faster</em> than linearly in $\delta$, which is exactly the technical meaning of "negligible" in the definition. The single-arrival probability, by contrast, has ratio $\mathbf{P}(1)/\delta\to\lambda=2$, a nonzero constant. That difference in order is the whole content of the small-interval definition.</p>
+<p><b>(c) Binomial to Poisson.</b> Binomial($1000,0.002$) at $k=3$ gives $0.180628$; Poisson($\lambda\tau=2$) at $k=3$ gives $e^{-2}2^3/3!=0.180447$. They differ by $0.000181$, about one part in a thousand &mdash; because $n=1000$ is large and $p=0.002$ is small with $np=2$ fixed, which is precisely the limit that turns the slotted Bernoulli process into the Poisson process (G4 &sect;3.2).</p>
+<p><b>Answer.</b> $\;$(a) $0.001998$ versus $\lambda\delta=0.002$, a $0.10\%$ relative error. (b) $\mathbf{P}(\ge2)=1.9973\times10^{-6}$; the ratio to $\delta$ halves when $\delta$ halves, so $\mathbf{P}(\ge2)=o(\delta)$. (c) $0.180628$ versus $0.180447$.</p>
+<p><b>Trap.</b> Reading "negligible" as "zero" and concluding that a Poisson process can never have two arrivals in a short interval. It can &mdash; probability $2\times10^{-6}$ here, not $0$. What is asserted is only that this probability shrinks faster than $\delta$, so it contributes nothing in the limit that builds the process.</p>
+<p class="srcref">Tool: G4 &sect;3.1 (the three defining properties), &sect;3.2 (binomial $\to$ Poisson limit) &middot; B&amp;T &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q88" data-diff="2" data-topic="merging-splitting">
+<p><b>Q88.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Competing exponentials &middot; <span class="ref">G4 &sect;4.2</span></span></p>
+<p>A turbine can fail in three independent ways. Time to a bearing failure is exponential with rate $\lambda_1=0.5$/year, to a blade failure exponential with $\lambda_2=0.3$/year, to a controller failure exponential with $\lambda_3=0.2$/year, all independent. The turbine stops at the first of these, at time $T=\min(T_1,T_2,T_3)$.</p>
+<p>(a) Find the distribution of $T$ and $\mathbb{E}[T]$. &nbsp; (b) Find the probability that the blade is the cause. &nbsp; (c) Find $\mathbf{P}(T&gt;2\text{ years and the controller is the cause})$. &nbsp; (d) Find $\mathbb{E}[T\mid \text{controller is the cause}]$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Each failure mode is the first arrival of an independent Poisson process; merging them (G4 &sect;4.2) gives a Poisson process of rate $\lambda=\lambda_1+\lambda_2+\lambda_3$, and each merged arrival independently carries a label $i$ with probability $\lambda_i/\lambda$.</p>
+<p><b>(a) Minimum of exponentials.</b> $\mathbf{P}(T&gt;t)=\prod_i\mathbf{P}(T_i&gt;t)=e^{-\lambda_1t}e^{-\lambda_2t}e^{-\lambda_3t}=e^{-\lambda t}$, so $T$ is exponential with
+$$\lambda=0.5+0.3+0.2=1.0\ \text{per year},\qquad \mathbb{E}[T]=\frac{1}{1.0}=1\ \text{year}.$$
+Simulation over $2\times10^6$ turbines gives $\mathbb{E}[T]\approx1.000461$.</p>
+<p><b>(b) Label probability.</b> $\mathbf{P}(\text{blade first})=\lambda_2/\lambda=0.3/1.0=0.3$. Likewise controller $=0.2/1.0=0.2$ (simulated $0.199761$).</p>
+<p><b>(c) The surprise: time and cause are independent.</b> Because the label of a merged arrival is drawn independently of when it occurs,
+$$\mathbf{P}(T&gt;2\ \text{and controller})=\mathbf{P}(T&gt;2)\,\mathbf{P}(\text{controller})=e^{-1.0\times2}\times0.2=0.135335\times0.2=0.027067 .$$
+Simulation gives $0.026880$.</p>
+<p><b>(d) Same independence, read backwards.</b> $\mathbb{E}[T\mid\text{controller first}]=\mathbb{E}[T]=1$ year (simulated $0.998328$). Learning <em>which</em> mode won tells you nothing about <em>when</em>.</p>
+<p><b>Answer.</b> $\;$(a) Exponential rate $1.0$/yr, $\mathbb{E}[T]=1$ year. (b) $0.3$. (c) $0.027067$. (d) $1$ year.</p>
+<p><b>Trap.</b> Answering (d) with "the controller is the slowest mode, mean $1/0.2=5$ years, so conditioning on it should push $\mathbb{E}[T]$ up." It does not: $5$ years is $\mathbb{E}[T_3]$, the controller's own failure time in isolation. Given that the controller won the race, it won at a typical race-winning time, which is $1$ year regardless of the winner's identity.</p>
+<p class="srcref">Tool: G4 &sect;4.2 (merging Poisson processes; independence of arrival time and label) &middot; G3 &sect;1 (minimum of exponentials) &middot; B&amp;T &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q89" data-diff="3" data-topic="merging-splitting">
+<p><b>Q89.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Split streams really are independent &middot; <span class="ref">G4 &sect;4.3</span></span></p>
+<p>Messages arrive at a mail server as a Poisson process of rate $\lambda=12$ per hour. Independently of everything else, each message is spam with probability $p=0.25$ and legitimate otherwise. Over a fixed $2$-hour window let $N_S$ and $N_L$ be the counts of spam and legitimate messages, and $N=N_S+N_L$.</p>
+<p>(a) Derive the joint PMF of $(N_S,N_L)$ and show that they are independent Poisson variables. &nbsp; (b) Compute $\mathbf{P}(N_S=5,\ N_L=20)$. &nbsp; (c) A student objects: "$N_S+N_L=N$, so a large $N_S$ forces a small $N_L$ &mdash; they must be negatively correlated." Resolve the objection.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Over $\tau=2$ hours the total count is Poisson with parameter $\lambda\tau=12\times2=24$. Given $N=n$, the $n$ messages are labelled independently, so $N_S\mid N=n$ is Binomial($n,0.25$).</p>
+<p><b>(a) Derivation.</b> Fix integers $s,\ell\ge0$ and put $n=s+\ell$. Condition on the total:
+$$\mathbf{P}(N_S=s,N_L=\ell)=\mathbf{P}(N=n)\,\mathbf{P}(N_S=s\mid N=n)=e^{-\lambda\tau}\frac{(\lambda\tau)^{n}}{n!}\cdot\binom{n}{s}p^s(1-p)^{\ell}.$$
+Expand $\binom{n}{s}=\frac{n!}{s!\,\ell!}$; the $n!$ cancels, and splitting $(\lambda\tau)^n=(\lambda\tau)^s(\lambda\tau)^\ell$ and $e^{-\lambda\tau}=e^{-\lambda\tau p}e^{-\lambda\tau(1-p)}$ gives
+$$\mathbf{P}(N_S=s,N_L=\ell)=\underbrace{e^{-\lambda\tau p}\frac{(\lambda\tau p)^{s}}{s!}}_{\text{Poisson}(\lambda\tau p)}\times\underbrace{e^{-\lambda\tau(1-p)}\frac{\big(\lambda\tau(1-p)\big)^{\ell}}{\ell!}}_{\text{Poisson}(\lambda\tau(1-p))} .$$
+The joint PMF factors into a function of $s$ times a function of $\ell$ for <em>all</em> $(s,\ell)$, which is the definition of independence; and each factor is a Poisson PMF, with parameters
+$$\lambda\tau p=24\times0.25=6\ \text{(spam)},\qquad \lambda\tau(1-p)=24\times0.75=18\ \text{(legitimate)}.$$
+</p>
+<p><b>(b) Numbers.</b> By the factorization,
+$$\mathbf{P}(N_S=5)=e^{-6}\frac{6^5}{5!}=0.160623,\qquad \mathbf{P}(N_L=20)=e^{-18}\frac{18^{20}}{20!}=0.079804,$$
+$$\mathbf{P}(N_S=5,N_L=20)=0.160623\times0.079804=0.012818 .$$
+Cross-check by the conditional route: $\mathbf{P}(N=25)\mathbf{P}(\text{Bin}(25,0.25)=5)=0.077905\times0.164538=0.012818$. &#10003; A $2\times10^6$-window simulation gives $0.012845$, and the sample covariance of $(N_S,N_L)$ is $-0.002$, i.e. zero to simulation noise.</p>
+<p><b>(c) Resolving the objection.</b> The objection would be right if $N$ were <em>fixed</em>: given $N=25$, indeed $N_L=25-N_S$ and the correlation is $-1$. But $N$ is itself random and Poisson. A larger $N_S$ is evidence of a busier window, which raises the expected $N_L$ too; this positive effect through $N$ exactly cancels the negative "shares of a fixed pie" effect, leaving $\operatorname{cov}(N_S,N_L)=0$. The cancellation is exact only for the Poisson total &mdash; that is the special property of Poisson splitting. (Check with total variance: $\operatorname{var}(N)=24=\operatorname{var}(N_S)+\operatorname{var}(N_L)+2\operatorname{cov}=6+18+0$. &#10003;)</p>
+<p><b>Answer.</b> $\;$(a) $N_S\sim$ Poisson($6$) and $N_L\sim$ Poisson($18$), independent. (b) $0.012818$. (c) Conditionally on $N$ they are perfectly negatively dependent, but the randomness of the Poisson total exactly offsets it, giving $\operatorname{cov}(N_S,N_L)=0$ and full independence.</p>
+<p class="srcref">Tool: G4 &sect;4.3 (splitting a Poisson process) &middot; G2 &sect;4 (independence via factorization of a joint PMF) &middot; B&amp;T &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q90" data-diff="2" data-topic="merging-splitting">
+<p><b>Q90.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Splitting, then merging &middot; <span class="ref">G4 &sect;4.2&ndash;4.3</span></span></p>
+<p>Emails reach inbox 1 as a Poisson process of rate $10$ per hour; each is independently urgent with probability $0.20$. Inbox 2 receives an independent Poisson stream at $4$ per hour.</p>
+<p>(a) Find the probability of exactly $4$ urgent emails in a $3$-hour window. &nbsp; (b) Given that exactly $8$ emails arrived in inbox 1 during one particular hour, find the probability that exactly $2$ of them were urgent. &nbsp; (c) Considering both inboxes together, find the mean time between consecutive emails and the probability that the next email is from inbox 1.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Splitting.</b> The urgent substream is itself Poisson with rate $10\times0.20=2$ per hour (G4 &sect;4.3). Over $\tau=3$ hours its parameter is $2\times3=6$, so
+$$\mathbf{P}(4\text{ urgent})=e^{-6}\frac{6^4}{4!}=0.002479\times\frac{1296}{24}=0.002479\times54=0.133853 .$$
+</p>
+<p><b>(b) Conditioning on the total makes it binomial.</b> Given that $8$ emails arrived, each is independently urgent with probability $0.20$, so the urgent count is Binomial($8,0.20$):
+$$\mathbf{P}(2)=\binom{8}{2}(0.20)^2(0.80)^6=28\times0.04\times0.262144=0.293601 .$$
+</p>
+<p><b>(c) Merging.</b> Two independent Poisson streams merge into a Poisson process of rate $10+4=14$ per hour (G4 &sect;4.2). The interarrival time is exponential with mean
+$$\frac{1}{14}\ \text{hour}=\frac{60}{14}=4.285714\ \text{minutes},$$
+and each merged arrival comes from inbox 1 with probability $\lambda_1/(\lambda_1+\lambda_2)=10/14=0.714286$.</p>
+<p><b>Answer.</b> $\;$(a) $0.133853$, (b) $0.293601$, (c) $4.285714$ minutes and $0.714286$.</p>
+<p><b>Trap.</b> Answering (b) with the Poisson $\mathbf{P}(N_{\text{urg}}=2)=e^{-2}2^2/2!=0.270671$ for a one-hour window. That is the <em>unconditional</em> answer. Once you are told the exact total, the split count stops being Poisson and becomes binomial with that total as its $n$ &mdash; the unconditional Poisson answer $0.270671$ is not the same as $0.293601$.</p>
+<p class="srcref">Tool: G4 &sect;4.3 (splitting), &sect;4.2 (merging and label probabilities) &middot; B&amp;T &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q91" data-diff="3" data-topic="random-incidence">
+<p><b>Q91.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Random incidence and length bias &middot; <span class="ref">G4 &sect;4.5</span></span></p>
+<p>Trains on a line run with i.i.d. gaps between consecutive departures: a gap is $4$ minutes with probability $0.8$ and $24$ minutes with probability $0.2$. A passenger arrives at the platform at a time unrelated to the schedule (uniform over a long horizon). Let $L$ be the length of the gap the passenger lands in and $W$ the passenger's wait for the next train.</p>
+<p>(a) Find the mean gap between trains. &nbsp; (b) Find the PMF of $L$ and $\mathbb{E}[L]$. &nbsp; (c) Find $\mathbb{E}[W]$. &nbsp; (d) Only $20\%$ of gaps are long. What fraction of <em>passengers</em> experience a long gap?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) The gap distribution as scheduled.</b> $\mathbb{E}[X]=0.8(4)+0.2(24)=3.2+4.8=8$ minutes. Over a long horizon of $n$ gaps, total elapsed time is about $8n$ minutes.</p>
+<p><b>(b) Length bias.</b> A uniformly arriving passenger lands in a given gap with probability proportional to that gap's <em>length</em>, not to how often it occurs (G4 &sect;4.5). Out of $n$ gaps, the $0.8n$ short ones occupy $0.8n\times4=3.2n$ minutes and the $0.2n$ long ones occupy $0.2n\times24=4.8n$ minutes. So
+$$\mathbf{P}(L=4)=\frac{3.2n}{8n}=0.4,\qquad \mathbf{P}(L=24)=\frac{4.8n}{8n}=0.6 .$$
+Hence
+$$\mathbb{E}[L]=0.4(4)+0.6(24)=1.6+14.4=16\ \text{minutes}.$$
+The general formula agrees: $\mathbb{E}[L]=\mathbb{E}[X^2]/\mathbb{E}[X]$ with $\mathbb{E}[X^2]=0.8(16)+0.2(576)=12.8+115.2=128$, so $\mathbb{E}[L]=128/8=16$. A simulation over $400\,000$ gaps with $2\times10^6$ uniformly placed passengers gives $\mathbb{E}[L]\approx16.033$.</p>
+<p><b>(c) The wait.</b> Given the gap the passenger lands in has length $\ell$, the arrival instant is uniform inside it, so $\mathbb{E}[W\mid L=\ell]=\ell/2$. By iterated expectations,
+$$\mathbb{E}[W]=\tfrac12\mathbb{E}[L]=\tfrac12(16)=8\ \text{minutes}.$$
+Simulation: $8.018$ minutes.</p>
+<p><b>(d) Passengers versus gaps.</b> $\mathbf{P}(L=24)=0.6$: three passengers in five suffer a long gap, even though only one gap in five is long. The service looks three times worse from the platform than from the timetable, and both descriptions are correct.</p>
+<p><b>Answer.</b> $\;$(a) $8$ min. (b) $L=4$ w.p. $0.4$, $L=24$ w.p. $0.6$; $\mathbb{E}[L]=16$ min. (c) $\mathbb{E}[W]=8$ min. (d) $60\%$.</p>
+<p><b>Trap.</b> Answering (c) with $\mathbb{E}[X]/2=8/2=4$ minutes &mdash; "half the average gap". That halves the wrong quantity: you must halve the length-biased gap $\mathbb{E}[L]=16$, not the ordinary gap $\mathbb{E}[X]=8$. The true wait is twice the naive one here.</p>
+<p class="srcref">Tool: G4 &sect;4.5 (random incidence in renewal processes, $\mathbb{E}[L]=\mathbb{E}[X^2]/\mathbb{E}[X]$) &middot; G4 &sect;1.2 &middot; B&amp;T &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q92" data-diff="2" data-topic="random-incidence">
+<p><b>Q92.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Interpretation: the Poisson inspection paradox &middot; <span class="ref">G4 &sect;4.4</span></span></p>
+<p>Buses arrive at a stop as a Poisson process with rate $6$ per hour. You walk up at a time unrelated to the buses. Let $L$ be the length of the interarrival interval that contains your arrival instant.</p>
+<p>(a) State the mean interarrival time, your expected wait for the next bus, and the expected time since the previous bus. &nbsp; (b) Give $\mathbb{E}[L]$ and $\operatorname{var}(L)$. &nbsp; (c) A commuter says: "$\mathbb{E}[L]=20$ minutes but buses come every $10$ minutes on average &mdash; the schedule must be lying, or the process is not Poisson." Respond.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Two memoryless halves.</b> The rate is $6$/hour, so the mean interarrival time is $60/6=10$ minutes. By memorylessness looking forward, your remaining wait is exponential with mean $10$ minutes; by the same property applied to the reversed process, the elapsed time since the previous bus is also exponential with mean $10$ minutes (G4 &sect;4.4). The two are independent.</p>
+<p><b>(b) Their sum.</b> $L=(\text{time since last})+(\text{time to next})$, a sum of two independent Exp($\lambda$) variables, i.e. Erlang of order $2$:
+$$\mathbb{E}[L]=\frac{2}{\lambda}=10+10=20\ \text{minutes},\qquad \operatorname{var}(L)=\frac{2}{\lambda^2}=2\times10^2=200\ \text{min}^2,$$
+so $\sigma_L=\sqrt{200}=14.142136$ minutes. A $2\times10^6$-draw simulation gives $\mathbb{E}[L]\approx20.005$.</p>
+<p><b>(c) No contradiction &mdash; a different sampling scheme.</b> Both statements are true because they average over different populations. "Buses come every $10$ minutes" averages over <em>intervals</em>, each counted once. "$\mathbb{E}[L]=20$" averages over <em>arrival instants</em>, and a long interval covers more instants, so it is more likely to be the one you land in &mdash; length bias. The ratio here is exactly $\mathbb{E}[L]/\mathbb{E}[X]=20/10=2$, the Poisson signature $\mathbb{E}[X^2]/\mathbb{E}[X]^2$ for an exponential. Nothing about the process is being misreported.</p>
+<p><b>Answer.</b> $\;$(a) mean gap $10$ min, expected forward wait $10$ min, expected backward time $10$ min. (b) $\mathbb{E}[L]=20$ min, $\operatorname{var}(L)=200$ min$^2$. (c) Both figures are correct; they average over intervals versus over time instants, and length bias makes the second twice the first.</p>
+<p><b>Trap.</b> "Since the mean gap is $10$ minutes and I arrive in the middle, my expected wait is $5$ minutes." Two errors cancel into a wrong answer: the gap you land in averages $20$, and by memorylessness the forward wait is a full $10$ minutes, not half of anything.</p>
+<p class="srcref">Tool: G4 &sect;4.4 (random incidence for the Poisson process) &middot; G4 &sect;3.3 &middot; B&amp;T &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q93" data-diff="3" data-topic="total-variance">
+<p><b>Q93.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; A Poisson rate that is itself random &middot; <span class="ref">G4 &sect;1.3, &sect;3.2</span></span></p>
+<p>A website's hourly hit rate depends on whether a promotion is running: $\Lambda=20$ per hour with probability $0.7$ (ordinary hour) and $\Lambda=90$ per hour with probability $0.3$ (promoted hour). Given $\Lambda=\lambda$, the number of hits $N$ in that hour is Poisson($\lambda$).</p>
+<p>(a) Find $\mathbb{E}[N]$ and $\operatorname{var}(N)$. &nbsp; (b) Compare $\operatorname{var}(N)$ with the variance of a plain Poisson variable of the same mean, and interpret. &nbsp; (c) Is $N$ Poisson? Support your answer by computing $\mathbf{P}(N=0)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> $N$ is not Poisson with a fixed parameter; it is a <em>mixture</em>. Condition on $\Lambda$, where the Poisson facts $\mathbb{E}[N\mid\Lambda=\lambda]=\lambda$ and $\operatorname{var}(N\mid\Lambda=\lambda)=\lambda$ apply (G4 &sect;3.2). Thus $\mathbb{E}[N\mid\Lambda]=\Lambda$ and $\operatorname{var}(N\mid\Lambda)=\Lambda$, both random variables.</p>
+<p><b>(a1) Mean, by iterated expectations.</b>
+$$\mathbb{E}[N]=\mathbb{E}\big[\mathbb{E}[N\mid\Lambda]\big]=\mathbb{E}[\Lambda]=0.7(20)+0.3(90)=14+27=41\ \text{hits}.$$
+</p>
+<p><b>(a2) Variance, by total variance.</b> Within: $\mathbb{E}[\operatorname{var}(N\mid\Lambda)]=\mathbb{E}[\Lambda]=41$ &mdash; the Poisson noise itself. Between: with $\mathbb{E}[\Lambda^2]=0.7(400)+0.3(8100)=280+2430=2710$,
+$$\operatorname{var}\big(\mathbb{E}[N\mid\Lambda]\big)=\operatorname{var}(\Lambda)=2710-41^2=2710-1681=1029 .$$
+Adding,
+$$\operatorname{var}(N)=41+1029=1070,\qquad \sigma_N=\sqrt{1070}=32.710854 .$$
+A $2\times10^6$-hour simulation gives $\mathbb{E}[N]\approx41.017$ and $\operatorname{var}(N)\approx1070.66$.</p>
+<p><b>(b) Overdispersion.</b> A plain Poisson($41$) would have $\operatorname{var}=41$ and $\sigma=6.403124$. The mixture's variance is $1070/41=26.097561$ times larger. Almost all of the excess ($1029$ of $1070$, i.e. $96\%$) is the between term: the dominant uncertainty is not "how many hits at a known rate" but "which regime am I in". Fitting a single Poisson to such data always underestimates the spread &mdash; the standard tell of an unmodelled mixture.</p>
+<p><b>(c) Not Poisson.</b> Any Poisson variable has variance equal to its mean; here $1070\ne41$, so $N$ cannot be Poisson. Concretely,
+$$\mathbf{P}(N=0)=0.7e^{-20}+0.3e^{-90}=0.7\times2.0612\times10^{-9}+\text{(about }10^{-40})=1.442808\times10^{-9},$$
+whereas a Poisson($41$) would give $e^{-41}=1.562882\times10^{-18}$ &mdash; nine orders of magnitude smaller. The mixture is far more likely to be quiet, because it can be in the low-rate regime.</p>
+<p><b>Answer.</b> $\;\mathbb{E}[N]=41$, $\;\operatorname{var}(N)=41+1029=1070$ ($\sigma_N=32.710854$); $\;26.10\times$ the Poisson variance; $N$ is not Poisson, e.g. $\mathbf{P}(N=0)=1.442808\times10^{-9}$.</p>
+<p><b>Trap.</b> Computing the average rate $41$ and declaring $N\sim$ Poisson($41$) with $\operatorname{var}=41$. Substituting a mean for a random parameter is legitimate for the <em>mean</em> here (because $\mathbb{E}[N\mid\Lambda]$ is linear in $\Lambda$) but destroys the entire between term $1029$ in the variance.</p>
+<p class="srcref">Tool: G4 &sect;1.3 (law of total variance), &sect;3.2 (Poisson mean and variance) &middot; B&amp;T &sect;4.3, &sect;6.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q94" data-diff="1" data-topic="iterated-expectation">
+<p><b>Q94.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Which tool applies, and why &middot; <span class="ref">G4 &sect;5.1</span></span></p>
+<p>For each of the five situations below, name the single tool from G4 that resolves it and give a one-line reason. Do not compute anything.</p>
+<p>(i) A courier job is handled by one of three depots with known probabilities, and each depot has a known mean delivery time; you want the overall mean. &nbsp;
+(ii) Daily revenue is the sum of the amounts spent by a random number of customers; you want its variance. &nbsp;
+(iii) You show up at a bus stop at a time unrelated to the timetable and want the expected length of the interval you land in. &nbsp;
+(iv) Test scores pooled over several classes vary far more than scores within any one class; you want to quantify the split. &nbsp;
+(v) A Poisson-arrival hotline has been silent for $10$ minutes; you want the distribution of the additional wait.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(i) Law of iterated expectations</b> (G4 &sect;1.2). You are given a PMF over "which depot" plus a conditional mean for each; $\mathbb{E}[T]=\sum_s\mathbf{P}(S=s)\mathbb{E}[T\mid S=s]$ is precisely that data assembled. Nothing about variances is needed.</p>
+<p><b>(ii) Random-sum variance</b> (G4 &sect;2.2): $\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)+(\mathbb{E}[X])^2\operatorname{var}(N)$. Two independent sources of randomness &mdash; the number of terms and each term &mdash; and the formula keeps both. Using $\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)$ would treat the customer count as fixed.</p>
+<p><b>(iii) Random incidence / length bias</b> (G4 &sect;4.4&ndash;4.5). Sampling by <em>time</em> rather than by <em>interval</em> makes long intervals overrepresented in proportion to their length, giving $\mathbb{E}[L]=\mathbb{E}[X^2]/\mathbb{E}[X]\ge\mathbb{E}[X]$.</p>
+<p><b>(iv) Law of total variance</b> (G4 &sect;1.3): $\operatorname{var}(X)=\mathbb{E}[\operatorname{var}(X\mid C)]+\operatorname{var}(\mathbb{E}[X\mid C])$, with $C$ the class. The first term is the within-class scatter, the second the spread of the class averages &mdash; exactly the split being asked for.</p>
+<p><b>(v) Memorylessness / fresh start</b> (G4 &sect;3.3, &sect;2.4). The additional wait of a Poisson process, given any elapsed silence, is exponential with the original rate; the silent $10$ minutes carry no information.</p>
+<p><b>Answer.</b> $\;$(i) iterated expectations; (ii) random-sum variance formula; (iii) random incidence / length bias; (iv) law of total variance; (v) memorylessness of the exponential (fresh start).</p>
+<p class="srcref">Tool: G4 &sect;5.1 (the conditioning toolkit on one page) &middot; B&amp;T &sect;4.3&ndash;4.4, &sect;6.1&ndash;6.2</p>
+</div></details>
+</div>

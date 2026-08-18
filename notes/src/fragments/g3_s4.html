@@ -938,6 +938,57 @@ The mean is unbiased and the spread shrinks like $1/\sqrt n$ — the exact, non-
 the law of large numbers, available here only because the normal family is closed under
 convolution.</p></div></details></div>
 
+<h4>The discrete companion: a sum of independent binomials is binomial</h4>
+
+<p>The normal is not the only family closed under addition of independent members, and the other
+standard example is discrete. Its proof needs no algebra at all if you go back to what a binomial
+counts — but the convolution sum confirms it, and doing both is worth the two minutes because the
+story argument tells you instantly <em>which</em> hypothesis the result really depends on.</p>
+
+<div class="thm"><b>Property (binomial additivity; the discrete convolution of §4.5; B&amp;T §4.1).</b>
+If $X\sim\mathrm{Bin}(n_1,p)$ and $Y\sim\mathrm{Bin}(n_2,p)$ are independent and share the
+<b>same</b> success probability $p$, then
+$$X+Y\sim\mathrm{Bin}(n_1+n_2,\;p).$$
+The two numbers of trials add; the success probability is carried over unchanged.</div>
+
+<p><b>The story argument (one line).</b> $X$ is the number of successes in $n_1$ independent
+Bernoulli($p$) trials and $Y$ the number of successes in $n_2$ further Bernoulli($p$) trials;
+independence of $X$ and $Y$ says the two batches do not interact, so all $n_1+n_2$ trials are
+independent of one another and every one of them has the same success probability $p$. Then $X+Y$ is
+the number of successes among those $n_1+n_2$ trials — which <em>is</em> the definition of a
+$\mathrm{Bin}(n_1+n_2,p)$ variable. Nothing is computed; the distribution is read straight off the
+experiment.</p>
+
+<p><b>The convolution check.</b> Write $q=1-p$. Feeding the two binomial PMFs into the discrete
+convolution formula of §4.5, and summing over the values $x$ for which both factors are nonzero
+($0\le x\le n_1$ and $0\le w-x\le n_2$),
+$$p_W(w)=\sum_x\binom{n_1}{x}p^xq^{\,n_1-x}\cdot\binom{n_2}{w-x}p^{\,w-x}q^{\,n_2-(w-x)} .$$
+Collect the powers first: $p^xp^{\,w-x}=p^w$ and
+$q^{\,n_1-x}q^{\,n_2-w+x}=q^{\,n_1+n_2-w}$, the $x$'s cancelling in both exponents (this is the whole
+trick — the $p$'s and $q$'s no longer depend on the summation variable, so they come out of the sum):
+$$p_W(w)=p^wq^{\,n_1+n_2-w}\sum_x\binom{n_1}{x}\binom{n_2}{w-x}
+=\binom{n_1+n_2}{w}p^wq^{\,n_1+n_2-w},$$
+the last equality being <b>Vandermonde's convolution identity</b>
+$\sum_x\binom{n_1}{x}\binom{n_2}{w-x}=\binom{n_1+n_2}{w}$. That identity is itself the same counting
+statement as the story argument: to choose $w$ items from a pool of $n_1+n_2$ split into a group of
+$n_1$ and a group of $n_2$, classify the choices by the number $x$ taken from the first group and add
+up the disjoint cases. The result is the $\mathrm{Bin}(n_1+n_2,p)$ PMF. <b>Check</b> with
+$n_1=2$, $n_2=3$, $p=3/10$: the convolution returns
+$\left(\frac{16807}{100000},\frac{7203}{20000},\frac{3087}{10000},\frac{1323}{10000},
+\frac{567}{20000},\frac{243}{100000}\right)$, identical as exact fractions to the
+$\mathrm{Bin}(5,3/10)$ PMF, largest discrepancy $0$ (<code>binadd_conv</code>,
+<code>binadd_closed</code>, <code>binadd_exact_match</code>, <code>binadd_maxerr</code>).</p>
+
+<div class="warn"><b>Gotcha.</b> The shared $p$ is the load-bearing hypothesis; only the numbers of
+trials are allowed to differ. With different success probabilities the sum is not binomial at all.
+Take $X\sim\mathrm{Bin}(1,\frac15)$ and $Y\sim\mathrm{Bin}(1,\frac45)$, independent, and $W=X+Y$.
+Then $\mathbf{P}(W=2)=\frac15\cdot\frac45=\frac{4}{25}=0.16$ (<code>binadd_bad_p2</code>), so a
+$\mathrm{Bin}(2,p)$ would have to satisfy $p^2=0.16$, i.e. $p=0.4$ (<code>binadd_bad_fit_p</code>) —
+and that $\mathrm{Bin}(2,0.4)$ puts $2(0.4)(0.6)=0.48$ on $w=1$ (<code>binadd_bad_fit_p1</code>),
+whereas the true value is $\frac15\cdot\frac15+\frac45\cdot\frac45=\frac{17}{25}=0.68$
+(<code>binadd_bad_p1</code>). No binomial fits. As with the independence hypothesis in the normal
+case above, dropping the hypothesis does not merely weaken the conclusion — it destroys it.</div>
+
 <h3>4.8 Covariance and correlation</h3>
 
 <p>The last two slides of L11 introduce the numbers that quantify dependence between two random
@@ -1010,6 +1061,28 @@ The dependence in Example 4.9 is perfectly symmetric — large $|X|$ means large
 and the positive contributions from $X&gt;0$ exactly cancel the negative ones from $X&lt;0$. "Zero
 covariance" and "uncorrelated" mean the same thing, and neither means independent.</div>
 
+<div class="note"><b>The one exception: joint normality.</b> There is a single famous case in which
+the converse does hold. If $(X,Y)$ are <b>jointly</b> normal — the <em>pair</em> has a bivariate
+normal density — then zero covariance <em>does</em> imply independence. The reason is visible in the
+joint density of §4.7: for jointly normal variables the exponent is a quadratic in $(x,y)$ whose only
+cross term is proportional to $\rho\,(x-\mu_X)(y-\mu_Y)$, so setting $\rho=0$ deletes it and leaves
+$$f_{X,Y}(x,y)=\frac{1}{\sqrt{2\pi}\sigma_X}e^{-(x-\mu_X)^2/2\sigma_X^2}\cdot
+\frac{1}{\sqrt{2\pi}\sigma_Y}e^{-(y-\mu_Y)^2/2\sigma_Y^2},$$
+a product of the two marginals — which is exactly the factorization criterion for independence
+from §2. This is why "uncorrelated" is treated as interchangeable with "independent" in Gaussian
+models, and essentially nowhere else.
+<p><b>Marginally normal is not enough.</b> The hypothesis is joint normality of the pair, not
+normality of each variable separately, and the gap between the two is real. Let $X$ be standard
+normal and let $S$ be an independent fair sign, $\mathbf{P}(S=1)=\mathbf{P}(S=-1)=\frac12$, and put
+$Y=SX$. Then $Y$ is standard normal as well (flipping the sign leaves the symmetric normal density
+unchanged), and
+$$\operatorname{cov}(X,Y)=\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]=\mathbb{E}[SX^2]-0
+=\mathbb{E}[S]\,\mathbb{E}[X^2]=0\cdot1=0,$$
+using independence of $S$ and $X$ to split the expectation. Yet $|Y|=|X|$ with probability $1$:
+knowing $X$ pins $|Y|$ down exactly. Two normal marginals, zero correlation, and total dependence —
+because the pair $(X,Y)$ is <em>not</em> jointly normal (its mass sits entirely on the two lines
+$y=\pm x$, not on an elliptical cloud).</p></div>
+
 <div class="defn"><b>Definition (correlation coefficient; L11 slide 8, B&amp;T §4.2).</b> If
 $\sigma_X,\sigma_Y&gt;0$,
 $$\rho=\rho(X,Y)=\mathbb{E}\left[\frac{X-\mathbb{E}[X]}{\sigma_X}\cdot
@@ -1059,6 +1132,21 @@ relation with $c=\sigma_X/\sigma_Y&gt;0$; and this happens exactly when $\rho=1$
 $\rho=-1$ corresponds to $\operatorname{var}(U+V)=0$ and $c=-\sigma_X/\sigma_Y$. So $|\rho|=1$ is the
 signature of an exact straight-line relationship, with the sign of $\rho$ giving the sign of its
 slope.</p>
+
+<p><b>The inequality has a name.</b> The bound $-1\le\rho\le1$ is the probabilistic form of the
+<b>Cauchy–Schwarz inequality</b> (the Schwarz inequality, in the book's phrasing): for any two random
+variables $U,V$ on the same experiment with finite second moments,
+$$\big|\mathbb{E}[UV]\big|\le\sqrt{\mathbb{E}[U^2]\,\mathbb{E}[V^2]},$$
+with equality exactly when one is a constant multiple of the other with probability $1$. Applied to
+the centred variables $U=X-\mathbb{E}[X]$ and $V=Y-\mathbb{E}[Y]$, whose expected product is the
+covariance and whose mean squares are the variances, it reads
+$$\big|\operatorname{cov}(X,Y)\big|\le\sigma_X\sigma_Y,$$
+and dividing through by $\sigma_X\sigma_Y&gt;0$ is precisely $|\rho|\le1$ — the same statement we just
+proved by hand. The variance-of-a-sum argument above is the quickest route to it for this course; the
+inequality itself is proved in general — by minimizing $\mathbb{E}[(X-\alpha Y)^2]$ over the real
+parameter $\alpha$, the best-multiple calculation — in G4 §1.5, Example 1.14 (rec12 P4; B&amp;T
+Problem 4.20). G6 §4 invokes it by name again when bounding the mean squared error of the linear
+least-squares estimator.</p>
 
 <img class="fig" src="data:image/png;base64,{{IMG:g3_s4_cov}}" alt="Three scatter plots. Left: a cloud tilted up to the right, labelled positive covariance with rho about plus zero point eight nine. Middle: a cloud tilted down to the right, negative covariance with rho about minus zero point eight eight. Right: points lying on a parabola, correlation about zero yet clearly dependent." style="max-width:880px">
 <div class="figcap">Fig. 4.9 — The sign of the covariance is the tilt of the cloud; the third panel is the trap of Example 4.9 (L11 slide 7; B&amp;T §4.2).</div>
@@ -1148,13 +1236,18 @@ $p_W(w)=\sum_xp_X(x)p_Y(w-x)$; continuous $f_W(w)=\int f_X(x)f_Y(w-x)dx$. Mechan
 $w$, multiply, sum/integrate.</li>
 <li><b>Standard convolutions</b>: $U(0,1)+U(0,1)$ = triangle $f_W(w)=w$ then $2-w$ on $[0,2]$;
 Exp($\lambda$)+Exp($\lambda$) = Erlang-2, $\lambda^2we^{-\lambda w}$;
-$N(\mu_x,\sigma_x^2)+N(\mu_y,\sigma_y^2)=N(\mu_x+\mu_y,\sigma_x^2+\sigma_y^2)$.</li>
+$N(\mu_x,\sigma_x^2)+N(\mu_y,\sigma_y^2)=N(\mu_x+\mu_y,\sigma_x^2+\sigma_y^2)$;
+$\mathrm{Bin}(n_1,p)+\mathrm{Bin}(n_2,p)=\mathrm{Bin}(n_1+n_2,p)$ — <em>same $p$ only</em>, by
+Vandermonde's identity or by counting $n_1+n_2$ Bernoulli($p$) trials.</li>
 <li><b>Covariance</b>: $\operatorname{cov}(X,Y)=\mathbb{E}[(X-\mathbb{E}X)(Y-\mathbb{E}Y)]
 =\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]$; $\operatorname{cov}(X,X)=\operatorname{var}(X)$;
-bilinear; independence $\Rightarrow$ $0$, not conversely.</li>
+bilinear; independence $\Rightarrow$ $0$, not conversely — except for <em>jointly</em> normal
+$(X,Y)$, where $\operatorname{cov}=0$ does give independence (marginal normality alone does not).</li>
 <li><b>Variance of a sum</b>: $\operatorname{var}(\sum_iX_i)=\sum_i\operatorname{var}(X_i)
 +\sum_{i\ne j}\operatorname{cov}(X_i,X_j)$ (ordered pairs).</li>
 <li><b>Correlation</b>: $\rho=\frac{\operatorname{cov}(X,Y)}{\sigma_X\sigma_Y}\in[-1,1]$,
-dimensionless; $|\rho|=1$ iff $X$ and $Y$ are exactly linearly related.</li>
+dimensionless; $|\rho|=1$ iff $X$ and $Y$ are exactly linearly related. The bound is the
+Cauchy–Schwarz inequality $|\mathbb{E}[UV]|\le\sqrt{\mathbb{E}[U^2]\mathbb{E}[V^2]}$, proved in full
+in G4 §1.5 (B&amp;T Problem 4.20).</li>
 </ul>
 </div>

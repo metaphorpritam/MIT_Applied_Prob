@@ -458,6 +458,198 @@ for n_ in (2, 3, 5, 10, 100):
         assert (b1, b2, bv) == (e_x, e_x2, v_x), (n_, b1, b2, bv)
         print(f"    brute force over {n_}! permutations agrees with the closed form")
 
+
+# ================================================================= 4.11  the multinomial distribution
+print("\n=== 4.11 : the multinomial distribution ===")
+
+from math import factorial, prod, isqrt  # noqa: E402
+import random  # noqa: E402
+
+
+def multinom_coef(counts) -> int:
+    """n! / (n_1! ... n_r!) for a count vector."""
+    n = sum(counts)
+    d = 1
+    for c in counts:
+        d *= factorial(c)
+    return factorial(n) // d
+
+
+def multinom_pmf(counts, thetas) -> F:
+    """Joint multinomial PMF at a count vector, exact."""
+    assert len(counts) == len(thetas)
+    assert sum(thetas) == 1
+    return F(multinom_coef(counts)) * prod((F(t) ** c for t, c in zip(thetas, counts)), start=F(1))
+
+
+def binom_pmf(k, n, p) -> F:
+    return F(comb(n, k)) * F(p) ** k * (1 - F(p)) ** (n - k)
+
+
+# --- Example 4.10 : the grading line.  r = 4 grades, n = 10 items -----------------
+n_ex = 10
+th = [F(1, 2), F(3, 10), F(3, 20), F(1, 20)]        # A, B, C, D
+names = ["A", "B", "C", "D"]
+show("mult_ex_n", n_ex)
+for nm, t in zip(names, th):
+    show(f"mult_ex_theta_{nm}", t)
+show("mult_ex_theta_sum", sum(th))
+
+cv = [5, 3, 1, 1]                                    # the queried count vector
+show("mult_ex_countvec", cv)
+show("mult_ex_coef", multinom_coef(cv))              # 10!/(5!3!1!1!)
+show("mult_ex_10fact", factorial(10))
+show("mult_ex_denomfact", factorial(5) * factorial(3) * factorial(1) * factorial(1))
+prob_part = prod((t ** c for t, c in zip(th, cv)), start=F(1))
+show("mult_ex_prodtheta", prob_part)
+show("mult_ex_prodtheta_dec", float(prob_part))
+p_joint = multinom_pmf(cv, th)
+show("mult_ex_joint", p_joint)
+show("mult_ex_joint_dec", float(p_joint))
+
+# marginal:  N_C ~ Bin(10, 3/20)
+show("mult_ex_marg_NC_eq_2", binom_pmf(2, n_ex, F(3, 20)))
+show("mult_ex_marg_NC_eq_2_dec", float(binom_pmf(2, n_ex, F(3, 20))))
+show("mult_ex_E_NC", n_ex * F(3, 20))
+show("mult_ex_var_NC", n_ex * F(3, 20) * (1 - F(3, 20)))
+show("mult_ex_var_NC_dec", float(n_ex * F(3, 20) * (1 - F(3, 20))))
+
+# lumping:  "defective" = C or D, theta = 3/20 + 1/20 = 1/5
+th_def = F(3, 20) + F(1, 20)
+show("mult_ex_theta_def", th_def)
+show("mult_ex_lump_Ndef_eq_3", binom_pmf(3, n_ex, th_def))
+show("mult_ex_lump_Ndef_eq_3_dec", float(binom_pmf(3, n_ex, th_def)))
+show("mult_ex_E_Ndef", n_ex * th_def)
+# lumped trinomial (A, B, defective) at (5, 3, 2)
+p_lump3 = multinom_pmf([5, 3, 2], [th[0], th[1], th_def])
+show("mult_ex_lump3_coef", multinom_coef([5, 3, 2]))
+show("mult_ex_lump3", p_lump3)
+show("mult_ex_lump3_dec", float(p_lump3))
+
+# conditioning on N_A = 5 : remaining 5 trials over B, C, D with renormalized thetas
+n_rem = n_ex - cv[0]
+th_rem = [t / (1 - th[0]) for t in th[1:]]
+show("mult_ex_n_rem", n_rem)
+for nm, t in zip(names[1:], th_rem):
+    show(f"mult_ex_thetarem_{nm}", t)
+show("mult_ex_thetarem_sum", sum(th_rem))
+p_cond = multinom_pmf(cv[1:], th_rem)
+show("mult_ex_cond_coef", multinom_coef(cv[1:]))
+show("mult_ex_cond", p_cond)
+show("mult_ex_cond_dec", float(p_cond))
+p_NA5 = binom_pmf(5, n_ex, th[0])
+show("mult_ex_P_NA_eq_5", p_NA5)
+show("mult_ex_P_NA_eq_5_dec", float(p_NA5))
+show("mult_ex_cond_times_marg", p_NA5 * p_cond)
+assert p_NA5 * p_cond == p_joint, (p_NA5 * p_cond, p_joint)
+print("    check: P(N_A=5) * P(rest | N_A=5) = joint PMF  OK")
+
+# covariance / correlation
+cov_AB = -n_ex * th[0] * th[1]
+show("mult_ex_cov_AB", cov_AB)
+show("mult_ex_cov_AB_dec", float(cov_AB))
+show("mult_ex_var_NA", n_ex * th[0] * (1 - th[0]))
+show("mult_ex_var_NB", n_ex * th[1] * (1 - th[1]))
+show("mult_ex_var_NB_dec", float(n_ex * th[1] * (1 - th[1])))
+rho2 = (th[0] * th[1]) / ((1 - th[0]) * (1 - th[1]))
+show("mult_ex_rho_AB_sq", rho2)
+show("mult_ex_rho_AB", -float(rho2) ** 0.5)
+show("mult_ex_cov_AC", -n_ex * th[0] * th[2])
+show("mult_ex_cov_AD", -n_ex * th[0] * th[3])
+show("mult_ex_cov_row_A_sum", -n_ex * th[0] * (th[1] + th[2] + th[3]))
+
+# --- Monte Carlo cross-check of every Example 4.10 number ------------------------
+rng = random.Random(20410)
+M = 4_000_000
+thf = [float(t) for t in th]
+cum = []
+acc = 0.0
+for t in thf:
+    acc += t
+    cum.append(acc)
+hit_joint = hit_marg = hit_lump = 0
+sA = sB = sAB = 0
+for _ in range(M):
+    c = [0, 0, 0, 0]
+    for _t in range(n_ex):
+        u = rng.random()
+        k = 0
+        while u > cum[k]:
+            k += 1
+        c[k] += 1
+    if c == cv:
+        hit_joint += 1
+    if c[2] == 2:
+        hit_marg += 1
+    if c[2] + c[3] == 3:
+        hit_lump += 1
+    sA += c[0]
+    sB += c[1]
+    sAB += c[0] * c[1]
+mc_joint = hit_joint / M
+mc_marg = hit_marg / M
+mc_lump = hit_lump / M
+mc_cov = sAB / M - (sA / M) * (sB / M)
+show("mult_ex_mc_trials", M)
+show("mult_ex_mc_joint", mc_joint)
+show("mult_ex_mc_marg_NC_eq_2", mc_marg)
+show("mult_ex_mc_lump_Ndef_eq_3", mc_lump)
+show("mult_ex_mc_cov_AB", mc_cov)
+for lab, exact, mc, tol in (
+    ("joint", float(p_joint), mc_joint, 2e-3),
+    ("marginal", float(binom_pmf(2, n_ex, F(3, 20))), mc_marg, 2e-3),
+    ("lumped", float(binom_pmf(3, n_ex, th_def)), mc_lump, 2e-3),
+    ("cov", float(cov_AB), mc_cov, 5e-3),
+):
+    assert abs(exact - mc) < tol, (lab, exact, mc)
+    print(f"    Monte Carlo {lab:9s}: exact {exact:.6f} vs simulated {mc:.6f}  OK")
+
+# --- Practice 4.25 : fair die, n = 12, every face exactly twice -------------------
+p25 = multinom_pmf([2] * 6, [F(1, 6)] * 6)
+show("mult_p25_coef", multinom_coef([2] * 6))
+show("mult_p25_12fact", factorial(12))
+show("mult_p25_2fact6", factorial(2) ** 6)
+show("mult_p25_6pow12", 6 ** 12)
+show("mult_p25_prob", p25)
+show("mult_p25_prob_dec", float(p25))
+show("mult_p25_marg_N1_eq_2", binom_pmf(2, 12, F(1, 6)))
+show("mult_p25_marg_N1_eq_2_dec", float(binom_pmf(2, 12, F(1, 6))))
+show("mult_p25_cov", -12 * F(1, 6) * F(1, 6))
+show("mult_p25_var", 12 * F(1, 6) * F(5, 6))
+show("mult_p25_rho", -float(F(1, 5)))
+
+# --- Practice 4.26 : survey, r = 3, n = 8 ---------------------------------------
+th26 = [F(1, 2), F(3, 10), F(1, 5)]          # yes, no, undecided
+show("mult_p26_theta_sum", sum(th26))
+p26 = multinom_pmf([4, 3, 1], th26)
+show("mult_p26_coef", multinom_coef([4, 3, 1]))
+show("mult_p26_joint", p26)
+show("mult_p26_joint_dec", float(p26))
+show("mult_p26_marg_Nund_eq_1", binom_pmf(1, 8, F(1, 5)))
+show("mult_p26_marg_Nund_eq_1_dec", float(binom_pmf(1, 8, F(1, 5))))
+show("mult_p26_theta_notyes", F(3, 10) + F(1, 5))
+show("mult_p26_lump_Nnotyes_eq_4", binom_pmf(4, 8, F(1, 2)))
+show("mult_p26_lump_Nnotyes_eq_4_dec", float(binom_pmf(4, 8, F(1, 2))))
+show("mult_p26_cov_yes_no", -8 * th26[0] * th26[1])
+show("mult_p26_cov_yes_no_dec", float(-8 * th26[0] * th26[1]))
+
+# --- Practice 4.27 : var of a lumped pair, two ways ------------------------------
+n27, t1, t2 = 8, F(1, 2), F(3, 10)
+v1 = n27 * t1 * (1 - t1)
+v2 = n27 * t2 * (1 - t2)
+c12 = -n27 * t1 * t2
+show("mult_p27_var_N1", v1)
+show("mult_p27_var_N2", v2)
+show("mult_p27_var_N2_dec", float(v2))
+show("mult_p27_cov_12", c12)
+show("mult_p27_cov_12_dec", float(c12))
+show("mult_p27_sum_route", v1 + v2 + 2 * c12)
+show("mult_p27_sum_route_dec", float(v1 + v2 + 2 * c12))
+show("mult_p27_lump_route", n27 * (t1 + t2) * (1 - t1 - t2))
+show("mult_p27_lump_route_dec", float(n27 * (t1 + t2) * (1 - t1 - t2)))
+assert v1 + v2 + 2 * c12 == n27 * (t1 + t2) * (1 - t1 - t2)
+print("    check: var(N_1+N_2) both routes agree  OK")
+
 out = Path(__file__).resolve().parent / "g2_s4.json"
 out.write_text(json.dumps(R, indent=1), encoding="utf-8")
 print("\nwrote", out)

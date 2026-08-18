@@ -1,0 +1,171 @@
+<h2 id="qb-s0">§0 &nbsp; How to use this question bank</h2>
+<p class="srcref">Companion to notes G1–G7 · all 150 questions original, written against those notes' notation · Bertsekas–Tsitsiklis (<b>B&amp;T</b>) cited throughout for the underlying theory.</p>
+
+<p>This is the practice half of the course. It holds <b>150 questions</b>, organised into seven sections that mirror the seven study notes one-for-one — fundamentals, discrete random variables, continuous random variables, iterated expectations and arrival processes, Markov chains, limit theorems and Bayesian inference, and classical statistical inference. Nothing here restates a worked example from the notes: every question is fresh, self-contained (you never have to go hunting for a missing definition), and tagged with the note section that teaches the tool it wants. Every solution is worked in full — each step justified, each intermediate value substituted, ending in a bold <b>Answer</b> line — and every solution is hidden behind a click, so the page reads as a problem set until you decide otherwise.</p>
+
+<p>The questions are deliberately mixed in form. Some ask for a number; some ask you to derive an identity; some are true-or-false and score only the <em>reason</em>; some ask only <em>which tool applies and why</em>, with no arithmetic at all; some hand you a plausible-looking wrong solution and ask you to find the break. That mixture is on purpose: an exam tests whether you can choose the right machinery under time pressure, and choosing is a separate skill from grinding.</p>
+
+<div class="recipe"><b>Recipe (how to practise with this bank).</b>
+<ol>
+<li><b>Attempt before opening.</b> The single highest-value habit here. Reading a worked solution feels like learning and mostly is not; the struggle before the solution is where the encoding happens. Give a ★★ question five to ten minutes of genuine effort before you touch the toggle.</li>
+<li><b>If stuck, open the note — not the solution.</b> Each question's grey meta line cites the section that teaches its tool (e.g. <span class="qmeta"><span class="ref">G3 &sect;4.2</span></span>). Go there, re-read that one section, and come back. You will usually finish the problem yourself, and you will have repaired the actual gap instead of patching one problem.</li>
+<li><b>Write the model down first.</b> Sample space or random variables, what is known, what is asked, in symbols — before any formula. Most wrong answers in this material are model errors made before the arithmetic begins, not arithmetic errors.</li>
+<li><b>Read the closing trap line even when you were right.</b> Where a question has a tempting wrong answer, the solution names it and says why it fails. That line is often worth more than the question.</li>
+<li><b>Re-attempt the <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span></span> items about a week later</b>, cold, without notes. Spaced re-attempts of the hardest problems are what carry across to an exam; re-reading is not.</li>
+<li><b>Use the filters as a diagnostic.</b> Before a quiz, set Difficulty to ★★ and pin one section at a time; after a quiz, filter to whichever section you lost marks in and work it end to end.</li>
+</ol>
+<p><b>The difficulty scale.</b> <span class="qmeta"><span class="stars">&#9733;</span></span> <b>warm-up</b> — one definition or one formula, applied directly; if these are slow, the gap is in the note, not in your problem-solving. <span class="qmeta"><span class="stars">&#9733;&#9733;</span></span> <b>exam-level</b> — two or three ideas combined, the standard quiz difficulty; this is the bulk of the bank. <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span></span> <b>challenging</b> — a nonobvious setup, a trap that survives a first reading, or a derivation with a real idea in it; expect to need the note, and expect these to be slow the first time.</p>
+</div>
+
+<div class="note"><b>How to read a question card.</b> Every question carries one grey meta line directly under its number, in three parts: the <b>stars</b> (difficulty, as above), the <b>topic</b> in words (the skill being drilled), and the <b>note section</b> that teaches it — <span class="qmeta"><span class="ref">G5 &sect;3</span></span> means note G5 (Markov chains), its section 3 (steady state). A bare "§N" inside a citation is always a section of the <em>cited note</em>; references to the textbook always carry the "B&amp;T" prefix. At the foot of each solution, the small <span class="srcref">Tool: &hellip;</span> line repeats the teaching section together with the book section, so you can go one level deeper when a solution's step is the thing you did not follow. And, as everywhere in these notes, <b>every number printed in a question or a solution was recomputed independently in Python</b> (see <code>computes/</code>), with the subtle ones cross-checked by Monte Carlo simulation — so if your value disagrees with the printed one, the disagreement is real and worth chasing rather than shrugging off.</div>
+
+<div class="qbfilter">
+  <div class="row"><span class="lbl">Difficulty</span>
+    <button class="qbchip on" data-f="diff" data-v="all">all</button>
+    <button class="qbchip" data-f="diff" data-v="1">&#9733;</button>
+    <button class="qbchip" data-f="diff" data-v="2">&#9733;&#9733;</button>
+    <button class="qbchip" data-f="diff" data-v="3">&#9733;&#9733;&#9733;</button></div>
+  <div class="row"><span class="lbl">Section</span>
+    <button class="qbchip on" data-f="sec" data-v="all">all</button>
+    <button class="qbchip" data-f="sec" data-v="1">1 &middot; Basics</button>
+    <button class="qbchip" data-f="sec" data-v="2">2 &middot; Discrete</button>
+    <button class="qbchip" data-f="sec" data-v="3">3 &middot; Continuous</button>
+    <button class="qbchip" data-f="sec" data-v="4">4 &middot; Processes</button>
+    <button class="qbchip" data-f="sec" data-v="5">5 &middot; Markov</button>
+    <button class="qbchip" data-f="sec" data-v="6">6 &middot; Limits &amp; Bayes</button>
+    <button class="qbchip" data-f="sec" data-v="7">7 &middot; Inference</button></div>
+  <div class="row"><span class="qbcount" id="qbcount"></span>
+    <button class="qbchip" id="qbrandom">&#127922; random question</button>
+    <button class="qbchip" id="qbreveal">show/hide all solutions</button></div>
+</div>
+
+<style>
+.qcard.qbflash { animation: qbflash 1.5s ease-out 1; border-radius: 8px; }
+@keyframes qbflash {
+  0%   { box-shadow: 0 0 0 4px var(--s1); }
+  70%  { box-shadow: 0 0 0 4px var(--s1); }
+  100% { box-shadow: 0 0 0 4px rgba(0,0,0,0); }
+}
+@media (prefers-reduced-motion: reduce) { .qcard.qbflash { animation: none; box-shadow: 0 0 0 4px var(--s1); } }
+.qbfilter .row .qbcount { margin-right: 8px; }
+.qbfilter .qbnone { color: var(--warn); font-weight: 600; }
+</style>
+
+<script>
+(function () {
+  function initQB() {
+    var bar = document.querySelector('.qbfilter');
+    if (!bar) { return; }
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.qcard'));
+    var countEl = document.getElementById('qbcount');
+
+    /* Stamp every card with its section number: walk the document in order and
+       remember the most recent h2 whose id is qb-sN. An explicit data-sec wins. */
+    var walk = document.querySelectorAll('h2[id], .qcard');
+    var cur = '0';
+    Array.prototype.forEach.call(walk, function (el) {
+      if (el.tagName === 'H2') {
+        var m = /^qb-s(\d+)$/.exec(el.id || '');
+        if (m) { cur = m[1]; }
+      } else if (!el.getAttribute('data-sec')) {
+        el.setAttribute('data-sec', cur);
+      }
+    });
+
+    var total = cards.length;
+    var state = { diff: 'all', sec: 'all' };
+
+    function visibleCards() {
+      return cards.filter(function (c) { return !c.classList.contains('hide'); });
+    }
+
+    function apply() {
+      var shown = 0;
+      cards.forEach(function (c) {
+        var d = c.getAttribute('data-diff') || '';
+        var s = c.getAttribute('data-sec') || '';
+        var ok = (state.diff === 'all' || d === state.diff) &&
+                 (state.sec === 'all' || s === state.sec);
+        if (ok) { c.classList.remove('hide'); shown += 1; }
+        else { c.classList.add('hide'); }
+      });
+      if (countEl) {
+        countEl.textContent = 'showing ' + shown + ' of ' + total;
+        countEl.className = shown === 0 ? 'qbcount qbnone' : 'qbcount';
+      }
+    }
+
+    Array.prototype.forEach.call(bar.querySelectorAll('.qbchip[data-f]'), function (chip) {
+      chip.addEventListener('click', function () {
+        var f = chip.getAttribute('data-f');
+        var v = chip.getAttribute('data-v');
+        if (!f || v === null) { return; }
+        state[f] = v;
+        var row = chip.parentNode || bar;
+        Array.prototype.forEach.call(
+          row.querySelectorAll('.qbchip[data-f="' + f + '"]'),
+          function (o) { o.classList.remove('on'); });
+        chip.classList.add('on');
+        apply();
+      });
+    });
+
+    var rnd = document.getElementById('qbrandom');
+    if (rnd) {
+      rnd.addEventListener('click', function () {
+        var v = visibleCards();
+        if (!v.length) { return; }
+        var c = v[Math.floor(Math.random() * v.length)];
+        if (c.id) {
+          try { history.replaceState(null, '', '#' + c.id); } catch (e) { /* file:// */ }
+        }
+        c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        c.classList.remove('qbflash');
+        void c.offsetWidth;            /* restart the animation */
+        c.classList.add('qbflash');
+        setTimeout(function () { c.classList.remove('qbflash'); }, 1700);
+      });
+    }
+
+    var rev = document.getElementById('qbreveal');
+    if (rev) {
+      rev.addEventListener('click', function () {
+        var v = visibleCards();
+        var anyClosed = v.some(function (c) {
+          return Array.prototype.some.call(
+            c.querySelectorAll('details.sol'), function (d) { return !d.open; });
+        });
+        v.forEach(function (c) {
+          Array.prototype.forEach.call(
+            c.querySelectorAll('details.sol'), function (d) { d.open = anyClosed; });
+        });
+        rev.classList.toggle('on', anyClosed);
+      });
+    }
+
+    apply();
+
+    /* A deep link such as #q97 must not land on a card the filters hid. */
+    if (location.hash) {
+      var t = document.getElementById(location.hash.slice(1));
+      if (t && t.classList && t.classList.contains('qcard')) {
+        t.classList.remove('hide');
+      }
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initQB);
+  } else {
+    initQB();
+  }
+})();
+</script>
+
+<div class="summary">
+<b>§0 in one screen.</b>
+150 original questions, seven sections mirroring notes G1–G7, every solution fully worked and one click away.
+Difficulty: <span class="qmeta"><span class="stars">&#9733;</span></span> warm-up (one definition applied) &middot; <span class="qmeta"><span class="stars">&#9733;&#9733;</span></span> exam-level (two or three ideas combined) &middot; <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span></span> challenging (nonobvious setup or a real derivation).
+Practise rule: attempt first; when stuck open the <em>cited note section</em>, not the solution; re-attempt the three-star items a week later, cold.
+The sticky bar above filters the whole bank live — by difficulty, by section, or both — and will also pick a random visible question or open every visible solution at once.
+</div>

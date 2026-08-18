@@ -1,0 +1,550 @@
+<h2 id="qb-s8">&sect;8 &nbsp; Exam classics: multinomial, random walks, and waiting times</h2>
+<p class="srcref">Drills G1 &sect;4, G2 &sect;3&ndash;&sect;4, G4 &sect;2, G5 &sect;4 &middot; Bertsekas&ndash;Tsitsiklis &sect;1.4, &sect;2.4&ndash;&sect;2.7, &sect;6.1, &sect;7.4 &middot; every number recomputed in <code>computes/qb_s8.py</code></p>
+
+<p>Twenty questions on the three families that reappear on every exam and that no single note section owns outright. Q151&ndash;Q156 are the multinomial block: a joint count vector, a single marginal count, what happens when you lump categories together, what happens when you condition on one count, why two counts are always negatively correlated, and a recognition item that separates multinomial from binomial from hypergeometric. Q157&ndash;Q163 walk the line: ruin probabilities fair and biased, expected duration, first passage on an unbounded walk, a walk with reflecting barriers, an item on what "fair game" does and does not promise, and a spot-the-error where a student solves $\pi P=\pi$ for a chain that has absorbing states. Q164&ndash;Q170 are waiting times: the first head, the $k$th head, then patterns &mdash; and the fact that $HH$ and $HT$ have different expected waits is the single most reliable surprise in this material. Q169 and Q170 close with the coupon collector, fair and unfair.</p>
+
+<div class="ex qcard" id="q151" data-diff="1" data-topic="multinomial">
+<p><b>Q151.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Multinomial joint probability &middot; <span class="ref">G1 &sect;4.6</span></span></p>
+<p>A supermarket has three checkout lanes $A$, $B$, $C$. Each arriving customer picks lane $A$ with probability $0.5$, lane $B$ with probability $0.3$, and lane $C$ with probability $0.2$, independently of every other customer. Twelve customers arrive. Let $(N_A,N_B,N_C)$ be the numbers who pick each lane. Compute (a) $\mathbf{P}(N_A=6,\,N_B=4,\,N_C=2)$, (b) $\mathbf{P}(N_A=N_B=N_C=4)$, and (c) $\mathbf{P}(\text{all twelve pick }A)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The twelve choices are independent and each has the same three-outcome PMF, so $(N_A,N_B,N_C)$ is multinomial with $n=12$ and $(p_A,p_B,p_C)=(0.5,0.3,0.2)$. Its PMF is
+$$\mathbf{P}(N_A=a,N_B=b,N_C=c)=\frac{n!}{a!\,b!\,c!}\,p_A^{a}p_B^{b}p_C^{c},\qquad a+b+c=n .$$
+The two factors have separate jobs: $p_A^{a}p_B^{b}p_C^{c}$ is the probability of <em>one</em> particular sequence of choices with those counts (independence, so multiply), and the multinomial coefficient counts how many distinct sequences have those counts (G1 &sect;4.4: partition 12 labeled customers into groups of sizes $a,b,c$). Every such sequence has the same probability, so the events are disjoint and equiprobable and we just multiply.</p>
+<p><b>Step 1 (part a &mdash; the coefficient).</b> With $(a,b,c)=(6,4,2)$,
+$$\frac{12!}{6!\,4!\,2!}=\frac{479001600}{720\cdot24\cdot2}=\frac{479001600}{34560}=13860 .$$</p>
+<p><b>Step 2 (part a &mdash; one sequence).</b>
+$$p_A^{6}p_B^{4}p_C^{2}=(0.5)^6(0.3)^4(0.2)^2=(0.015625)(0.0081)(0.04)=5.0625\times10^{-6} .$$</p>
+<p><b>Step 3 (part a &mdash; multiply).</b>
+$$\mathbf{P}(6,4,2)=13860\times5.0625\times10^{-6}=0.07016625 .$$
+Monte Carlo over $400{,}000$ groups of twelve gives $0.069818\;\checkmark$.</p>
+<p><b>Step 4 (part b).</b> Now $(a,b,c)=(4,4,4)$, so
+$$\frac{12!}{4!\,4!\,4!}=\frac{479001600}{24^3}=\frac{479001600}{13824}=34650,$$
+$$p_A^{4}p_B^{4}p_C^{4}=(0.0625)(0.0081)(0.0016)=8.1\times10^{-7},$$
+$$\mathbf{P}(4,4,4)=34650\times8.1\times10^{-7}=0.0280665 .$$
+Monte Carlo: $0.028623\;\checkmark$. Note this is <em>smaller</em> than the answer to (a): the equal split is not the most likely split, because the lanes are not equally likely.</p>
+<p><b>Step 5 (part c).</b> Here $(a,b,c)=(12,0,0)$, and the coefficient $12!/(12!\,0!\,0!)=1$ &mdash; there is exactly one such sequence. So
+$$\mathbf{P}(12,0,0)=(0.5)^{12}=0.000244140625 .$$</p>
+<p><b>Answer.</b> $\;$(a) $0.07016625$, (b) $0.0280665$, (c) $0.00024414$.</p>
+<p><b>Trap.</b> Writing $\mathbf{P}(6,4,2)=(0.5)^6(0.3)^4(0.2)^2=5.06\times10^{-6}$ and stopping. That is the probability of one <em>specific ordering</em> &mdash; customers 1&ndash;6 to $A$, then 7&ndash;10 to $B$, then 11&ndash;12 to $C$. The question asks for counts, which is $13860$ times more likely.</p>
+<p class="srcref">Tool: G1 &sect;4.6 (multinomial coefficient, partitions into groups) &middot; G2 &sect;4.1 (joint PMFs) &middot; B&amp;T &sect;1.6</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q152" data-diff="1" data-topic="multinomial">
+<p><b>Q152.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Marginal of a multinomial &middot; <span class="ref">G2 &sect;4.2</span></span></p>
+<p>Same store as Q151: twelve customers, lane probabilities $(p_A,p_B,p_C)=(0.5,0.3,0.2)$. Ignore lanes $A$ and $C$ entirely and look only at $N_B$. (a) Name the distribution of $N_B$ and justify it in one sentence. (b) Compute $\mathbf{P}(N_B=4)$, $\mathbb{E}[N_B]$ and $\operatorname{var}(N_B)$. (c) Compute $\mathbf{P}(N_B\ge1)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> To get a marginal from a multinomial you do not sum the joint PMF &mdash; you re-tell the story with fewer categories. Define, for customer $i$, the indicator $I_i=1$ if that customer picks $B$ and $I_i=0$ otherwise. Then $N_B=\sum_{i=1}^{12}I_i$.</p>
+<p><b>Step 1 (part a).</b> Each $I_i$ is Bernoulli with success probability $p_B=0.3$ (the customer either picks $B$ or does not &mdash; lanes $A$ and $C$ have been merged into the single outcome "not $B$"), and the twelve customers are independent. A sum of $n$ i.i.d. Bernoulli variables is binomial, so
+$$N_B\sim\text{Binomial}(n=12,\;p=0.3).$$</p>
+<p><b>Step 2 (part b &mdash; the PMF value).</b>
+$$\mathbf{P}(N_B=4)=\binom{12}{4}(0.3)^4(0.7)^8=495\,(0.0081)(0.05764801)=0.23113970 .$$
+Monte Carlo over the same $400{,}000$ groups: $0.231405\;\checkmark$.</p>
+<p><b>Step 3 (part b &mdash; moments).</b> By linearity, $\mathbb{E}[N_B]=12(0.3)=3.6$. By independence the variances add, and each indicator has variance $p(1-p)$, so
+$$\operatorname{var}(N_B)=12(0.3)(0.7)=2.52,\qquad \sigma_{N_B}=\sqrt{2.52}=1.587451 .$$</p>
+<p><b>Step 4 (part c).</b> Complement: $N_B\ge1$ fails only when all twelve avoid $B$, and each avoids independently with probability $0.7$, so
+$$\mathbf{P}(N_B\ge1)=1-(0.7)^{12}=1-0.01384129=0.98615871 .$$</p>
+<p><b>Answer.</b> $\;N_B\sim\text{Bin}(12,0.3)$; $\mathbf{P}(N_B=4)=0.2311397$, $\mathbb{E}[N_B]=3.6$, $\operatorname{var}(N_B)=2.52$; $\mathbf{P}(N_B\ge1)=0.9861587$.</p>
+<p><b>Trap.</b> Using $\binom{12}{4}(0.3)^4(0.5)^{5}(0.2)^{3}$-style expressions, i.e. dragging the other lanes along. The whole point of a marginal is that the other categories are lumped into one; their internal split is irrelevant to $N_B$.</p>
+<p class="srcref">Tool: G2 &sect;4.2 (marginals from a joint PMF) &middot; G2 &sect;1.4 (binomial PMF) &middot; B&amp;T &sect;2.7</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q153" data-diff="1" data-topic="multinomial">
+<p><b>Q153.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Lumping multinomial categories &middot; <span class="ref">G2 &sect;4.2</span></span></p>
+<p>Ten people independently answer a one-question survey with four options, chosen with probabilities $p_1=0.40$ (strongly agree), $p_2=0.25$ (agree), $p_3=0.20$ (disagree), $p_4=0.15$ (strongly disagree). Let $(N_1,N_2,N_3,N_4)$ be the counts and let $D=N_3+N_4$ be the number of "disagree of either strength" answers. (a) Give the distribution of $D$ and compute $\mathbf{P}(D=3)$, $\mathbb{E}[D]$, $\operatorname{var}(D)$. (b) Compute $\mathbf{P}(N_1=4,\,N_2=3,\,D=3)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> <em>Lumping rule.</em> If you merge some categories of a multinomial into one, the result is again multinomial on the coarser category set, with the merged probability equal to the sum of the merged $p$'s. Reason: each trial still lands in exactly one coarse category, independently of the others, and by the additivity axiom the probability of landing in the merged category is $p_3+p_4$.</p>
+<p><b>Step 1 (part a &mdash; the coarse model).</b> Merging options 3 and 4,
+$$p_D=p_3+p_4=0.20+0.15=0.35 .$$
+With only two coarse categories ($D$ and "not $D$"), multinomial reduces to binomial: $D\sim\text{Bin}(10,\,0.35)$.</p>
+<p><b>Step 2 (part a &mdash; the numbers).</b>
+$$\mathbf{P}(D=3)=\binom{10}{3}(0.35)^3(0.65)^7=120\,(0.042875)(0.04902228)=0.25221962,$$
+$$\mathbb{E}[D]=10(0.35)=3.5,\qquad \operatorname{var}(D)=10(0.35)(0.65)=2.275 .$$
+Monte Carlo over $400{,}000$ surveys gives $0.252410\;\checkmark$.</p>
+<p><b>Step 3 (part b &mdash; three coarse categories).</b> Now keep options 1 and 2 separate and lump 3 with 4, giving a three-category multinomial with probabilities $(0.40,\,0.25,\,0.35)$ summing to $1.00\;\checkmark$. Then
+$$\mathbf{P}(N_1=4,N_2=3,D=3)=\frac{10!}{4!\,3!\,3!}(0.40)^4(0.25)^3(0.35)^3 .$$</p>
+<p><b>Step 4 (evaluate).</b> The coefficient is
+$$\frac{10!}{4!\,3!\,3!}=\frac{3628800}{24\cdot6\cdot6}=\frac{3628800}{864}=4200,$$
+and the probability of one such sequence is $(0.0256)(0.015625)(0.042875)=1.715\times10^{-5}$, so
+$$\mathbf{P}(4,3,3)=4200\times1.715\times10^{-5}=0.07203 .$$
+Monte Carlo: $0.072370\;\checkmark$.</p>
+<p><b>Answer.</b> $\;$(a) $D\sim\text{Bin}(10,0.35)$, $\mathbf{P}(D=3)=0.2522196$, $\mathbb{E}[D]=3.5$, $\operatorname{var}(D)=2.275$; (b) $0.07203$.</p>
+<p><b>Trap.</b> Computing part (b) as a sum over the split of $D$ into $(N_3,N_4)$ &mdash; four terms $(3,0),(2,1),(1,2),(0,3)$ &mdash; is correct but slow, and easy to botch. Lumping first turns it into one line. (If you do sum, you must get $0.07203$; that is a good self-check.)</p>
+<p class="srcref">Tool: G2 &sect;4.2 (lumping categories / marginalizing a joint PMF) &middot; G1 &sect;4.6 (multinomial coefficient) &middot; B&amp;T &sect;2.7</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q154" data-diff="2" data-topic="multinomial">
+<p><b>Q154.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Conditioning a multinomial on one count &middot; <span class="ref">G2 &sect;4.3</span></span></p>
+<p>Twelve customers, lane probabilities $(p_A,p_B,p_C)=(0.5,0.3,0.2)$ as in Q151. You are told that exactly five customers picked lane $A$. (a) Derive the conditional distribution of $(N_B,N_C)$ given $N_A=5$. (b) Compute $\mathbf{P}(N_B=4\mid N_A=5)$ and $\mathbb{E}[N_B\mid N_A=5]$. (c) Compare $\mathbb{E}[N_B\mid N_A=5]$ with $\mathbb{E}[N_B]$ and explain the direction of the change.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Conditioning on $N_A=5$ does two things: it fixes the number of remaining customers at $12-5=7$, and it tells us each of those seven chose <em>something other than</em> $A$. Everything else about them is unaffected, because the twelve choices were independent.</p>
+<p><b>Step 1 (part a &mdash; the conditional probabilities).</b> For a customer known not to have picked $A$, the conditional probability of $B$ is, by the definition of conditional probability,
+$$\mathbf{P}(B\mid \text{not }A)=\frac{\mathbf{P}(B)}{\mathbf{P}(\text{not }A)}=\frac{0.3}{1-0.5}=\frac{0.3}{0.5}=0.6,$$
+and likewise $\mathbf{P}(C\mid\text{not }A)=0.2/0.5=0.4$. These sum to $1.0\;\checkmark$. The seven remaining customers are independent, so
+$$(N_B,N_C)\mid\{N_A=5\}\;\sim\;\text{Multinomial}\bigl(7;\,0.6,\,0.4\bigr),$$
+which with two categories is just $N_B\mid\{N_A=5\}\sim\text{Bin}(7,0.6)$.</p>
+<p><b>Step 2 (verify the derivation algebraically).</b> Divide the joint by the marginal. The joint at $(5,4,3)$ is
+$$\frac{12!}{5!\,4!\,3!}(0.5)^5(0.3)^4(0.2)^3=27720\,(0.03125)(0.0081)(0.008)=0.056133,$$
+and the marginal $N_A\sim\text{Bin}(12,0.5)$ gives
+$$\mathbf{P}(N_A=5)=\binom{12}{5}(0.5)^{12}=792(0.000244140625)=0.19335938 .$$
+The ratio is $0.056133/0.19335938=0.290304$, which we now confirm from the reduced model.</p>
+<p><b>Step 3 (part b).</b> From Step 1,
+$$\mathbf{P}(N_B=4\mid N_A=5)=\binom{7}{4}(0.6)^4(0.4)^3=35\,(0.1296)(0.064)=0.290304\;\checkmark$$
+&mdash; identical to Step 2, as it must be. And
+$$\mathbb{E}[N_B\mid N_A=5]=7(0.6)=4.2,\qquad \operatorname{var}(N_B\mid N_A=5)=7(0.6)(0.4)=1.68 .$$
+Monte Carlo, restricted to the simulated groups with $N_A=5$: $\mathbf{P}=0.289925$ and mean $4.20534\;\checkmark$.</p>
+<p><b>Step 4 (part c).</b> Unconditionally $\mathbb{E}[N_B]=12(0.3)=3.6$, so learning $N_A=5$ raises the expectation to $4.2$. The reason: $5$ is <em>below</em> the unconditional mean $\mathbb{E}[N_A]=12(0.5)=6$, so lane $A$ took fewer customers than usual and the surplus has to go somewhere; $B$ absorbs the fraction $0.6$ of it. Had we conditioned on $N_A=8$, the same formula would give $4(0.6)=2.4&lt;3.6$.</p>
+<p><b>Answer.</b> $\;$(a) $(N_B,N_C)\mid\{N_A=5\}$ is multinomial$(7;0.6,0.4)$, i.e. $N_B\mid\{N_A=5\}\sim\text{Bin}(7,0.6)$; (b) $0.290304$ and $4.2$; (c) it rises from $3.6$ to $4.2$ because $N_A=5$ is below its mean $6$ and $B$ takes $60\%$ of the freed customers.</p>
+<p><b>Trap.</b> Keeping the original $p_B=0.3$ and computing $\binom{7}{4}(0.3)^4(0.7)^3=35(0.0081)(0.343)=0.097241$. Forgetting to renormalize by $\mathbf{P}(\text{not }A)=0.5$ makes the conditional probabilities sum to $0.3+0.2=0.5$, not $1$ &mdash; a fatal tell.</p>
+<p class="srcref">Tool: G2 &sect;4.3 (conditional PMFs from joint PMFs) &middot; G1 &sect;2.1 (conditional probability as renormalization) &middot; B&amp;T &sect;2.7</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q155" data-diff="2" data-topic="multinomial">
+<p><b>Q155.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Covariance of two multinomial counts &middot; <span class="ref">G3 &sect;4.8</span></span></p>
+<p>Twelve customers, lane probabilities $(0.5,0.3,0.2)$ as in Q151. (a) Compute $\operatorname{cov}(N_A,N_B)$ and the correlation coefficient $\rho(N_A,N_B)$. (b) Explain, without algebra, why the sign must be what it is. (c) Verify your covariance using $\operatorname{var}(N_A+N_B)$ computed two different ways.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Write the counts as sums of indicators over the twelve customers: $N_A=\sum_{i=1}^{12}I_i$ with $I_i=\mathbb{1}\{\text{customer }i\text{ picks }A\}$, and $N_B=\sum_{j=1}^{12}J_j$ with $J_j=\mathbb{1}\{\text{customer }j\text{ picks }B\}$. Covariance is bilinear, so
+$$\operatorname{cov}(N_A,N_B)=\sum_{i=1}^{12}\sum_{j=1}^{12}\operatorname{cov}(I_i,J_j).$$</p>
+<p><b>Step 1 (kill the cross terms).</b> For $i\ne j$ the two indicators involve different, independent customers, so $\operatorname{cov}(I_i,J_j)=0$. Only the $12$ diagonal terms survive.</p>
+<p><b>Step 2 (the diagonal term).</b> For a single customer, $I_iJ_i\equiv0$: one customer cannot pick both $A$ and $B$. So $\mathbb{E}[I_iJ_i]=0$ and
+$$\operatorname{cov}(I_i,J_i)=\mathbb{E}[I_iJ_i]-\mathbb{E}[I_i]\mathbb{E}[J_i]=0-(0.5)(0.3)=-0.15 .$$</p>
+<p><b>Step 3 (part a &mdash; the covariance).</b> Summing the $12$ diagonal terms,
+$$\operatorname{cov}(N_A,N_B)=12\times(-0.15)=-1.8,$$
+which is the general formula $\operatorname{cov}(N_i,N_j)=-n\,p_ip_j$ for $i\ne j$.</p>
+<p><b>Step 4 (part a &mdash; the correlation).</b> The marginals are binomial (Q152), so $\operatorname{var}(N_A)=12(0.5)(0.5)=3.0$ and $\operatorname{var}(N_B)=12(0.3)(0.7)=2.52$. Hence
+$$\rho=\frac{-1.8}{\sqrt{3.0}\sqrt{2.52}}=\frac{-1.8}{(1.732051)(1.587451)}=\frac{-1.8}{2.749545}=-0.654654 .$$
+Equivalently $\rho=-\sqrt{\dfrac{p_Ap_B}{(1-p_A)(1-p_B)}}=-\sqrt{\dfrac{0.15}{0.35}}=-0.654654$, and note that $n$ cancels: the correlation does not weaken as the store gets busier. Monte Carlo over $400{,}000$ groups gives $\operatorname{cov}=-1.7893$ and $\rho=-0.6532\;\checkmark$.</p>
+<p><b>Step 5 (part b &mdash; the reason for the sign).</b> The counts are tied by the constraint $N_A+N_B+N_C=12$. The total is fixed, so a customer given to $A$ is a customer taken from $B$ (or $C$): the categories compete for a fixed budget of trials. Competition for a fixed total forces negative covariance between any two counts. Indeed <em>every</em> pair is negative here: $\operatorname{cov}(N_A,N_C)=-12(0.5)(0.2)=-1.2$.</p>
+<p><b>Step 6 (part c &mdash; the cross-check).</b> First route: expand,
+$$\operatorname{var}(N_A+N_B)=\operatorname{var}(N_A)+\operatorname{var}(N_B)+2\operatorname{cov}(N_A,N_B)=3.0+2.52+2(-1.8)=5.52-3.6=1.92 .$$
+Second route: $N_A+N_B=12-N_C$ counts "not $C$", which by the lumping rule of Q153 is $\text{Bin}(12,\,0.8)$, so
+$$\operatorname{var}(N_A+N_B)=12(0.8)(0.2)=1.92\;\checkmark .$$
+The two agree, which pins the covariance at $-1.8$.</p>
+<p><b>Answer.</b> $\;\operatorname{cov}(N_A,N_B)=-1.8$, $\rho(N_A,N_B)=-0.654654$; the sign is negative because the counts must sum to the fixed total $n=12$.</p>
+<p><b>Trap.</b> Concluding "$N_A$ and $N_B$ are built from independent customers, so they are independent, so the covariance is $0$." The <em>trials</em> are independent; the <em>counts</em> are not, because each trial feeds exactly one count. Using $\operatorname{cov}=0$ would give $\operatorname{var}(N_A+N_B)=5.52$, nearly three times the true $1.92$.</p>
+<p class="srcref">Tool: G3 &sect;4.8 (covariance, correlation, bilinearity) &middot; G2 &sect;4.8 (indicator decomposition of counts) &middot; G2 &sect;4.7 (variance of a sum) &middot; B&amp;T &sect;4.2</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q156" data-diff="1" data-topic="multinomial">
+<p><b>Q156.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Which distribution is this? &middot; <span class="ref">G1 &sect;4.3</span></span></p>
+<p>An urn holds $20$ balls: $8$ red, $6$ green, $6$ blue. Consider two experiments. <b>(E1)</b> Five balls are drawn <em>with</em> replacement. <b>(E2)</b> Five balls are drawn <em>without</em> replacement. For each experiment, (a) name the joint distribution of the counts $(R,G,B)$ and the marginal distribution of $R$; (b) compute $\mathbf{P}(R=2,G=2,B=1)$; (c) state which experiment gives the larger answer in (b) and say why.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The single question that decides everything: <em>are the draws independent and identically distributed?</em> With replacement, yes &mdash; the urn is restored, so every draw is red with probability $8/20=0.4$, green with $6/20=0.3$, blue with $0.3$, independently. Without replacement, no &mdash; the composition shifts as balls leave, so the draws are dependent (though still exchangeable).</p>
+<p><b>Step 1 (E1 &mdash; naming).</b> With replacement, the counts are multinomial: $(R,G,B)\sim\text{Multinomial}(5;\,0.4,0.3,0.3)$. Lumping green and blue (Q153), the marginal is $R\sim\text{Bin}(5,0.4)$.</p>
+<p><b>Step 2 (E1 &mdash; the number).</b>
+$$\mathbf{P}(2,2,1)=\frac{5!}{2!\,2!\,1!}(0.4)^2(0.3)^2(0.3)^1=30\,(0.16)(0.09)(0.3)=30(0.00432)=0.1296 .$$</p>
+<p><b>Step 3 (E2 &mdash; naming).</b> Without replacement the counts follow the <em>multivariate hypergeometric</em> law: choose which balls, not which sequence. Its PMF is a ratio of binomial coefficients,
+$$\mathbf{P}(R=r,G=g,B=b)=\frac{\binom{8}{r}\binom{6}{g}\binom{6}{b}}{\binom{20}{5}},\qquad r+g+b=5 .$$
+The marginal of $R$ is (univariate) hypergeometric: $8$ "successes" among $20$, sample of $5$.</p>
+<p><b>Step 4 (E2 &mdash; the number).</b>
+$$\mathbf{P}(2,2,1)=\frac{\binom{8}{2}\binom{6}{2}\binom{6}{1}}{\binom{20}{5}}=\frac{(28)(15)(6)}{15504}=\frac{2520}{15504}=0.16253870 .$$
+A direct simulation of $200{,}000$ without-replacement draws gives $0.161710\;\checkmark$. For the marginals, $\mathbf{P}(R=2)$ is $\binom{5}{2}(0.4)^2(0.6)^3=0.3456$ under E1 and $\binom{8}{2}\binom{12}{3}/\binom{20}{5}=6160/15504=0.39731682$ under E2.</p>
+<p><b>Step 5 (part c).</b> E2 is larger, by a factor $0.16253870/0.1296=1.254157$. Sampling without replacement is <em>self-balancing</em>: once two reds are gone, red is scarcer and the remaining draws are pushed toward green and blue, so "spread out" outcomes like $(2,2,1)$ gain probability while lopsided ones like $(5,0,0)$ lose it. Formally, the hypergeometric has the smaller variance &mdash; the finite-population correction factor $(N-n)/(N-1)=15/19$ multiplies the binomial variance.</p>
+<p><b>Answer.</b> $\;$E1: multinomial$(5;0.4,0.3,0.3)$ with $R\sim\text{Bin}(5,0.4)$, $\mathbf{P}(2,2,1)=0.1296$. E2: multivariate hypergeometric, $R$ hypergeometric, $\mathbf{P}(2,2,1)=0.1625387$. E2 is larger because sampling without replacement suppresses lopsided counts.</p>
+<p><b>Trap.</b> Using multinomial probabilities for E2 "because $20$ balls is a lot". A sample of $5$ out of $20$ is a quarter of the population &mdash; the approximation is off by $25\%$ here. The multinomial is a good approximation to the hypergeometric only when the sample is a small fraction of the population.</p>
+<p class="srcref">Tool: G1 &sect;4.3&ndash;&sect;4.4 (ordered vs unordered sampling, with and without replacement) &middot; G2 &sect;1.4 (binomial) &middot; B&amp;T &sect;1.6, &sect;2.7</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q157" data-diff="1" data-topic="random-walk">
+<p><b>Q157.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Symmetric random walk with two barriers &middot; <span class="ref">G5 &sect;4.3</span></span></p>
+<p>A hiker on a narrow ridge occupies integer positions $0,1,\dots,8$. Each minute she steps one unit right or one unit left with probability $1/2$ each, independently, until she reaches either end. Position $0$ is her camp and position $8$ is the summit; both end the walk. She starts at position $3$. (a) What is the probability she reaches the summit? (b) How many minutes does she walk on average? (c) Repeat both for a start at position $6$, and say in one sentence why (b) does <em>not</em> move in the same direction as (a).</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> This is the symmetric gambler's-ruin chain on states $\{0,1,\dots,N\}$ with $N=8$, absorbing at both ends. Let $a_i=\mathbf{P}(\text{absorbed at }N\mid X_0=i)$ and $D_i=\mathbb{E}[\text{steps until absorption}\mid X_0=i]$. First-step analysis gives, for $0&lt;i&lt;N$,
+$$a_i=\tfrac12a_{i-1}+\tfrac12a_{i+1},\qquad a_0=0,\ a_N=1,$$
+$$D_i=1+\tfrac12D_{i-1}+\tfrac12D_{i+1},\qquad D_0=D_N=0 .$$
+The first says the $a_i$ are in arithmetic progression (each is the average of its neighbors); with the boundary values pinned at $0$ and $1$ the unique solution is the straight line $a_i=i/N$. The second has solution $D_i=i(N-i)$, checked below.</p>
+<p><b>Step 1 (part a).</b>
+$$a_3=\frac{3}{8}=0.375,$$
+so she reaches the summit with probability $0.375$ and returns to camp with probability $1-0.375=0.625$. Monte Carlo over $300{,}000$ walks: $0.375313\;\checkmark$.</p>
+<p><b>Step 2 (part b).</b>
+$$D_3=3(8-3)=3\times5=15\ \text{minutes}.$$
+Verify the recursion at $i=3$ using $D_2=2(6)=12$ and $D_4=4(4)=16$:
+$$1+\tfrac12(12)+\tfrac12(16)=1+6+8=15\;\checkmark .$$
+Monte Carlo: $15.0068\;\checkmark$.</p>
+<p><b>Step 3 (part c).</b>
+$$a_6=\frac{6}{8}=0.75,\qquad D_6=6(8-6)=6\times2=12\ \text{minutes}.$$
+Starting at $6$ doubles the summit probability ($0.375\to0.75$) but <em>shortens</em> the walk ($15\to12$ minutes). The reason: duration depends on distance to the <em>nearest</em> exit, not on which exit. Position $6$ is only $2$ steps from an absorbing state, while position $3$ is $3$ steps from the nearer one. The longest walk starts at the midpoint, $D_4=4(4)=16$.</p>
+<p><b>Answer.</b> $\;$(a) $a_3=0.375$; (b) $D_3=15$ minutes; (c) $a_6=0.75$ and $D_6=12$ minutes &mdash; duration is governed by distance to the nearest barrier, so it peaks at the midpoint ($D_4=16$).</p>
+<p><b>Trap.</b> Answering (b) with "$8$ minutes, since she needs $5$ net steps to the right and $3$ to the left". Net displacement is not step count: the walk has zero drift, so the expected net displacement per step is $0$ and the walk wanders for $O(N^2)$ steps, not $O(N)$.</p>
+<p class="srcref">Tool: G5 &sect;4.1&ndash;&sect;4.3 (first-step analysis, absorption probability, expected time to absorption) &middot; B&amp;T &sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q158" data-diff="2" data-topic="random-walk">
+<p><b>Q158.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Biased ruin probability &middot; <span class="ref">G5 &sect;4.3</span></span></p>
+<p>A market maker's inventory is an integer in $\{0,1,\dots,6\}$ lots. Each trading hour the inventory rises by one lot with probability $p=0.6$ and falls by one with probability $0.4$, independently, until it hits $0$ (sold out) or $6$ (full, no more room). She starts with $2$ lots. (a) Compute the probability she fills up before selling out. (b) Compare with the fair case $p=0.5$ and with the adverse case $p=0.45$, and comment on how sharply the answer responds to $p$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Biased gambler's ruin on $\{0,\dots,N\}$, $N=6$, up-probability $p$, down-probability $q=1-p$. With $a_i=\mathbf{P}(\text{hit }N\text{ before }0\mid X_0=i)$, first-step analysis gives $a_i=p\,a_{i+1}+q\,a_{i-1}$ with $a_0=0$, $a_N=1$. Writing $\rho=q/p$, the increments $a_{i+1}-a_i$ form a geometric sequence with ratio $\rho$, and summing them with the two boundary conditions yields
+$$a_i=\frac{1-\rho^{\,i}}{1-\rho^{\,N}},\qquad \rho=\frac{1-p}{p}\ne1 .$$
+Read $\rho$ as the odds against you per step: $\rho&lt;1$ means the drift is upward.</p>
+<p><b>Step 1 (the ratio).</b> With $p=0.6$,
+$$\rho=\frac{1-0.6}{0.6}=\frac{0.4}{0.6}=0.666667 .$$
+Since $\rho&lt;1$, the inventory drifts up, and we expect $a_2$ to beat the fair-game value.</p>
+<p><b>Step 2 (the powers).</b>
+$$\rho^{2}=(0.666667)^2=0.444444,\qquad \rho^{6}=(0.666667)^6=0.087791 .$$</p>
+<p><b>Step 3 (part a).</b>
+$$a_2=\frac{1-\rho^{2}}{1-\rho^{6}}=\frac{1-0.444444}{1-0.087791}=\frac{0.555556}{0.912209}=0.609023 .$$
+So she fills up with probability $0.609023$ and sells out with probability $1-0.609023=0.390977$. Monte Carlo over $300{,}000$ sessions gives $0.608960\;\checkmark$.</p>
+<p><b>Step 4 (part b &mdash; the comparisons).</b> Fair case: $\rho=1$, the formula degenerates and the correct limit is the linear one from Q157,
+$$a_2=\frac{2}{6}=0.333333 .$$
+Adverse case $p=0.45$: $\rho=0.55/0.45=1.222222$, $\rho^2=1.493827$, $\rho^6=3.333505$, so
+$$a_2=\frac{1-1.493827}{1-3.333505}=\frac{-0.493827}{-2.333505}=0.211625 .$$
+(The two negative signs cancel; when $\rho&gt;1$ the formula is still valid, it just has a negative numerator and denominator.)</p>
+<p><b>Step 5 (interpretation).</b> The three answers are $0.211625$, $0.333333$, $0.609023$ for $p=0.45,\,0.50,\,0.60$. A $10$-percentage-point swing in $p$ nearly triples the answer. The reason is the exponent: $a_i$ depends on $p$ through $\rho^{\,i}$ and $\rho^{\,N}$, so small per-step advantages compound geometrically over the barrier distance. This is why casino edges of a percent or two are decisive over many rounds.</p>
+<p><b>Answer.</b> $\;$(a) $a_2=0.609023$ (sells out first with probability $0.390977$); (b) $0.333333$ at $p=0.5$ and $0.211625$ at $p=0.45$ &mdash; the dependence is geometric in $\rho=(1-p)/p$, not linear.</p>
+<p><b>Trap.</b> Defining $\rho=p/q=1.5$ instead of $(1-p)/p$. That inversion turns the favorable walk into an unfavorable one and returns $a_2=(1-2.25)/(1-11.390625)=0.120301$ &mdash; a factor of five wrong, and in the wrong direction. Sanity-check the sign of the drift against the fair value $i/N$ before trusting the number.</p>
+<p class="srcref">Tool: G5 &sect;4.3 (gambler's ruin with bias) &middot; G5 &sect;4.1 (first-step analysis) &middot; B&amp;T &sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q159" data-diff="2" data-topic="random-walk">
+<p><b>Q159.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Expected duration of a biased walk &middot; <span class="ref">G5 &sect;4.2</span></span></p>
+<p>Same inventory walk as Q158: barriers at $0$ and $6$, up-probability $p=0.6$, start at $2$ lots. (a) Compute the expected number of hours until the walk stops. (b) Compare with the fair walk $p=0.5$ from the same start. (c) Confirm your answer by an independent argument based on expected net displacement.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $D_i$ be the expected number of steps to absorption from state $i$. First-step analysis gives $D_i=1+pD_{i+1}+qD_{i-1}$ for $0&lt;i&lt;N$ with $D_0=D_N=0$. For $p\ne\tfrac12$ the solution is
+$$D_i=\frac{i-N\,a_i}{1-2p},$$
+where $a_i$ is the absorption-at-$N$ probability of Q158. (When $p&gt;\tfrac12$ the denominator is negative and so is the numerator, so $D_i&gt;0$ as it must be.)</p>
+<p><b>Step 1 (the pieces).</b> From Q158, $a_2=0.609023$. Then
+$$N\,a_2=6(0.609023)=3.654135,\qquad 1-2p=1-1.2=-0.2 .$$</p>
+<p><b>Step 2 (part a).</b>
+$$D_2=\frac{2-3.654135}{-0.2}=\frac{-1.654135}{-0.2}=8.270677\ \text{hours}.$$
+Monte Carlo over $300{,}000$ sessions gives $8.27662\;\checkmark$.</p>
+<p><b>Step 3 (part b).</b> For $p=0.5$, Q157's formula gives
+$$D_2=2(6-2)=8\ \text{hours}.$$
+So the biased walk lasts slightly <em>longer</em> ($8.27$ against $8$) even though its outcome is far less uncertain. Bias is not the same as speed: the drift pulls her toward the far barrier at $6$, which is $4$ steps away, instead of letting her fall out quickly at $0$, which is only $2$ steps away.</p>
+<p><b>Step 4 (part c &mdash; the displacement cross-check).</b> Let $T$ be the stopping time and $X_T\in\{0,6\}$ the final inventory. Each step changes inventory by $+1$ with probability $0.6$ and $-1$ with probability $0.4$, so the mean drift per step is
+$$\mathbb{E}[\text{step}]=(+1)(0.6)+(-1)(0.4)=0.2 .$$
+Wald's identity (the expected total displacement is the mean drift times the expected number of steps) gives $\mathbb{E}[X_T]-X_0=0.2\,\mathbb{E}[T]$. The left side is
+$$\mathbb{E}[X_T]-2=\bigl(6(0.609023)+0(0.390977)\bigr)-2=3.654135-2=1.654135 .$$
+Hence
+$$\mathbb{E}[T]=\frac{1.654135}{0.2}=8.270677\;\checkmark,$$
+matching Step 2 exactly. This is the same algebra as the $D_i$ formula, rearranged &mdash; which is why the formula has the shape it does.</p>
+<p><b>Answer.</b> $\;$(a) $D_2=8.270677$ hours; (b) the fair walk takes $8$ hours &mdash; slightly less; (c) Wald: $\mathbb{E}[T]=(\mathbb{E}[X_T]-X_0)/(2p-1)=1.654135/0.2=8.270677$.</p>
+<p><b>Trap.</b> Reasoning "the drift is $+0.2$ per hour and she needs $4$ more lots, so $4/0.2=20$ hours". That ignores the barrier at $0$, which absorbs $39\%$ of the paths early and pulls the average down by more than half. The drift argument is only valid once you use the <em>expected</em> final position $3.654135$, not the hoped-for one.</p>
+<p class="srcref">Tool: G5 &sect;4.2 (expected time to absorption) &middot; G4 &sect;2.2 (expected value of a random sum) &middot; B&amp;T &sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q160" data-diff="2" data-topic="random-walk">
+<p><b>Q160.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; First passage on an unbounded walk &middot; <span class="ref">G5 &sect;4.4</span></span></p>
+<p>A walker starts at $0$ on the integer line, with no barriers at all. Each step is $+1$ with probability $p$ and $-1$ with probability $1-p$, independently. Let $T_k$ be the first time the walk reaches level $+k$. (a) For $p=0.55$, compute $\mathbb{E}[T_1]$ and $\mathbb{E}[T_5]$. (b) Explain why the answer to (a) becomes infinite when $p=0.5$, even though the walk still reaches $+1$ with probability $1$. (c) For $p=0.45$, compute $\mathbf{P}(\text{the walk ever reaches }+1)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $\mu=\mathbb{E}[T_1]$, the expected time to climb one level. Because the walk is spatially homogeneous (the step distribution does not depend on position) and has no memory, climbing from level $j$ to level $j+1$ is a fresh copy of the same problem. So the climbs are i.i.d. and
+$$\mathbb{E}[T_k]=k\,\mu .$$</p>
+<p><b>Step 1 (first-step analysis for $\mu$).</b> Condition on the first step. With probability $p$ it lands on $+1$ and we are done in one step. With probability $q=1-p$ it lands on $-1$, and from there we must climb <em>two</em> levels, which takes $2\mu$ more on average:
+$$\mu=1+q\,(2\mu)\qquad\Longrightarrow\qquad \mu(1-2q)=1\qquad\Longrightarrow\qquad \mu=\frac{1}{1-2q}=\frac{1}{2p-1}.$$</p>
+<p><b>Step 2 (part a).</b> With $p=0.55$, the drift per step is $2p-1=2(0.55)-1=0.10$, so
+$$\mathbb{E}[T_1]=\frac{1}{0.10}=10\ \text{steps},\qquad \mathbb{E}[T_5]=5(10)=50\ \text{steps}.$$
+Monte Carlo over $200{,}000$ walks gives $9.9609$ and $49.9036\;\checkmark$. Interpretation: the walk covers ground at exactly the drift rate $0.10$ levels per step, so reaching level $k$ takes $k/0.10$ steps on average &mdash; linear in $k$, unlike the $O(N^2)$ durations of the symmetric two-barrier walk in Q157.</p>
+<p><b>Step 3 (part b).</b> At $p=0.5$ the drift is $2(0.5)-1=0$ and the formula $\mu=1/0$ diverges. This is not a formula artifact. The symmetric walk is <em>recurrent</em>: it returns to every level with probability $1$, so $\mathbf{P}(T_1&lt;\infty)=1$. But it is <em>null</em> recurrent: the tail of $T_1$ decays only like $\mathbf{P}(T_1&gt;n)\sim c/\sqrt n$, which is heavy enough that $\mathbb{E}[T_1]=\sum_n\mathbf{P}(T_1&gt;n)$ diverges. So the walk certainly gets there, but the expected time to do so is infinite &mdash; "always eventually" and "on average soon" are different statements.</p>
+<p><b>Step 4 (part c).</b> Now $p=0.45&lt;\tfrac12$, so the drift is negative and the walk may never reach $+1$. Let $s=\mathbf{P}(\text{ever reach }+1)$. By the same homogeneity, reaching $+1$ from $-1$ requires two independent climbs, so it has probability $s^2$, and first-step analysis gives
+$$s=p+q\,s^{2}=0.45+0.55\,s^{2}.$$
+Solving $0.55s^2-s+0.45=0$: the discriminant is $1-4(0.55)(0.45)=1-0.99=0.01$, so
+$$s=\frac{1\pm0.1}{1.1}\in\{1.0,\;0.818182\}.$$
+The root $s=1$ is rejected: it is the correct root only when $p\ge q$. For $p&lt;q$ the smaller root is the probability, giving
+$$s=\frac{p}{q}=\frac{0.45}{0.55}=0.818182 .$$</p>
+<p><b>Answer.</b> $\;$(a) $\mathbb{E}[T_1]=10$ and $\mathbb{E}[T_5]=50$ steps; (b) at $p=0.5$ the drift is $0$, the walk is null recurrent &mdash; it reaches $+1$ with probability $1$ but $\mathbb{E}[T_1]=\infty$; (c) $p/q=0.818182$.</p>
+<p><b>Trap.</b> Answering (b) with "the probability of reaching $+1$ is less than $1$, so the expectation is infinite". The probability is exactly $1$ at $p=0.5$. The infinity comes from the tail of a proper distribution, not from a defect of mass at $\infty$ &mdash; a distinction worth being able to state cleanly.</p>
+<p class="srcref">Tool: G5 &sect;4.4 (mean first passage times) &middot; G5 &sect;4.7 (random walks on the integers) &middot; G5 &sect;2.1 (recurrence and transience) &middot; B&amp;T &sect;7.2, &sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q161" data-diff="3" data-topic="random-walk">
+<p><b>Q161.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Random walk with reflecting barriers &middot; <span class="ref">G5 &sect;3.4</span></span></p>
+<p>A machine's backlog is an integer in $\{0,1,2,3,4\}$. Each hour the backlog rises by one with probability $p=0.4$ and falls by one with probability $q=0.6$, except at the ends, where the barriers <em>reflect</em> rather than absorb: at backlog $0$ a would-be decrease leaves the backlog at $0$, and at backlog $4$ a would-be increase leaves it at $4$. (a) Write the transition matrix. (b) Find the steady-state distribution. (c) What long-run fraction of hours is the machine idle (backlog $0$), and what is the long-run average backlog? (d) In one sentence, contrast this with the absorbing walk of Q158.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Reflection replaces absorption with a self-loop at each end. The chain is a birth&ndash;death chain: transitions move at most one step, so cutting the state space between $i$ and $i+1$ gives a <em>local balance</em> (detailed balance) equation. Every crossing upward must be matched by a crossing downward in the long run, because the chain can only get from one side of the cut to the other one step at a time:
+$$\pi_i\,p=\pi_{i+1}\,q\qquad\Longrightarrow\qquad \pi_{i+1}=r\,\pi_i,\quad r=\frac{p}{q}.$$</p>
+<p><b>Step 1 (part a).</b> With $p=0.4$, $q=0.6$, states ordered $0,1,2,3,4$:
+$$P=\begin{pmatrix}
+0.6&amp;0.4&amp;0&amp;0&amp;0\\
+0.6&amp;0&amp;0.4&amp;0&amp;0\\
+0&amp;0.6&amp;0&amp;0.4&amp;0\\
+0&amp;0&amp;0.6&amp;0&amp;0.4\\
+0&amp;0&amp;0&amp;0.6&amp;0.4
+\end{pmatrix},$$
+with row sums $1.0$ throughout $\checkmark$. The chain is irreducible (from any state you can reach any other) and aperiodic (the self-loops at $0$ and $4$ destroy periodicity), so a unique steady-state distribution exists and $\pi_j=\lim_n r_{ij}(n)$ for every $i$.</p>
+<p><b>Step 2 (part b &mdash; the ratio).</b>
+$$r=\frac{p}{q}=\frac{0.4}{0.6}=0.666667 .$$
+Iterating local balance from $\pi_0$:
+$$\pi_i=r^{\,i}\pi_0,\qquad (r^0,\dots,r^4)=(1,\;0.666667,\;0.444444,\;0.296296,\;0.197531).$$</p>
+<p><b>Step 3 (part b &mdash; normalize).</b> Sum the geometric series:
+$$Z=\sum_{i=0}^{4}r^{\,i}=1+0.666667+0.444444+0.296296+0.197531=2.604938,$$
+so $\pi_0=1/2.604938=0.383886$ and
+$$\pi=(0.383886,\;0.255924,\;0.170616,\;0.113744,\;0.075829),$$
+which sums to $1.000000\;\checkmark$. Cross-check: multiplying an arbitrary starting vector by $P$ twenty thousand times reproduces this to $1.7\times10^{-16}$, and a $400{,}000$-hour simulated run gives time fractions $(0.38352,\,0.25503,\,0.17096,\,0.11437,\,0.07612)\;\checkmark$.</p>
+<p><b>Step 4 (part c).</b> The machine is idle a fraction $\pi_0=0.383886$ of hours, i.e. about $38.4\%$ of the time. The long-run average backlog is
+$$\sum_{i=0}^{4}i\,\pi_i=0(0.383886)+1(0.255924)+2(0.170616)+3(0.113744)+4(0.075829)$$
+$$=0+0.255924+0.341232+0.341232+0.303318=1.241706\ \text{jobs}.$$</p>
+<p><b>Step 5 (part d).</b> In Q158 the ends were absorbing, so the interesting questions were "which end?" and "how long?" &mdash; the chain has no meaningful steady state, since it eventually sits forever at $0$ or $6$. Here the ends reflect, so the chain never stops, it is irreducible and aperiodic, and the interesting question becomes "what fraction of time in each state?". Same step probabilities, completely different toolset: absorption analysis versus balance equations.</p>
+<p><b>Answer.</b> $\;\pi=(0.383886,0.255924,0.170616,0.113744,0.075829)$; idle fraction $\pi_0=0.383886$; long-run average backlog $1.241706$.</p>
+<p><b>Trap.</b> Writing the boundary rows as $p_{00}=0$, $p_{01}=1$ ("at $0$ it must go up"). That is a different chain &mdash; a walk that is <em>pushed</em> off the barrier rather than one that <em>stays</em> when it tries to leave. It is periodic in the interior and gives a different $\pi$. Reflection as defined here keeps the downward attempt at $0$ as a self-loop, which is exactly what makes $\pi_0$ the largest entry.</p>
+<p class="srcref">Tool: G5 &sect;3.2 (balance equations and normalization) &middot; G5 &sect;3.4 (birth&ndash;death chains, local balance) &middot; B&amp;T &sect;7.3</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q162" data-diff="2" data-topic="random-walk">
+<p><b>Q162.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; What "fair game" actually promises &middot; <span class="ref">G5 &sect;4.3</span></span></p>
+<p>Return to the hiker of Q157: symmetric steps, barriers at $0$ and $8$, start at $3$. (a) Without solving any difference equation, use the fact that the expected position never changes to derive $a_3=\mathbf{P}(\text{absorbed at }8)$. (b) A classmate says: "the game is fair, so she is equally likely to end at $0$ as at $8$." Say precisely what is wrong. (c) Now make the steps biased with $p=0.6$ up. Show what breaks in the argument of (a), and compute the correct $a_3$ and $D_3$; then verify them against the drift.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $X_n$ be the position and $T$ the absorption time. A single step has mean change $\mathbb{E}[X_{n+1}-X_n\mid X_n=i]=(+1)(p)+(-1)(1-p)=2p-1$ for interior $i$.</p>
+<p><b>Step 1 (part a).</b> With $p=\tfrac12$ the mean change per step is $2(0.5)-1=0$, so the expected position is constant in time: $\mathbb{E}[X_n]=X_0=3$ for every $n$, and the same holds at the (finite, with probability one) stopping time, $\mathbb{E}[X_T]=3$. But $X_T$ takes only the two values $0$ and $8$, so
+$$\mathbb{E}[X_T]=8\,a_3+0\,(1-a_3)=8a_3 .$$
+Equating,
+$$8a_3=3\qquad\Longrightarrow\qquad a_3=\frac{3}{8}=0.375,$$
+reproducing Q157 with no difference equation at all. This "conservation of expected fortune" is the fastest route to a symmetric ruin probability on an exam.</p>
+<p><b>Step 2 (part b &mdash; the error).</b> Fairness says the <em>expected</em> final position equals the starting position; it says nothing about the two outcomes being equally likely. Here $\mathbf{P}(X_T=8)=0.375$ and $\mathbf{P}(X_T=0)=0.625$ &mdash; she is ruined more often than not. Fairness is restored by the <em>sizes</em> of the outcomes, not their frequencies: she loses $3$ units with probability $0.625$ and gains $5$ with probability $0.375$, and
+$$(-3)(0.625)+(+5)(0.375)=-1.875+1.875=0\;\checkmark .$$
+The classmate's claim would be right only from the midpoint $i=4$, where $a_4=4/8=0.5$.</p>
+<p><b>Step 3 (part c &mdash; what breaks).</b> With $p=0.6$ the mean change per step is $2(0.6)-1=0.2\ne0$, so $\mathbb{E}[X_n]$ is no longer constant &mdash; it grows by $0.2$ per surviving step, and the conservation argument gives no equation. Use instead the biased formulas of Q158 and Q159 with $\rho=(1-p)/p=0.666667$, $N=8$, $i=3$:
+$$\rho^3=0.296296,\qquad \rho^8=0.039018,$$
+$$a_3=\frac{1-0.296296}{1-0.039018}=\frac{0.703704}{0.960982}=0.732276,$$
+$$D_3=\frac{i-N a_3}{1-2p}=\frac{3-8(0.732276)}{1-1.2}=\frac{3-5.858208}{-0.2}=\frac{-2.858208}{-0.2}=14.291039 .$$</p>
+<p><b>Step 4 (verify against the drift).</b> The generalization of Step 1 is $\mathbb{E}[X_T]=X_0+(2p-1)\mathbb{E}[T]$ &mdash; the expected position moves at the drift rate for the expected number of steps. Substituting,
+$$X_0+(2p-1)\mathbb{E}[T]=3+(0.2)(14.291039)=3+2.858208=5.858208,$$
+while directly $\mathbb{E}[X_T]=8(0.732276)+0(0.267724)=5.858208\;\checkmark$. The two agree, confirming both numbers at once.</p>
+<p><b>Answer.</b> $\;$(a) $\mathbb{E}[X_T]=8a_3=3\Rightarrow a_3=0.375$; (b) fairness fixes the expected final fortune, not the probabilities &mdash; the true split is $0.375/0.625$, made fair by the unequal stakes $+5$ and $-3$; (c) with $p=0.6$, $a_3=0.732276$ and $D_3=14.291039$, consistent with $\mathbb{E}[X_T]=3+0.2(14.291039)=5.858208$.</p>
+<p><b>Trap.</b> Trying to salvage (a) under bias by writing $8a_3=3$ anyway. That gives $0.375$ instead of $0.732276$ &mdash; you would predict she reaches the summit less than half the time in a walk that is pushing her uphill.</p>
+<p class="srcref">Tool: G5 &sect;4.3 (absorption probabilities; the fair-game shortcut) &middot; G5 &sect;4.2 (expected absorption time) &middot; B&amp;T &sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q163" data-diff="3" data-topic="random-walk">
+<p><b>Q163.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Spot the error: steady state on an absorbing chain &middot; <span class="ref">G5 &sect;2.4</span></span></p>
+<p>A student studies the walk on $\{0,1,2,3\}$ with symmetric steps in the interior and absorption at both ends:
+$$P=\begin{pmatrix}1&amp;0&amp;0&amp;0\\0.5&amp;0&amp;0.5&amp;0\\0&amp;0.5&amp;0&amp;0.5\\0&amp;0&amp;0&amp;1\end{pmatrix}.$$
+He writes: <em>"I solved the balance equations $\pi=\pi P$ with $\sum_j\pi_j=1$ and found $\pi=(0.5,\,0,\,0,\,0.5)$. So the chain spends half its time at $0$ and half at $3$, and therefore, starting from state $1$, the probability of ending at $3$ is $0.5$."</em> Identify every error, and give the correct probability of absorption at $3$ from state $1$ and the correct expected time to absorption.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The steady-state convergence theorem (G5 &sect;2.4) requires a single recurrent class that is aperiodic. Only then is $\pi$ unique and equal to $\lim_n r_{ij}(n)$ for every starting state $i$. Check the hypothesis before using the conclusion.</p>
+<p><b>Step 1 (error 1 &mdash; the class structure).</b> This chain has <em>two</em> recurrent classes, $\{0\}$ and $\{3\}$, each a single absorbing state, plus a transient class $\{1,2\}$. With two recurrent classes the theorem does not apply, and $\pi$ is not unique. Indeed $(1,0,0,0)$ satisfies $\pi P=\pi$ (check: $(1,0,0,0)P=(1,0,0,0)\;\checkmark$), and so does $(0,0,0,1)$, and so does <em>every</em> mixture $(\alpha,0,0,1-\alpha)$ for $\alpha\in[0,1]$ &mdash; a whole line of solutions. The student's $(0.5,0,0,0.5)$ is just the $\alpha=0.5$ member; his solver picked it, the mathematics did not.</p>
+<p><b>Step 2 (error 2 &mdash; the frequency claim).</b> Even taking his vector at face value, "spends half its time at $0$ and half at $3$" is impossible for this chain: once it enters $0$ it stays at $0$ forever, so on any single realization the long-run fraction of time is $1$ at one end and $0$ at the other. His vector is not a time-average of any trajectory; it is at best an average across trajectories, which is a different object.</p>
+<p><b>Step 3 (error 3 &mdash; the answer he wanted is a different question).</b> Absorption probability depends on the <em>starting state</em>; a steady-state vector by construction forgets the starting state. That alone shows $\pi$ cannot answer it. The right tool is first-step analysis (G5 &sect;4.1). Let $a_i=\mathbf{P}(\text{absorbed at }3\mid X_0=i)$, with $a_0=0$, $a_3=1$, and for interior states
+$$a_1=\tfrac12a_0+\tfrac12a_2=\tfrac12a_2,\qquad a_2=\tfrac12a_1+\tfrac12a_3=\tfrac12a_1+\tfrac12 .$$
+Substituting the first into the second: $a_2=\tfrac12(\tfrac12a_2)+\tfrac12=\tfrac14a_2+\tfrac12$, so $\tfrac34a_2=\tfrac12$ and
+$$a_2=\frac{2}{3}=0.666667,\qquad a_1=\tfrac12(0.666667)=\frac{1}{3}=0.333333 .$$
+This matches the symmetric formula $a_i=i/N=1/3$ from Q157. Raising $P$ to the power $4000$ numerically gives row $1$ equal to $(0.666667,\,0,\,0,\,0.333333)$ &mdash; the limit does exist here, it just depends on the starting row, which is precisely the failure of uniqueness.</p>
+<p><b>Step 4 (expected time to absorption).</b> With $\mu_i$ the expected steps from $i$, $\mu_0=\mu_3=0$ and
+$$\mu_1=1+\tfrac12\mu_0+\tfrac12\mu_2=1+\tfrac12\mu_2,\qquad \mu_2=1+\tfrac12\mu_1+\tfrac12\mu_3=1+\tfrac12\mu_1 .$$
+Substituting: $\mu_1=1+\tfrac12(1+\tfrac12\mu_1)=1.5+\tfrac14\mu_1$, so $\tfrac34\mu_1=1.5$ and $\mu_1=2$; by symmetry $\mu_2=2$. Both match $i(N-i)$: $1(3-1)=2$ and $2(3-2)=2\;\checkmark$.</p>
+<p><b>Answer.</b> $\;$Three errors: the chain has two recurrent classes so $\pi$ is not unique (every $(\alpha,0,0,1-\alpha)$ works); a stationary vector is not the time-average of a trajectory here, since each path freezes at one end; and absorption probability depends on the start, which $\pi$ cannot encode. Correctly, $a_1=1/3=0.333333$ (and $a_2=2/3$), with expected time to absorption $\mu_1=\mu_2=2$ steps.</p>
+<p><b>Trap.</b> The near-miss that makes this seductive: the student's $0.5$ is not wildly off, and $\pi_1=\pi_2=0$ is genuinely correct &mdash; transient states do have zero long-run frequency. Getting part of the vector right is not evidence the method applies. The diagnostic to run first is always: <em>how many recurrent classes?</em> More than one, and $\pi=\pi P$ is the wrong equation to be solving.</p>
+<p class="srcref">Tool: G5 &sect;2.1&ndash;&sect;2.2 (recurrent and transient classes) &middot; G5 &sect;2.4 (when steady-state convergence holds) &middot; G5 &sect;3.3 (the frequency interpretation) &middot; G5 &sect;4.1&ndash;&sect;4.2 (first-step analysis for absorption) &middot; B&amp;T &sect;7.2&ndash;&sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q164" data-diff="1" data-topic="waiting-time">
+<p><b>Q164.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Waiting for the first success &middot; <span class="ref">G2 &sect;3.7</span></span></p>
+<p>A quality inspector tests items one at a time. Each item is defective with probability $0.35$, independently. Let $T$ be the index of the first defective item found. Compute (a) $\mathbb{E}[T]$ and $\operatorname{var}(T)$; (b) $\mathbf{P}(T=3)$; (c) $\mathbf{P}(T&gt;5)$; (d) $\mathbf{P}(T&gt;8\mid T&gt;3)$, and say what property of the geometric distribution your answer illustrates.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Independent trials, each a success (defective) with the same probability $p=0.35$, and $T$ counts trials up to and including the first success. That is exactly the geometric PMF
+$$p_T(t)=(1-p)^{t-1}p,\qquad t=1,2,\dots$$
+with $\mathbb{E}[T]=1/p$ and $\operatorname{var}(T)=(1-p)/p^2$.</p>
+<p><b>Step 1 (part a).</b>
+$$\mathbb{E}[T]=\frac{1}{0.35}=2.857143\ \text{items},$$
+$$\operatorname{var}(T)=\frac{1-0.35}{(0.35)^2}=\frac{0.65}{0.1225}=5.306122,\qquad \sigma_T=\sqrt{5.306122}=2.303502 .$$
+A million simulated runs give a sample mean of $2.856541\;\checkmark$. Note $\sigma_T\approx\mathbb{E}[T]$: the geometric is a high-variability distribution, so "about three items" is a poor summary of any single run.</p>
+<p><b>Step 2 (part b).</b> $T=3$ means the first two are good and the third is defective, and the trials are independent, so
+$$\mathbf{P}(T=3)=(0.65)^2(0.35)=(0.4225)(0.35)=0.147875 .$$</p>
+<p><b>Step 3 (part c).</b> $T&gt;5$ means the first five trials are all good &mdash; a single intersection of five independent events:
+$$\mathbf{P}(T&gt;5)=(0.65)^5=0.116029 .$$
+(Summing the PMF from $t=6$ upward gives the same number, but the complement is one line.)</p>
+<p><b>Step 4 (part d).</b> Direct computation:
+$$\mathbf{P}(T&gt;8\mid T&gt;3)=\frac{\mathbf{P}(T&gt;8,\;T&gt;3)}{\mathbf{P}(T&gt;3)}=\frac{\mathbf{P}(T&gt;8)}{\mathbf{P}(T&gt;3)}=\frac{(0.65)^8}{(0.65)^3}=(0.65)^5=0.116029,$$
+using $\{T&gt;8\}\subset\{T&gt;3\}$ in the second equality. This equals $\mathbf{P}(T&gt;5)$ from part (c) exactly. That is <em>memorylessness</em>: given three good items, the additional number of items still to inspect has the same geometric distribution as the original $T$. The inspected items carry no information about the future, because the trials are independent.</p>
+<p><b>Answer.</b> $\;$(a) $\mathbb{E}[T]=2.857143$, $\operatorname{var}(T)=5.306122$; (b) $0.147875$; (c) $0.116029$; (d) $0.116029=\mathbf{P}(T&gt;5)$, illustrating memorylessness.</p>
+<p><b>Trap.</b> Reading $\mathbf{P}(T&gt;5)$ as $\mathbf{P}(T\ge5)$. The complement of $\{T&gt;5\}$ is $\{T\le5\}$, i.e. a defective within the first five, and $\mathbf{P}(T\ge5)=(0.65)^4=0.178506$ &mdash; more than half again as large. With geometrics, always write the tail as "$k$ consecutive failures" and count the failures carefully.</p>
+<p class="srcref">Tool: G2 &sect;1.5 (geometric PMF) &middot; G2 &sect;3.7 (its mean and variance) &middot; G2 &sect;3.5 (memorylessness) &middot; B&amp;T &sect;2.4, &sect;6.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q165" data-diff="2" data-topic="waiting-time">
+<p><b>Q165.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Waiting for the $k$th success &middot; <span class="ref">G4 &sect;2.5</span></span></p>
+<p>A recruiter calls candidates one per day; each independently accepts with probability $p=0.4$. She stops after the third acceptance. Let $T$ be the day of the third acceptance. (a) Compute $\mathbb{E}[T]$ and $\operatorname{var}(T)$, stating the decomposition you use. (b) Compute $\mathbf{P}(T=8)$. (c) Compute $\mathbf{P}(T=3)$ and check it against the PMF formula.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> This is a Bernoulli process with $p=0.4$, and $T=Y_3$ is the third arrival time. The key structural fact (G4 &sect;2.4) is that the interarrival times are i.i.d. geometric: write
+$$T=T_1+T_2+T_3,$$
+where $T_1$ is the number of days up to the first acceptance and $T_j$ ($j\ge2$) is the number of <em>additional</em> days from the $(j-1)$st acceptance to the $j$th. Each $T_j\sim\text{Geom}(0.4)$, and they are independent because they are built from disjoint blocks of independent trials (this is where memorylessness does its work: after an acceptance the process restarts).</p>
+<p><b>Step 1 (part a &mdash; mean).</b> Linearity of expectation, no independence needed:
+$$\mathbb{E}[T]=3\,\mathbb{E}[T_1]=\frac{3}{0.4}=7.5\ \text{days}.$$</p>
+<p><b>Step 2 (part a &mdash; variance).</b> Independence lets the variances add:
+$$\operatorname{var}(T)=3\cdot\frac{1-p}{p^2}=3\cdot\frac{0.6}{0.16}=3(3.75)=11.25,\qquad \sigma_T=3.354102 .$$
+Monte Carlo over $400{,}000$ searches gives mean $7.49965$ and variance $11.2651\;\checkmark$.</p>
+<p><b>Step 3 (part b).</b> The Pascal PMF: $T=t$ means the $t$th trial is an acceptance <em>and</em> exactly $k-1=2$ acceptances fall among the first $t-1=7$ days. Those two requirements involve disjoint trials, so multiply:
+$$p_T(t)=\binom{t-1}{k-1}p^{k}(1-p)^{t-k}.$$
+At $t=8$, $k=3$:
+$$\mathbf{P}(T=8)=\binom{7}{2}(0.4)^3(0.6)^5=21\,(0.064)(0.07776)=21(0.00497664)=0.10450944 .$$
+Monte Carlo: $0.104648\;\checkmark$. Note $t=8$ is above the mean $7.5$ yet has the largest probability of any single day &mdash; the Pascal PMF is right-skewed.</p>
+<p><b>Step 4 (part c).</b> The fastest possible finish is three acceptances in three days:
+$$\mathbf{P}(T=3)=(0.4)^3=0.064 .$$
+From the formula, $\binom{2}{2}(0.4)^3(0.6)^0=1(0.064)(1)=0.064\;\checkmark$.</p>
+<p><b>Answer.</b> $\;$(a) $\mathbb{E}[T]=7.5$ days, $\operatorname{var}(T)=11.25$ (sum of three i.i.d. geometrics); (b) $\mathbf{P}(T=8)=0.10450944$; (c) $\mathbf{P}(T=3)=0.064$.</p>
+<p><b>Trap.</b> Writing $\mathbf{P}(T=8)=\binom{8}{3}(0.4)^3(0.6)^5=0.278692$. That is the binomial probability of exactly three acceptances <em>somewhere</em> in eight days, which allows the eighth day to be a refusal. The Pascal PMF nails the last trial to be a success, so the coefficient is $\binom{7}{2}$, not $\binom{8}{3}$.</p>
+<p class="srcref">Tool: G4 &sect;2.3&ndash;&sect;2.5 (Bernoulli process, interarrival times, Pascal PMF) &middot; G2 &sect;3.7 (geometric mean and variance) &middot; B&amp;T &sect;6.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q166" data-diff="2" data-topic="pattern-waiting">
+<p><b>Q166.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Waiting for the pattern $HH$ &middot; <span class="ref">G5 &sect;4.2</span></span></p>
+<p>A fair coin is tossed repeatedly. Let $T$ be the number of tosses until two <em>consecutive</em> heads first appear. (a) Set up a Markov chain on the states "no useful progress", "one head so far", "done", and compute $\mathbb{E}[T]$ by first-step analysis. (b) Redo the computation for a coin with $\mathbf{P}(H)=p$ and give the general formula. (c) Evaluate it for $p=0.6$ and $p=0.35$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Track only what matters for the future: how much of the pattern $HH$ is currently complete. State $S_0$ = the last toss was a tail (or nothing has been tossed) &mdash; no progress. State $S_1$ = the last toss was a head, so one more head finishes. State $S_2$ = done, absorbing. Let $e_0,e_1$ be the expected number of <em>additional</em> tosses from $S_0,S_1$; then $\mathbb{E}[T]=e_0$.</p>
+<p><b>Step 1 (part a &mdash; the equations).</b> From $S_0$, toss once: heads (probability $\tfrac12$) moves to $S_1$, tails (probability $\tfrac12$) stays in $S_0$ &mdash; a tail wipes out nothing because there was nothing to wipe out. From $S_1$: heads finishes, tails sends us back to $S_0$. So
+$$e_0=1+\tfrac12e_1+\tfrac12e_0,\qquad e_1=1+\tfrac12(0)+\tfrac12e_0 .$$</p>
+<p><b>Step 2 (part a &mdash; solve).</b> Collect $e_0$ in the first equation: $\tfrac12e_0=1+\tfrac12e_1$, so $e_0=2+e_1$. Substitute into the second:
+$$e_1=1+\tfrac12(2+e_1)=1+1+\tfrac12e_1=2+\tfrac12e_1\ \Longrightarrow\ \tfrac12e_1=2\ \Longrightarrow\ e_1=4 .$$
+Hence
+$$\mathbb{E}[T]=e_0=2+4=6\ \text{tosses}.$$
+Monte Carlo over $200{,}000$ runs gives $6.00582\;\checkmark$.</p>
+<p><b>Step 3 (part b &mdash; general $p$).</b> With $q=1-p$ the same two equations read $e_0=1+pe_1+qe_0$ and $e_1=1+q e_0$. From the first, $p\,e_0=1+p\,e_1$, i.e. $e_0=\tfrac1p+e_1$. Substituting into the second,
+$$e_1=1+q\Bigl(\tfrac1p+e_1\Bigr)=1+\tfrac qp+q\,e_1\ \Longrightarrow\ e_1(1-q)=1+\tfrac qp\ \Longrightarrow\ e_1=\frac{1}{p}\Bigl(1+\frac{q}{p}\Bigr)=\frac{p+q}{p^2}=\frac{1}{p^{2}} .$$
+Then
+$$\mathbb{E}[T]=e_0=\frac1p+\frac{1}{p^{2}}=\frac{1+p}{p^{2}} .$$
+Check at $p=\tfrac12$: $(1.5)/(0.25)=6\;\checkmark$, and $e_1=1/0.25=4\;\checkmark$.</p>
+<p><b>Step 4 (part c).</b>
+$$p=0.6:\quad \mathbb{E}[T]=\frac{1.6}{0.36}=4.444444\ \text{tosses (Monte Carlo }4.44617\;\checkmark),$$
+$$p=0.35:\quad \mathbb{E}[T]=\frac{1.35}{0.1225}=11.020408\ \text{tosses}.$$
+The $1/p^2$ term dominates for small $p$: halving the head probability roughly quadruples the wait.</p>
+<p><b>Answer.</b> $\;$(a) $\mathbb{E}[T]=6$ tosses (with $e_1=4$); (b) $\mathbb{E}[T]=(1+p)/p^2$; (c) $4.444444$ at $p=0.6$ and $11.020408$ at $p=0.35$.</p>
+<p><b>Trap.</b> Answering $\mathbb{E}[T]=1/p^2=4$ for the fair coin, on the grounds that "$HH$ has probability $1/4$, so wait $1/(1/4)$". The tosses that start a candidate pair overlap, so the trials are not independent and the geometric formula does not apply. The correct answer $6$ is $50\%$ larger. Compare Q167, where the same wrong reasoning happens to give the right number for $HT$ &mdash; by accident.</p>
+<p class="srcref">Tool: G5 &sect;4.1&ndash;&sect;4.2 (first-step analysis, expected time to absorption) &middot; G2 &sect;3.8 (state recursions for pattern problems) &middot; B&amp;T &sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q167" data-diff="2" data-topic="pattern-waiting">
+<p><b>Q167.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; $HT$ versus $HH$ versus "two heads in total" &middot; <span class="ref">G5 &sect;4.2</span></span></p>
+<p>Three different waiting times for the same coin, $\mathbf{P}(H)=p$: $\;T_{HT}$ = tosses until the consecutive pattern $HT$ first appears; $\;T_{HH}$ = tosses until the consecutive pattern $HH$ first appears; $\;T_{2H}$ = tosses until the second head appears (anywhere, not necessarily consecutive). (a) For a fair coin, compute all three. (b) Two of them are equal for a fair coin. Show that this is a coincidence by recomputing all three at $p=0.6$. (c) Explain in one sentence why $T_{HT}$ is shorter than $T_{HH}$ for a fair coin.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Three different questions that a hurried reader collapses into one. $T_{2H}$ is a Pascal waiting time (Q165), a sum of two independent geometrics. $T_{HH}$ was solved in Q166. $T_{HT}$ needs its own chain, but it has a clean decomposition.</p>
+<p><b>Step 1 ($T_{HT}$ by decomposition).</b> To see $HT$ you must first see a head, then wait for the first tail after it. Waiting for the first head takes $1/p$ tosses on average; once a head has occurred, every subsequent head merely refreshes the "$H$" and costs nothing structurally, so from that point you are waiting for the first tail, which takes $1/q$ tosses on average. The two waits are over disjoint blocks of independent tosses, so by linearity
+$$\mathbb{E}[T_{HT}]=\frac1p+\frac1q .$$</p>
+<p><b>Step 2 (part a &mdash; fair coin).</b> With $p=q=0.5$:
+$$\mathbb{E}[T_{HT}]=\frac{1}{0.5}+\frac{1}{0.5}=2+2=4,$$
+$$\mathbb{E}[T_{HH}]=\frac{1+p}{p^2}=\frac{1.5}{0.25}=6\quad(\text{Q166}),$$
+$$\mathbb{E}[T_{2H}]=\frac{2}{p}=\frac{2}{0.5}=4\quad(\text{Q165, }k=2).$$
+Monte Carlo over $200{,}000$ runs gives $\mathbb{E}[T_{HT}]=4.001665$ and $\mathbb{E}[T_{HH}]=6.00582\;\checkmark$.</p>
+<p><b>Step 3 (part b &mdash; break the tie).</b> The coincidence is $\mathbb{E}[T_{HT}]=\mathbb{E}[T_{2H}]=4$. At $p=0.6$, $q=0.4$:
+$$\mathbb{E}[T_{HT}]=\frac{1}{0.6}+\frac{1}{0.4}=1.666667+2.5=4.166667\quad(\text{Monte Carlo }4.17101\;\checkmark),$$
+$$\mathbb{E}[T_{HH}]=\frac{1.6}{0.36}=4.444444,$$
+$$\mathbb{E}[T_{2H}]=\frac{2}{0.6}=3.333333 .$$
+All three are now different, and the ordering has changed too: at $p=0.5$ we had $T_{2H}=T_{HT}&lt;T_{HH}$, while at $p=0.6$ we have $T_{2H}&lt;T_{HT}&lt;T_{HH}$ with a strict gap everywhere. The equality at $p=\tfrac12$ is arithmetic ($1/p+1/q=2/p$ exactly when $p=q$), not structural.</p>
+<p><b>Step 4 (part c &mdash; why $HT$ beats $HH$).</b> Overlap. When you are one symbol into $HH$ (you have an $H$) and the next toss is a $T$, you lose <em>all</em> progress and restart from scratch. When you are one symbol into $HT$ (you have an $H$) and the next toss is an $H$, you lose <em>nothing</em> &mdash; the new head serves as the pattern's first symbol just as well. Patterns that can overlap themselves ($HH$) suffer costly restarts; patterns that cannot ($HT$) never go backwards. Same two symbols, same individual probability $1/4$ per position, different expected wait.</p>
+<p><b>Answer.</b> $\;$(a) fair coin: $\mathbb{E}[T_{HT}]=4$, $\mathbb{E}[T_{HH}]=6$, $\mathbb{E}[T_{2H}]=4$; (b) at $p=0.6$ they are $4.166667$, $4.444444$, $3.333333$ &mdash; all distinct, so the fair-coin tie is a coincidence; (c) $HH$ can overlap itself, so a tail destroys all progress, while a head never destroys progress toward $HT$.</p>
+<p><b>Trap.</b> "Both patterns have probability $1/4$ at any given pair of positions, so both waits are $4$." The per-position probabilities are indeed equal &mdash; and the expected waits are $4$ and $6$. Expected waiting time for a pattern is <em>not</em> the reciprocal of its per-position probability, because occurrences at overlapping positions are dependent.</p>
+<p class="srcref">Tool: G5 &sect;4.2 (first-step analysis for pattern waiting) &middot; G4 &sect;2.5 (Pascal waiting time) &middot; G2 &sect;3.7 (geometric) &middot; B&amp;T &sect;6.1, &sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q168" data-diff="3" data-topic="pattern-waiting">
+<p><b>Q168.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Waiting for the three-symbol pattern $HTH$ &middot; <span class="ref">G5 &sect;4.2</span></span></p>
+<p>A fair coin is tossed until the pattern $HTH$ appears in three consecutive tosses. (a) Build the state chain carefully &mdash; in particular, say what happens after $HTT$ and after $HH$ &mdash; and compute the expected number of tosses. (b) Do the same for $HTT$. (c) Explain the difference between the two answers using the overlap idea of Q167.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The state is the length of the longest <em>suffix</em> of the tosses so far that is also a <em>prefix</em> of the target pattern. For $HTH$ the prefixes are $\varnothing,\,H,\,HT,\,HTH$, so the states are $S_0,S_1,S_2$ and the absorbing $S_3$. Let $e_i$ be the expected number of additional tosses from $S_i$; the answer is $e_0$.</p>
+<p><b>Step 1 (the transitions &mdash; this is where care is needed).</b></p>
+<ul>
+<li>From $S_0$ (no progress): $H$ (probability $\tfrac12$) $\to S_1$; $T\to S_0$, since a lone $T$ is not a prefix of $HTH$.</li>
+<li>From $S_1$ (suffix $H$): $T\to S_2$ (suffix $HT$); $H\to S_1$, <em>not</em> $S_0$ &mdash; after $HH$ the trailing $H$ is a valid fresh start, so progress is retained, not lost.</li>
+<li>From $S_2$ (suffix $HT$): $H\to$ absorbed, pattern complete; $T\to S_0$, because after $HTT$ the suffixes $T$ and $TT$ are not prefixes of $HTH$, so all progress is lost.</li>
+</ul>
+<p><b>Step 2 (part a &mdash; the equations).</b>
+$$e_0=1+\tfrac12e_1+\tfrac12e_0,\qquad e_1=1+\tfrac12e_2+\tfrac12e_1,\qquad e_2=1+\tfrac12(0)+\tfrac12e_0 .$$</p>
+<p><b>Step 3 (part a &mdash; solve).</b> From the first, $\tfrac12e_0=1+\tfrac12e_1$, so $e_0=2+e_1$. From the second, $\tfrac12e_1=1+\tfrac12e_2$, so $e_1=2+e_2$. Chaining, $e_0=4+e_2$. Substituting into the third,
+$$e_2=1+\tfrac12(4+e_2)=1+2+\tfrac12e_2=3+\tfrac12e_2\ \Longrightarrow\ \tfrac12e_2=3\ \Longrightarrow\ e_2=6 .$$
+Back-substituting, $e_1=2+6=8$ and
+$$\mathbb{E}[T_{HTH}]=e_0=4+6=10\ \text{tosses}.$$
+Monte Carlo over $200{,}000$ runs gives $10.013025\;\checkmark$.</p>
+<p><b>Step 4 (part b &mdash; the pattern $HTT$).</b> The states are the same three prefixes $\varnothing,H,HT$, and the first two transition rules are identical. Only the last state changes: from suffix $HT$, a $T$ completes $HTT$ and absorbs, while an $H$ sends us to $S_1$ (the trailing $H$ is a fresh prefix) rather than to $S_0$. So
+$$e_0=1+\tfrac12e_1+\tfrac12e_0,\qquad e_1=1+\tfrac12e_2+\tfrac12e_1,\qquad e_2=1+\tfrac12(0)+\tfrac12e_1 .$$
+As before $e_0=2+e_1$ and $e_1=2+e_2$. Substituting the latter into the third equation,
+$$e_2=1+\tfrac12(2+e_2)=2+\tfrac12e_2\ \Longrightarrow\ e_2=4,$$
+so $e_1=2+4=6$ and $\mathbb{E}[T_{HTT}]=e_0=2+6=8$ tosses. Monte Carlo: $8.006\;\checkmark$.</p>
+<p><b>Step 5 (part c &mdash; the reason).</b> Both patterns have probability $(1/2)^3=1/8$ at any fixed triple of positions, yet the expected waits are $10$ and $8$. $HTH$ overlaps itself: its length-1 prefix $H$ is also its length-1 suffix, so the pattern can start again inside its own tail. Self-overlapping patterns are "clumpy" &mdash; once one occurs, another is unusually likely soon after &mdash; and to keep the average rate at $1/8$ per position, the <em>first</em> occurrence must be pushed further out. $HTT$ has no such overlap ($H\ne T$), its occurrences are spread more evenly, and the first one arrives sooner. The general rule: more self-overlap $\Rightarrow$ longer expected wait.</p>
+<p><b>Answer.</b> $\;$(a) $\mathbb{E}[T_{HTH}]=10$ tosses ($e_1=8$, $e_2=6$); (b) $\mathbb{E}[T_{HTT}]=8$ tosses; (c) $HTH$ overlaps itself in its first symbol, so its occurrences clump and the first one is delayed; $HTT$ has no self-overlap.</p>
+<p><b>Trap.</b> Sending the chain back to $S_0$ after $HH$ in Step 1. That destroys a genuinely useful trailing head and inflates the answer to $\mathbb{E}[T]=14$. The state is the longest suffix that is a prefix of the target &mdash; always recompute it symbol by symbol, never assume a mismatch means starting over.</p>
+<p class="srcref">Tool: G5 &sect;4.2 (expected time to absorption via first-step analysis) &middot; G5 &sect;1.1 (choosing a state that makes the process Markov) &middot; B&amp;T &sect;7.1, &sect;7.4</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q169" data-diff="2" data-topic="coupon-collector">
+<p><b>Q169.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Coupon collector: a fair die &middot; <span class="ref">G4 &sect;3.5</span></span></p>
+<p>A fair six-sided die is rolled repeatedly. Let $T$ be the number of rolls until every one of the six faces has appeared at least once. (a) Compute $\mathbb{E}[T]$ and $\operatorname{var}(T)$, showing the stage decomposition. (b) Which single stage contributes most to the mean, and what fraction of it? (c) Compute $\mathbf{P}(T&gt;20)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Break the wait into stages by how many <em>distinct</em> faces have been seen. Let $T_j$ be the number of rolls needed to go from $j$ distinct faces to $j+1$, for $j=0,1,\dots,5$, so that
+$$T=T_0+T_1+T_2+T_3+T_4+T_5 .$$
+While $j$ faces are known, each roll is "new" with probability $(6-j)/6$, independently of the past, so $T_j\sim\text{Geom}\bigl((6-j)/6\bigr)$. The $T_j$ are independent because they are built from disjoint blocks of independent rolls.</p>
+<p><b>Step 1 (part a &mdash; the mean).</b> A geometric with success probability $s$ has mean $1/s$, so $\mathbb{E}[T_j]=6/(6-j)$:
+$$\mathbb{E}[T_0],\dots,\mathbb{E}[T_5]=\tfrac66,\;\tfrac65,\;\tfrac64,\;\tfrac63,\;\tfrac62,\;\tfrac61=1,\;1.2,\;1.5,\;2,\;3,\;6 .$$
+By linearity,
+$$\mathbb{E}[T]=1+1.2+1.5+2+3+6=14.7\ \text{rolls},$$
+which is the familiar $6H_6=6\bigl(1+\tfrac12+\tfrac13+\tfrac14+\tfrac15+\tfrac16\bigr)=6\cdot\tfrac{49}{20}=6(2.45)=14.7$. Monte Carlo over $200{,}000$ collections gives $14.71896\;\checkmark$.</p>
+<p><b>Step 2 (part a &mdash; the variance).</b> Independence lets variances add, and $\operatorname{var}=\!(1-s)/s^2$ per stage with $s=(6-j)/6$:
+$$\operatorname{var}(T)=\sum_{j=0}^{5}\frac{1-s_j}{s_j^{2}},\qquad s_j=\frac{6-j}{6}.$$
+Term by term, e.g. at $j=4$ we have $s_4=\tfrac26=\tfrac13$ and $(1-\tfrac13)/(\tfrac13)^2=(\tfrac23)(9)=6$; the six terms are
+$$0,\;0.24,\;0.75,\;2,\;6,\;30,$$
+so
+$$\operatorname{var}(T)=0+0.24+0.75+2+6+30=38.99=\frac{3899}{100},\qquad \sigma_T=\sqrt{38.99}=6.244197 .$$
+The last stage alone contributes $30$ of the $38.99$.</p>
+<p><b>Step 3 (part b).</b> The final stage $T_5$ &mdash; hunting the one missing face, each roll succeeding with probability $1/6$ &mdash; contributes $6$ of the $14.7$, a fraction
+$$\frac{6}{14.7}=0.408163,$$
+about $41\%$ of the mean and $77\%$ of the variance ($30/38.99=0.769428$). The collection is easy until it is nearly done; almost all of the waiting and nearly all of the uncertainty sit at the end.</p>
+<p><b>Step 4 (part c).</b> Use inclusion&ndash;exclusion on the events $A_i=\{\text{face }i\text{ never appears in }n\text{ rolls}\}$. Any specified set of $j$ faces is avoided on a single roll with probability $1-j/6$, and rolls are independent, so $\mathbf{P}(A_{i_1}\cap\cdots\cap A_{i_j})=(1-j/6)^n$, and there are $\binom6j$ such sets. Since $\{T&gt;n\}=\bigcup_iA_i$,
+$$\mathbf{P}(T&gt;n)=\sum_{j=1}^{6}(-1)^{j+1}\binom{6}{j}\Bigl(1-\frac j6\Bigr)^{n}.$$
+At $n=20$ the leading term is $\binom61(5/6)^{20}=6(0.026084)=0.156504$, the second is $-\binom62(4/6)^{20}=-15(0.000301)=-0.004511$, and the rest are negligible ($+0.000019$, then below $10^{-8}$). Summing,
+$$\mathbf{P}(T&gt;20)=0.156504-0.004511+0.000019-\cdots=0.152012 .$$
+Monte Carlo: $0.15218\;\checkmark$. (For comparison $\mathbf{P}(T&gt;30)=0.025198$.) So even though the mean is $14.7$, there is better than a one-in-seven chance of still hunting after $20$ rolls &mdash; the right tail is long.</p>
+<p><b>Answer.</b> $\;$(a) $\mathbb{E}[T]=14.7$ rolls, $\operatorname{var}(T)=38.99$ ($\sigma_T=6.244197$); (b) the last stage, contributing $6/14.7=0.408163$ of the mean; (c) $\mathbf{P}(T&gt;20)=0.152012$.</p>
+<p><b>Trap.</b> Answering $\mathbb{E}[T]=6\cdot6=36$ ("six faces, each takes $6$ rolls on average"). Only the <em>last</em> stage costs $6$; the early stages are cheap because almost every roll is new. Conversely, answering $6$ ("one roll per face") ignores repeats entirely. The correct answer $14.7$ sits between, and it grows like $n\ln n$, not $n$ or $n^2$.</p>
+<p class="srcref">Tool: G4 &sect;3.5 (the coupon collector, rec14 P3) &middot; G4 &sect;2.5 (sums of independent geometrics) &middot; G2 &sect;3.7 (geometric mean and variance) &middot; G1 &sect;1.2 (inclusion&ndash;exclusion) &middot; B&amp;T &sect;6.1</p>
+</div></details>
+</div>
+
+<div class="ex qcard" id="q170" data-diff="3" data-topic="coupon-collector">
+<p><b>Q170.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Coupon collector with unequal probabilities &middot; <span class="ref">G4 &sect;3.5</span></span></p>
+<p>A cereal brand puts one of three prizes in each box: prize 1 with probability $0.5$, prize 2 with probability $0.3$, prize 3 with probability $0.2$, independently across boxes. Let $T$ be the number of boxes bought until all three prizes are held. (a) Explain in one sentence why the stage decomposition of Q169 fails here. (b) Derive $\mathbb{E}[T]$ by inclusion&ndash;exclusion on the maxima and evaluate it. (c) Compare with the equiprobable three-prize case and comment.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $W_i$ be the number of the box in which prize $i$ first appears, $i=1,2,3$. Then $T=\max(W_1,W_2,W_3)$: you are finished exactly when the last of the three first-appearances has happened.</p>
+<p><b>Step 1 (part a &mdash; why stages fail).</b> With unequal probabilities, "one prize still missing" is not a single situation: the chance of finishing on the next box is $0.5$ if prize 1 is the missing one but $0.2$ if prize 3 is. The stage durations are therefore not geometric with a state-independent parameter, and $T$ is not a sum of independent geometrics with known parameters &mdash; the clean decomposition of Q169 depended on symmetry among the faces.</p>
+<p><b>Step 2 (part b &mdash; the identity).</b> For nonnegative variables, inclusion&ndash;exclusion applied to the maximum gives
+$$\max_i W_i=\sum_i W_i-\sum_{i&lt;j}\min(W_i,W_j)+\min(W_1,W_2,W_3),$$
+(check it on any ordering: if $W_1\le W_2\le W_3$ the right side is $W_1+W_2+W_3-(W_1+W_1+W_2)+W_1=W_3\;\checkmark$). Taking expectations, by linearity,
+$$\mathbb{E}[T]=\sum_i\mathbb{E}[W_i]-\sum_{i&lt;j}\mathbb{E}[\min(W_i,W_j)]+\mathbb{E}[\min(W_1,W_2,W_3)].$$</p>
+<p><b>Step 3 (identify each term).</b> $W_i$ is geometric with parameter $p_i$, so $\mathbb{E}[W_i]=1/p_i$. And $\min(W_i,W_j)$ is the first box containing prize $i$ <em>or</em> prize $j$ &mdash; those are disjoint events on one box, so by additivity that box is a success with probability $p_i+p_j$, and the minimum is geometric with that parameter: $\mathbb{E}[\min(W_i,W_j)]=1/(p_i+p_j)$. Likewise $\mathbb{E}[\min$ of all three$]=1/(p_1+p_2+p_3)=1/1=1$, which is obviously right since every box contains some prize.</p>
+<p><b>Step 4 (part b &mdash; evaluate).</b> Singles:
+$$\frac{1}{0.5}+\frac{1}{0.3}+\frac{1}{0.2}=2+3.333333+5=10.333333 .$$
+Pairs, with $p_1+p_2=0.8$, $p_1+p_3=0.7$, $p_2+p_3=0.5$:
+$$\frac{1}{0.8}+\frac{1}{0.7}+\frac{1}{0.5}=1.25+1.428571+2=4.678571 .$$
+Triple: $1$. Hence
+$$\mathbb{E}[T]=10.333333-4.678571+1=6.654762\ \text{boxes}.$$
+Monte Carlo over $200{,}000$ collections gives $6.652945\;\checkmark$.</p>
+<p><b>Step 5 (part c).</b> With three equiprobable prizes the stage decomposition applies and gives
+$$3H_3=3\Bigl(1+\tfrac12+\tfrac13\Bigr)=3\Bigl(\tfrac{11}{6}\Bigr)=5.5\ \text{boxes}.$$
+Skewing the probabilities to $(0.5,0.3,0.2)$ raises the expected wait to $6.654762$, an excess of $1.154762$ boxes ($21\%$). The reason is the rare prize: on its own, prize 3 takes $1/0.2=5$ boxes on average to appear, and since $5$ is already close to the whole answer, the collection is essentially "wait for prize 3, and pick up the others along the way". Rarity is punished asymmetrically &mdash; making one prize common does not compensate for making another rare, because $\mathbb{E}[T]$ is driven by the worst term, not the average.</p>
+<p><b>Answer.</b> $\;$(a) the stages are no longer geometric with a common parameter, since "one missing" depends on <em>which</em> prize is missing; (b) $\mathbb{E}[T]=10.333333-4.678571+1=6.654762$ boxes; (c) the equiprobable case gives $5.5$, so the skew costs $1.154762$ extra boxes, driven by the rare prize ($1/0.2=5$ on its own).</p>
+<p><b>Trap.</b> Reusing the symmetric formula with an "average" probability $\bar p=1/3$ to get $5.5$, or applying the harmonic formula to $1/p_i$ values directly. Both understate the answer, and always in the same direction: for a fixed number of categories, the equiprobable case <em>minimizes</em> $\mathbb{E}[T]$, so any skew can only make the wait longer.</p>
+<p class="srcref">Tool: G4 &sect;3.5 (the coupon collector, rec14 P3) &middot; G4 &sect;2.6 (merging Bernoulli processes) &middot; G1 &sect;1.2 (inclusion&ndash;exclusion) &middot; G2 &sect;3.7 (geometric mean) &middot; B&amp;T &sect;6.1</p>
+</div></details>
+</div>

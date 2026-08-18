@@ -500,6 +500,33 @@ rec("E2_weights_a5_B8", w5)
 rec("E2_weightsum_a5_B8", float(w5.sum()))
 
 # =====================================================================
+print()
+print("=" * 78)
+print("G. A doubly stochastic chain: lazy symmetric random walk on a 4-cycle")
+print("=" * 78)
+# =====================================================================
+# states 1..4 arranged in a circle; stay with prob 1/2, step either way with 1/4
+Pcyc = np.zeros((4, 4))
+for i in range(4):
+    Pcyc[i, i] = 0.5
+    Pcyc[i, (i + 1) % 4] = 0.25
+    Pcyc[i, (i - 1) % 4] = 0.25
+rec("G_P", Pcyc)
+rec("G_rowsums", Pcyc.sum(axis=1))
+rec("G_colsums", Pcyc.sum(axis=0), "doubly stochastic: columns sum to 1 as well")
+rec("G_colsum_maxdev", float(np.max(np.abs(Pcyc.sum(axis=0) - 1.0))))
+picyc = stationary(Pcyc)
+rec("G_pi_linalg", picyc, "expect the uniform distribution 1/m = 0.25")
+rec("G_uniform", [1 / 4] * 4)
+rec("G_maxdev_from_uniform", float(np.max(np.abs(picyc - 0.25))))
+rec("G_balance_residual", float(np.max(np.abs(picyc @ Pcyc - picyc))))
+# the uniform vector itself, plugged straight into the balance equations
+unif = np.full(4, 0.25)
+rec("G_uniform_balance_residual", float(np.max(np.abs(unif @ Pcyc - unif))))
+# contrast: the section-C chain is NOT doubly stochastic, and its pi is not uniform
+rec("G_C_colsums", P3.sum(axis=0), "not all 1 -> pi is not uniform there")
+
+# =====================================================================
 outp = ROOT / "computes" / "g5_s3.json"
 outp.write_text(json.dumps(OUT, indent=1), encoding="utf-8")
 print(f"\nwrote {outp}")

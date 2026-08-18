@@ -390,7 +390,13 @@ canvas.plot { width: 100%; display: block; }
   .widget .wcontrols { display: none; }
   .widget, .fig, .defn, .note, .thm, .ex, .warn, .recipe, .summary,
   details.sol, pre { box-shadow: none; }
-  details.sol { open: true; }
+  /* force solution panels open on paper: `open` is an HTML attribute, not a
+     CSS property, so the old `open: true` was silently discarded and printed
+     copies carried no solutions at all. */
+  details.sol > .body, details.sol:not([open]) > .body { display: block !important; }
+  details.sol > summary { list-style: none; }
+  details.sol > summary::marker, details.sol > summary::-webkit-details-marker { display: none; }
+  .qbfilter { display: none; }
   /* never leave a content-free colored strip (a box's bottom padding/border)
      stranded at the top of the next sheet */
   .defn, .note, .thm, .warn, .recipe, .summary, .widget,
@@ -483,6 +489,30 @@ canvas.plot { width: 100%; display: block; }
 #themetoggle:hover { background: var(--btnHover); border-color: var(--rule); }
 
 #sidebar #themetoggle { display: block; width: 100%; margin: 4px 0 10px 0; text-align: center; }
+
+/* ---------- question bank ---------- */
+.qbfilter {
+  position: sticky; top: 0; z-index: 20; background: var(--paper);
+  border-bottom: 1px solid var(--hairline); padding: 10px 0 12px;
+  margin: 0 0 18px; font-family: var(--ui); font-size: 12.5px;
+}
+.qbfilter .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.qbfilter .lbl { color: var(--muted); font-weight: 600; margin-right: 4px; }
+.qbchip {
+  border: 1px solid var(--rule); border-radius: 999px; padding: 3px 11px; cursor: pointer;
+  background: none; color: var(--ink); font: inherit; transition: background .13s, border-color .13s;
+}
+.qbchip:hover { background: var(--tocHover); }
+.qbchip.on { background: var(--s1); border-color: var(--s1); color: #fff; }
+.qbcount { color: var(--muted); font-variant-numeric: tabular-nums; }
+.qcard { scroll-margin-top: 70px; }
+.qcard.hide { display: none; }
+.qmeta {
+  font-family: var(--ui); font-size: 11px; color: var(--muted);
+  letter-spacing: .02em; margin-left: 6px;
+}
+.qmeta .stars { color: var(--s4); letter-spacing: .08em; }
+.qmeta .ref { color: var(--link); }
 
 </style>
 <script>
@@ -938,6 +968,40 @@ canvas.plot { width: 100%; display: block; }
     const saved = localStorage.getItem("theme6041");
     if (saved) document.documentElement.dataset.theme = saved;
   } catch (e) {}
+})();
+
+/* Solutions on paper, and for review captures.
+   `<details>` content is hidden by Chrome's UA shadow DOM, which no print CSS
+   rule can override — so the `open` attribute must actually be set. We set it
+   on beforeprint and restore afterwards, and honour ?expand=1 for the
+   screenshot/review pipeline. */
+(function () {
+  "use strict";
+  var forced = [];
+  function openAll() {
+    forced = [];
+    document.querySelectorAll("details.sol:not([open])").forEach(function (d) {
+      d.setAttribute("open", "");
+      forced.push(d);
+    });
+  }
+  function restoreAll() {
+    forced.forEach(function (d) { d.removeAttribute("open"); });
+    forced = [];
+  }
+  window.addEventListener("beforeprint", openAll);
+  window.addEventListener("afterprint", restoreAll);
+  if (window.matchMedia) {
+    try {
+      var mq = window.matchMedia("print");
+      var onChange = function (e) { (e.matches ? openAll : restoreAll)(); };
+      if (mq.addEventListener) mq.addEventListener("change", onChange);
+      else if (mq.addListener) mq.addListener(onChange);
+    } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    if (/[?&]expand=1/.test(location.search)) openAll();
+  });
 })();
 
 </script>
@@ -1973,6 +2037,17 @@ $$\int_{1/2}^{1}\Big(\frac{x}{2}+\frac18\Big)dx = \Big[\frac{x^2}{4}+\frac{x}{8}
 <p>$\{Y \gt X\}$ is the half-plane above the diagonal; it cuts the disk into two congruent halves, so $\mathbf{P} = \frac12$. (The boundary line $Y=X$ has zero area and so contributes nothing, per Gotcha item 2.)</p>
 </div></details></div>
 
+<div class="defn"><b>Definition (joint CDF — B&amp;T §3.4).</b> The <b>joint cumulative distribution function</b> of a pair $X,Y$ is
+$$F_{X,Y}(x,y) \;=\; \mathbf{P}(X\le x,\ Y\le y) \;=\; \int_{-\infty}^{y}\!\!\int_{-\infty}^{x} f_{X,Y}(s,t)\,ds\,dt ,$$
+the second equality being the definition above applied to the quarter-plane $S = (-\infty,x]\times(-\infty,y]$, and holding only in the jointly continuous case. Here $x$ and $y$ are the two <em>thresholds</em>, and $s,t$ are dummy integration variables. This is the two-dimensional analogue of the one-variable CDF $F_X(x)=\mathbf{P}(X\le x)$ of §1.4: there the region was a half-line and $F_X(x)$ accumulated density to the <em>left</em> of $x$; here it is a quarter-plane and $F_{X,Y}(x,y)$ accumulates volume to the <em>south-west</em> of the point $(x,y)$. As in §1.4 the definition needs no density at all — it works for discrete, continuous and mixed pairs alike, which is exactly what made the CDF the universal object there.</div>
+
+<div class="thm"><b>Property (recovering the density and the marginals from $F_{X,Y}$ — B&amp;T §3.4).</b> Wherever the derivatives exist,
+$$f_{X,Y}(x,y) \;=\; \frac{\partial^2 F_{X,Y}}{\partial x\,\partial y}(x,y) ,$$
+and the marginal CDFs are obtained by sending the unwanted threshold to infinity:
+$$F_X(x) = \lim_{y\to\infty} F_{X,Y}(x,y), \qquad F_Y(y) = \lim_{x\to\infty} F_{X,Y}(x,y) .$$</div>
+
+<p><b>Why.</b> Both statements come out of the double integral. Differentiating $F_{X,Y}$ with respect to $y$ removes the outer integral by the fundamental theorem of calculus and leaves $\int_{-\infty}^{x} f_{X,Y}(s,y)\,ds$; differentiating <em>that</em> with respect to $x$ removes the remaining integral and leaves $f_{X,Y}(x,y)$. So the mixed partial undoes the double accumulation, exactly as $f_X = dF_X/dx$ undid the single accumulation in §1.4; the order of the two differentiations is immaterial when $f_{X,Y}$ is continuous. For the limits, the events $\{X\le x,\ Y\le y\}$ increase to $\{X\le x\}$ as $y\to\infty$ — no constraint on $Y$ survives — so their probabilities converge to $\mathbf{P}(X\le x)$ by the continuity property of probability (G1 §1.7). This is the CDF form of marginalization, and it is the same fact as §2.2 one derivative away: differentiating $F_X(x) = \int_{-\infty}^{\infty}\!\int_{-\infty}^{x} f_{X,Y}(s,y)\,ds\,dy$ in $x$ gives $f_X(x) = \int_{-\infty}^{\infty} f_{X,Y}(x,y)\,dy$.</p>
+
 <h3>2.2 From the joint to the marginal</h3>
 
 <p>L09 slide 3 writes the line</p>
@@ -2223,6 +2298,7 @@ $$f_{X,Y}(x,y) = f_X(x)\,f_Y(y) \qquad \text{for all } x,y .$$
 <ol>
 <li>$f_{X,Y}(x,y) = f_X(x)f_Y(y)$ for all $x,y$;</li>
 <li>$f_{X|Y}(x\mid y) = f_X(x)$ for all $x$ and all $y$ with $f_Y(y)\gt0$;</li>
+<li>$F_{X,Y}(x,y) = F_X(x)F_Y(y)$ for all $x,y$ — the joint CDF of §2.1 factors. (It is item 4 read for the quadrants $A=(-\infty,x]$, $B=(-\infty,y]$; conversely, applying $\partial^2/\partial x\,\partial y$ to both sides returns item 1, since $\partial^2\big(F_X(x)F_Y(y)\big)/\partial x\,\partial y = f_X(x)f_Y(y)$.)</li>
 <li>$\mathbf{P}(X\in A,\ Y\in B) = \mathbf{P}(X\in A)\mathbf{P}(Y\in B)$ for all sets $A, B$.</li>
 </ol>
 Moreover independence implies $\mathbb{E}[g(X)h(Y)] = \mathbb{E}[g(X)]\,\mathbb{E}[h(Y)]$ for any functions $g,h$; in particular $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$, $\operatorname{cov}(X,Y)=0$, and $\operatorname{var}(X+Y)=\operatorname{var}(X)+\operatorname{var}(Y)$.</div>
@@ -2611,6 +2687,18 @@ Cross-check by the expected value rule without ever finding $f_Z$: $\mathbb{E}[\
 <p>(iii) <b>False.</b> Linearity of expectation holds for any jointly distributed pair (§2.5); only <em>products</em>, $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$, and $\operatorname{var}(X+Y)=\operatorname{var}X+\operatorname{var}Y$ need independence (or at least zero covariance).</p>
 <p>(iv) <b>True.</b> The slice of a constant function is constant, and renormalizing a constant leaves it constant — uniform on the slice (§2.7c, Practice 2.6).</p>
 <p>(v) <b>False.</b> The marginal is the <em>length</em> of the slice times the constant, and slice lengths vary: the triangle gives $f_Y(y)=2(1-y)$, the disk gives the semicircle law (Practice 2.3). It is uniform only when the region is a rectangle with sides parallel to the axes.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 2.19.</b> For the running density $f_{X,Y}(x,y)=x+y$ on the unit square (Example 2.1), find the joint CDF $F_{X,Y}(x,y)$ on the square, recover the density from it by the mixed partial of §2.1, obtain $F_X$ by the limit rule, and check independence with the third criterion of §2.4.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>The CDF.</b> For $0\le x\le1$, $0\le y\le1$ the quarter-plane meets the support in the rectangle $[0,x]\times[0,y]$, so
+$$F_{X,Y}(x,y) = \int_0^x\!\!\int_0^y (s+t)\,dt\,ds .$$
+Inner integral, antiderivative $st+\frac{t^2}{2}$: $\big[st+\frac{t^2}{2}\big]_0^{y} = sy+\frac{y^2}{2}$. Outer, antiderivative $\frac{s^2y}{2}+\frac{sy^2}{2}$:
+$$F_{X,Y}(x,y) = \Big[\frac{s^2y}{2}+\frac{sy^2}{2}\Big]_0^{x} = \frac{x^2y+xy^2}{2} = \frac{xy(x+y)}{2} .$$
+Two checks: $F_{X,Y}(x,0)=0$ (a degenerate rectangle carries no probability) and $F_{X,Y}(1,1)=\frac{1\cdot1\cdot2}{2}=1$ ✓, the normalization of Example 2.1.</p>
+<p><b>Mixed partial.</b> $\dfrac{\partial}{\partial y}\dfrac{x^2y+xy^2}{2} = \dfrac{x^2+2xy}{2}$, and then $\dfrac{\partial}{\partial x}\dfrac{x^2+2xy}{2} = \dfrac{2x+2y}{2} = x+y = f_{X,Y}(x,y)$ ✓.</p>
+<p><b>Marginal.</b> The support ends at $y=1$, so $F_{X,Y}(x,y)=F_{X,Y}(x,1)$ for every $y\ge1$ and the limit is just that value: $F_X(x) = \frac{x(x+1)}{2} = \frac{x^2+x}{2}$ on $[0,1]$. Differentiating (§1.4) gives $f_X(x)=x+\frac12$, the marginal of Example 2.2 ✓.</p>
+<p><b>Independence.</b> By symmetry $F_Y(y)=\frac{y(y+1)}{2}$, so $F_X(x)F_Y(y) = \frac{x(x+1)y(y+1)}{4}$ — a quartic, whereas $F_{X,Y}$ is a cubic. They cannot agree for all $x,y$, so $X$ and $Y$ are dependent, confirming Example 2.2 by the CDF criterion instead of the density one.</p>
 </div></details></div>
 
 <div class="summary"><b>§2 cheatsheet.</b>
@@ -4282,6 +4370,57 @@ The mean is unbiased and the spread shrinks like $1/\sqrt n$ — the exact, non-
 the law of large numbers, available here only because the normal family is closed under
 convolution.</p></div></details></div>
 
+<h4>The discrete companion: a sum of independent binomials is binomial</h4>
+
+<p>The normal is not the only family closed under addition of independent members, and the other
+standard example is discrete. Its proof needs no algebra at all if you go back to what a binomial
+counts — but the convolution sum confirms it, and doing both is worth the two minutes because the
+story argument tells you instantly <em>which</em> hypothesis the result really depends on.</p>
+
+<div class="thm"><b>Property (binomial additivity; the discrete convolution of §4.5; B&amp;T §4.1).</b>
+If $X\sim\mathrm{Bin}(n_1,p)$ and $Y\sim\mathrm{Bin}(n_2,p)$ are independent and share the
+<b>same</b> success probability $p$, then
+$$X+Y\sim\mathrm{Bin}(n_1+n_2,\;p).$$
+The two numbers of trials add; the success probability is carried over unchanged.</div>
+
+<p><b>The story argument (one line).</b> $X$ is the number of successes in $n_1$ independent
+Bernoulli($p$) trials and $Y$ the number of successes in $n_2$ further Bernoulli($p$) trials;
+independence of $X$ and $Y$ says the two batches do not interact, so all $n_1+n_2$ trials are
+independent of one another and every one of them has the same success probability $p$. Then $X+Y$ is
+the number of successes among those $n_1+n_2$ trials — which <em>is</em> the definition of a
+$\mathrm{Bin}(n_1+n_2,p)$ variable. Nothing is computed; the distribution is read straight off the
+experiment.</p>
+
+<p><b>The convolution check.</b> Write $q=1-p$. Feeding the two binomial PMFs into the discrete
+convolution formula of §4.5, and summing over the values $x$ for which both factors are nonzero
+($0\le x\le n_1$ and $0\le w-x\le n_2$),
+$$p_W(w)=\sum_x\binom{n_1}{x}p^xq^{\,n_1-x}\cdot\binom{n_2}{w-x}p^{\,w-x}q^{\,n_2-(w-x)} .$$
+Collect the powers first: $p^xp^{\,w-x}=p^w$ and
+$q^{\,n_1-x}q^{\,n_2-w+x}=q^{\,n_1+n_2-w}$, the $x$'s cancelling in both exponents (this is the whole
+trick — the $p$'s and $q$'s no longer depend on the summation variable, so they come out of the sum):
+$$p_W(w)=p^wq^{\,n_1+n_2-w}\sum_x\binom{n_1}{x}\binom{n_2}{w-x}
+=\binom{n_1+n_2}{w}p^wq^{\,n_1+n_2-w},$$
+the last equality being <b>Vandermonde's convolution identity</b>
+$\sum_x\binom{n_1}{x}\binom{n_2}{w-x}=\binom{n_1+n_2}{w}$. That identity is itself the same counting
+statement as the story argument: to choose $w$ items from a pool of $n_1+n_2$ split into a group of
+$n_1$ and a group of $n_2$, classify the choices by the number $x$ taken from the first group and add
+up the disjoint cases. The result is the $\mathrm{Bin}(n_1+n_2,p)$ PMF. <b>Check</b> with
+$n_1=2$, $n_2=3$, $p=3/10$: the convolution returns
+$\left(\frac{16807}{100000},\frac{7203}{20000},\frac{3087}{10000},\frac{1323}{10000},
+\frac{567}{20000},\frac{243}{100000}\right)$, identical as exact fractions to the
+$\mathrm{Bin}(5,3/10)$ PMF, largest discrepancy $0$ (<code>binadd_conv</code>,
+<code>binadd_closed</code>, <code>binadd_exact_match</code>, <code>binadd_maxerr</code>).</p>
+
+<div class="warn"><b>Gotcha.</b> The shared $p$ is the load-bearing hypothesis; only the numbers of
+trials are allowed to differ. With different success probabilities the sum is not binomial at all.
+Take $X\sim\mathrm{Bin}(1,\frac15)$ and $Y\sim\mathrm{Bin}(1,\frac45)$, independent, and $W=X+Y$.
+Then $\mathbf{P}(W=2)=\frac15\cdot\frac45=\frac{4}{25}=0.16$ (<code>binadd_bad_p2</code>), so a
+$\mathrm{Bin}(2,p)$ would have to satisfy $p^2=0.16$, i.e. $p=0.4$ (<code>binadd_bad_fit_p</code>) —
+and that $\mathrm{Bin}(2,0.4)$ puts $2(0.4)(0.6)=0.48$ on $w=1$ (<code>binadd_bad_fit_p1</code>),
+whereas the true value is $\frac15\cdot\frac15+\frac45\cdot\frac45=\frac{17}{25}=0.68$
+(<code>binadd_bad_p1</code>). No binomial fits. As with the independence hypothesis in the normal
+case above, dropping the hypothesis does not merely weaken the conclusion — it destroys it.</div>
+
 <h3>4.8 Covariance and correlation</h3>
 
 <p>The last two slides of L11 introduce the numbers that quantify dependence between two random
@@ -4354,6 +4493,28 @@ The dependence in Example 4.9 is perfectly symmetric — large $|X|$ means large
 and the positive contributions from $X&gt;0$ exactly cancel the negative ones from $X&lt;0$. "Zero
 covariance" and "uncorrelated" mean the same thing, and neither means independent.</div>
 
+<div class="note"><b>The one exception: joint normality.</b> There is a single famous case in which
+the converse does hold. If $(X,Y)$ are <b>jointly</b> normal — the <em>pair</em> has a bivariate
+normal density — then zero covariance <em>does</em> imply independence. The reason is visible in the
+joint density of §4.7: for jointly normal variables the exponent is a quadratic in $(x,y)$ whose only
+cross term is proportional to $\rho\,(x-\mu_X)(y-\mu_Y)$, so setting $\rho=0$ deletes it and leaves
+$$f_{X,Y}(x,y)=\frac{1}{\sqrt{2\pi}\sigma_X}e^{-(x-\mu_X)^2/2\sigma_X^2}\cdot
+\frac{1}{\sqrt{2\pi}\sigma_Y}e^{-(y-\mu_Y)^2/2\sigma_Y^2},$$
+a product of the two marginals — which is exactly the factorization criterion for independence
+from §2. This is why "uncorrelated" is treated as interchangeable with "independent" in Gaussian
+models, and essentially nowhere else.
+<p><b>Marginally normal is not enough.</b> The hypothesis is joint normality of the pair, not
+normality of each variable separately, and the gap between the two is real. Let $X$ be standard
+normal and let $S$ be an independent fair sign, $\mathbf{P}(S=1)=\mathbf{P}(S=-1)=\frac12$, and put
+$Y=SX$. Then $Y$ is standard normal as well (flipping the sign leaves the symmetric normal density
+unchanged), and
+$$\operatorname{cov}(X,Y)=\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]=\mathbb{E}[SX^2]-0
+=\mathbb{E}[S]\,\mathbb{E}[X^2]=0\cdot1=0,$$
+using independence of $S$ and $X$ to split the expectation. Yet $|Y|=|X|$ with probability $1$:
+knowing $X$ pins $|Y|$ down exactly. Two normal marginals, zero correlation, and total dependence —
+because the pair $(X,Y)$ is <em>not</em> jointly normal (its mass sits entirely on the two lines
+$y=\pm x$, not on an elliptical cloud).</p></div>
+
 <div class="defn"><b>Definition (correlation coefficient; L11 slide 8, B&amp;T §4.2).</b> If
 $\sigma_X,\sigma_Y&gt;0$,
 $$\rho=\rho(X,Y)=\mathbb{E}\left[\frac{X-\mathbb{E}[X]}{\sigma_X}\cdot
@@ -4403,6 +4564,21 @@ relation with $c=\sigma_X/\sigma_Y&gt;0$; and this happens exactly when $\rho=1$
 $\rho=-1$ corresponds to $\operatorname{var}(U+V)=0$ and $c=-\sigma_X/\sigma_Y$. So $|\rho|=1$ is the
 signature of an exact straight-line relationship, with the sign of $\rho$ giving the sign of its
 slope.</p>
+
+<p><b>The inequality has a name.</b> The bound $-1\le\rho\le1$ is the probabilistic form of the
+<b>Cauchy–Schwarz inequality</b> (the Schwarz inequality, in the book's phrasing): for any two random
+variables $U,V$ on the same experiment with finite second moments,
+$$\big|\mathbb{E}[UV]\big|\le\sqrt{\mathbb{E}[U^2]\,\mathbb{E}[V^2]},$$
+with equality exactly when one is a constant multiple of the other with probability $1$. Applied to
+the centred variables $U=X-\mathbb{E}[X]$ and $V=Y-\mathbb{E}[Y]$, whose expected product is the
+covariance and whose mean squares are the variances, it reads
+$$\big|\operatorname{cov}(X,Y)\big|\le\sigma_X\sigma_Y,$$
+and dividing through by $\sigma_X\sigma_Y&gt;0$ is precisely $|\rho|\le1$ — the same statement we just
+proved by hand. The variance-of-a-sum argument above is the quickest route to it for this course; the
+inequality itself is proved in general — by minimizing $\mathbb{E}[(X-\alpha Y)^2]$ over the real
+parameter $\alpha$, the best-multiple calculation — in G4 §1.5, Example 1.14 (rec12 P4; B&amp;T
+Problem 4.20). G6 §4 invokes it by name again when bounding the mean squared error of the linear
+least-squares estimator.</p>
 
 <img class="fig" src="img/g3_s4_cov.png" alt="Three scatter plots. Left: a cloud tilted up to the right, labelled positive covariance with rho about plus zero point eight nine. Middle: a cloud tilted down to the right, negative covariance with rho about minus zero point eight eight. Right: points lying on a parabola, correlation about zero yet clearly dependent." style="max-width:880px">
 <div class="figcap">Fig. 4.9 — The sign of the covariance is the tilt of the cloud; the third panel is the trap of Example 4.9 (L11 slide 7; B&amp;T §4.2).</div>
@@ -4492,14 +4668,19 @@ $p_W(w)=\sum_xp_X(x)p_Y(w-x)$; continuous $f_W(w)=\int f_X(x)f_Y(w-x)dx$. Mechan
 $w$, multiply, sum/integrate.</li>
 <li><b>Standard convolutions</b>: $U(0,1)+U(0,1)$ = triangle $f_W(w)=w$ then $2-w$ on $[0,2]$;
 Exp($\lambda$)+Exp($\lambda$) = Erlang-2, $\lambda^2we^{-\lambda w}$;
-$N(\mu_x,\sigma_x^2)+N(\mu_y,\sigma_y^2)=N(\mu_x+\mu_y,\sigma_x^2+\sigma_y^2)$.</li>
+$N(\mu_x,\sigma_x^2)+N(\mu_y,\sigma_y^2)=N(\mu_x+\mu_y,\sigma_x^2+\sigma_y^2)$;
+$\mathrm{Bin}(n_1,p)+\mathrm{Bin}(n_2,p)=\mathrm{Bin}(n_1+n_2,p)$ — <em>same $p$ only</em>, by
+Vandermonde's identity or by counting $n_1+n_2$ Bernoulli($p$) trials.</li>
 <li><b>Covariance</b>: $\operatorname{cov}(X,Y)=\mathbb{E}[(X-\mathbb{E}X)(Y-\mathbb{E}Y)]
 =\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]$; $\operatorname{cov}(X,X)=\operatorname{var}(X)$;
-bilinear; independence $\Rightarrow$ $0$, not conversely.</li>
+bilinear; independence $\Rightarrow$ $0$, not conversely — except for <em>jointly</em> normal
+$(X,Y)$, where $\operatorname{cov}=0$ does give independence (marginal normality alone does not).</li>
 <li><b>Variance of a sum</b>: $\operatorname{var}(\sum_iX_i)=\sum_i\operatorname{var}(X_i)
 +\sum_{i\ne j}\operatorname{cov}(X_i,X_j)$ (ordered pairs).</li>
 <li><b>Correlation</b>: $\rho=\frac{\operatorname{cov}(X,Y)}{\sigma_X\sigma_Y}\in[-1,1]$,
-dimensionless; $|\rho|=1$ iff $X$ and $Y$ are exactly linearly related.</li>
+dimensionless; $|\rho|=1$ iff $X$ and $Y$ are exactly linearly related. The bound is the
+Cauchy–Schwarz inequality $|\mathbb{E}[UV]|\le\sqrt{\mathbb{E}[U^2]\mathbb{E}[V^2]}$, proved in full
+in G4 §1.5 (B&amp;T Problem 4.20).</li>
 </ul>
 </div>
 
@@ -5292,7 +5473,7 @@ variance decomposition, transforms, and processes built from repeated independen
 </ul></div>
 
 <hr>
-<div class="small" style="text-align:center;">Compiled from MIT 6.041/6.431 F10 L08–L11 slide handouts, recitations 8–11 (+ official solutions), Bertsekas–Tsitsiklis chs. 3–4 on 2026-07-30. Every numerical value recomputed independently in Python; see computes/.</div>
+<div class="small" style="text-align:center;">Compiled from MIT 6.041/6.431 F10 L08–L11 slide handouts, recitations 8–11 (+ official solutions), Bertsekas–Tsitsiklis chs. 3–4 on 2026-08-19. Every numerical value recomputed independently in Python; see computes/.</div>
 </main>
 </body>
 </html>

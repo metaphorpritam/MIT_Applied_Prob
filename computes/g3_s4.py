@@ -247,6 +247,36 @@ for wv in (0.0, 1.0, 3.0):
     show(f"norm_closed_{wv}", float(math.exp(-wv ** 2 / (2 * s2)) / math.sqrt(2 * math.pi * s2)))
 
 # ===================================================================
+# 4.7b  Binomial additivity: Bin(n1,p) + Bin(n2,p) = Bin(n1+n2,p)
+# ===================================================================
+print("\n=== 4.7b  W = X+Y, X~Bin(n1,p), Y~Bin(n2,p) independent ===")
+n1b, n2b, pb = 2, 3, F(3, 10)
+
+
+def binpmf(n, p, k):
+    return F(math.comb(n, k)) * p ** k * (1 - p) ** (n - k)
+
+
+binconv = [sum(binpmf(n1b, pb, x) * binpmf(n2b, pb, w - x)
+               for x in range(0, n1b + 1) if 0 <= w - x <= n2b)
+           for w in range(0, n1b + n2b + 1)]
+binclosed = [binpmf(n1b + n2b, pb, w) for w in range(0, n1b + n2b + 1)]
+show("binadd_conv", [fs(v) for v in binconv], "convolution of Bin(2,3/10) and Bin(3,3/10)")
+show("binadd_closed", [fs(v) for v in binclosed], "Bin(5,3/10) pmf")
+show("binadd_exact_match", binconv == binclosed, "identical as exact fractions")
+show("binadd_maxerr", max(abs(float(a) - float(b)) for a, b in zip(binconv, binclosed)))
+show("binadd_conv_2", binconv[2], "w=2 term")
+# different p: the sum is NOT binomial.  Bin(1,1/5) + Bin(1,4/5)
+pa, pc = F(1, 5), F(4, 5)
+bad2 = pa * pc
+bad1 = pa * (1 - pc) + (1 - pa) * pc
+show("binadd_bad_p2", bad2, "P(W=2) with p1=1/5, p2=4/5")
+show("binadd_bad_p1", bad1, "P(W=1) with p1=1/5, p2=4/5")
+show("binadd_bad_fit_p", float(math.sqrt(float(bad2))), "the p a Bin(2,p) would need to match P(W=2)")
+show("binadd_bad_fit_p1", 2 * math.sqrt(float(bad2)) * (1 - math.sqrt(float(bad2))),
+     "that Bin(2,p) gives this P(W=1) -- disagrees with binadd_bad_p1")
+
+# ===================================================================
 # 4.8  Covariance and correlation  (L11 slides 7-8)
 # ===================================================================
 print("\n=== 4.8  covariance / correlation ===")

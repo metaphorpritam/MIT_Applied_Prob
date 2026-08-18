@@ -390,7 +390,13 @@ canvas.plot { width: 100%; display: block; }
   .widget .wcontrols { display: none; }
   .widget, .fig, .defn, .note, .thm, .ex, .warn, .recipe, .summary,
   details.sol, pre { box-shadow: none; }
-  details.sol { open: true; }
+  /* force solution panels open on paper: `open` is an HTML attribute, not a
+     CSS property, so the old `open: true` was silently discarded and printed
+     copies carried no solutions at all. */
+  details.sol > .body, details.sol:not([open]) > .body { display: block !important; }
+  details.sol > summary { list-style: none; }
+  details.sol > summary::marker, details.sol > summary::-webkit-details-marker { display: none; }
+  .qbfilter { display: none; }
   /* never leave a content-free colored strip (a box's bottom padding/border)
      stranded at the top of the next sheet */
   .defn, .note, .thm, .warn, .recipe, .summary, .widget,
@@ -483,6 +489,30 @@ canvas.plot { width: 100%; display: block; }
 #themetoggle:hover { background: var(--btnHover); border-color: var(--rule); }
 
 #sidebar #themetoggle { display: block; width: 100%; margin: 4px 0 10px 0; text-align: center; }
+
+/* ---------- question bank ---------- */
+.qbfilter {
+  position: sticky; top: 0; z-index: 20; background: var(--paper);
+  border-bottom: 1px solid var(--hairline); padding: 10px 0 12px;
+  margin: 0 0 18px; font-family: var(--ui); font-size: 12.5px;
+}
+.qbfilter .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.qbfilter .lbl { color: var(--muted); font-weight: 600; margin-right: 4px; }
+.qbchip {
+  border: 1px solid var(--rule); border-radius: 999px; padding: 3px 11px; cursor: pointer;
+  background: none; color: var(--ink); font: inherit; transition: background .13s, border-color .13s;
+}
+.qbchip:hover { background: var(--tocHover); }
+.qbchip.on { background: var(--s1); border-color: var(--s1); color: #fff; }
+.qbcount { color: var(--muted); font-variant-numeric: tabular-nums; }
+.qcard { scroll-margin-top: 70px; }
+.qcard.hide { display: none; }
+.qmeta {
+  font-family: var(--ui); font-size: 11px; color: var(--muted);
+  letter-spacing: .02em; margin-left: 6px;
+}
+.qmeta .stars { color: var(--s4); letter-spacing: .08em; }
+.qmeta .ref { color: var(--link); }
 
 </style>
 <script>
@@ -938,6 +968,40 @@ canvas.plot { width: 100%; display: block; }
     const saved = localStorage.getItem("theme6041");
     if (saved) document.documentElement.dataset.theme = saved;
   } catch (e) {}
+})();
+
+/* Solutions on paper, and for review captures.
+   `<details>` content is hidden by Chrome's UA shadow DOM, which no print CSS
+   rule can override — so the `open` attribute must actually be set. We set it
+   on beforeprint and restore afterwards, and honour ?expand=1 for the
+   screenshot/review pipeline. */
+(function () {
+  "use strict";
+  var forced = [];
+  function openAll() {
+    forced = [];
+    document.querySelectorAll("details.sol:not([open])").forEach(function (d) {
+      d.setAttribute("open", "");
+      forced.push(d);
+    });
+  }
+  function restoreAll() {
+    forced.forEach(function (d) { d.removeAttribute("open"); });
+    forced = [];
+  }
+  window.addEventListener("beforeprint", openAll);
+  window.addEventListener("afterprint", restoreAll);
+  if (window.matchMedia) {
+    try {
+      var mq = window.matchMedia("print");
+      var onChange = function (e) { (e.matches ? openAll : restoreAll)(); };
+      if (mq.addEventListener) mq.addEventListener("change", onChange);
+      else if (mq.addListener) mq.addListener(onChange);
+    } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    if (/[?&]expand=1/.test(location.search)) openAll();
+  });
 })();
 
 </script>
@@ -2540,6 +2604,33 @@ not a right one. The right eigenvector for eigenvalue 1 is the all-ones column v
 one), which tells you nothing. Solving $P\pi^{\mathsf T}=\pi^{\mathsf T}$ by mistake is the single
 most common arithmetic error in this material.</div>
 
+<div class="thm"><b>Property (doubly stochastic chains; authored here, straight from the balance
+equations).</b> Call a chain <b>doubly stochastic</b> if every <em>column</em> of the transition
+matrix sums to 1 as well as every row, i.e. $\sum_{i=1}^{m}p_{ij}=1$ for every $j$. Then the
+<b>uniform</b> distribution $\pi_j=1/m$ satisfies the balance equations, so it is stationary — and
+when the chain is a single aperiodic recurrent class, uniqueness in the convergence theorem makes it
+<em>the</em> steady state. The verification is one line: for each $j$,
+$$\sum_{k=1}^{m}\pi_kp_{kj}=\sum_{k=1}^{m}\frac{1}{m}p_{kj}
+=\frac{1}{m}\sum_{k=1}^{m}p_{kj}=\frac{1}{m}\cdot1=\pi_j,$$
+using the column sum in the last step; and normalization holds because $\sum_{j}1/m=1$.</div>
+
+<p>A symmetric transition matrix ($p_{ij}=p_{ji}$) is automatically doubly stochastic, since its
+columns are its rows. Take the lazy random walk on a 4-cycle: states $1,2,3,4$ sit on a circle, and
+each step stays put with probability $1/2$ or moves to either neighbor with probability $1/4$,</p>
+
+$$P=\begin{pmatrix}
+0.5&amp;0.25&amp;0&amp;0.25\\
+0.25&amp;0.5&amp;0.25&amp;0\\
+0&amp;0.25&amp;0.5&amp;0.25\\
+0.25&amp;0&amp;0.25&amp;0.5\end{pmatrix}.$$
+
+<p>Every row and every column sums to $1$; all four states communicate around the circle, and the
+self-loops make the class aperiodic. So $\pi=(1/4,1/4,1/4,1/4)$ with no algebra at all — the linear
+solve in <code>computes/g5_s3.py</code> section G returns $0.25$ in every coordinate, with balance
+residual $0$. The moral: check the column sums <em>before</em> setting up the linear system;
+symmetric shuffles, symmetric random walks and doubly stochastic models of "no preferred state" are
+solved the moment you notice.</p>
+
 <div class="ex"><b>Practice 3.1.</b> A chain on states $\{1,2,3\}$ has
 $p_{11}=1$ (state 1 absorbing), $p_{22}=p_{23}=1/2$, $p_{33}=p_{31}=1/2$. Does the steady-state
 convergence theorem apply? What is $\pi$?
@@ -2951,6 +3042,28 @@ long stretch of $n$ steps these crossings must alternate — you cannot cross le
 row without crossing back in between — so the two counts differ by at most 1, and after dividing by
 $n$ and letting $n\to\infty$ the frequencies are equal. This is the argument on L17 slide 8; the
 induction above is the same statement in algebra.</div>
+
+<div class="thm"><b>Property (detailed balance; reversible chains — the general form of the cut
+equation, cf. B&amp;T Problem 7.25).</b> Suppose a distribution $\pi$ with $\pi_j\ge0$ and
+$\sum_j\pi_j=1$ satisfies the <b>detailed balance</b> equations
+$$\pi_i\,p_{ij}=\pi_j\,p_{ji}\qquad\text{for every pair of states }i,j.$$
+Then $\pi$ is stationary. The proof is one line — sum over $i$:
+$$\sum_{i=1}^{m}\pi_ip_{ij}=\sum_{i=1}^{m}\pi_jp_{ji}=\pi_j\sum_{i=1}^{m}p_{ji}=\pi_j,$$
+using detailed balance term by term, then the fact that row $j$ of the transition matrix sums to 1.
+The left-hand side is the balance equation for state $j$, so all $m$ of them hold. A chain
+possessing such a $\pi$ is called <b>reversible</b>: in steady state the joint probability
+$\mathbf{P}(X_n=i,\,X_{n+1}=j)=\pi_ip_{ij}$ is symmetric in $i$ and $j$, so the sequence run
+backwards is the same Markov chain.</div>
+
+<div class="note"><b>Interpretation (what detailed balance buys, and where it lives in this course).</b>
+Balance says that the flow into a state equals the flow out of it, netted over all the state's
+neighbors; detailed balance says the flow balances <em>pair by pair</em>, which is much stronger and
+much easier to solve — guess a $\pi$ satisfying it and you have solved the chain without ever writing
+the $m$-equation linear system. Birth–death chains are the course's standard example: for any pair
+that is not a neighbor pair, $p_{ij}=p_{ji}=0$ and detailed balance holds trivially, while for a
+neighbor pair it reads $\pi_ip_i=\pi_{i+1}q_{i+1}$ — exactly the cut equation proved above. That is
+why the queue of §3.5 and the phone exchange of §3.6 come out in closed form. The converse fails:
+being stationary does <em>not</em> make $\pi$ reversible, as the next Gotcha shows.</div>
 
 <div class="warn"><b>Gotcha.</b> Local balance is <em>not</em> a general fact about Markov chains. It
 is a special feature of chains whose transition graph is a line (or, more generally, a tree, or any
@@ -3375,6 +3488,10 @@ periodic $\Rightarrow$ no limit (but the $\pi_j$ still are the long-run frequenc
 letting $n\to\infty$ in $r_{ij}(n)=\sum_kr_{ik}(n-1)p_{kj}$ (finite sums only). They are
 <em>dependent</em> — they sum to $0=0$ — so drop one and adjoin
 $\displaystyle\sum_j\pi_j=1$. In matrix form $\pi=\pi P$ with $\pi$ a row vector.</li>
+<li><b>Doubly stochastic.</b> If every <em>column</em> of $P$ sums to 1 too (in particular if $P$ is
+symmetric), then $\pi_j=1/m$ solves the balance equations — the uniform distribution is stationary,
+and is the steady state when the class is single and aperiodic. Check the column sums before
+solving anything.</li>
 <li><b>Frequency reading (L17 slide 6).</b> $\pi_j$ = long-run fraction of time in $j$;
 $\pi_jp_{jk}$ = long-run frequency of the transition $j\to k$; balance = flow in equals flow out.
 Long-run average cost $=\sum_j\pi_jc_j$ (state costs) or $\sum_{j,k}\pi_jp_{jk}d_{jk}$
@@ -3384,6 +3501,10 @@ Long-run average cost $=\sum_j\pi_jc_j$ (state costs) or $\sum_{j,k}\pi_jp_{jk}d
 <li><b>Birth–death (L17 slide 8).</b> Local balance across each cut:
 $\pi_ip_i=\pi_{i+1}q_{i+1}$, hence $\displaystyle\pi_i=\pi_0\prod_{k=1}^{i}\frac{p_{k-1}}{q_k}$,
 with $\pi_0$ from normalization. Valid because the chain is a line — <em>not</em> a general fact.</li>
+<li><b>Detailed balance / reversibility.</b> If $\pi_ip_{ij}=\pi_jp_{ji}$ for <em>all</em> $i,j$ then
+$\pi$ is stationary (sum over $i$ and use $\sum_ip_{ji}=1$), and the chain is called
+<b>reversible</b>. Birth–death chains are the standard example — there detailed balance <em>is</em>
+the cut equation. The converse fails: stationary does not imply reversible.</li>
 <li><b>Constant $p,q$.</b> $\rho=p/q$; $\pi_i=\pi_0\rho^{\,i}$;
 $\pi_0=(1-\rho)/(1-\rho^{m+1})$ for finite $m$, $\pi_0=1/(m+1)$ when $\rho=1$. Infinite buffer with
 $\rho&lt;1$: $\pi_i=(1-\rho)\rho^{\,i}$, $\mathbf{P}(X\ge k)=\rho^k$,
@@ -4485,6 +4606,376 @@ $\tilde\mu_2=2.3208&lt;\mu_2=2.7391$. The correct general statement is only that
 $\min(\tilde\mu^{(s)},\tilde\mu^{(s')})\le\mu\le\max(\tilde\mu^{(s)},\tilde\mu^{(s')})$.</p>
 </div></details></div>
 
+<h3>4.7 Random walks on the integers</h3>
+
+<p>Every absorption problem in this section so far has been a random walk in disguise: the gambler's
+fortune of §4.3, the fly of Example 4.3, the queue of §1. The walk is worth isolating and naming,
+because it is the one Markov chain that turns up on every exam and in every application — a queue
+length, a stock price, a molecule diffusing along a tube, a lead in a game of tennis. This subsection
+collects what §4.1–§4.3 already prove, adds the derivation route the exam usually asks for (solve the
+difference equation directly, rather than by the telescoping trick of §4.3), and finishes the
+picture with the two boundary conditions the course leaves implicit: <em>reflecting</em> barriers,
+and no barriers at all.</p>
+
+<div class="defn"><b>Definition (simple random walk).</b> Let $Z_1,Z_2,\ldots$ be independent and
+identically distributed steps with
+$$\mathbf{P}(Z_n=+1)=p,\qquad \mathbf{P}(Z_n=-1)=q=1-p,$$
+and let $X_0=i$ be the (deterministic) starting position. The <b>simple random walk</b> is
+$$X_{n}=X_0+Z_1+\cdots+Z_n,\qquad\text{equivalently}\qquad X_{n+1}=X_n+Z_{n+1}.$$
+It is <b>symmetric</b> when $p=q=\tfrac12$. Here $X_n$ is the position after $n$ steps, $p$ is the
+probability of a step to the right, and $q$ that of a step to the left.</div>
+
+<p><b>It is a Markov chain, and that is the whole point.</b> The next position $X_{n+1}=X_n+Z_{n+1}$
+depends on the past only through the current position $X_n$, because $Z_{n+1}$ is independent of
+everything before it. So the walk satisfies the Markov property of §1 with transition probabilities
+$$p_{i,i+1}=p,\qquad p_{i,i-1}=q,\qquad p_{ij}=0\ \text{ otherwise},$$
+and every machine built in this note applies to it without modification: the $n$-step recursion of
+§1, the classification of §2, the birth–death local balance of §3 (it <em>is</em> a birth–death chain
+— no arc skips a state), and the two linear systems of §4.1 and §4.2. Nothing below is a new theory;
+it is the old theory with $p_{i,i\pm1}$ substituted in.</p>
+
+<div class="note"><b>Interpretation — drift and spread.</b> One step has mean
+$$\mathbb{E}[Z_n]=(+1)p+(-1)q=p-q=2p-1,$$
+called the <b>drift</b>, and variance
+$\operatorname{var}(Z_n)=\mathbb{E}[Z_n^2]-(\mathbb{E}[Z_n])^2=1-(p-q)^2=4pq$ (using $Z_n^2=1$
+always). Since the steps are independent, expectation is additive and so is variance (G2 §3), giving
+$$\mathbb{E}[X_n]=i+(p-q)n,\qquad \operatorname{var}(X_n)=4pq\,n,\qquad
+\text{sd}(X_n)=2\sqrt{pq}\,\sqrt n .$$
+The mean moves <em>linearly</em> in $n$ while the spread grows only like $\sqrt n$: after $n=100$
+steps a $p=0.55$ walk has moved $10.000000$ units on average with standard deviation $9.949874$
+(keys <code>rw_mean100_p55</code>, <code>rw_sd100_p55</code>), so the drift is only just emerging
+from the noise; by $n=10{,}000$ the mean displacement is $1000.000000$ while the standard
+deviation is only $99.498744$ (keys <code>rw_mean10k_p55</code>, <code>rw_sd10k_p55</code>),
+and the drift dominates completely. The symmetric walk has zero mean at every $n$ and spread exactly $\sqrt n$
+(<code>rw_sd100_p50</code>). This linear-versus-square-root race is the same one behind the weak law
+and the central limit theorem (G6 §1–§2), and $X_n$ is precisely a sum of i.i.d. terms, so the CLT
+says $X_n$ is approximately normal for large $n$.</div>
+
+<img class="fig" src="img/g5_s4_randomwalk.png" alt="Two panels of random walk sample paths over 200 steps. Left: seven symmetric walks scattering around zero inside a square-root envelope. Right: seven walks with p equal to 0.6 climbing along the dashed mean line of slope 0.2 inside the same square-root envelope." style="max-width:880px">
+<div class="figcap">Fig. 4.11 — Seven sample paths of each walk over $200$ steps, on a shared vertical scale. Dashed: the mean $i+(p-q)n$. Dotted: the mean $\pm\,\sqrt{4pq\,n}$. Left, the symmetric walk wanders with no preferred direction and the envelope opens like $\sqrt n$; right, a drift of only $0.2$ per step carries every path away from the origin, though the spread around the mean line is essentially the same. Generated by <code>computes/g5_s4_figs.py</code>.</div>
+
+<h4>Two absorbing barriers: hitting probabilities</h4>
+
+<p>Put absorbing barriers at $0$ and at $N$: the walk stops the moment it touches either end, so
+$p_{00}=p_{NN}=1$, and the states $1,\ldots,N-1$ are transient. This is exactly the gambler's ruin
+chain of §4.3 with $m$ renamed $N$ and the losing probability $1-p$ renamed $q$, so the answers are
+already ours:
+$$a_i=\mathbf{P}\big(\text{hit }N\text{ before }0\mid X_0=i\big)
+=\begin{cases}\dfrac{1-\rho^{\,i}}{1-\rho^{\,N}}, & p\ne\tfrac12,\\[2ex]
+\dfrac iN, & p=\tfrac12,\end{cases}\qquad \rho=\frac qp .$$
+What §4.3 does not do is solve the difference equation <em>as</em> a difference equation; it uses a
+telescoping trick special to this problem. The general method is worth having, because it is what
+you fall back on when the trick does not present itself, and because it explains where the two cases
+come from.</p>
+
+<p><b>Step 1 — the equation.</b> First-step analysis (§4.1) applied to a transient $i$ gives
+$$a_i=p\,a_{i+1}+q\,a_{i-1},\qquad i=1,\ldots,N-1,\qquad a_0=0,\ a_N=1,$$
+the boundary conditions saying that from $0$ the walk is already absorbed at the wrong end and from
+$N$ at the right one. Rearranged, this is a homogeneous linear difference equation with constant
+coefficients:
+$$p\,a_{i+1}-a_i+q\,a_{i-1}=0 .$$</p>
+
+<p><b>Step 2 — the characteristic equation.</b> For such an equation, try a geometric solution
+$a_i=r^{\,i}$ with $r\ne0$ — the same "guess an exponential" move used for linear recursions
+throughout the course. Substituting,
+$$p\,r^{\,i+1}-r^{\,i}+q\,r^{\,i-1}=0 ,$$
+and dividing through by $r^{\,i-1}$ (legitimate since $r\ne0$),
+$$p\,r^{2}-r+q=0 .$$
+Solve by the quadratic formula, using $q=1-p$ to simplify the discriminant:
+$$1-4pq=1-4p(1-p)=1-4p+4p^{2}=(1-2p)^{2}
+\;\Longrightarrow\;\sqrt{1-4pq}=|1-2p| ,$$
+so, taking $p&gt;\tfrac12$ so that $|1-2p|=2p-1$ (the case $p&lt;\tfrac12$ only swaps the labels of
+the two roots),
+$$r=\frac{1\pm(2p-1)}{2p}
+\;\Longrightarrow\;
+r_1=\frac{1+(2p-1)}{2p}=\frac{2p}{2p}=1,
+\qquad
+r_2=\frac{1-(2p-1)}{2p}=\frac{2-2p}{2p}=\frac qp=\rho .$$
+So the two characteristic roots are always $1$ and $\rho=q/p$, and they coincide exactly when
+$p=q=\tfrac12$. <em>That</em> is the source of the two cases.</p>
+
+<p><b>Step 3a — the asymmetric case $p\ne\tfrac12$.</b> Distinct roots give the general solution
+$$a_i=A\cdot1^{\,i}+B\,\rho^{\,i}=A+B\rho^{\,i},$$
+with $A,B$ constants fixed by the boundaries. From $a_0=0$: $A+B=0$, so $B=-A$ and
+$a_i=A\left(1-\rho^{\,i}\right)$. From $a_N=1$: $A\left(1-\rho^{\,N}\right)=1$, so
+$A=1/(1-\rho^{\,N})$ — legitimate because $\rho\ne1$ makes $\rho^N\ne1$. Therefore
+$$a_i=\frac{1-\rho^{\,i}}{1-\rho^{\,N}} ,$$
+which is the §4.3 formula, now obtained without the telescoping trick.</p>
+
+<p><b>Step 3b — the symmetric case $p=q=\tfrac12$.</b> Now $\rho=1$ and the two roots collapse into
+the single root $r=1$; the pair $1^{\,i}$ and $\rho^{\,i}$ is no longer two independent solutions,
+it is the same solution twice, and $a_i=A+B\cdot1^{\,i}=A+B$ cannot meet two different boundary
+conditions. For a repeated root $r$ the second independent solution of a linear difference equation
+is $i\,r^{\,i}$ — check it directly here, with $r=1$, by substituting $a_i=i$ into the right-hand
+side $\tfrac12a_{i+1}+\tfrac12a_{i-1}$:
+$$\tfrac12(i+1)+\tfrac12(i-1)=\tfrac12\big(i+1+i-1\big)=i=a_i .\ \checkmark$$
+So the general solution is $a_i=A+Bi$, a straight line. Impose $a_0=0$: $A=0$. Impose $a_N=1$:
+$BN=1$, so $B=1/N$ and
+$$\boxed{\;a_i=\frac iN\quad(p=\tfrac12),\qquad
+a_i=\frac{1-\rho^{\,i}}{1-\rho^{\,N}}\quad(p\ne\tfrac12),\qquad \rho=\frac qp .\;}$$</p>
+
+<div class="note"><b>Interpretation.</b> The symmetric answer $i/N$ is <em>linear interpolation</em>
+between the two barriers: with no drift, the only thing that matters is how far you are from each
+end, in proportion. It is also the martingale statement $\mathbb{E}[X_\infty]=\mathbb{E}[X_0]$ of
+Practice 4.6: $N\cdot a_i+0\cdot(1-a_i)=i$. With drift, $\rho^{\,i}$ replaces $i$ — distance is
+measured on a <em>geometric</em> rather than arithmetic scale, and a barrier a fixed number of steps
+downwind becomes overwhelmingly more likely than one the same distance upwind.</div>
+
+<h4>Expected duration: how long the walk lasts</h4>
+
+<p>The same chain, now counting steps. Write $D_i=\mathbb{E}[\text{steps until }X\text{ hits }0
+\text{ or }N\mid X_0=i]$ — the $\mu_i$ of §4.2 for this chain. First-step analysis with the $+1$
+charge gives
+$$D_i=1+p\,D_{i+1}+q\,D_{i-1},\qquad i=1,\ldots,N-1,\qquad D_0=D_N=0 .$$
+This is the <em>same</em> homogeneous equation as before plus the constant $1$, so by the standard
+structure theorem for linear equations its general solution is
+$$D_i=(\text{any one particular solution})+(\text{general solution of the homogeneous equation}),$$
+and we already know the homogeneous solutions: $A+B\rho^{\,i}$ when $p\ne\tfrac12$, and $A+Bi$ when
+$p=\tfrac12$.</p>
+
+<p><b>Symmetric case, in full.</b> The homogeneous solutions are $A+Bi$, so a particular solution
+must be sought one degree higher: try $D_i=ci^{2}$. Substituting it into the right-hand side of the
+recursion,
+$$1+\tfrac12c(i+1)^{2}+\tfrac12c(i-1)^{2}
+=1+\tfrac12c\big(i^{2}+2i+1\big)+\tfrac12c\big(i^{2}-2i+1\big)
+=1+c\,i^{2}+c ,$$
+where the cross terms $\pm2i$ cancel. Setting this equal to $D_i=ci^{2}$ leaves $0=1+c$, so
+$c=-1$ and $D_i=-i^{2}$ is a particular solution. The general solution is therefore
+$$D_i=-i^{2}+A+Bi .$$
+Impose $D_0=0$: $A=0$. Impose $D_N=0$: $-N^{2}+BN=0$, so $B=N$. Hence
+$$\boxed{\;D_i=Ni-i^{2}=i\,(N-i)\quad(p=\tfrac12).\;}$$
+(§4.3 arrives at $i(m-i)$ by verifying a guessed quadratic; this is the same answer derived rather
+than guessed.)</p>
+
+<p><b>Asymmetric case.</b> With $\rho\ne1$ the homogeneous solutions are $A+B\rho^{\,i}$, which
+contains no term linear in $i$, so a linear trial $D_i=ci$ is available:
+$$1+p\,c(i+1)+q\,c(i-1)=1+c\,i+c\,(p-q)=c\,i
+\;\Longrightarrow\;0=1+c(p-q)\;\Longrightarrow\;c=\frac{1}{q-p} ,$$
+the middle equality using $p+q=1$ to collect the $ci$ terms. So
+$D_i=\dfrac{i}{q-p}+A+B\rho^{\,i}$. Impose $D_0=0$: $A+B=0$, i.e. $B=-A$, giving
+$D_i=\dfrac{i}{q-p}+A\left(1-\rho^{\,i}\right)$. Impose $D_N=0$:
+$$\frac{N}{q-p}+A\left(1-\rho^{\,N}\right)=0
+\;\Longrightarrow\;A=-\frac{N}{(q-p)\left(1-\rho^{\,N}\right)} ,$$
+and substituting, with $a_i=(1-\rho^{\,i})/(1-\rho^{\,N})$ recognized in the second term,
+$$\boxed{\;D_i=\frac{i-N\,a_i}{q-p}\quad(p\ne\tfrac12).\;}$$
+Note $q-p=1-2p$, so this is the §4.3 formula written in the walk's notation.</p>
+
+<div class="note"><b>Interpretation — the symmetric walk is quadratically slow.</b> $D_i=i(N-i)$ is
+the product of the two distances to the barriers, so it is <em>quadratic</em> in the distance
+scale, not linear. Double the board and double the starting point — from $N=10$, $i=3$ to
+$N=20$, $i=6$ — and the hitting probability is unchanged at $0.3$ (it depends only on the ratio
+$i/N$), while the expected duration goes from $21$ to $84$: four times longer, not twice
+(keys <code>rw_p11_D</code>, <code>rw_p11_D_big</code>, <code>rw_p11_ratio</code>). This is the
+$\sqrt n$ spread of Fig. 4.11 read backwards: to travel a distance $d$ a driftless walk needs the
+noise to accumulate to $d$, and since noise accumulates like $\sqrt n$, it takes $n\approx d^{2}$
+steps. A drifting walk, by contrast, covers distance $d$ in about $d/|p-q|$ steps — linearly. It is
+the same phenomenon as the §4.3 Gotcha that the fair game lasts longest.</div>
+
+<div class="ex"><b>Example 4.7 (a walk with barriers at $0$ and $12$).</b> A token sits at position
+$5$ on a board with squares $0,1,\ldots,12$. Each turn it moves one square right with probability
+$p=0.55$ and one square left with probability $q=0.45$; the game ends when the token reaches square
+$0$ or square $12$. Find the probability that it ends at $12$, and the expected number of turns.
+Compare with a fair token ($p=\tfrac12$).
+
+<p><b>Step 1 — identify the chain.</b> States $0,\ldots,12$; $0$ and $12$ absorbing; interior rows
+$p_{i,i+1}=0.55$, $p_{i,i-1}=0.45$. This is the two-barrier walk with $N=12$ and $i=5$, so both
+closed forms apply directly.</p>
+
+<p><b>Step 2 — the odds ratio.</b>
+$$\rho=\frac qp=\frac{0.45}{0.55}=\frac{9}{11}=0.818182$$
+(key <code>rw_rho</code>). Since $p&gt;\tfrac12$ we have $\rho&lt;1$: the walk is pushed toward the
+upper barrier.</p>
+
+<p><b>Step 3 — the hitting probability.</b> Compute the two powers first:
+$$\rho^{\,5}=\left(\frac{9}{11}\right)^{5}=\frac{59049}{161051}=0.366648,\qquad
+\rho^{\,12}=\left(\frac{9}{11}\right)^{12}=0.089991$$
+(keys <code>rw_ex_rho_i</code>, <code>rw_ex_rho_N</code>). Then
+$$a_5=\frac{1-\rho^{\,5}}{1-\rho^{\,12}}=\frac{1-0.366648}{1-0.089991}
+=\frac{0.633352}{0.910009}=0.695984$$
+(key <code>rw_ex_a</code>; a $200{,}000$-walk simulation gives $0.696240$,
+<code>rw_ex_a_mc</code>). A fair token would have $a_5=5/12=0.416667$ (<code>rw_ex_a_sym</code>,
+simulation $0.416385$): a $5$-point edge per turn raises the chance of finishing at the top from
+about $42\%$ to about $70\%$.</p>
+
+<p><b>Step 4 — the expected duration.</b> With $q-p=0.45-0.55=-0.10$,
+$$D_5=\frac{i-N\,a_i}{q-p}=\frac{5-12(0.695984)}{-0.10}=\frac{5-8.351812}{-0.10}
+=\frac{-3.351812}{-0.10}=33.518119$$
+(key <code>rw_ex_D</code>; simulation $33.437410$, <code>rw_ex_D_mc</code>). Both signs in the
+fraction are negative, as they must be when $p&gt;\tfrac12$ pushes the walk up: $N a_i&gt;i$ exactly
+when the walk finishes high more often than a fair one would. The fair token instead takes
+$$D_5=i(N-i)=5\cdot7=35$$
+turns (<code>rw_ex_D_sym</code>, simulation $35.062830$) — longer than the drifting token, in
+agreement with the §4.3 Gotcha that drift in either direction shortens the game.</p>
+
+<p><b>Check.</b> Both probabilities lie in $[0,1]$; both durations exceed $1$; and the closed forms
+agree with a direct <code>numpy.linalg.solve</code> of the $11\times11$ first-step system to better
+than $10^{-12}$ (asserted in <code>computes/g5_s4.py</code>).</p>
+</div>
+
+<h4>One barrier, or none: recurrence of the walk</h4>
+
+<p>Let the upper barrier run away, $N\to\infty$, keeping the absorbing barrier at $0$. Two regimes
+appear, and they are the walk's version of the transient/recurrent dichotomy of §2.</p>
+
+<div class="thm"><b>Property (walk on $\{0,1,2,\ldots\}$ with $0$ absorbing).</b> Starting from
+$i&gt;0$:
+<ul>
+<li>If $p&lt;q$ (downward drift), the walk hits $0$ with probability $1$, and
+$$\mathbb{E}[\text{steps to hit }0]=\frac{i}{q-p},$$
+finite and linear in $i$.</li>
+<li>If $p=q=\tfrac12$, the walk still hits $0$ with probability $1$ — but the expected time is
+$+\infty$. The symmetric walk is <b>recurrent yet null recurrent</b>: it always comes back, and the
+average wait is infinite.</li>
+<li>If $p&gt;q$ (upward drift), the walk escapes to $+\infty$ with probability
+$1-\rho^{\,i}&gt;0$ and hits $0$ only with probability $\rho^{\,i}=(q/p)^{\,i}$.</li>
+</ul></div>
+
+<p><b>Derivation from the formulas above.</b> The probability of hitting $0$ before $N$ is
+$1-a_i=(\rho^{\,i}-\rho^{\,N})/(1-\rho^{\,N})$. If $p&lt;q$ then $\rho&gt;1$, so $\rho^{N}\to\infty$
+and, dividing numerator and denominator by $\rho^{N}$,
+$$1-a_i=\frac{\rho^{\,i}/\rho^{\,N}-1}{1/\rho^{\,N}-1}\longrightarrow\frac{0-1}{0-1}=1 ,$$
+since $\rho^{\,i}/\rho^{\,N}=\rho^{\,i-N}\to0$ for fixed $i$. If $p&gt;q$ then $\rho&lt;1$,
+$\rho^{N}\to0$, and $1-a_i\to\rho^{\,i}$ directly. For the symmetric case $1-a_i=1-i/N\to1$. For the
+durations, take $p&lt;q$ in $D_i=(i-Na_i)/(q-p)$: we just showed $a_i\to0$, and it does so
+geometrically fast, so $Na_i\to0$ and $D_i\to i/(q-p)$. In the symmetric case $D_i=i(N-i)\to\infty$
+for every fixed $i$ — the limit does not exist as a finite number, and the expected hitting time is
+infinite.</p>
+
+<div class="warn"><b>Gotcha — "probability 1" does not mean "soon".</b> The symmetric walk returns
+to $0$ with certainty and takes forever on average. Both statements hold at once because the
+distribution of the hitting time has a very heavy tail, so the mean diverges even though the total
+probability is $1$. This is the discrete cousin of the infinite-mean densities of G3 §1, and it is
+why §3's steady-state theory always insists on a <em>finite</em> mean recurrence time $t_s^{*}$
+before writing $\pi_s=1/t_s^{*}$ (§4.4). For a chain with finitely many states that finiteness is
+automatic; on an infinite state space it is not.</div>
+
+<h4>Reflecting barriers</h4>
+
+<p>Replace absorption at the ends by <b>reflection</b>: at $0$ the walk cannot go down, so the
+downward move is refused and the walk stays put; at $N$ the upward move is refused. Formally, keeping
+the interior rows unchanged,
+$$p_{01}=p,\quad p_{00}=q;\qquad p_{N,N-1}=q,\quad p_{NN}=p;\qquad
+p_{i,i+1}=p,\ p_{i,i-1}=q\ \ (0&lt;i&lt;N).$$
+(Some texts reflect <em>strictly</em>, $p_{01}=1$; the qualitative conclusions below are identical.)
+The change is small on the page and total in its consequences.</p>
+
+<div class="thm"><b>Property (what reflection changes).</b> With reflecting barriers there are no
+absorbing states: from any state the walk can reach any other, so the chain is a single recurrent
+class, and it is aperiodic because the self-transitions $p_{00}=q&gt;0$ and $p_{NN}=p&gt;0$ create
+cycles of length $1$. Hence §3 applies: a unique steady state $\pi$ exists, it does not depend on the
+starting state, and — the chain being birth–death — local balance gives it in closed form. With
+$r=p/q$,
+$$\pi_i\,p=\pi_{i+1}\,q\;\Longrightarrow\;\pi_{i+1}=r\,\pi_i\;\Longrightarrow\;\pi_i=r^{\,i}\pi_0,
+\qquad
+\pi_i=\frac{r^{\,i}}{\sum_{k=0}^{N}r^{\,k}} ,$$
+the last step from the normalization $\sum_i\pi_i=1$. The absorption questions of §4.1–§4.2 become
+meaningless (every $a_i$ would be $0$, every $\mu_i$ infinite); the meaningful questions are the §3
+ones — long-run fraction of time in a state, and mean recurrence time $t_i^{*}=1/\pi_i$ (§4.4).</div>
+
+<p><b>Numbers.</b> For $N=5$ and $p=0.55$ we have $r=p/q=11/9=1.222222$ and
+$$\pi=(0.095231,\;0.116394,\;0.142259,\;0.173872,\;0.212510,\;0.259735)$$
+(keys <code>rw_ref_up_pi0</code>–<code>rw_ref_up_pi5</code>; a $2{,}000{,}000$-step simulation
+spends fractions $0.095628$ and $0.259374$ of its time at states $0$ and $5$,
+<code>rw_ref_up_pi0_mc</code>, <code>rw_ref_up_pi5_mc</code>). The upward drift piles probability
+against the upper wall — the distribution is geometric in $i$ with ratio $r$ — and the mean
+recurrence times follow immediately: $t_5^{*}=1/0.259735=3.850085$ steps between successive visits
+to the top wall, against $t_0^{*}=1/0.095231=10.500771$ for the bottom
+(<code>rw_ref_up_tstar_top</code>, <code>rw_ref_up_tstar_bot</code>). Reversing the drift to
+$p=0.45$ reverses the whole vector, by the relabeling symmetry $i\mapsto N-i$.</p>
+
+<div class="note"><b>Interpretation — this is the checkout counter.</b> A reflecting walk is the
+queue of §1 and §3: the lower wall is "the queue cannot be shorter than empty", the upper wall is
+"arrivals at a full buffer are turned away". The geometric steady state $\pi_i\propto r^{\,i}$ is the
+same one §3 derives for birth–death chains, and the stability condition "$r&lt;1$, i.e. arrival rate
+below service rate" is exactly the condition for the walk to have a proper steady state when the
+upper wall is removed ($N\to\infty$): then $\sum_{k\ge0}r^{\,k}$ converges only if $r&lt;1$, giving
+$\pi_i=(1-r)r^{\,i}$, and for $r\ge1$ the queue grows without bound and no steady state exists.</div>
+
+<div class="recipe"><b>Recipe — which random-walk question is this?</b>
+<ol>
+<li><b>"What is the probability the walk reaches $A$ before $B$?"</b> (ruin, hitting, "which end")
+$\Rightarrow$ <em>absorption equations</em> (§4.1). Make $A$ and $B$ absorbing, set $a_A=1$,
+$a_B=0$, write $a_i=p\,a_{i+1}+q\,a_{i-1}$ inside. Closed form: $i/N$ if symmetric, else
+$(1-\rho^{\,i})/(1-\rho^{\,N})$ with $\rho=q/p$.</li>
+<li><b>"How long until it stops, or first reaches a wall?"</b> $\Rightarrow$ <em>expected-time
+equations</em> (§4.2): $D_i=1+p\,D_{i+1}+q\,D_{i-1}$, with $D=0$ at the barriers. Closed form:
+$i(N-i)$ if symmetric, else $(i-N a_i)/(q-p)$. Never forget the $+1$.</li>
+<li><b>"What fraction of time does it spend at state $i$ in the long run?"</b> or <b>"how often does
+it revisit $i$?"</b> $\Rightarrow$ <em>steady state</em> (§3), which requires reflecting (or
+wrapping, or infinite-with-inward-drift) boundaries. Use birth–death local balance
+$\pi_ip=\pi_{i+1}q$ to get $\pi_i\propto(p/q)^{\,i}$, normalize, and read $t_i^{*}=1/\pi_i$
+(§4.4).</li>
+<li><b>"Where is it after $n$ steps?"</b> $\Rightarrow$ no chain machinery needed: $X_n$ is a sum of
+i.i.d. steps, so $\mathbb{E}[X_n]=i+(p-q)n$, $\operatorname{var}(X_n)=4pq\,n$, and the CLT (G6 §2)
+gives the approximate distribution.</li>
+</ol>
+<b>Do not mix them.</b> If the walk has an absorbing barrier there is <em>no</em> steady state worth
+solving for — the balance equations return $\pi=1$ on the absorbing state and $0$ everywhere else, a
+true but useless answer, and with two absorbing states they do not even have a unique solution (§3).
+Conversely, if the barriers reflect, absorption probabilities and expected times to absorption do not
+exist. Decide first whether the walls swallow the walk or bounce it.</div>
+
+<div class="ex"><b>Practice 4.11.</b> A symmetric walk starts at $3$ with absorbing barriers at $0$
+and $10$. (a) What is the probability it reaches $10$ first, and how many steps does it take on
+average? (b) Now double everything: start at $6$ with barriers at $0$ and $20$. What happens to each
+answer, and why?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a)</b> Symmetric, so $a_3=i/N=3/10=0.3$ and $D_3=i(N-i)=3\cdot7=21$ steps (keys
+<code>rw_p11_a</code>, <code>rw_p11_D</code>).</p>
+<p><b>(b)</b> $a_6=6/20=0.3$, unchanged: the hitting probability is a function of the ratio $i/N$
+alone, so rescaling the board leaves it fixed. But $D_6=6\cdot14=84$ steps
+(<code>rw_p11_D_big</code>), a factor of $84/21=4$ (<code>rw_p11_ratio</code>) — doubling all
+distances quadruples the time. The reason is the $\sqrt n$ spread of the driftless walk: covering a
+distance $d$ requires the accumulated noise $\sqrt n$ to reach $d$, i.e. $n\approx d^{2}$, so
+distances enter the duration squared and the probability not at all.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 4.12.</b> A walk starts at $6$ and has $p=0.4$, with an absorbing
+barrier at $0$ only (no upper barrier). Find the probability it ever hits $0$ and the expected
+number of steps to do so. Then answer the same two questions for $p=\tfrac12$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Drifting down, $p=0.4$, $q=0.6$.</b> Here $\rho=q/p=0.6/0.4=1.5&gt;1$, so by the limit
+computed above the walk hits $0$ with probability $1$ and
+$$\mathbb{E}[\text{steps}]=\frac{i}{q-p}=\frac{6}{0.6-0.4}=\frac{6}{0.2}=30$$
+(key <code>rw_p12_T6</code>). Sanity check: each step moves the walk down by $0.2$ on average, so
+covering $6$ units takes about $6/0.2=30$ steps — the drift term does all the work. The two-barrier
+formulas confirm the limit numerically: with an upper barrier at $N=200$,
+$a_6=6.286\times10^{-35}$ and $D_6=30.000000$ (keys <code>rw_p12_a_N200</code>,
+<code>rw_p12_D_N200</code>); already at $N=50$, $D_6=29.999996$.</p>
+<p><b>Symmetric, $p=\tfrac12$.</b> The probability of hitting $0$ is still $1$ — from
+$1-a_6=1-6/N\to1$ as $N\to\infty$ — but the expected time is infinite: $D_6=6(N-6)$ equals $264$ at
+$N=50$, $1164$ at $N=200$ and $5964$ at $N=1000$ (keys <code>rw_p12_Dsym_N50</code>,
+<code>rw_p12_Dsym_N200</code>, <code>rw_p12_Dsym_N1000</code>), growing without bound. The walk is
+recurrent but null recurrent. Moral: certainty of return and finiteness of the return time are
+different questions, and only the second one licenses $\pi_s=1/t_s^{*}$.</p>
+</div></details></div>
+
+<div class="ex"><b>Practice 4.13.</b> A walk on $\{0,1,2,3,4,5\}$ has $p=0.45$ with
+<em>reflecting</em> barriers at both ends ($p_{00}=q$ at the bottom, $p_{55}=p$ at the top). What
+fraction of the time does it spend at state $0$ in the long run, how often does it revisit $0$, and
+what is its average position? Why is it wrong to ask for the "probability of absorption at $0$"?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The chain is irreducible (each state reaches every other by a run of $\pm1$ steps) and aperiodic
+(the self-loops at $0$ and $5$ have positive probability), so §3 applies. It is birth–death, so
+local balance gives $\pi_ip=\pi_{i+1}q$, i.e. $\pi_{i+1}=r\pi_i$ with
+$$r=\frac pq=\frac{0.45}{0.55}=\frac{9}{11}=0.818182 .$$
+Hence $\pi_i=r^{\,i}\pi_0$, and the normalization $\pi_0\sum_{k=0}^{5}r^{\,k}=1$ fixes $\pi_0$,
+giving
+$$\pi=(0.259735,\;0.212510,\;0.173872,\;0.142259,\;0.116394,\;0.095231)$$
+(keys <code>rw_ref_dn_pi0</code>–<code>rw_ref_dn_pi5</code>). So the walk sits at $0$ a fraction
+$\pi_0=0.259735$ of the time — about a quarter — and by the mean-recurrence-time formula of §4.4
+its visits to $0$ are separated by
+$$t_0^{*}=\frac{1}{\pi_0}=\frac{1}{0.259735}=3.850085$$
+steps on average (key <code>rw_p13_t0star_f</code>). The long-run average position is
+$\sum_i i\,\pi_i=1.928760$ (<code>rw_p13_mean_f</code>), below the midpoint $2.5$ because the drift
+is downward.</p>
+<p><b>Why the absorption question is ill-posed.</b> Absorption probabilities are defined only when
+some state has $p_{kk}=1$ (§4.1). Here $p_{00}=0.55&lt;1$: a walk touching $0$ bounces back up with
+probability $0.45$ at the next step, so it visits $0$ infinitely often and is never trapped. There
+is nothing to be absorbed at, and correspondingly the expected time to absorption is infinite. The
+right questions for a reflecting walk are the steady-state ones answered above.</p>
+</div></details></div>
+
 <div class="summary"><b>§4 cheatsheet — absorption.</b>
 <ul>
 <li><b>Setup.</b> Lump every recurrent class into one absorbing state; then every state is transient
@@ -4503,6 +4994,13 @@ re-solve the $\mu$ system on the new chain.</li>
 $a_i=\dfrac{1-\rho^i}{1-\rho^m}$ ($p\ne\tfrac12$) or $\dfrac im$ ($p=\tfrac12$);
 $D_i=\dfrac{i-m\,a_i}{1-2p}$ or $i(m-i)$. Unfavorable odds $\Rightarrow a_i\to0$ as $m\to\infty$;
 the fair game lasts the longest.</li>
+<li><b>Random walk</b> (§4.7), $p_{i,i\pm1}=p,q$: drift $p-q$ per step, spread
+$\sqrt{4pq\,n}$. The difference equation $p\,a_{i+1}-a_i+q\,a_{i-1}=0$ has characteristic
+roots $1$ and $\rho=q/p$; distinct roots give $a_i=A+B\rho^{\,i}$, the repeated root
+$p=\tfrac12$ gives $a_i=A+Bi$. With barriers $0,N$: $a_i=i/N$ or
+$(1-\rho^{\,i})/(1-\rho^{\,N})$, and $D_i=i(N-i)$ or $(i-Na_i)/(q-p)$ — the symmetric
+duration is <em>quadratic</em> in distance. Reflecting barriers instead: no absorption,
+birth–death steady state $\pi_i\propto(p/q)^{\,i}$, $t_i^{*}=1/\pi_i$.</li>
 <li><b>Spider and fly</b> (B&amp;T Example 7.12, $m=4$): $\mu_2=\mu_3=10/3$, $a_2=1/3$, $a_3=2/3$.</li>
 <li><b>rec19 headline numbers.</b> $a_{6\text{-}1}=105/184=0.5707$; $\mu_{6\text{-}1}=81/23=3.5217$;
 $\mathbb{E}[\text{cones}]=1140/3721=0.3064$; $\tilde\mu_{6\text{-}1}=1763/483=3.6501$;
@@ -5440,6 +5938,13 @@ $R(n)=P^n$. Path probabilities <em>multiply</em>: $\mathbf{P}(X_1=a,X_2=b\mid X_
 <li><b>Long run:</b> $\pi_j=\sum_k\pi_kp_{kj}$ <em>with</em> $\sum_j\pi_j=1$; valid limit
 $\lim_n r_{ij}(n)=\pi_j$ only for a single aperiodic recurrent class. $\pi_j=0$ on transient
 states; $t^*_j=1/\pi_j$. Two-state example: $\pi=(2/7,5/7)=(0.285714,0.714286)$.</li>
+<li><b>Two structural shortcuts (§3).</b> <em>Doubly stochastic</em> — every column of $P$ sums to 1
+as well as every row (automatic if $P$ is symmetric) $\Rightarrow$ the uniform $\pi_j=1/m$ solves
+balance, and is the steady state when the class is single and aperiodic. <em>Detailed balance</em> —
+$\pi_ip_{ij}=\pi_jp_{ji}$ for all $i,j$ $\Rightarrow\pi$ is stationary (sum over $i$), and the chain
+is <b>reversible</b>; birth–death chains, where detailed balance is the cut equation
+$\pi_ip_i=\pi_{i+1}q_{i+1}$, are the course's example. Neither is necessary: a stationary $\pi$ need
+not be reversible.</li>
 <li><b>Absorption:</b> $a_i=\sum_j p_{ij}a_j$ with $a=1$ at the target and $0$ at other absorbing
 states; <b>time:</b> $\mu_i=1+\sum_jp_{ij}\mu_j$ with $\mu=0$ at absorbing states. Example 5.2:
 $a=(0.46428571,0.35714286,0.28571429)$, $\mu=(8.30357143,9.46428571,8.57142857)$.</li>
@@ -5462,7 +5967,7 @@ into Erlang(3) — means $1/\mu\to2/\mu$ and $2/\lambda\to3/\lambda$.</li>
 </div>
 
 <hr>
-<div class="small" style="text-align:center;">Compiled from MIT 6.041/6.431 F10 L16–L18 slide handouts, recitations 18–19 (+ rec16–17 as checkpoint), Bertsekas–Tsitsiklis ch. 7 on 2026-07-30. Every numerical value recomputed independently in Python; see computes/.</div>
+<div class="small" style="text-align:center;">Compiled from MIT 6.041/6.431 F10 L16–L18 slide handouts, recitations 18–19 (+ rec16–17 as checkpoint), Bertsekas–Tsitsiklis ch. 7 on 2026-08-19. Every numerical value recomputed independently in Python; see computes/.</div>
 </main>
 </body>
 </html>

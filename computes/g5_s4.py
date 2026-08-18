@@ -611,5 +611,155 @@ for pv, mv, iv in [(0.50, 20, 10), (0.45, 20, 10), (0.55, 20, 10),
     grid.append({"p": pv, "m": mv, "i": iv, "a": aa, "D": dd})
 R["widget_grid"] = grid
 
+# =====================================================================
+head("I.  Section 4.7 - simple random walk: absorbing and reflecting barriers")
+
+
+def rw_sim(p, N, i0, n=200_000, seed=20240418):
+    """Monte-Carlo: (P(hit N before 0), E[steps to absorption]) for the walk."""
+    r = np.random.default_rng(seed)
+    x = np.full(n, i0, dtype=np.int64)
+    t = np.zeros(n, dtype=np.int64)
+    active = np.ones(n, dtype=bool)
+    while active.any():
+        k = int(active.sum())
+        step = np.where(r.random(k) < p, 1, -1)
+        x[active] += step
+        t[active] += 1
+        active = (x > 0) & (x < N)
+    return float((x == N).mean()), float(t.mean())
+
+
+# ---- drift and spread of the unrestricted walk after n = 100 steps
+for pv in (F(1, 2), F(11, 20)):
+    tag = f"p{int(pv * 100)}"
+    rec(f"rw_drift_{tag}", float(2 * pv - 1), "E[step] = p - q")
+    rec(f"rw_mean100_{tag}", float(100 * (2 * pv - 1)), "E[X_100] - X_0")
+    rec(f"rw_sd100_{tag}", float(np.sqrt(4 * float(pv) * (1 - float(pv)) * 100)),
+        "sd(X_100) = sqrt(4pq n)")
+
+rec("rw_mean10k_p55", float(10_000 * (2 * F(11, 20) - 1)), "E[X_10000] - X_0 at p=0.55")
+rec("rw_sd10k_p55", float(np.sqrt(4 * 0.55 * 0.45 * 10_000)), "sd(X_10000) at p=0.55")
+
+# ---- Example 4.7: barriers 0 and N = 12, start i = 5, p = 0.55 vs p = 1/2
+N_rw, i_rw, p_rw = 12, 5, F(11, 20)
+rho_rw = (1 - p_rw) / p_rw
+rec("rw_rho", rho_rw, "rho = q/p at p = 0.55")
+rec("rw_rho_f", float(rho_rw))
+rec("rw_ex_rho_i", rho_rw ** i_rw, "rho^5")
+rec("rw_ex_rho_i_f", float(rho_rw ** i_rw))
+rec("rw_ex_rho_N", rho_rw ** N_rw, "rho^12")
+rec("rw_ex_rho_N_f", float(rho_rw ** N_rw))
+a_rw = ruin_exact(p_rw, N_rw)[i_rw]
+D_rw = ruin_duration_exact(p_rw, N_rw)[i_rw]
+rec("rw_ex_a", a_rw, "P(hit 12 before 0 | X_0 = 5, p = 0.55)")
+rec("rw_ex_a_f", float(a_rw))
+rec("rw_ex_D", D_rw, "E[steps to absorption]")
+rec("rw_ex_D_f", float(D_rw))
+rec("rw_ex_Dnum", F(i_rw) - N_rw * a_rw, "numerator i - N a_i")
+rec("rw_ex_Dnum_f", float(F(i_rw) - N_rw * a_rw))
+rec("rw_ex_a_sym", F(i_rw, N_rw), "symmetric comparison i/N")
+rec("rw_ex_a_sym_f", float(F(i_rw, N_rw)))
+rec("rw_ex_D_sym", F(i_rw * (N_rw - i_rw)), "symmetric comparison i(N-i)")
+an, dn = ruin_linear(float(p_rw), N_rw)
+print(f"  linear-solve check: a_5 = {an[i_rw - 1]:.9f}  D_5 = {dn[i_rw - 1]:.6f}")
+assert abs(an[i_rw - 1] - float(a_rw)) < 1e-12 and abs(dn[i_rw - 1] - float(D_rw)) < 1e-9
+mc_a, mc_D = rw_sim(float(p_rw), N_rw, i_rw)
+rec("rw_ex_a_mc", mc_a, "Monte-Carlo, 200000 walks")
+rec("rw_ex_D_mc", mc_D)
+mc_a2, mc_D2 = rw_sim(0.5, N_rw, i_rw, seed=777001)
+rec("rw_ex_a_sym_mc", mc_a2)
+rec("rw_ex_D_sym_mc", mc_D2)
+
+# ---- reflecting barriers at 0 and N: steady state of the birth-death chain
+def reflect_pi(p, N):
+    """Reflecting walk: p_{i,i+1}=p, p_{i,i-1}=q inside; p_{01}=p, p_{00}=q;
+    p_{N,N-1}=q, p_{NN}=p.  Local balance gives pi_i propto (p/q)^i."""
+    p = F(p)
+    r = p / (1 - p)
+    w = [r ** k for k in range(N + 1)]
+    s = sum(w)
+    return [wk / s for wk in w]
+
+
+def reflect_pi_linear(p, N):
+    P = np.zeros((N + 1, N + 1))
+    q = 1 - p
+    P[0, 0], P[0, 1] = q, p
+    P[N, N], P[N, N - 1] = p, q
+    for i in range(1, N):
+        P[i, i + 1], P[i, i - 1] = p, q
+    A = np.vstack([P.T - np.eye(N + 1), np.ones(N + 1)])
+    b = np.zeros(N + 2)
+    b[-1] = 1.0
+    return np.linalg.lstsq(A, b, rcond=None)[0]
+
+
+N_ref = 5
+for pv, tag in ((F(11, 20), "up"), (F(9, 20), "dn")):
+    pis = reflect_pi(pv, N_ref)
+    npi = reflect_pi_linear(float(pv), N_ref)
+    for k, v in enumerate(pis):
+        rec(f"rw_ref_{tag}_pi{k}", v)
+        rec(f"rw_ref_{tag}_pi{k}_f", float(v))
+        assert abs(float(v) - npi[k]) < 1e-10
+    rec(f"rw_ref_{tag}_ratio", pv / (1 - pv), "r = p/q")
+    rec(f"rw_ref_{tag}_tstar_top", 1 / pis[N_ref], "mean recurrence time of state N")
+    rec(f"rw_ref_{tag}_tstar_top_f", float(1 / pis[N_ref]))
+    rec(f"rw_ref_{tag}_tstar_bot", 1 / pis[0], "mean recurrence time of state 0")
+    rec(f"rw_ref_{tag}_tstar_bot_f", float(1 / pis[0]))
+    print(f"  reflecting p={float(pv):.2f}: numpy pi = "
+          + ", ".join(f"{v:.6f}" for v in npi))
+
+# Monte-Carlo: long-run fraction of time at each state, reflecting walk p = 0.55
+def reflect_sim(p, N, n=2_000_000, seed=515151):
+    r = np.random.default_rng(seed)
+    x = 0
+    cnt = np.zeros(N + 1, dtype=np.int64)
+    u = r.random(n)
+    for k in range(n):
+        cnt[x] += 1
+        if u[k] < p:
+            x = min(x + 1, N)
+        else:
+            x = max(x - 1, 0)
+    return cnt / n
+
+
+frac = reflect_sim(0.55, N_ref)
+rec("rw_ref_up_pi5_mc", float(frac[N_ref]), "simulated fraction of time at state 5")
+rec("rw_ref_up_pi0_mc", float(frac[0]))
+
+# ---- Practice 4.11: symmetric walk, barriers 0 and N
+rec("rw_p11_a", F(3, 10), "N=10, i=3, symmetric")
+rec("rw_p11_a_f", 0.3)
+rec("rw_p11_D", F(21), "i(N-i) = 3*7")
+rec("rw_p11_D_big", F(84), "N=20, i=6")
+rec("rw_p11_ratio", F(84, 21), "duration scales by 4 when distances double")
+
+# ---- Practice 4.12: downward drift, barrier only at 0
+p12 = F(2, 5)
+rec("rw_p12_p", float(p12))
+rec("rw_p12_T", 1 / (1 - 2 * p12), "E[steps to hit 0] per unit of start = 1/(q-p)")
+rec("rw_p12_T6", 6 / (1 - 2 * p12), "start i = 6")
+rec("rw_p12_T6_f", float(6 / (1 - 2 * p12)))
+for Nbig in (50, 200, 1000):
+    aN = ruin_exact(p12, Nbig)[6]
+    DN = ruin_duration_exact(p12, Nbig)[6]
+    rec(f"rw_p12_a_N{Nbig}", float(aN), f"a_6 with barrier at N={Nbig}")
+    rec(f"rw_p12_a_N{Nbig}_sci", f"{float(aN):.3e}")
+    rec(f"rw_p12_D_N{Nbig}", float(DN), f"D_6 with barrier at N={Nbig}")
+for Nbig in (50, 200, 1000):
+    Dsym = ruin_duration_exact(F(1, 2), Nbig)[6]
+    rec(f"rw_p12_Dsym_N{Nbig}", float(Dsym), f"symmetric D_6, N={Nbig} - diverges")
+
+# ---- Practice 4.13: reflecting walk with downward drift, p = 0.45, N = 5
+pis_dn = reflect_pi(F(9, 20), N_ref)
+rec("rw_p13_pi0_f", float(pis_dn[0]))
+rec("rw_p13_pi5_f", float(pis_dn[5]))
+rec("rw_p13_t0star_f", float(1 / pis_dn[0]))
+rec("rw_p13_mean_f", float(sum(k * v for k, v in enumerate(pis_dn))),
+    "long-run mean position")
+
 OUT.write_text(json.dumps(R, indent=1), encoding="utf-8")
 print(f"\nwrote {OUT}  ({len(R)} keys)")

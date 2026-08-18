@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MIT 6.041 — Interactive Study Notes</title>
-<meta name="description" content="The complete MIT 6.041 course as seven interactive, adversarially-reviewed study notes.">
+<meta name="description" content="The complete MIT 6.041 course as seven interactive study notes, a 170-question practice bank with worked solutions, and a reference sheet.">
 <style>
 :root {
   --ink:#1a1a1a; --muted:#52514e; --rule:#d3d1cb; --hair:#e6e4de; --accent:#1f3a5f;
@@ -101,6 +101,7 @@ h1 .dot { color: var(--s1); }
 /* ---------- note cards ---------- */
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .grid > .card:last-child { grid-column: 1 / -1; }
+.grid.pair > .card:last-child { grid-column: auto; }
 .card {
   display: flex; flex-direction: column; position: relative; overflow: hidden;
   border: 1px solid var(--rule); border-radius: 8px; background: var(--card);
@@ -213,7 +214,7 @@ footer .disc { font-style: italic; }
 
 <header class="hero">
   <h1>6.041 <span class="dot">·</span> Probabilistic Systems Analysis</h1>
-  <p class="pitch">The complete MIT 6.041 course as <b>seven interactive, adversarially-reviewed study notes</b> — full derivations, every slide example solved, practice problems with hidden solutions, and widgets you can play with.</p>
+  <p class="pitch">The complete MIT 6.041 course as <b>seven interactive, adversarially-reviewed study notes</b> and a <b>170-question practice bank</b> — full derivations, every slide example solved, practice problems with hidden solutions, and widgets you can play with.</p>
 
   <div class="arc">
     <div class="arc-step" style="--c:var(--s1)">
@@ -231,10 +232,11 @@ footer .disc { font-style: italic; }
   </div>
 
   <div class="stats">
-    <span class="stat"><b>7</b> notes</span>
+    <span class="stat"><b>9</b> pages</span>
     <span class="stat"><b>25</b> lectures &amp; <b>24</b> recitations covered</span>
     <span class="stat"><b>226</b> figures</span>
     <span class="stat"><b>36</b> live widgets</span>
+    <span class="stat"><b>170</b> practice questions</span>
     <span class="stat verified">✓ every number machine-verified</span>
   </div>
 </header>
@@ -319,6 +321,33 @@ footer .disc { font-style: italic; }
     <div class="foot">
       <span class="badge">✓ complete · adversarially reviewed</span>
       <div class="metrics"><span><b>30</b> figures</span><span><b>5</b> widgets</span><span><b>49</b> issues found &amp; fixed</span><span>incl. a JS float-overflow PRNG bug</span></div>
+    </div>
+  </a>
+
+</div>
+
+<div class="sec">Practice &amp; reference</div>
+
+<div class="grid pair">
+  <a class="card" href="08_question_bank.html" style="--stripe:var(--s3)">
+    <div class="card-top"><span class="lecs">L01&ndash;L25</span><span class="gid">Q</span></div>
+    <h2>Question Bank</h2>
+    <p>170 exam-style problems with fully worked solutions, filterable by difficulty and topic. <span class="ex">Multinomial, random walks, waiting times, coupon collector.</span></p>
+    <div class="chips"><span class="chip">150 core + 20 exam classics</span><span class="chip">&#9733;/&#9733;&#9733;/&#9733;&#9733;&#9733;</span><span class="chip">hidden solutions</span><span class="chip">live filters</span></div>
+    <div class="foot">
+      <span class="badge">&#10003; every answer machine-verified</span>
+      <div class="metrics"><span><b>170</b> questions</span><span><b>8</b> sections</span><span>Monte-Carlo cross-checked</span></div>
+    </div>
+  </a>
+
+  <a class="card" href="09_reference.html" style="--stripe:var(--s4)">
+    <div class="card-top"><span class="lecs">all</span><span class="gid">R</span></div>
+    <h2>Reference &amp; Enrichment</h2>
+    <p>One consolidated distribution table, the master formula sheet, and topics beyond the syllabus. <span class="ex">Universality of the uniform, MGFs, order statistics, Simpson's paradox.</span></p>
+    <div class="chips"><span class="chip">distribution tables</span><span class="chip">formula sheet</span><span class="chip">beyond 6.041</span></div>
+    <div class="foot">
+      <span class="badge">&#10003; every row cited to its derivation</span>
+      <div class="metrics"><span>discrete + continuous zoo</span><span>waiting-time &amp; random-walk blocks</span></div>
     </div>
   </a>
 

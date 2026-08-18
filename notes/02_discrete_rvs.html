@@ -390,7 +390,13 @@ canvas.plot { width: 100%; display: block; }
   .widget .wcontrols { display: none; }
   .widget, .fig, .defn, .note, .thm, .ex, .warn, .recipe, .summary,
   details.sol, pre { box-shadow: none; }
-  details.sol { open: true; }
+  /* force solution panels open on paper: `open` is an HTML attribute, not a
+     CSS property, so the old `open: true` was silently discarded and printed
+     copies carried no solutions at all. */
+  details.sol > .body, details.sol:not([open]) > .body { display: block !important; }
+  details.sol > summary { list-style: none; }
+  details.sol > summary::marker, details.sol > summary::-webkit-details-marker { display: none; }
+  .qbfilter { display: none; }
   /* never leave a content-free colored strip (a box's bottom padding/border)
      stranded at the top of the next sheet */
   .defn, .note, .thm, .warn, .recipe, .summary, .widget,
@@ -483,6 +489,30 @@ canvas.plot { width: 100%; display: block; }
 #themetoggle:hover { background: var(--btnHover); border-color: var(--rule); }
 
 #sidebar #themetoggle { display: block; width: 100%; margin: 4px 0 10px 0; text-align: center; }
+
+/* ---------- question bank ---------- */
+.qbfilter {
+  position: sticky; top: 0; z-index: 20; background: var(--paper);
+  border-bottom: 1px solid var(--hairline); padding: 10px 0 12px;
+  margin: 0 0 18px; font-family: var(--ui); font-size: 12.5px;
+}
+.qbfilter .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.qbfilter .lbl { color: var(--muted); font-weight: 600; margin-right: 4px; }
+.qbchip {
+  border: 1px solid var(--rule); border-radius: 999px; padding: 3px 11px; cursor: pointer;
+  background: none; color: var(--ink); font: inherit; transition: background .13s, border-color .13s;
+}
+.qbchip:hover { background: var(--tocHover); }
+.qbchip.on { background: var(--s1); border-color: var(--s1); color: #fff; }
+.qbcount { color: var(--muted); font-variant-numeric: tabular-nums; }
+.qcard { scroll-margin-top: 70px; }
+.qcard.hide { display: none; }
+.qmeta {
+  font-family: var(--ui); font-size: 11px; color: var(--muted);
+  letter-spacing: .02em; margin-left: 6px;
+}
+.qmeta .stars { color: var(--s4); letter-spacing: .08em; }
+.qmeta .ref { color: var(--link); }
 
 </style>
 <script>
@@ -938,6 +968,40 @@ canvas.plot { width: 100%; display: block; }
     const saved = localStorage.getItem("theme6041");
     if (saved) document.documentElement.dataset.theme = saved;
   } catch (e) {}
+})();
+
+/* Solutions on paper, and for review captures.
+   `<details>` content is hidden by Chrome's UA shadow DOM, which no print CSS
+   rule can override — so the `open` attribute must actually be set. We set it
+   on beforeprint and restore afterwards, and honour ?expand=1 for the
+   screenshot/review pipeline. */
+(function () {
+  "use strict";
+  var forced = [];
+  function openAll() {
+    forced = [];
+    document.querySelectorAll("details.sol:not([open])").forEach(function (d) {
+      d.setAttribute("open", "");
+      forced.push(d);
+    });
+  }
+  function restoreAll() {
+    forced.forEach(function (d) { d.removeAttribute("open"); });
+    forced = [];
+  }
+  window.addEventListener("beforeprint", openAll);
+  window.addEventListener("afterprint", restoreAll);
+  if (window.matchMedia) {
+    try {
+      var mq = window.matchMedia("print");
+      var onChange = function (e) { (e.matches ? openAll : restoreAll)(); };
+      if (mq.addEventListener) mq.addEventListener("change", onChange);
+      else if (mq.addListener) mq.addListener(onChange);
+    } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    if (/[?&]expand=1/.test(location.search)) openAll();
+  });
 })();
 
 </script>
@@ -4044,6 +4108,403 @@ each match removes one card <em>and</em> one slot, raising every remaining match
 $1/10$ to $1/9$. The $90$ positive cross terms contribute exactly $90(\tfrac1{90}-\tfrac1{100})=0.1$
 of extra variance, restoring $0.9+0.1=1$.</p></div></details></div>
 
+<h3>4.11 The multinomial distribution</h3>
+
+<p>Every distribution met so far has been a single number. The multinomial is the first genuinely
+<em>multivariate</em> one — a joint PMF of $r$ random variables at once — and it is the natural end
+point of this section, because it is exactly the object §4.1–§4.5 was built to describe. It is also
+the distribution behind almost every "$n$ independent trials, more than two outcomes" problem: dice
+faces, quality grades, survey responses, colored balls drawn with replacement. Its combinatorial half
+— the multinomial coefficient $n!/(n_1!\cdots n_r!)$ — was derived by the slot argument in
+<b>G1 §4.6</b>; here we attach probabilities to it and study the resulting joint PMF. Every number
+below is recomputed in <code>computes/g2_s4.py</code> (block "4.11 the multinomial distribution"),
+with a $4{,}000{,}000$-batch Monte Carlo cross-check of Example 4.10.</p>
+
+<div class="defn"><b>Definition (multinomial distribution; G1 §4.6 for the coefficient, B&amp;T §1.6
+and §2.5).</b> Run $n$ independent identical trials. Each trial lands in exactly one of $r$
+<b>categories</b> $1,2,\dots,r$, with
+$$\mathbf{P}(\text{a given trial lands in category }k)=\theta_k,\qquad k=1,\dots,r,\qquad
+\theta_k\ge0,\qquad \sum_{k=1}^r\theta_k=1 .$$
+Let $N_k$ be the number of the $n$ trials that land in category $k$. The random vector
+$(N_1,\dots,N_r)$ is <b>multinomial</b> with parameters $n$ and $(\theta_1,\dots,\theta_r)$, written
+$(N_1,\dots,N_r)\sim\text{Mult}(n;\theta_1,\dots,\theta_r)$, and its joint PMF is
+$$p_{N_1,\dots,N_r}(n_1,\dots,n_r)=\frac{n!}{n_1!\,n_2!\cdots n_r!}\;
+\theta_1^{n_1}\theta_2^{n_2}\cdots\theta_r^{n_r}
+=\frac{n!}{\prod_{k}n_k!}\prod_{k=1}^r\theta_k^{n_k},$$
+defined on the <b>simplex</b> of count vectors — the nonnegative integers $n_1,\dots,n_r$ with
+$n_1+n_2+\cdots+n_r=n$ — and zero off it. Here $n$ is the fixed, non-random number of trials,
+$\theta_k$ is the category-$k$ probability of one trial, and $n_k$ is a candidate value of the random
+count $N_k$.</div>
+
+<p><b>Derivation of the joint PMF.</b> Fix a count vector $(n_1,\dots,n_r)$ on the simplex. The event
+$\{N_1=n_1,\dots,N_r=n_r\}$ is a union of elementary outcomes, each of which is a full
+<em>sequence</em> of $n$ category labels — write $(c_1,c_2,\dots,c_n)$ with $c_t\in\{1,\dots,r\}$ the
+category of trial $t$. Split the calculation in two, exactly as the binomial derivation of §4.8
+does.</p>
+
+<p><em>Step 1 — the probability of one such sequence.</em> The trials are independent, so by the
+definition of independence for events (G1 §3) the probability of one particular sequence is the
+product of the $n$ per-trial probabilities:
+$$\mathbf{P}\big((c_1,\dots,c_n)\big)=\prod_{t=1}^n\theta_{c_t}
+=\theta_1^{n_1}\theta_2^{n_2}\cdots\theta_r^{n_r},$$
+where the second equality merely groups equal factors: label $k$ occurs in the sequence exactly $n_k$
+times, contributing $\theta_k$ that many times. Note the answer depends on the sequence <em>only</em>
+through its count vector — every sequence with these counts carries the same probability.</p>
+
+<p><em>Step 2 — how many such sequences there are.</em> Counting the sequences of $n$ labels in which
+label $k$ appears $n_k$ times is precisely the partition problem of G1 §4.6: choose which $n_1$ of the
+$n$ trial slots carry label $1$, which $n_2$ of the remaining slots carry label $2$, and so on. The
+slot argument there gives the multinomial coefficient
+$$\binom{n}{n_1,n_2,\dots,n_r}=\frac{n!}{n_1!\,n_2!\cdots n_r!}$$
+— all $n!$ orderings of the slots, divided by the $n_k!$ internal reorderings inside each label group,
+which produce the same assignment.</p>
+
+<p><em>Step 3 — add.</em> The sequences are disjoint elementary outcomes, so the additivity axiom lets
+us add their probabilities; since they all share the value from Step 1, adding is multiplying by the
+count from Step 2:
+$$\mathbf{P}(N_1=n_1,\dots,N_r=n_r)=\underbrace{\frac{n!}{n_1!\cdots n_r!}}_{\text{how many orderings}}
+\cdot\underbrace{\theta_1^{n_1}\cdots\theta_r^{n_r}}_{\text{probability of each}} .\qquad\blacksquare$$
+Normalization is the multinomial theorem: summing over the simplex gives
+$(\theta_1+\cdots+\theta_r)^n=1^n=1$ — the same identity that made
+$\sum_k\binom{n}{k}p^k(1-p)^{n-k}=1$ work for the binomial.</p>
+
+<div class="note"><b>Interpretation.</b> The formula has the two-factor shape of every "count" PMF in
+this course: <em>how many arrangements</em> $\times$ <em>probability of one arrangement</em>. The
+binomial is the case $r=2$: writing $\theta_1=p$, $\theta_2=1-p$, $n_1=k$, $n_2=n-k$, the coefficient
+collapses to $\frac{n!}{k!(n-k)!}=\binom nk$ and the product to $p^k(1-p)^{n-k}$. Every formula below
+therefore reduces to a familiar binomial statement when $r=2$ — a free sanity check on all of
+them.</div>
+
+<div class="warn"><b>Gotcha — one degree of freedom is missing.</b> The $r$ counts are not free: they
+satisfy $N_1+\cdots+N_r=n$ identically, so $N_r=n-N_1-\cdots-N_{r-1}$ is a <em>function</em> of the
+others. Three consequences. The joint PMF lives on the simplex and is zero everywhere else — a count
+vector that does not add to $n$ has probability $0$, not a small number. The counts can never be
+independent for $r\ge2$. And the covariances computed below are forced to be negative. A multinomial
+with $r$ categories is really an $(r-1)$-dimensional distribution.</div>
+
+<div class="thm"><b>Property 1 — the marginals are binomial.</b> If
+$(N_1,\dots,N_r)\sim\text{Mult}(n;\theta_1,\dots,\theta_r)$ then for each $k$
+$$N_k\sim\text{Binomial}(n,\theta_k),\qquad\text{so}\qquad
+p_{N_k}(m)=\binom nm\theta_k^m(1-\theta_k)^{n-m},\quad m=0,1,\dots,n,$$
+and hence $\mathbb{E}[N_k]=n\theta_k$ and $\operatorname{var}(N_k)=n\theta_k(1-\theta_k)$ by
+§4.8.</div>
+
+<p><b>Derivation (by lumping).</b> Do not sum the joint PMF over the other $r-1$ counts — that
+computation is possible but ugly. Re-describe the experiment instead. Give each trial a coarser label:
+call it a <em>hit</em> if it lands in category $k$, a <em>miss</em> otherwise. The categories are
+disjoint, so by the additivity axiom
+$$\mathbf{P}(\text{hit})=\theta_k,\qquad
+\mathbf{P}(\text{miss})=\sum_{j\ne k}\theta_j=1-\theta_k,$$
+the last step using $\sum_j\theta_j=1$. The trials are still independent (relabeling the outcome of a
+trial cannot create dependence between trials), still $n$ in number, still identical. So the
+experiment <em>is</em> $n$ independent Bernoulli($\theta_k$) trials, and $N_k$, the number of hits, is
+binomial by the definition in G2 §5.2 — no algebra required. $\blacksquare$</p>
+
+<p>The algebraic route confirms it and is worth one line for the skeptical. Summing the joint PMF over
+all $(n_j)_{j\ne k}$ with $\sum_{j\ne k}n_j=n-m$,
+$$p_{N_k}(m)=\frac{n!}{m!\,(n-m)!}\,\theta_k^m
+\sum_{\sum_{j\ne k}n_j=n-m}\frac{(n-m)!}{\prod_{j\ne k}n_j!}\prod_{j\ne k}\theta_j^{n_j}
+=\binom nm\theta_k^m\Big(\sum_{j\ne k}\theta_j\Big)^{n-m}=\binom nm\theta_k^m(1-\theta_k)^{n-m},$$
+where the inner sum is the multinomial theorem applied to the remaining $r-1$ categories.</p>
+
+<div class="warn"><b>Gotcha — the marginals do <em>not</em> determine the joint.</b> This is the §4.1
+warning in its sharpest form. Knowing $N_1\sim\text{Bin}(n,\theta_1)$, …,
+$N_r\sim\text{Bin}(n,\theta_r)$ separately is strictly less information than the multinomial joint
+PMF, because the marginals say nothing about the constraint $N_1+\cdots+N_r=n$ that ties them
+together. Multiplying the binomial marginals is therefore <em>wrong</em>: with $n=10$ and the four
+grades of Example 4.10, the product of marginals would assign positive probability to the event
+$\{N_A=10,\ N_B=10\}$, which is impossible. If a solution of yours multiplies multinomial marginals,
+it has assumed an independence that cannot hold.</div>
+
+<div class="thm"><b>Property 2 — lumping (merging categories).</b> Merge any collection of categories
+into one. Formally, let $S_1,\dots,S_m$ be a partition of $\{1,\dots,r\}$ into disjoint groups, and
+set
+$$M_i=\sum_{k\in S_i}N_k,\qquad \phi_i=\sum_{k\in S_i}\theta_k,\qquad i=1,\dots,m .$$
+Then $(M_1,\dots,M_m)\sim\text{Mult}(n;\phi_1,\dots,\phi_m)$: merging categories gives a multinomial
+again, over the merged categories, with the merged probabilities simply <em>added</em>.</div>
+
+<p><b>Justification.</b> The same relabeling argument, one level up. Each trial still produces exactly
+one group label — the groups are disjoint and exhaustive, so every category belongs to exactly one
+$S_i$ — the trials are still independent and identical, and by additivity a single trial lands in
+group $i$ with probability
+$\mathbf{P}\big(\bigcup_{k\in S_i}\{\text{category }k\}\big)=\sum_{k\in S_i}\theta_k=\phi_i$, the union
+being disjoint. Also $\sum_i\phi_i=\sum_k\theta_k=1$, so the $\phi_i$ are legitimate category
+probabilities. Every hypothesis of the definition holds for the coarsened experiment, and $M_i$ is by
+construction the number of trials in group $i$. $\blacksquare$ Property 1 is the special case $m=2$
+with $S_1=\{k\}$ and $S_2=$ everything else.</p>
+
+<div class="recipe"><b>Recipe — the lumping trick (the highest-yield multinomial move).</b> When a
+question mentions only <em>some</em> of the categories, never sum the full joint PMF. Instead:
+<ol>
+<li><b>Read off which categories the question distinguishes.</b> "How many defective?" distinguishes
+{defective grades} from {everything else}: two groups.</li>
+<li><b>Add their $\theta$'s</b> to get one probability per group; check the group probabilities still
+sum to $1$.</li>
+<li><b>Write the multinomial for the groups</b> and answer with the $m$-category formula, ignoring all
+finer structure.</li>
+</ol>
+Two groups $\Rightarrow$ binomial; three groups $\Rightarrow$ trinomial. A question about "$N_1$ and
+everything else" is a binomial question, however many categories the story listed.</div>
+
+<div class="thm"><b>Property 3 — conditioning on one count.</b> Fix $n_1$ with $0\le n_1\le n$, and
+assume $\theta_1&lt;1$. Conditioned on $\{N_1=n_1\}$, the remaining counts satisfy
+$$(N_2,\dots,N_r)\mid\{N_1=n_1\}\ \sim\ \text{Mult}\big(n-n_1;\ \tilde\theta_2,\dots,\tilde\theta_r\big),
+\qquad \tilde\theta_j=\frac{\theta_j}{1-\theta_1},\quad j=2,\dots,r .$$
+With $n_1$ trials spoken for, the other $n-n_1$ trials form a fresh multinomial over the surviving
+categories, with the surviving probabilities <em>renormalized</em> to sum to $1$. Nothing is special
+about category $1$; the same holds conditioning on any set of counts.</div>
+
+<p><b>Derivation.</b> First check that the renormalized probabilities are legitimate: they are
+nonnegative and
+$$\sum_{j=2}^r\tilde\theta_j=\frac{\sum_{j=2}^r\theta_j}{1-\theta_1}=\frac{1-\theta_1}{1-\theta_1}=1 .$$
+Now apply the definition of a conditional PMF from §4.3, with the joint PMF on top and the (binomial,
+by Property 1) marginal underneath. Take counts with $n_2+\cdots+n_r=n-n_1$:
+$$p_{N_2,\dots,N_r\mid N_1}(n_2,\dots,n_r\mid n_1)
+=\frac{p_{N_1,\dots,N_r}(n_1,n_2,\dots,n_r)}{p_{N_1}(n_1)}
+=\frac{\dfrac{n!}{n_1!\,n_2!\cdots n_r!}\ \theta_1^{n_1}\theta_2^{n_2}\cdots\theta_r^{n_r}}
+{\dfrac{n!}{n_1!\,(n-n_1)!}\ \theta_1^{n_1}(1-\theta_1)^{n-n_1}} .$$
+Cancel factor by factor. The $n!$ cancels; the $n_1!$ cancels; the $\theta_1^{n_1}$ cancels — all
+information about category $1$ leaves the problem, as it must, since we have conditioned on it. What
+survives is
+$$=\frac{(n-n_1)!}{n_2!\cdots n_r!}\cdot
+\frac{\theta_2^{n_2}\cdots\theta_r^{n_r}}{(1-\theta_1)^{n-n_1}} .$$
+For the second factor use $n-n_1=n_2+\cdots+n_r$ to split the denominator into one factor of
+$(1-\theta_1)$ per counted trial:
+$$\frac{\theta_2^{n_2}\cdots\theta_r^{n_r}}{(1-\theta_1)^{n_2+\cdots+n_r}}
+=\Big(\frac{\theta_2}{1-\theta_1}\Big)^{n_2}\cdots\Big(\frac{\theta_r}{1-\theta_1}\Big)^{n_r}
+=\tilde\theta_2^{\,n_2}\cdots\tilde\theta_r^{\,n_r} .$$
+Putting the two pieces together,
+$$p_{N_2,\dots,N_r\mid N_1}(n_2,\dots,n_r\mid n_1)
+=\frac{(n-n_1)!}{n_2!\cdots n_r!}\ \tilde\theta_2^{\,n_2}\cdots\tilde\theta_r^{\,n_r},$$
+which is exactly the multinomial PMF with $n-n_1$ trials and probabilities
+$\tilde\theta_2,\dots,\tilde\theta_r$. $\blacksquare$</p>
+
+<div class="note"><b>Interpretation.</b> Conditioning on $N_1=n_1$ is the "restrict and renormalize"
+operation of §4.4 seen at the level of the <em>trials</em> rather than the table: you are told which
+$n_1$ trials are used up, so the experiment restarts with $n-n_1$ trials on the smaller category set,
+and $1/(1-\theta_1)$ is exactly the renormalizing divisor. Combined with the multiplication rule this
+gives a clean two-stage route to any multinomial probability — first the binomial probability of
+$N_1$, then the conditional multinomial for the rest. Example 4.10(iv) runs that route and lands back
+on the joint PMF.</div>
+
+<div class="thm"><b>Property 4 — covariance and correlation.</b> For $i\ne j$,
+$$\operatorname{cov}(N_i,N_j)=-n\,\theta_i\theta_j\ &lt;\ 0,\qquad
+\rho(N_i,N_j)=-\sqrt{\frac{\theta_i\theta_j}{(1-\theta_i)(1-\theta_j)}}\,,$$
+where $\operatorname{cov}(X,Y)=\mathbb{E}\big[(X-\mathbb{E}[X])(Y-\mathbb{E}[Y])\big]
+=\mathbb{E}[XY]-\mathbb{E}[X]\,\mathbb{E}[Y]$ and
+$\rho(X,Y)=\operatorname{cov}(X,Y)\big/\sqrt{\operatorname{var}(X)\operatorname{var}(Y)}$. Distinct
+multinomial counts are always <em>negatively</em> correlated.</div>
+
+<p>Covariance appeared in §4.7 as the cross term in $\operatorname{var}(X+Y)$; it is developed
+properly, with correlation and its interpretation, in <b>G3 §4</b> — read the two formulas above as
+forward material. The only extra fact used here is bilinearity,
+$\operatorname{cov}\big(\sum_t A_t,\ \sum_s B_s\big)=\sum_t\sum_s\operatorname{cov}(A_t,B_s)$, which
+follows from linearity of expectation (§4.6).</p>
+
+<p><b>Derivation via indicators.</b> Decompose each count exactly as §4.8 decomposed the binomial. For
+trial $t=1,\dots,n$ and category $k$ let
+$$I_t^{(k)}=\begin{cases}1,&amp;\text{if trial }t\text{ lands in category }k,\\
+0,&amp;\text{otherwise,}\end{cases}\qquad\text{so that}\qquad N_k=\sum_{t=1}^n I_t^{(k)},$$
+the identity holding outcome by outcome (each trial contributes a $1$ to the count of exactly the
+category it landed in). An indicator's expectation is the probability of its event (§4.8), so
+$\mathbb{E}[I_t^{(k)}]=\theta_k$. Expand by bilinearity:
+$$\operatorname{cov}(N_i,N_j)
+=\operatorname{cov}\Big(\sum_{t=1}^n I_t^{(i)},\ \sum_{s=1}^n I_s^{(j)}\Big)
+=\sum_{t=1}^n\sum_{s=1}^n\operatorname{cov}\big(I_t^{(i)},I_s^{(j)}\big).$$
+The $n^2$ terms come in two kinds.</p>
+
+<p><em>Off-diagonal terms, $t\ne s$.</em> Trials $t$ and $s$ are independent, hence so are indicators
+built from them, hence $\mathbb{E}[I_t^{(i)}I_s^{(j)}]=\mathbb{E}[I_t^{(i)}]\mathbb{E}[I_s^{(j)}]
+=\theta_i\theta_j$ and
+$$\operatorname{cov}\big(I_t^{(i)},I_s^{(j)}\big)=\theta_i\theta_j-\theta_i\theta_j=0 .$$
+All $n(n-1)$ of these vanish; this is the only place independence of the trials is used.</p>
+
+<p><em>Diagonal terms, $t=s$.</em> Here is the whole point. A single trial lands in exactly one
+category, so for $i\ne j$ the events $\{I_t^{(i)}=1\}$ and $\{I_t^{(j)}=1\}$ are disjoint and the
+product $I_t^{(i)}I_t^{(j)}$ is identically $0$. Therefore
+$\mathbb{E}[I_t^{(i)}I_t^{(j)}]=0$ and
+$$\operatorname{cov}\big(I_t^{(i)},I_t^{(j)}\big)
+=\mathbb{E}[I_t^{(i)}I_t^{(j)}]-\mathbb{E}[I_t^{(i)}]\,\mathbb{E}[I_t^{(j)}]
+=0-\theta_i\theta_j=-\theta_i\theta_j .$$
+There are $n$ such terms, one per trial. Adding the two kinds,
+$$\operatorname{cov}(N_i,N_j)=\underbrace{n\cdot(-\theta_i\theta_j)}_{t=s\ \text{terms}}
++\underbrace{n(n-1)\cdot 0}_{t\ne s\ \text{terms}}=-n\theta_i\theta_j .\qquad\blacksquare$$
+For the correlation, divide by the standard deviations, using
+$\operatorname{var}(N_k)=n\theta_k(1-\theta_k)$ from Property 1:
+$$\rho(N_i,N_j)=\frac{-n\theta_i\theta_j}
+{\sqrt{n\theta_i(1-\theta_i)}\ \sqrt{n\theta_j(1-\theta_j)}}
+=\frac{-n\theta_i\theta_j}{n\sqrt{\theta_i\theta_j(1-\theta_i)(1-\theta_j)}}
+=-\sqrt{\frac{\theta_i\theta_j}{(1-\theta_i)(1-\theta_j)}},$$
+the last step cancelling $n$ and one factor of $\sqrt{\theta_i\theta_j}$. Notice that $n$ has
+disappeared: the correlation between two multinomial counts does not depend on how many trials you
+run. For $r=2$ it gives
+$\rho(N_1,N_2)=-\sqrt{\theta_1\theta_2/(\theta_2\theta_1)}=-1$, correct, since then $N_2=n-N_1$ is an
+exactly decreasing linear function of $N_1$.</p>
+
+<div class="note"><b>Interpretation — why negative, always.</b> The trials are a fixed budget, so one
+category's surplus must be another's deficit; the counts are pinned to $N_1+\cdots+N_r=n$. The
+cleanest proof of the sign is the variance identity of §4.7 applied to that constant sum, whose
+variance is $0$:
+$$0=\operatorname{var}\Big(\sum_k N_k\Big)=\sum_k\operatorname{var}(N_k)
++\sum_{i\ne j}\operatorname{cov}(N_i,N_j)
+=n\Big(1-\sum_k\theta_k^2\Big)-n\Big(1-\sum_k\theta_k^2\Big)=0\ ✓,$$
+using $\sum_k\theta_k(1-\theta_k)=1-\sum_k\theta_k^2$ and
+$\sum_{i\ne j}\theta_i\theta_j=\big(\sum_k\theta_k\big)^2-\sum_k\theta_k^2=1-\sum_k\theta_k^2$. The
+positive variances and the negative covariances have to cancel exactly — the constraint made
+arithmetic.</div>
+
+<div class="ex"><b>Example 4.10 (a grading line — one story, five multinomial questions).</b> An
+assembly line inspects items one at a time. Independently of all others, each item is graded
+<b>A</b> with probability $\theta_A=0.5$, <b>B</b> with $\theta_B=0.3$, <b>C</b> with
+$\theta_C=0.15$ and <b>D</b> with $\theta_D=0.05$; grades C and D count as <em>defective</em>. A batch
+of $n=10$ items is inspected; let $N_A,N_B,N_C,N_D$ be the four grade counts.
+<p><b>The model.</b> The four probabilities are nonnegative and $0.5+0.3+0.15+0.05=1$ ✓, the grades
+are mutually exclusive and exhaustive, and items are graded independently — every hypothesis of the
+definition holds, so $(N_A,N_B,N_C,N_D)\sim\text{Mult}(10;\,0.5,\,0.3,\,0.15,\,0.05)$.</p>
+
+<p><b>(i) A joint probability: $\mathbf{P}(N_A=5,N_B=3,N_C=1,N_D=1)$.</b> The count vector lies on the
+simplex ($5+3+1+1=10$ ✓), so the joint PMF applies. The multinomial coefficient first:
+$$\binom{10}{5,3,1,1}=\frac{10!}{5!\,3!\,1!\,1!}=\frac{3{,}628{,}800}{120\cdot6\cdot1\cdot1}
+=\frac{3{,}628{,}800}{720}=5040 .$$
+Then the probability of any one grading sequence with these counts:
+$$\theta_A^5\theta_B^3\theta_C^1\theta_D^1
+=\Big(\tfrac12\Big)^5\Big(\tfrac3{10}\Big)^3\Big(\tfrac3{20}\Big)\Big(\tfrac1{20}\Big)
+=\tfrac1{32}\cdot\tfrac{27}{1000}\cdot\tfrac3{20}\cdot\tfrac1{20}
+=\frac{81}{12{,}800{,}000}=6.328125\times10^{-6}.$$
+Multiplying the two,
+$$\mathbf{P}(N_A=5,N_B=3,N_C=1,N_D=1)=5040\cdot\frac{81}{12{,}800{,}000}
+=\frac{408{,}240}{12{,}800{,}000}=\frac{5103}{160{,}000}=0.03189375 .$$
+Simulating $4{,}000{,}000$ batches gives $0.031940$ — agreement to three decimals.</p>
+
+<p><b>(ii) A marginal: $\mathbf{P}(N_C=2)$.</b> By Property 1 there is nothing to sum:
+$N_C\sim\text{Binomial}(10,\,0.15)$, because grading each item "C or not C" turns the line into $10$
+independent Bernoulli($0.15$) trials. Hence
+$$\mathbf{P}(N_C=2)=\binom{10}{2}(0.15)^2(0.85)^8=45\cdot0.0225\cdot0.2724905250
+=1.0125\cdot0.2724905250=0.2758966566 ,$$
+with $\mathbb{E}[N_C]=10(0.15)=1.5$ and $\operatorname{var}(N_C)=10(0.15)(0.85)=1.275$. Simulated:
+$0.276069$.</p>
+
+<p><b>(iii) A lumped probability: $\mathbf{P}(\text{exactly }3\text{ defectives})$.</b> "Defective"
+merges C and D, so Property 2 gives the merged probability
+$$\phi_{\text{def}}=\theta_C+\theta_D=0.15+0.05=0.20 ,$$
+and $N_{\text{def}}=N_C+N_D\sim\text{Binomial}(10,\,0.2)$:
+$$\mathbf{P}(N_{\text{def}}=3)=\binom{10}{3}(0.2)^3(0.8)^7=120\cdot0.008\cdot0.2097152
+=0.96\cdot0.2097152=0.201326592 ,$$
+with $\mathbb{E}[N_{\text{def}}]=10(0.2)=2$. Simulated: $0.201484$. Note how much work lumping saved:
+the direct route would sum the joint PMF over every $(n_A,n_B,n_C,n_D)$ with $n_C+n_D=3$. Merging only
+C and D, and keeping A and B separate, leaves the trinomial
+$(N_A,N_B,N_{\text{def}})\sim\text{Mult}(10;\,0.5,\,0.3,\,0.2)$, so for instance
+$$\mathbf{P}(N_A=5,N_B=3,N_{\text{def}}=2)=\frac{10!}{5!\,3!\,2!}(0.5)^5(0.3)^3(0.2)^2
+=2520\cdot\tfrac1{32}\cdot\tfrac{27}{1000}\cdot\tfrac1{25}=\frac{1701}{20{,}000}=0.08505 .$$</p>
+
+<p><b>(iv) A conditional: $\mathbf{P}(N_B=3,N_C=1,N_D=1\mid N_A=5)$.</b> By Property 3, given
+$N_A=5$ the other $10-5=5$ items form a fresh multinomial over $\{B,C,D\}$ with probabilities
+renormalized by $1-\theta_A=0.5$:
+$$\tilde\theta_B=\frac{0.3}{0.5}=0.6,\qquad
+\tilde\theta_C=\frac{0.15}{0.5}=0.3,\qquad
+\tilde\theta_D=\frac{0.05}{0.5}=0.1,\qquad 0.6+0.3+0.1=1\ ✓ .$$
+Therefore
+$$\mathbf{P}(N_B=3,N_C=1,N_D=1\mid N_A=5)=\frac{5!}{3!\,1!\,1!}(0.6)^3(0.3)^1(0.1)^1
+=20\cdot0.216\cdot0.3\cdot0.1=20\cdot0.00648=0.1296 .$$
+<b>Consistency check by the multiplication rule (§4.3).</b> The marginal of $N_A$ is
+Binomial$(10,0.5)$, so
+$$\mathbf{P}(N_A=5)=\binom{10}{5}(0.5)^5(0.5)^5=252\cdot\frac{1}{1024}=\frac{252}{1024}
+=\frac{63}{256}=0.24609375,$$
+and multiplying,
+$$\mathbf{P}(N_A=5)\cdot\mathbf{P}(N_B=3,N_C=1,N_D=1\mid N_A=5)=0.24609375\cdot0.1296=0.03189375,$$
+exactly the joint probability of part (i) ✓. Two independent routes, one answer.</p>
+
+<p><b>(v) A covariance: $\operatorname{cov}(N_A,N_B)$ and $\rho(N_A,N_B)$.</b> By Property 4,
+$$\operatorname{cov}(N_A,N_B)=-n\theta_A\theta_B=-10(0.5)(0.3)=-1.5 .$$
+The variances come from the binomial marginals (Property 1):
+$$\operatorname{var}(N_A)=10(0.5)(0.5)=2.5,\qquad \operatorname{var}(N_B)=10(0.3)(0.7)=2.1 ,$$
+so
+$$\rho(N_A,N_B)=\frac{-1.5}{\sqrt{2.5}\,\sqrt{2.1}}=\frac{-1.5}{\sqrt{5.25}}
+=\frac{-1.5}{2.2912878475}=-0.6546536707 ,$$
+matching the $n$-free formula
+$-\sqrt{\theta_A\theta_B/\big((1-\theta_A)(1-\theta_B)\big)}=-\sqrt{(0.5)(0.3)/\big((0.5)(0.7)\big)}
+=-\sqrt{0.15/0.35}=-\sqrt{3/7}=-0.6546536707$ ✓. Simulated covariance: $-1.499715$. The number is
+strongly negative because A and B between them absorb $80\%$ of the items: a batch heavy in A is
+necessarily light in B. For comparison $\operatorname{cov}(N_A,N_C)=-10(0.5)(0.15)=-0.75$ and
+$\operatorname{cov}(N_A,N_D)=-10(0.5)(0.05)=-0.25$, and the three covariances involving $N_A$ add to
+$-1.5-0.75-0.25=-2.5=-\operatorname{var}(N_A)$ — the cancellation identity of the Interpretation box
+above, visible one row at a time.</p></div>
+
+<div class="ex"><b>Practice 4.25.</b> A fair six-sided die is rolled $12$ times; $N_k$ is the number of
+rolls showing face $k$. (a) Find $\mathbf{P}(\text{every face appears exactly twice})$. (b) Find
+$\mathbf{P}(N_1=2)$. (c) Find $\operatorname{cov}(N_1,N_2)$ and $\rho(N_1,N_2)$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>The rolls are independent and each lands in one of $r=6$ equally likely categories, so
+$(N_1,\dots,N_6)\sim\text{Mult}(12;\tfrac16,\dots,\tfrac16)$.</p>
+<p><b>(a)</b> The count vector $(2,2,2,2,2,2)$ is on the simplex ($6\times2=12$ ✓). The coefficient is
+$$\frac{12!}{(2!)^6}=\frac{479{,}001{,}600}{64}=7{,}484{,}400 ,$$
+and each ordering has probability $\big(\tfrac16\big)^{12}=1/6^{12}=1/2{,}176{,}782{,}336$, so
+$$\mathbf{P}=7{,}484{,}400\cdot\frac{1}{2{,}176{,}782{,}336}=\frac{1925}{559{,}872}=0.0034382859 .$$
+About one set of rolls in $291$ — perfectly balanced outcomes are rare, which is why "the counts look
+uneven" is a poor test of fairness.</p>
+<p><b>(b)</b> By Property 1 (lump "face 1" against "faces 2–6", probabilities $\tfrac16$ and
+$\tfrac56$), $N_1\sim\text{Binomial}(12,\tfrac16)$, so
+$$\mathbf{P}(N_1=2)=\binom{12}{2}\Big(\tfrac16\Big)^2\Big(\tfrac56\Big)^{10}
+=66\cdot\tfrac1{36}\cdot\frac{9{,}765{,}625}{60{,}466{,}176}
+=\frac{107{,}421{,}875}{362{,}797{,}056}=0.2960935686 .$$</p>
+<p><b>(c)</b> By Property 4,
+$\operatorname{cov}(N_1,N_2)=-12\cdot\tfrac16\cdot\tfrac16=-\tfrac{12}{36}=-\tfrac13\approx-0.3333$,
+while $\operatorname{var}(N_k)=12\cdot\tfrac16\cdot\tfrac56=\tfrac53\approx1.6667$ for every $k$.
+Hence
+$$\rho(N_1,N_2)=\frac{-1/3}{\sqrt{5/3}\,\sqrt{5/3}}=\frac{-1/3}{5/3}=-\frac15=-0.2 ,$$
+agreeing with
+$-\sqrt{\theta_1\theta_2/\big((1-\theta_1)(1-\theta_2)\big)}=-\sqrt{(1/36)/(25/36)}=-\sqrt{1/25}
+=-1/5$ ✓. Check the cancellation identity on row $1$:
+$\operatorname{var}(N_1)+5\operatorname{cov}(N_1,N_2)=\tfrac53+5\big(-\tfrac13\big)
+=\tfrac53-\tfrac53=0$ ✓.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.26.</b> Eight voters are polled independently; each answers <em>yes</em>
+with probability $0.5$, <em>no</em> with $0.3$, <em>undecided</em> with $0.2$. (a) Find
+$\mathbf{P}(N_{\text{yes}}=4,\,N_{\text{no}}=3,\,N_{\text{und}}=1)$. (b) Find
+$\mathbf{P}(N_{\text{und}}=1)$. (c) Find the probability that exactly four respondents fail to answer
+yes. (d) Find $\operatorname{cov}(N_{\text{yes}},N_{\text{no}})$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>$(N_{\text{yes}},N_{\text{no}},N_{\text{und}})\sim\text{Mult}(8;\,0.5,\,0.3,\,0.2)$, the
+probabilities summing to $0.5+0.3+0.2=1$ ✓.</p>
+<p><b>(a)</b> The counts are on the simplex ($4+3+1=8$ ✓), the coefficient is
+$$\frac{8!}{4!\,3!\,1!}=\frac{40{,}320}{24\cdot6\cdot1}=\frac{40{,}320}{144}=280 ,$$
+and therefore
+$$\mathbf{P}=280\,(0.5)^4(0.3)^3(0.2)^1=280\cdot0.0625\cdot0.027\cdot0.2=280\cdot0.0003375
+=0.0945=\frac{189}{2000} .$$</p>
+<p><b>(b)</b> Marginal, Property 1: $N_{\text{und}}\sim\text{Binomial}(8,0.2)$, so
+$$\mathbf{P}(N_{\text{und}}=1)=\binom81(0.2)^1(0.8)^7=8\cdot0.2\cdot0.2097152=1.6\cdot0.2097152
+=0.33554432 .$$</p>
+<p><b>(c)</b> Lumping, Property 2: "not yes" merges <em>no</em> and <em>undecided</em>, with merged
+probability $0.3+0.2=0.5$, so $N_{\text{not yes}}\sim\text{Binomial}(8,0.5)$ and
+$$\mathbf{P}(N_{\text{not yes}}=4)=\binom84(0.5)^4(0.5)^4=70\cdot\frac{1}{256}=\frac{70}{256}
+=\frac{35}{128}=0.2734375 .$$
+No summation over the finer counts was needed — that is Property 2 doing the work.</p>
+<p><b>(d)</b> Property 4:
+$\operatorname{cov}(N_{\text{yes}},N_{\text{no}})=-8(0.5)(0.3)=-1.2$.</p></div></details></div>
+
+<div class="ex"><b>Practice 4.27.</b> For the poll of Practice 4.26, compute
+$\operatorname{var}(N_{\text{yes}}+N_{\text{no}})$ twice — once with the variance-of-a-sum formula of
+§4.7, once by lumping — and explain why the answer is smaller than
+$\operatorname{var}(N_{\text{yes}})+\operatorname{var}(N_{\text{no}})$.
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Route 1 — variance of a sum (§4.7).</b> The marginals are binomial (Property 1), so
+$$\operatorname{var}(N_{\text{yes}})=8(0.5)(0.5)=2,\qquad
+\operatorname{var}(N_{\text{no}})=8(0.3)(0.7)=1.68 ,$$
+and Property 4 gives $\operatorname{cov}(N_{\text{yes}},N_{\text{no}})=-8(0.5)(0.3)=-1.2$. Hence
+$$\operatorname{var}(N_{\text{yes}}+N_{\text{no}})
+=\operatorname{var}(N_{\text{yes}})+\operatorname{var}(N_{\text{no}})
++2\operatorname{cov}(N_{\text{yes}},N_{\text{no}})=2+1.68+2(-1.2)=3.68-2.4=1.28 .$$</p>
+<p><b>Route 2 — lumping (Property 2).</b> $N_{\text{yes}}+N_{\text{no}}$ is the count of the merged
+category "answered yes or no", with merged probability $0.5+0.3=0.8$; it is therefore
+Binomial$(8,0.8)$ and
+$$\operatorname{var}(N_{\text{yes}}+N_{\text{no}})=8(0.8)(0.2)=8(0.16)=1.28\ ✓ .$$</p>
+<p><b>Why smaller.</b> Variances add only for uncorrelated summands (§4.7). Here the summands are
+negatively correlated, and the cross term $2(-1.2)=-2.4$ removes more than half of $3.68$.
+Mechanically: a poll heavy in <em>yes</em> tends to be light in <em>no</em>, so the two fluctuations
+partly cancel and the merged count varies less than the two separate variances suggest. This is the
+general rule for multinomials — every covariance is negative, so a merged count is always less
+variable than the naive sum of variances predicts.</p></div></details></div>
+
 <div class="summary"><b>§4 cheat sheet.</b>
 <ul>
 <li><b>Joint PMF.</b> $p_{X,Y}(x,y)=\mathbf{P}(X=x,Y=y)\ge0$, $\sum_x\sum_y p_{X,Y}(x,y)=1$. It is a
@@ -4081,6 +4542,17 @@ the $X_i$ are <em>dependent</em>, $\mathbf{P}(X_2=1\mid X_1=1)=\tfrac1{n-1}$. Li
 $\mathbb{E}[X]=n\cdot\tfrac1n=1$. For the variance, $\mathbb{E}[X_iX_j]=\tfrac{1}{n(n-1)}$ over
 $n(n-1)$ ordered pairs $i\ne j$, so $\mathbb{E}[X^2]=1+1=2$ and $\operatorname{var}(X)=2-1=1$ —
 both free of $n$ (for $n\ge2$).</li>
+<li><b>Multinomial (§4.11).</b> $n$ independent trials, $r$ categories with
+$\sum_k\theta_k=1$, $N_k=$ count in category $k$:
+$p_{N_1,\dots,N_r}(n_1,\dots,n_r)=\dfrac{n!}{n_1!\cdots n_r!}\theta_1^{n_1}\cdots\theta_r^{n_r}$ on
+$\sum_k n_k=n$ (coefficient derived in G1 §4.6). Marginals $N_k\sim\text{Bin}(n,\theta_k)$;
+<em>lumping</em> merges categories and <em>adds</em> their $\theta$'s, still multinomial; given
+$N_1=n_1$ the rest are $\text{Mult}(n-n_1;\ \theta_j/(1-\theta_1))$;
+$\operatorname{cov}(N_i,N_j)=-n\theta_i\theta_j&lt;0$ and
+$\rho=-\sqrt{\theta_i\theta_j/\big((1-\theta_i)(1-\theta_j)\big)}$, free of $n$. Grading-line example
+($n=10$; $0.5,0.3,0.15,0.05$): joint at $(5,3,1,1)$ is $0.03189375$, $\mathbf{P}(N_C=2)=0.2758967$,
+$\mathbf{P}(N_C+N_D=3)=0.2013266$, conditional $0.1296$, $\operatorname{cov}(N_A,N_B)=-1.5$,
+$\rho=-0.6546537$.</li>
 <li><b>Recitation results.</b> rec06 P1: $p_{K|N}(\cdot\mid2)=(\tfrac14,\tfrac12,\tfrac14)$,
 $p_{N|K}(\cdot\mid2)=(\tfrac25,\tfrac35)$, $\mathbb{E}[K]=\tfrac34$. rec06 P2: $x=0$ maximizes
 $\mathbb{E}[Y\mid X=x]$ at $2$; $y=3$ maximizes $\operatorname{var}(X\mid Y=y)$ at $4$;
@@ -4740,6 +5212,12 @@ without rebuilding (expected-value rule); decompose into indicators (linearity).
 <li><b>Four families.</b> Bernoulli($p$): $p$, $p(1-p)$. Uniform $\{a,\ldots,b\}$: $(a+b)/2$,
 $(b-a)(b-a+2)/12$. Binomial($n,p$): $np$, $np(1-p)$. Geometric($p$): $1/p$, $(1-p)/p^2$. Binomial and
 geometric are the two questions you can ask of the same Bernoulli stream. Fig. 5.2.</li>
+<li><b>And one multivariate family.</b> Multinomial$(n;\theta_1,\dots,\theta_r)$ — $n$ independent
+trials sorted into $r$ categories, joint PMF
+$\frac{n!}{n_1!\cdots n_r!}\theta_1^{n_1}\cdots\theta_r^{n_r}$ on $\sum_k n_k=n$. Each marginal is
+Binomial$(n,\theta_k)$, merged categories add their $\theta$'s and stay multinomial, and distinct
+counts are negatively correlated, $\operatorname{cov}(N_i,N_j)=-n\theta_i\theta_j$, because the counts
+must add to $n$. Derived in full in §4.11.</li>
 <li><b>The fault line.</b> Every expectation rule except $\mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$
 holds without independence; every variance-of-a-sum rule needs it. Linearity is free — use indicators.
 Example 5.1 (the hat problem) is the canonical case: $\mathbb{E}[X]=1$ in one line, but
@@ -4754,7 +5232,7 @@ $\mathbf{P}(X=x)=0$. Densities may exceed $1$; the identity table survives uncha
 </ul></div>
 
 <hr>
-<div class="small" style="text-align:center;">Compiled from MIT 6.041/6.431 F10 L05–L07 slide handouts, recitations 5–7 (+ official solutions), Bertsekas–Tsitsiklis ch. 2 on 2026-07-30. Every numerical value recomputed independently in Python; see computes/.</div>
+<div class="small" style="text-align:center;">Compiled from MIT 6.041/6.431 F10 L05–L07 slide handouts, recitations 5–7 (+ official solutions), Bertsekas–Tsitsiklis ch. 2 on 2026-08-19. Every numerical value recomputed independently in Python; see computes/.</div>
 </main>
 </body>
 </html>

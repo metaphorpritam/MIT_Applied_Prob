@@ -137,3 +137,15 @@ ALL SEVEN NOTES COMPLETE. G7 consistency: 84 edits (s3 shared-counter split, ML/
 ## 2026-07-30 11:22 UTC — tags: session, closing
 
 PROJECT CLOSING: hub regenerated (was 0 bytes — dark-mode script crash truncation, caught by wiki agent), all 7 cards green + dark toggle. Wiki: 11 pages, 78 edges, 0 errors, manifest hashed. PageIndex self-referential (181 sources incl. notes+transcripts). Course totals: ~330 review issues found+fixed, 226 figures, 36 widgets, 7 notes.
+
+## 2026-07-30 16:26 UTC — tags: session, launch
+
+Post-launch: feedback features (email box on hub + sidebar links in notes) deployed and verified live. skill_learnings.md written at project root (uncommitted — awaiting user decision on publishing it to the public repo). Site fully live at metaphorpritam.github.io/MIT_Applied_Prob.
+
+## 2026-08-14 18:52 UTC — tags: session, expansion
+
+Post-launch expansion: cheatsheet audit (189 items; 3 in-syllabus gaps, 1 dangling-citation defect). ALL 4 TIER-1 PATCHES LANDED+VERIFIED (g3_s2 joint CDF; g3_s4 binomial additivity + jointly-normal exception + named Cauchy-Schwarz so G6 cite resolves; g5 doubly-stochastic + detailed balance; g1 three-set I-E + stars-and-bars + hypergeometric variance). New pages in flight: qb (150 Qs, 103 written, s1/s4 resuming) + rf (reference/enrichment, s2 resuming). NOTE: connection-loss failures now a 3rd failure mode alongside token limits — computes survived, HTML did not; resume works.
+
+## 2026-08-15 04:23 UTC — tags: session, qb, bugfix
+
+QB render review found a REAL BUG affecting ALL 9 pages: print CSS had 'details.sol { open: true; }' — 'open' is an HTML attribute not a CSS property, so it was silently discarded and every printed/PDF copy carried ZERO solutions. Fixed with proper display rules + marker suppression; also hid .qbfilter in print, normalized qb_s7 h2 (was the only one carrying a Q-range, wrapping the TOC), code-wrapped qb_s2 srcref path. Verifying by re-shoot. Math/pedagogy lenses for qb and ALL rf lenses died on token limit (resets 3:30am) — must re-run: Workflow resume wf_dc345a8e-209 (qb) and wf_c8516af1-c35 (rf).

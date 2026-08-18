@@ -926,6 +926,13 @@ $R(n)=P^n$. Path probabilities <em>multiply</em>: $\mathbf{P}(X_1=a,X_2=b\mid X_
 <li><b>Long run:</b> $\pi_j=\sum_k\pi_kp_{kj}$ <em>with</em> $\sum_j\pi_j=1$; valid limit
 $\lim_n r_{ij}(n)=\pi_j$ only for a single aperiodic recurrent class. $\pi_j=0$ on transient
 states; $t^*_j=1/\pi_j$. Two-state example: $\pi=(2/7,5/7)=(0.285714,0.714286)$.</li>
+<li><b>Two structural shortcuts (§3).</b> <em>Doubly stochastic</em> — every column of $P$ sums to 1
+as well as every row (automatic if $P$ is symmetric) $\Rightarrow$ the uniform $\pi_j=1/m$ solves
+balance, and is the steady state when the class is single and aperiodic. <em>Detailed balance</em> —
+$\pi_ip_{ij}=\pi_jp_{ji}$ for all $i,j$ $\Rightarrow\pi$ is stationary (sum over $i$), and the chain
+is <b>reversible</b>; birth–death chains, where detailed balance is the cut equation
+$\pi_ip_i=\pi_{i+1}q_{i+1}$, are the course's example. Neither is necessary: a stationary $\pi$ need
+not be reversible.</li>
 <li><b>Absorption:</b> $a_i=\sum_j p_{ij}a_j$ with $a=1$ at the target and $0$ at other absorbing
 states; <b>time:</b> $\mu_i=1+\sum_jp_{ij}\mu_j$ with $\mu=0$ at absorbing states. Example 5.2:
 $a=(0.46428571,0.35714286,0.28571429)$, $\mu=(8.30357143,9.46428571,8.57142857)$.</li>

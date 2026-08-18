@@ -1,0 +1,1446 @@
+<h2 id="qb-s1">&sect;1 &nbsp; Probability fundamentals</h2>
+<p class="srcref">Drills the tools of note G1 &middot; Bertsekas&ndash;Tsitsiklis Chapter 1 &middot; all numbers recomputed in <code>computes/qb_s1.py</code></p>
+
+<p>These twenty-five problems exercise the whole G1 toolkit, in the order the note builds it.
+The first six (Q1&ndash;Q6) ask you to work directly from the model and the three axioms:
+bookkeeping with unions and complements, judging whether a proposed sample space is even legal,
+handling a countably infinite model where finite additivity is not enough, three-set
+inclusion&ndash;exclusion, a lower bound on an intersection when nothing is assumed independent,
+and a continuous model where probability is area. The next six (Q7&ndash;Q12) are counting:
+arrangements with repeated symbols, combinations, a multinomial partition, a capped
+&ldquo;stars and bars&rdquo; count, a circular-seating count, and a derangement built by
+inclusion&ndash;exclusion. Three (Q13&ndash;Q15) then drill conditioning and the multiplication
+rule, including a true-or-false set and a &ldquo;which tool applies&rdquo; item. Five
+(Q16&ndash;Q20) cover the total probability theorem and Bayes' rule &mdash; a three-supplier
+mixture, a base-rate screening problem, an odds-form update, a mixture of coins with a prediction
+attached, and a reversal that looks like a contradiction until you write the total probability
+theorem down. The last five (Q21&ndash;Q25) separate independence from disjointness, from
+conditional independence, and from causation. Nearly every card ends with a <b>Trap</b> line
+naming the answer a careless reader gives; read it even when you got the right number.</p>
+
+
+<div class="ex qcard" id="q1" data-diff="1" data-topic="axioms">
+<p><b>Q1.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Axioms and their consequences &middot; <span class="ref">G1 &sect;1.2</span></span></p>
+<p>A city planner models two events on the same experiment (one randomly chosen weekday):
+$A = \{$the morning bus is late$\}$ and $B = \{$it rains at some point in the day$\}$. The model
+specifies $\mathbf{P}(A) = 0.55$, $\mathbf{P}(B) = 0.40$, and $\mathbf{P}(A \cup B) = 0.75$.
+Using only the three axioms and their standard consequences, find
+(a) $\mathbf{P}(A \cap B)$;
+(b) $\mathbf{P}(A^c \cap B)$ &mdash; rain but no late bus;
+(c) the probability that exactly one of the two events occurs;
+(d) $\mathbf{P}(A^c \cap B^c)$;
+(e) $\mathbf{P}(A \mid B)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Nothing here is assumed independent or disjoint. Every part is pure
+bookkeeping on a fixed budget of one unit of probability, using the four consequences derived
+in G1 &sect;1.2: the complement rule, additivity on disjoint pieces, inclusion&ndash;exclusion,
+and (for (e)) the definition of conditional probability.</p>
+
+<p><b>(a) Inclusion&ndash;exclusion, solved for the intersection.</b> The identity
+$\mathbf{P}(A\cup B) = \mathbf{P}(A) + \mathbf{P}(B) - \mathbf{P}(A\cap B)$ rearranges to</p>
+<p>$$\mathbf{P}(A\cap B) = \mathbf{P}(A) + \mathbf{P}(B) - \mathbf{P}(A\cup B)
+ = 0.55 + 0.40 - 0.75 = 0.20 .$$</p>
+
+<p><b>(b) Split $B$ into two disjoint pieces.</b> $B = (A\cap B) \cup (A^c\cap B)$, and these two
+pieces are disjoint (one has $A$ occurring, the other has it not occurring), so Axiom 3 gives
+$\mathbf{P}(B) = \mathbf{P}(A\cap B) + \mathbf{P}(A^c\cap B)$, hence</p>
+<p>$$\mathbf{P}(A^c\cap B) = 0.40 - 0.20 = 0.20 .$$</p>
+
+<p><b>(c) Exactly one.</b> The event &ldquo;exactly one&rdquo; is the union minus the overlap,
+and again the two pieces $\{$exactly one$\}$ and $A\cap B$ are disjoint with union $A\cup B$:</p>
+<p>$$\mathbf{P}(\text{exactly one}) = \mathbf{P}(A\cup B) - \mathbf{P}(A\cap B) = 0.75 - 0.20 = 0.55 .$$</p>
+<p>Cross-check with the symmetric-difference formula $\mathbf{P}(A)+\mathbf{P}(B)-2\mathbf{P}(A\cap B)
+= 0.55 + 0.40 - 2(0.20) = 0.95 - 0.40 = 0.55$ &#10003;. (The overlap is counted twice by the sum and
+must be removed twice, because &ldquo;exactly one&rdquo; wants it counted zero times.)</p>
+
+<p><b>(d) Complement of the union (De Morgan).</b> $A^c \cap B^c = (A\cup B)^c$, so</p>
+<p>$$\mathbf{P}(A^c\cap B^c) = 1 - \mathbf{P}(A\cup B) = 1 - 0.75 = 0.25 .$$</p>
+
+<p><b>(e) Conditional probability, by definition.</b> $\mathbf{P}(B) = 0.40 &gt; 0$, so</p>
+<p>$$\mathbf{P}(A\mid B) = \frac{\mathbf{P}(A\cap B)}{\mathbf{P}(B)} = \frac{0.20}{0.40} = 0.50 .$$</p>
+<p>Since $\mathbf{P}(A\mid B) = 0.50 &lt; 0.55 = \mathbf{P}(A)$, rain makes the bus <em>less</em>
+likely to be late in this model &mdash; the two events are dependent, and negatively so.</p>
+
+<p><b>Answer.</b> $\;$(a) $0.20$; (b) $0.20$; (c) $0.55$; (d) $0.25$; (e) $0.50$.</p>
+<p><b>Trap.</b> Reading &ldquo;or&rdquo; as exclusive and writing
+$\mathbf{P}(A\cup B) = 0.55 + 0.40 = 0.95$. Axiom 3 applies only to <em>disjoint</em> events, and
+these are not disjoint &mdash; the given $0.75$ is precisely $0.95$ minus the double-counted overlap
+$0.20$. Note also that the numerical coincidence $\mathbf{P}(A\cap B) = \mathbf{P}(A^c\cap B) = 0.20$
+is an accident of the numbers, not a rule.</p>
+<p class="srcref">Tool: G1 &sect;1.2 (axioms, complement rule, inclusion&ndash;exclusion) &middot; G1 &sect;2.1 &middot; B&amp;T &sect;1.2&ndash;1.3</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q2" data-diff="2" data-topic="axioms">
+<p><b>Q2.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Spot the error: is this a legal model? &middot; <span class="ref">G1 &sect;1.1</span></span></p>
+<p>A fair coin is tossed three times and everything about the three tosses is observed. Three
+students propose a model. For each, say whether the proposed set of outcomes is a legal sample
+space (mutually exclusive <em>and</em> collectively exhaustive), and whether the proposed law is
+legal; if something is wrong, name exactly what and repair it.</p>
+<p><b>Student I.</b> &ldquo;$\Omega_1 = \{0,1,2,3\}$, the number of heads. All four outcomes are
+equally likely, so each has probability $1/4$.&rdquo;<br>
+<b>Student II.</b> &ldquo;$\Omega_2 = \{$all heads, at least one tail, at least two tails$\}$,
+with probabilities $1/8$, $7/8$, $1/2$.&rdquo;<br>
+<b>Student III.</b> &ldquo;$\Omega_3 = \{HHH, HHT, HTH, THH, HTT, THT, TTH\}$, each outcome of
+probability $1/8$.&rdquo;</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> A sample space must satisfy two conditions (G1 &sect;1.1): its elements are
+<em>mutually exclusive</em> (exactly one occurs) and <em>collectively exhaustive</em> (at least
+one occurs). A probability law must satisfy the three axioms; in particular
+$\mathbf{P}(\Omega)=1$. The reference model here is the eight-element list
+$\Omega = \{HHH, HHT, HTH, THH, HTT, THT, TTH, TTT\}$ with each outcome of probability $1/8$ by
+independence and fairness.</p>
+
+<p><b>Student I &mdash; sample space legal, law wrong.</b> The four values $0,1,2,3$ are mutually
+exclusive (a run has exactly one head count) and collectively exhaustive (every run has some head
+count), so $\Omega_1$ <em>is</em> a legal sample space. It is a coarser description than
+$\Omega$, and coarsening a sample space is always allowed. What fails is the uniform law: the
+eight fine-grained outcomes are equally likely, but they do not distribute evenly over the four
+coarse ones. Counting them, $0$ heads happens in $1$ way ($TTT$), $1$ head in $3$ ways
+($HTT,THT,TTH$), $2$ heads in $3$ ways, $3$ heads in $1$ way, so the correct law is</p>
+<p>$$\mathbf{P}(0)=\tfrac18=0.125,\quad \mathbf{P}(1)=\tfrac38=0.375,\quad
+\mathbf{P}(2)=\tfrac38=0.375,\quad \mathbf{P}(3)=\tfrac18=0.125 ,$$</p>
+<p>which sums to $1$ &#10003;, not $0.25$ apiece. <em>Repair:</em> keep $\Omega_1$, replace the
+uniform law with these four numbers. The lesson is that the discrete uniform law is a modelling
+assumption about a <em>particular</em> sample space, not a property that survives regrouping.</p>
+
+<p><b>Student II &mdash; not a sample space at all.</b> The three descriptions are not mutually
+exclusive: the run $HTT$ has at least one tail <em>and</em> at least two tails, so it belongs to
+two of the three &ldquo;outcomes&rdquo;. In fact $4$ of the $8$ runs have two or more tails, and
+all $7$ non-$HHH$ runs have at least one tail. The proposed numbers give it away without any set
+theory: $\tfrac18 + \tfrac78 + \tfrac12 = \tfrac{12}{8} = 1.5 &gt; 1$, violating normalization.
+<em>Repair:</em> refine to a genuine partition, e.g.
+$\{$all heads, exactly one tail, at least two tails$\}$ with probabilities
+$\tfrac18 = 0.125$, $\tfrac38 = 0.375$, $\tfrac48 = 0.5$, which do sum to $1$.</p>
+
+<p><b>Student III &mdash; not collectively exhaustive.</b> The list has $7$ of the $8$ runs; $TTT$
+is missing. The elements are mutually exclusive, so the only failure is exhaustiveness, and it
+shows up in the law as $7 \times \tfrac18 = \tfrac78 = 0.875 \ne 1$: an eighth of the probability
+budget has nowhere to sit. <em>Repair:</em> add $TTT$ back, at probability $\tfrac18$.</p>
+
+<p><b>Answer.</b> $\;$I: legal sample space, illegal law &mdash; the correct probabilities are
+$0.125, 0.375, 0.375, 0.125$, not $0.25$ each. II: not a sample space (not mutually exclusive);
+its numbers sum to $1.5$. III: not a sample space (not collectively exhaustive); its numbers sum
+to $0.875$.</p>
+<p><b>Trap.</b> Student I's error is the seductive one, because &ldquo;$0,1,2,3$ heads&rdquo;
+really is a valid list of outcomes and the coin really is fair. Fairness of the <em>coin</em>
+makes the eight <em>sequences</em> equally likely, not the four <em>counts</em>. Whenever you
+invoke the uniform law, say out loud which sample space it is uniform on.</p>
+<p class="srcref">Tool: G1 &sect;1.1 (sample space: mutually exclusive, collectively exhaustive) &middot; G1 &sect;1.3 (discrete uniform law) &middot; B&amp;T &sect;1.2</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q3" data-diff="1" data-topic="axioms">
+<p><b>Q3.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; A countably infinite model &middot; <span class="ref">G1 &sect;1.5</span></span></p>
+<p>A server retries a failing request until it succeeds; the outcome recorded is the attempt
+number $n$ on which it finally succeeds, so $\Omega = \{1,2,3,\ldots\}$. The proposed law is
+$\mathbf{P}(n) = c\,(2/3)^{n-1}$ for $n = 1,2,3,\ldots$, with $c$ a constant.
+(a) Find the value of $c$ forced by the axioms.
+(b) Compute $\mathbf{P}(n \ge 4)$.
+(c) Compute $\mathbf{P}(n \text{ is even})$.
+(d) Which axiom did part (c) require that finite additivity could not supply?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> On a countably infinite $\Omega$ the probability of an event is the sum of the
+probabilities of its (countably many) outcomes &mdash; this is the countable additivity axiom of
+G1 &sect;1.5. Every part below is a geometric series $\sum_{k\ge0} r^k = 1/(1-r)$, valid for
+$|r| &lt; 1$; here the ratio is $r = 2/3$.</p>
+
+<p><b>(a) Normalization.</b> Axiom 2 says $\mathbf{P}(\Omega)=1$, and $\Omega$ is the countable
+union of the singletons, so</p>
+<p>$$1 = \sum_{n=1}^{\infty} c\left(\tfrac23\right)^{n-1}
+ = c\sum_{k=0}^{\infty}\left(\tfrac23\right)^{k}
+ = \frac{c}{1 - 2/3} = \frac{c}{1/3} = 3c
+ \quad\Longrightarrow\quad c = \tfrac13 \approx 0.3333 .$$</p>
+<p>So $\mathbf{P}(1) = 1/3 \approx 0.3333$ and $\mathbf{P}(2) = (1/3)(2/3) = 2/9 \approx 0.2222$.</p>
+
+<p><b>(b) A tail.</b> Sum from $n=4$ upward, factoring out the common $(2/3)^3$:</p>
+<p>$$\mathbf{P}(n\ge4) = \sum_{n=4}^{\infty}\tfrac13\left(\tfrac23\right)^{n-1}
+ = \left(\tfrac23\right)^{3}\sum_{k=0}^{\infty}\tfrac13\left(\tfrac23\right)^{k}
+ = \left(\tfrac23\right)^{3}\cdot 1 = \frac{8}{27} \approx 0.2963 .$$</p>
+<p>(The inner sum is the whole space again, hence $1$ &mdash; this is the memorylessness of the
+geometric law, previewed here at the level of the model.)</p>
+
+<p><b>(c) The even outcomes.</b> These are $n = 2,4,6,\ldots$, i.e. $n = 2k$ for $k\ge1$:</p>
+<p>$$\mathbf{P}(\text{even}) = \sum_{k=1}^{\infty}\tfrac13\left(\tfrac23\right)^{2k-1}
+ = \tfrac13\cdot\tfrac23\sum_{j=0}^{\infty}\left(\tfrac49\right)^{j}
+ = \frac{2/9}{1 - 4/9} = \frac{2/9}{5/9} = \frac{2}{5} = 0.4 .$$</p>
+<p>Hence $\mathbf{P}(\text{odd}) = 1 - 0.4 = 0.6$; odd attempt numbers win because $n=1$ alone
+already carries $1/3$ of the mass.</p>
+
+<p><b>(d)</b> Countable additivity (Axiom 3 in its strengthened form). The event
+&ldquo;$n$ is even&rdquo; is a union of <em>infinitely many</em> disjoint singletons. Finite
+additivity licenses only finite unions; no finite number of steps reaches this event, so without
+countable additivity the event would have no assigned probability at all.</p>
+
+<p><b>Answer.</b> $\;$(a) $c = 1/3$; (b) $\mathbf{P}(n\ge4) = 8/27 \approx 0.2963$;
+(c) $\mathbf{P}(\text{even}) = 2/5 = 0.4$; (d) countable additivity.</p>
+<p><b>Trap.</b> Answering (c) with $0.5$ &ldquo;because half the integers are even&rdquo;. There
+is no uniform law on a countably infinite set (any constant $\mathbf{P}(n)=a$ sums to $0$ or
+$\infty$), so counting integers is meaningless here; the answer $0.4$ is pulled below $0.5$ by
+the fact that the largest single mass, $\mathbf{P}(1)=1/3$, sits on an odd outcome.</p>
+<p class="srcref">Tool: G1 &sect;1.5 (countable additivity, geometric series models) &middot; B&amp;T &sect;1.2</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q4" data-diff="2" data-topic="axioms">
+<p><b>Q4.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Three-set inclusion&ndash;exclusion &middot; <span class="ref">G1 &sect;1.2</span></span></p>
+<p>Of $200$ students, $92$ have taken analysis ($A$), $78$ algebra ($B$) and $64$ combinatorics
+($C$). Overlaps: $34$ took both analysis and algebra, $28$ both analysis and combinatorics, $22$
+both algebra and combinatorics, and $12$ took all three. One student is picked uniformly at
+random. Find the probability that the student has taken (a) at least one of the three;
+(b) none of the three; (c) exactly one of the three; (d) exactly two of the three.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The student is uniform over $200$ equally likely outcomes, so by the discrete
+uniform law every probability is (count)/$200$; the whole problem is counting. The pairwise
+figures are the <em>full</em> overlaps &mdash; e.g. all $34$ analysis-and-algebra students,
+including the $12$ who also took combinatorics.</p>
+
+<p><b>(a) Inclusion&ndash;exclusion for three sets</b> (G1 &sect;1.2):</p>
+<p>$$|A\cup B\cup C| = |A|+|B|+|C| - |A\cap B| - |A\cap C| - |B\cap C| + |A\cap B\cap C| .$$</p>
+<p>Substituting, singles sum to $92+78+64 = 234$ and pairs to $34+28+22 = 84$, so</p>
+<p>$$|A\cup B\cup C| = 234 - 84 + 12 = 162,
+\qquad \mathbf{P}(A\cup B\cup C) = \frac{162}{200} = 0.81 .$$</p>
+<p>Why the $+12$: a triple-course student is counted $3$ times by the singles and subtracted
+$3$ times by the pairs, leaving $0$ &mdash; the last term puts each of them back exactly once.</p>
+
+<p><b>(b) Complement rule.</b> $\;\mathbf{P}(\text{none}) = 1 - 0.81 = 0.19$, i.e.
+$200 - 162 = 38$ students.</p>
+
+<p><b>(c) Exactly one.</b> A student in exactly one course is counted once by the singles, never
+by the pairs. A student in exactly two is counted twice by the singles and once by the pairs; a
+student in all three, three times by the singles and three times by the pairs. So peeling in the
+order &ldquo;exactly three, then exactly two&rdquo;:</p>
+<p>$$|{\rm exactly\ 2}| = 84 - 3(12) = 84 - 36 = 48,$$</p>
+<p>$$|{\rm exactly\ 1}| = 234 - 2(84) + 3(12) = 234 - 168 + 36 = 102 .$$</p>
+<p>Hence $\mathbf{P}(\text{exactly one}) = 102/200 = 0.51$ and
+$\mathbf{P}(\text{exactly two}) = 48/200 = 0.24$ (part (d)), with
+$\mathbf{P}(\text{exactly three}) = 12/200 = 0.06$.</p>
+<p><b>Consistency check.</b> $102 + 48 + 12 = 162$ &#10003;, matching the union, and
+$0.51+0.24+0.06+0.19 = 1.00$ &#10003;.</p>
+
+<p><b>Answer.</b> $\;$(a) $0.81$; (b) $0.19$; (c) $0.51$; (d) $0.24$.</p>
+<p><b>Trap.</b> Adding $92+78+64 = 234$ and reporting $234/200 = 1.17$ &mdash; a probability
+greater than $1$, which is the model screaming that overlaps were double counted. A subtler slip
+is reading &ldquo;$34$ took both analysis and algebra&rdquo; as &ldquo;$34$ took exactly those
+two&rdquo;; under that reading the union would be $234 - 2(84) + \ldots$ and every number changes.
+When a problem says &ldquo;both&rdquo; without &ldquo;only&rdquo;, it means the full intersection.</p>
+<p class="srcref">Tool: G1 &sect;1.2 (inclusion&ndash;exclusion, three sets) &middot; G1 &sect;1.3 (discrete uniform law) &middot; B&amp;T &sect;1.2</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q5" data-diff="3" data-topic="axioms">
+<p><b>Q5.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Derivation: bounding an intersection &middot; <span class="ref">G1 &sect;1.2</span></span></p>
+<p>(a) Prove from the axioms alone that for any events $A_1,\ldots,A_n$,</p>
+<p>$$\mathbf{P}\!\left(\bigcap_{i=1}^{n} A_i\right) \;\ge\; 1 - \sum_{i=1}^{n}\mathbf{P}(A_i^c).$$</p>
+<p>(b) A spacecraft needs all four of its subsystems to survive re-entry. Each subsystem survives
+with probability $0.98$, but the four are exposed to a common thermal environment and nothing is
+known about their dependence. Give the best guaranteed lower bound on the probability that all
+four survive, and the best guaranteed upper bound.
+(c) What would the answer be if the four were independent, and why is the difference between the
+two numbers so small here?
+(d) Is the bound in (b) attainable, i.e. is there a model achieving it exactly?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Proof.</b> Start from De Morgan's law, which converts an intersection into a union of
+complements:</p>
+<p>$$\left(\bigcap_{i=1}^{n} A_i\right)^{\!c} = \bigcup_{i=1}^{n} A_i^c .$$</p>
+<p><em>Step 1 &mdash; the union bound.</em> For any events $B_1,\ldots,B_n$,
+$\mathbf{P}(\bigcup_i B_i) \le \sum_i \mathbf{P}(B_i)$. This is proved by disjointification:
+write $\bigcup_i B_i$ as the disjoint union of $C_1 = B_1$, $C_2 = B_2\cap B_1^c$,
+$C_3 = B_3 \cap (B_1\cup B_2)^c$, and so on; Axiom 3 gives
+$\mathbf{P}(\bigcup_i B_i) = \sum_i \mathbf{P}(C_i)$, and $C_i \subseteq B_i$ gives
+$\mathbf{P}(C_i) \le \mathbf{P}(B_i)$ by monotonicity. Summing the inequalities proves the bound.</p>
+<p><em>Step 2 &mdash; apply it to the complements.</em> With $B_i = A_i^c$,</p>
+<p>$$\mathbf{P}\!\left(\bigcup_{i=1}^{n} A_i^c\right) \;\le\; \sum_{i=1}^{n}\mathbf{P}(A_i^c).$$</p>
+<p><em>Step 3 &mdash; complement back.</em> By the complement rule and De Morgan,</p>
+<p>$$\mathbf{P}\!\left(\bigcap_i A_i\right) = 1 - \mathbf{P}\!\left(\bigcup_i A_i^c\right)
+ \;\ge\; 1 - \sum_i \mathbf{P}(A_i^c). \qquad\blacksquare$$</p>
+<p>Only Axiom 3, monotonicity and the complement rule were used &mdash; no independence anywhere,
+which is exactly why the bound is usable when dependence is unknown.</p>
+
+<p><b>(b) Numbers.</b> Here $n = 4$, each $\mathbf{P}(A_i) = 0.98$, so each
+$\mathbf{P}(A_i^c) = 1 - 0.98 = 0.02$ and</p>
+<p>$$\mathbf{P}(\text{all four survive}) \;\ge\; 1 - 4(0.02) = 1 - 0.08 = 0.92 .$$</p>
+<p>For the upper bound, monotonicity alone suffices: the intersection is contained in each
+$A_i$, so $\mathbf{P}(\bigcap_i A_i) \le \min_i \mathbf{P}(A_i) = 0.98$. Guaranteed range:
+$[0.92,\; 0.98]$.</p>
+
+<p><b>(c) The independent case.</b> If the four were independent,
+$\mathbf{P}(\bigcap_i A_i) = 0.98^4 = 0.92236816 \approx 0.9224$. The gap from the bound is
+$0.92236816 - 0.92 = 0.00236816$, under a quarter of a percentage point. The reason: the
+union bound loses only the probability of <em>overlapping</em> failures, and
+<em>under the independence assumption of this part</em> a given pair fails together with
+probability $0.02^2 = 0.0004$, so the six pairs can account for at most about $0.0024$ of slack.
+Union bounds are tight precisely in this rare-event, near-independent regime. (Nothing of the kind
+is guaranteed in (b): with dependence unknown, the probability that two particular subsystems fail
+together may be as large as $0.02$, which is exactly why the bound there cannot be sharpened.)</p>
+
+<p><b>(d) Attainability.</b> Yes. Step 1's inequality is an equality when the $A_i^c$ are pairwise
+disjoint. Build $\Omega = \{\omega_1,\omega_2,\omega_3,\omega_4,\omega_0\}$ with
+$\mathbf{P}(\omega_i) = 0.02$ for $i=1,\ldots,4$ and $\mathbf{P}(\omega_0) = 0.92$, and let $A_i^c
+= \{\omega_i\}$. Then each $\mathbf{P}(A_i) = 0.98$ and all four survive exactly on $\omega_0$,
+of probability $0.92$. So $0.92$ cannot be improved without extra assumptions &mdash; the bound is
+the truth for the worst-case dependence, in which failures never coincide.</p>
+
+<p><b>Answer.</b> $\;$(b) $0.92 \le \mathbf{P}(\text{all survive}) \le 0.98$;
+(c) $0.98^4 = 0.92236816$ under independence, a gap of $0.00236816$;
+(d) yes, attained when the four failure events are pairwise disjoint.</p>
+<p><b>Trap.</b> Reporting $0.98^4 = 0.9224$ as <em>the</em> answer to (b). The problem explicitly
+withholds independence, and a common thermal environment is a reason to expect failures to
+cluster &mdash; which pushes the true value <em>up</em> toward $0.98$, not down. The one thing you
+may assert without assumptions is the interval $[0.92, 0.98]$.</p>
+<p class="srcref">Tool: G1 &sect;1.2 (union bound, monotonicity, complement rule) &middot; G1 &sect;3.4 &middot; B&amp;T &sect;1.2, &sect;1.5</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q6" data-diff="2" data-topic="axioms">
+<p><b>Q6.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Continuous model: probability $=$ area &middot; <span class="ref">G1 &sect;1.4</span></span></p>
+<p>A point $(X,Y)$ is drawn uniformly from the unit square $[0,1]^2$: the probability of a region
+equals its area. Compute
+(a) $\mathbf{P}(Y \ge X^2)$;
+(b) $\mathbf{P}(XY \le 1/2)$;
+(c) $\mathbf{P}(Y = X^2)$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The square has area $1$, so &ldquo;probability $=$ area&rdquo; is already
+normalized (Axiom 2 holds). Each part is an integral of the vertical extent of the region across
+$x \in [0,1]$.</p>
+
+<p><b>(a) Under the parabola's complement.</b> For a fixed $x\in[0,1]$, the condition
+$y \ge x^2$ cuts out the segment from $y = x^2$ up to $y = 1$, of length $1 - x^2$ (nonnegative
+throughout, since $x^2 \le 1$ on $[0,1]$). Integrating,</p>
+<p>$$\mathbf{P}(Y\ge X^2) = \int_0^1 (1 - x^2)\,dx
+ = \left[x - \frac{x^3}{3}\right]_0^1 = 1 - \frac13 = \frac23 \approx 0.6667 .$$</p>
+<p>Sanity: the parabola sags below the diagonal on $(0,1)$, so this should exceed the diagonal's
+$1/2$, and it does.</p>
+
+<p><b>(b) Under a hyperbola &mdash; complement first.</b> Work with the complement, because the
+region $xy &gt; 1/2$ is the simpler one. It is nonempty only when $x &gt; 1/2$ (if $x \le 1/2$
+then $xy \le x \le 1/2$ for every $y\le1$). For $x \in (1/2, 1]$ the condition is
+$y &gt; 1/(2x)$, and $1/(2x) &lt; 1$ there, so the segment has length $1 - 1/(2x)$. Hence</p>
+<p>$$\mathbf{P}(XY &gt; 1/2) = \int_{1/2}^{1}\left(1 - \frac{1}{2x}\right)dx
+ = \Big[x - \tfrac12\ln x\Big]_{1/2}^{1}
+ = \left(1 - 0\right) - \left(\tfrac12 - \tfrac12\ln\tfrac12\right).$$</p>
+<p>Now $\ln\frac12 = -\ln 2 = -0.6931471806$, so the bracket evaluated at the <em>lower</em> limit is
+$\tfrac12 - \tfrac12\ln\tfrac12 = 0.5 + \tfrac12\ln 2 = 0.5 + 0.3465735903 = 0.8465735903$, and it
+is subtracted from the upper-limit value $1$:</p>
+<p>$$\mathbf{P}(XY &gt; 1/2) = 1 - 0.8465735903 = 0.1534264097 ,$$</p>
+<p>$$\mathbf{P}(XY \le 1/2) = 1 - 0.1534264097 = 0.8465735903 .$$</p>
+<p>(A Monte Carlo run of $4{,}000{,}000$ uniform points in computes/qb_s1.py gives
+$0.84664$, agreeing to three decimals.)</p>
+
+<p><b>(c) A curve has zero area.</b> The set $\{(x,y) : y = x^2\}$ is a curve. Squeeze it between
+thin strips: for any $\epsilon &gt; 0$ it is contained in
+$\{(x,y) : x^2 - \epsilon &lt; y &lt; x^2 + \epsilon\}$, whose area is at most $2\epsilon$. By
+monotonicity, $0 \le \mathbf{P}(Y = X^2) \le 2\epsilon$ for <em>every</em> $\epsilon &gt; 0$,
+which forces $\mathbf{P}(Y = X^2) = 0$.</p>
+
+<p><b>Answer.</b> $\;$(a) $2/3 \approx 0.6667$; (b) $\;1 - \tfrac12 + \tfrac12\ln 2 = 0.8466$;
+(c) $0$.</p>
+<p><b>Trap.</b> Answering (b) with $1/2$ &ldquo;by symmetry&rdquo;. There is no symmetry
+exchanging $\{xy \le 1/2\}$ with its complement: the product of two numbers in $[0,1]$ is usually
+<em>small</em> (its mean is $1/4$), so the event $XY \le 1/2$ is much more likely than not. A
+second trap is concluding from (c) that the event $\{Y = X^2\}$ is impossible &mdash; it is not
+empty, it just has probability zero, which in a continuous model is a different thing.</p>
+<p class="srcref">Tool: G1 &sect;1.4 (continuous uniform law, probability $=$ area; zero-area sets) &middot; B&amp;T &sect;1.2</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q7" data-diff="1" data-topic="counting">
+<p><b>Q7.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Arrangements with repeated symbols &middot; <span class="ref">G1 &sect;4.6</span></span></p>
+<p>Consider the eleven letters of the word <b>PROBABILITY</b>.
+(a) How many distinguishable arrangements of all eleven letters are there?
+(b) In how many of them do the two I's sit next to each other?
+(c) If one arrangement is chosen uniformly at random, what is the probability that the two I's
+are adjacent?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The letter multiset is P, R, O, B, A, B, I, L, I, T, Y: eleven letters in which
+B appears twice, I appears twice, and the other seven (P, R, O, A, L, T, Y) appear once each.
+Arrangements of a multiset are counted by the multinomial/partition formula of G1 &sect;4.6:
+$n!$ divided by the factorial of each repeat count, because permuting identical letters among
+themselves does not produce a new word.</p>
+
+<p><b>(a)</b> $\;\displaystyle \frac{11!}{2!\,2!\,1!^7} = \frac{39916800}{2\cdot 2}
+ = \frac{39916800}{4} = 9\,979\,200 .$</p>
+<p>The two divisions by $2!$ are one for the pair of B's and one for the pair of I's: each
+distinguishable word is produced $2\times2 = 4$ times if you (wrongly) treat the letters as all
+distinct.</p>
+
+<p><b>(b) Glue the I's.</b> Treat the block <code>II</code> as a single symbol. We are then
+arranging $10$ objects &mdash; the block plus P, R, O, B, A, B, L, T, Y &mdash; among which B
+still appears twice. So the count is</p>
+<p>$$\frac{10!}{2!} = \frac{3628800}{2} = 1\,814\,400 .$$</p>
+<p>No factor of $2$ for swapping the I's inside the block: the two I's are identical, so
+<code>II</code> reversed is the same block.</p>
+
+<p><b>(c)</b> By the discrete uniform law on the $9\,979\,200$ equally likely arrangements,</p>
+<p>$$\mathbf{P}(\text{I's adjacent}) = \frac{1\,814\,400}{9\,979\,200} = \frac{2}{11}
+ \approx 0.1818 .$$</p>
+<p><b>Interpretation of the clean $2/11$.</b> Think of the eleven positions and ask only where the
+two I's land: all $\binom{11}{2} = 55$ position-pairs are equally likely, and $10$ of them are
+adjacent pairs (positions $1$&ndash;$2$ through $10$&ndash;$11$), giving $10/55 = 2/11$ &#10003;.
+The B's and the rest never entered.</p>
+
+<p><b>Answer.</b> $\;$(a) $9\,979\,200$; (b) $1\,814\,400$; (c) $2/11 \approx 0.1818$.</p>
+<p><b>Trap.</b> Multiplying part (b) by $2$ &ldquo;for the two orders of the I's inside the
+block&rdquo;. That factor is correct when the glued letters are <em>distinct</em> (e.g. gluing
+a B and an I), and wrong here; it would give $3\,628\,800$ and the impossible-looking
+probability $4/11$. The second common slip is dividing (a) by $4!$ &mdash; the divisor is the
+product of factorials of the repeat counts, $2!\,2! = 4$, not the factorial of the number of
+repeated letters.</p>
+<p class="srcref">Tool: G1 &sect;4.6 (partitions and the multinomial coefficient) &middot; G1 &sect;4.3 &middot; B&amp;T &sect;1.6</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q8" data-diff="1" data-topic="counting">
+<p><b>Q8.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Combinations and the uniform law &middot; <span class="ref">G1 &sect;4.4</span></span></p>
+<p>A review panel of $5$ people is drawn uniformly at random from a pool of $9$ engineers and
+$7$ analysts (all $16$ people distinct, all $5$-person subsets equally likely). Find
+(a) the number of possible panels;
+(b) $\mathbf{P}(\text{exactly } 3 \text{ engineers})$;
+(c) $\mathbf{P}(\text{at least } 4 \text{ engineers})$.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The panel is an unordered subset drawn without replacement, so the relevant
+counting object is the combination $\binom{n}{k}$ (G1 &sect;4.4). With every subset equally likely,
+the discrete uniform law turns each probability into (favourable subsets)/(all subsets).</p>
+
+<p><b>(a)</b> $\;\displaystyle \binom{16}{5} = \frac{16\cdot15\cdot14\cdot13\cdot12}{5!}
+ = \frac{524160}{120} = 4368 .$</p>
+
+<p><b>(b) Split the choice into two independent selections.</b> A panel with exactly $3$
+engineers is built by choosing which $3$ of the $9$ engineers serve <em>and</em> which $2$ of the
+$7$ analysts serve; by the basic counting principle these choices multiply:</p>
+<p>$$\binom{9}{3}\binom{7}{2} = 84 \cdot 21 = 1764,
+\qquad \mathbf{P} = \frac{1764}{4368} = \frac{21}{52} \approx 0.4038 .$$</p>
+
+<p><b>(c) Two disjoint cases.</b> &ldquo;At least $4$&rdquo; means exactly $4$ or exactly $5$;
+these are disjoint, so their counts add:</p>
+<p>$$\binom{9}{4}\binom{7}{1} = 126\cdot 7 = 882, \qquad
+\binom{9}{5}\binom{7}{0} = 126\cdot 1 = 126,$$</p>
+<p>$$\mathbf{P}(\ge 4 \text{ engineers}) = \frac{882 + 126}{4368} = \frac{1008}{4368}
+ = \frac{3}{13} \approx 0.2308 .$$</p>
+
+<p><b>Answer.</b> $\;$(a) $4368$; (b) $21/52 \approx 0.4038$; (c) $3/13 \approx 0.2308$.</p>
+<p><b>Trap.</b> Using an <em>ordered</em> count in one place and an unordered one in the other,
+e.g. $16\cdot15\cdot14\cdot13\cdot12 = 524160$ in the denominator against
+$\binom93\binom72 = 1764$ in the numerator. The uniform law needs both counts on the same sample
+space. (Ordering both is also fine and gives the same answers &mdash; the factor $5!$ cancels
+&mdash; but you must be consistent.) A second slip is computing &ldquo;at least $4$&rdquo; as
+$\binom94\binom{12}{1}$, choosing $4$ engineers and then <em>anyone</em> for the last seat: that
+double counts every all-engineer panel, once for each of its $5$ possible &ldquo;last&rdquo;
+members.</p>
+<p class="srcref">Tool: G1 &sect;4.4 (combinations) &middot; G1 &sect;4.2 (counting principle) &middot; B&amp;T &sect;1.6</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q9" data-diff="2" data-topic="counting">
+<p><b>Q9.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Partitions and the multinomial coefficient &middot; <span class="ref">G1 &sect;4.6</span></span></p>
+<p>Fifteen distinct students are split at random into three labelled project teams &mdash; Alpha
+(4 members), Beta (5) and Gamma (6) &mdash; with every such split equally likely.
+(a) How many splits are there?
+(b) Three of the students are close friends. What is the probability that all three land on the
+same team?
+(c) Verify your answer to (b) by a one-line argument that never computes (a).</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The teams are labelled and their sizes are fixed, so a split is exactly a
+partition of $15$ distinct objects into groups of sizes $4,5,6$: the multinomial coefficient of
+G1 &sect;4.6.</p>
+
+<p><b>(a)</b></p>
+<p>$$\binom{15}{4,5,6} = \frac{15!}{4!\,5!\,6!}
+ = \frac{1\,307\,674\,368\,000}{24 \cdot 120 \cdot 720}
+ = \frac{1\,307\,674\,368\,000}{2\,073\,600} = 630\,630 .$$</p>
+
+<p><b>(b) Condition on which team holds the friends</b> &mdash; three disjoint cases, so the
+counts add.</p>
+<p><em>All three on Alpha (size 4).</em> One Alpha seat is left, filled by any of the remaining
+$12$ students: $\binom{12}{1} = 12$ ways. The remaining $11$ students split into $5$ and $6$:
+$\binom{11}{5} = 462$ ways. Total $12 \cdot 462 = 5544$.</p>
+<p><em>All three on Beta (size 5).</em> Two Beta seats left: $\binom{12}{2} = 66$; the remaining
+$10$ split into $4$ and $6$: $\binom{10}{4} = 210$. Total $66 \cdot 210 = 13\,860$.</p>
+<p><em>All three on Gamma (size 6).</em> Three Gamma seats left: $\binom{12}{3} = 220$; the
+remaining $9$ split into $4$ and $5$: $\binom{9}{4} = 126$. Total $220 \cdot 126 = 27\,720$.</p>
+<p>Adding, the favourable count is $5544 + 13\,860 + 27\,720 = 47\,124$, and by the discrete
+uniform law</p>
+<p>$$\mathbf{P}(\text{three friends together}) = \frac{47\,124}{630\,630} = \frac{34}{455}
+ \approx 0.0747 .$$</p>
+
+<p><b>(c) The short argument.</b> By symmetry, the three friends occupy a uniformly random
+$3$-element subset of the $15$ team slots, and there are $\binom{15}{3} = 455$ such subsets. The
+subsets that lie inside a single team number $\binom43 + \binom53 + \binom63 = 4 + 10 + 20 = 34$.
+Hence the probability is $34/455 \approx 0.0747$ &#10003; &mdash; identical, with no multinomial
+in sight. (A $400{,}000$-run simulation in <code>computes/qb_s1.py</code> returns $0.0746$.)</p>
+
+<p><b>Answer.</b> $\;$(a) $630\,630$; (b) and (c) $34/455 \approx 0.0747$.</p>
+<p><b>Trap.</b> Dividing (a) by $3!$ &ldquo;because the teams could be relabelled&rdquo;. That
+correction applies only when the groups are <em>unlabelled</em> and of <em>equal</em> size; here
+the teams have names and even without names the sizes $4,5,6$ already distinguish them, so no
+overcount occurs. A second trap in (b) is to compute the probability for one team and multiply by
+$3$: the three teams have different sizes, so their contributions $5544$, $13\,860$, $27\,720$
+are not equal &mdash; the biggest team is five times as likely to swallow all three friends as
+the smallest.</p>
+<p class="srcref">Tool: G1 &sect;4.6 (partitions, multinomial coefficient) &middot; G1 &sect;4.4 &middot; B&amp;T &sect;1.6</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q10" data-diff="3" data-topic="counting">
+<p><b>Q10.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Stars and bars with a capacity constraint &middot; <span class="ref">G1 &sect;4.4</span></span></p>
+<p>A distributor ships $12$ identical pallets to $5$ stores. A store may receive any number,
+including zero, and only the counts matter &mdash; but each store's dock can hold at most $4$
+pallets.
+(a) How many allocations respect the capacity of $4$ at every store?
+(b) How many allocations (ignoring the cap) give store 1 at least $3$ pallets while store 5
+receives none?
+(c) If every allocation of the $12$ pallets is declared equally likely, what is the probability
+that no store exceeds its capacity?
+(d) A colleague objects that a truer model is &ldquo;each pallet is routed independently to a
+uniformly chosen store&rdquo;. That model gives $\mathbf{P}(\text{no store exceeds }4) = 0.6448$,
+against your answer to (c). Without recomputing either number, explain which model must give the
+larger value and why.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> An allocation is a list $(k_1,\ldots,k_5)$ of nonnegative integers with
+$k_1+\cdots+k_5 = 12$. This is the fourth cell of the sampling table of G1 &sect;4.8 &mdash;
+unordered, with replacement &mdash; counted by stars and bars: represent the allocation as $12$
+stars in a row with $4$ bars separating the five stores, e.g.
+$\star\star|\star\star\star\star|{}|\star\star\star\star\star|\star$ for $(2,4,0,5,1)$. Every
+arrangement of the $12+4 = 16$ symbols is one allocation and vice versa, so the unrestricted count
+is the number of ways to choose which $4$ of the $16$ slots hold bars,</p>
+<p>$$N = \binom{12+5-1}{5-1} = \binom{16}{4}
+ = \frac{16\cdot15\cdot14\cdot13}{24} = \frac{43680}{24} = 1820 .$$</p>
+<p>Stars and bars counts <em>unbounded</em> allocations, so an upper cap has to be imposed from
+outside the formula &mdash; by inclusion&ndash;exclusion (G1 &sect;1.2) on the violations.</p>
+
+<p><b>(a) Cap by inclusion&ndash;exclusion.</b> Let $V_i$ be the set of allocations in which store
+$i$ gets $5$ or more pallets &mdash; the only way to violate a cap of $4$. To count $V_i$,
+<em>pre-pay</em> the violation: hand store $i$ five pallets up front and distribute the remaining
+$12 - 5 = 7$ freely among all five stores. This is a bijection between $V_i$ and the unrestricted
+allocations of $7$ pallets, so</p>
+<p>$$|V_i| = \binom{7+5-1}{5-1} = \binom{11}{4} = \frac{11\cdot10\cdot9\cdot8}{24}
+ = \frac{7920}{24} = 330 \qquad (i = 1,\ldots,5).$$</p>
+<p>For two stores at once, pre-pay both: $10$ pallets are committed and $12-10 = 2$ remain, so</p>
+<p>$$|V_i\cap V_j| = \binom{2+5-1}{5-1} = \binom{6}{4} = 15 .$$</p>
+<p>Three simultaneous violations would need $15 &gt; 12$ pallets, so every triple intersection is
+empty and inclusion&ndash;exclusion stops after two terms. With $\binom51 = 5$ singles and
+$\binom52 = 10$ pairs,</p>
+<p>$$\left|\bigcup_{i=1}^{5}V_i\right| = 5(330) - 10(15) = 1650 - 150 = 1500 ,$$</p>
+<p>$$\#\{\text{all caps respected}\} = 1820 - 1500 = 320 .$$</p>
+
+<p><b>(b) Two constraints of opposite kinds.</b> &ldquo;Store 5 receives none&rdquo; is not a
+constraint to be corrected for &mdash; it simply <em>deletes a bin</em>, leaving four stores.
+&ldquo;Store 1 gets at least $3$&rdquo; is a lower bound, handled by pre-paying the minimum: give
+store 1 three pallets up front, leaving $12-3 = 9$ to distribute freely among stores $1$&ndash;$4$
+(store 1 may receive more). So the count is the unrestricted count for $9$ pallets in $4$ bins:</p>
+<p>$$\binom{9+4-1}{4-1} = \binom{12}{3} = \frac{12\cdot11\cdot10}{6} = \frac{1320}{6} = 220 .$$</p>
+<p>Note how the two constraint types differ: a lower bound is absorbed by spending pallets in
+advance and the formula still applies directly; an upper bound is not, and needs
+inclusion&ndash;exclusion as in (a).</p>
+
+<p><b>(c)</b> By the discrete uniform law on the $1820$ equally likely allocations,</p>
+<p>$$\mathbf{P}(\text{no store exceeds }4) = \frac{320}{1820} = \frac{16}{91} \approx 0.1758 .$$</p>
+<p>(A brute-force enumeration of all $1820$ allocations in <code>computes/qb_s1.py</code> confirms
+the counts $1820$, $320$ and $220$.)</p>
+
+<p><b>(d) The two models are genuinely different.</b> The independent-routing model must give the
+larger value, and by a wide margin ($0.6448$ against $0.1758$). Under it the $12$ pallets are
+<em>distinguishable</em> &mdash; there are $5^{12} = 244\,140\,625$ equally likely routings &mdash;
+and a given count vector $(k_1,\ldots,k_5)$ is realized by $\binom{12}{k_1,\ldots,k_5}$ of them.
+That multinomial weight is largest for balanced vectors (the near-uniform $(3,3,2,2,2)$ arises in
+$1\,663\,200$ ways, while the lopsided $(12,0,0,0,0)$ arises in exactly $1$), so independent routing
+concentrates on precisely the balanced allocations that respect a cap. The uniform-over-allocations
+model instead gives $(12,0,0,0,0)$ and $(3,3,2,2,2)$ the same weight $1/1820$, which loads far more
+probability onto lopsided outcomes and drives the cap probability down.</p>
+
+<p><b>Answer.</b> $\;$(a) $1820 - 1500 = 320$; (b) $\binom{12}{3} = 220$;
+(c) $320/1820 = 16/91 \approx 0.1758$; (d) the independent-routing model, because it weights each
+count vector by its multinomial coefficient and so favours balanced &mdash; hence capped &mdash;
+allocations.</p>
+<p><b>Trap.</b> Stopping the inclusion&ndash;exclusion in (a) after the first correction and
+reporting $1820 - 5(330) = 170$. That subtracts each doubly-violating allocation twice, and the
+missing $+10(15) = +150$ is exactly what restores it; the tell is that $170$ is suspiciously small
+next to the $320$ one can spot-check by enumeration. A second slip is answering (a) with
+$\binom{16}{5}$ or $\binom{12}{5}$ for the unrestricted count: the bars number $5 - 1 = 4$, not
+$5$, because five bins need four dividers.</p>
+<p class="srcref">Tool: G1 &sect;4.4 (multisets / stars and bars) &middot; G1 &sect;4.8 (the sampling table) &middot; G1 &sect;1.2 (inclusion&ndash;exclusion) &middot; B&amp;T &sect;1.6</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q11" data-diff="2" data-topic="counting">
+<p><b>Q11.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Circular arrangements &middot; <span class="ref">G1 &sect;4.3</span></span></p>
+<p>Eight people are seated uniformly at random around a circular table. Two seatings that differ
+only by a rotation of everybody are regarded as the same seating, so there are $7!$ equally likely
+seatings.
+(a) What is the probability that Ann and Bob sit next to each other?
+(b) What is the probability that Ann, Bob and Cara occupy three consecutive seats (in any order)?
+(c) A student instead labels the seats $1$ through $8$, so that the total is $8!$, and computes
+the adjacency count as $2 \cdot 7!$. Show that this gives a different answer and explain the
+error.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Fixing rotations, the number of distinct circular arrangements of $n$ people is
+$(n-1)!$ &mdash; seat one person anywhere as a reference point, then arrange the other $n-1$ in
+the remaining seats. Here $(8-1)! = 7! = 5040$ seatings, all equally likely, so the uniform law
+applies.</p>
+
+<p><b>(a) Glue Ann and Bob.</b> Treat the pair as one two-person block. There are then $7$
+objects (the block plus $6$ individuals) around the circle, giving $(7-1)! = 6! = 720$ circular
+arrangements, and the block has $2! = 2$ internal orders (Ann&ndash;Bob or Bob&ndash;Ann). So</p>
+<p>$$\#\{\text{Ann next to Bob}\} = 2 \cdot 720 = 1440,
+\qquad \mathbf{P} = \frac{1440}{5040} = \frac{2}{7} \approx 0.2857 .$$</p>
+<p><em>Sanity check without counting:</em> condition on where Ann sits. Bob is equally likely to
+occupy any of the other $7$ seats, and exactly $2$ of them (Ann's left and right) are adjacent
+&mdash; giving $2/7$ immediately &#10003;.</p>
+
+<p><b>(b) Glue three.</b> A block of $3$ plus $5$ individuals is $6$ objects around a circle:
+$(6-1)! = 5! = 120$ circular arrangements, times $3! = 6$ internal orders of the block:</p>
+<p>$$\#= 6 \cdot 120 = 720, \qquad \mathbf{P} = \frac{720}{5040} = \frac{1}{7} \approx 0.1429 .$$</p>
+<p>(A brute-force enumeration of all $5040$ seatings in <code>computes/qb_s1.py</code> returns
+exactly $2/7$ and $1/7$.)</p>
+
+<p><b>(c) The error.</b> The student's ratio is $\dfrac{2\cdot 7!}{8!} = \dfrac{2\cdot5040}{40320}
+= \dfrac{10080}{40320} = \dfrac14 = 0.25$, which disagrees with $2/7 \approx 0.2857$. The mistake
+is that $2\cdot7! = 10\,080$ is not a legitimate adjacency count in <em>either</em> sample space:
+in the circular space the block count is $2\cdot 6! = 1440$ (part (a)), and in the labelled-seat
+space it is $8\cdot2\cdot6! = 11\,520$. What the student has done is glue Ann and Bob into a
+block, correctly reducing the arrangement to $7$ objects, and then permute those $7$ objects with
+$7!$ &mdash; as though the $7$ objects filled $7$ labelled positions. But the table still has $8$
+labelled seats, and the two-person block occupies two of them, so its <em>starting seat</em> must
+also be chosen. Done consistently in the labelled-seat space, the block can start at any of the
+$8$ seats and the remaining $6$ people fill the remaining $6$ seats in $6!$ ways:
+$8 \cdot 2 \cdot 6! = 8 \cdot 2 \cdot 720 = 11\,520$, and</p>
+<p>$$\frac{11\,520}{40\,320} = \frac{2}{7} \approx 0.2857 \;\;\text{&#10003;},$$</p>
+<p>the same answer as the circular space, as it must be: the two spaces differ by a uniform factor
+of $8$ in both numerator and denominator.</p>
+
+<p><b>Answer.</b> $\;$(a) $2/7 \approx 0.2857$; (b) $1/7 \approx 0.1429$; (c) the student gets
+$1/4 = 0.25$; the error is a circular numerator over a labelled denominator, and the consistent
+labelled count $8\cdot2\cdot6! = 11\,520$ restores $2/7$.</p>
+<p><b>Trap.</b> Beyond (c), the most common slip in (b) is forgetting the $3!$ internal orders
+and reporting $120/5040 = 1/42$, or including a spurious extra factor for &ldquo;where the block
+starts&rdquo; in the circular space &mdash; rotations were already quotiented out when we wrote
+$(n-1)!$. Pick one convention and apply it to numerator and denominator alike.</p>
+<p class="srcref">Tool: G1 &sect;4.3 (permutations; circular arrangements) &middot; G1 &sect;4.1 (uniform law) &middot; B&amp;T &sect;1.6</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q12" data-diff="3" data-topic="counting">
+<p><b>Q12.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Inclusion&ndash;exclusion for a matching problem &middot; <span class="ref">G1 &sect;1.2</span></span></p>
+<p>Five letters are written to five different people and the five addressed envelopes are stuffed
+in a uniformly random order (all $5! = 120$ assignments equally likely). Let $M$ be the number of
+letters that end up in their own envelope.
+(a) Use inclusion&ndash;exclusion to compute $\mathbf{P}(M = 0)$.
+(b) Compute $\mathbf{P}(M = 1)$.
+(c) Explain why $\mathbf{P}(M=1) &gt; \mathbf{P}(M=0)$ is <em>not</em> a contradiction, and say
+what $\mathbf{P}(M=0)$ tends to as the number of letters grows.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $A_i$ be the event that letter $i$ goes into its own envelope,
+$i = 1,\ldots,5$. Then $\{M \ge 1\} = A_1\cup\cdots\cup A_5$ and $\{M=0\}$ is its complement.
+Each $A_i$ pins one letter and leaves the other four free, so $|A_i| = 4! = 24$ and
+$\mathbf{P}(A_i) = 24/120 = 1/5$. More generally an intersection of $k$ of the $A_i$ pins $k$
+letters and leaves $(5-k)!$ arrangements, so any such intersection has probability
+$(5-k)!/5!$, and there are $\binom5k$ of them.</p>
+
+<p><b>(a) Inclusion&ndash;exclusion for five events.</b></p>
+<p>$$\mathbf{P}\!\left(\bigcup_{i=1}^{5}A_i\right)
+ = \sum_{k=1}^{5}(-1)^{k+1}\binom5k \frac{(5-k)!}{5!}
+ = \sum_{k=1}^{5}(-1)^{k+1}\frac{1}{k!},$$</p>
+<p>using $\binom5k (5-k)!/5! = \frac{5!}{k!(5-k)!}\cdot\frac{(5-k)!}{5!} = \frac1{k!}$ &mdash; a
+collapse worth noticing, since it removes $n$ from every term. Numerically the terms are</p>
+<p>$$1 - \tfrac12 + \tfrac16 - \tfrac1{24} + \tfrac1{120}
+ = 1 - 0.5 + 0.1\overline{6} - 0.041\overline{6} + 0.008\overline{3} = 0.6\overline{3} .$$</p>
+<p>Therefore</p>
+<p>$$\mathbf{P}(M=0) = 1 - 0.6\overline{3} = \sum_{k=0}^{5}\frac{(-1)^k}{k!}
+ = \frac{44}{120} = \frac{11}{30} \approx 0.3667 .$$</p>
+<p>The numerator $44$ is the number of <em>derangements</em> $D_5$ of five objects; a direct
+enumeration of all $120$ permutations in <code>computes/qb_s1.py</code> confirms $44$.</p>
+
+<p><b>(b) Exactly one match.</b> Choose which letter is the lone match ($\binom51 = 5$ ways),
+then <em>derange</em> the remaining four so that none of them matches. The number of derangements
+of four objects is</p>
+<p>$$D_4 = 4!\sum_{k=0}^{4}\frac{(-1)^k}{k!} = 24\left(1-1+\tfrac12-\tfrac16+\tfrac1{24}\right)
+ = 24 \cdot \tfrac{9}{24} = 9 .$$</p>
+<p>So the count is $5 \cdot 9 = 45$ and</p>
+<p>$$\mathbf{P}(M=1) = \frac{45}{120} = \frac38 = 0.375 .$$</p>
+<p>(The full enumeration gives the counts $44, 45, 20, 10, 0, 1$ for $M = 0,1,2,3,4,5$, which sum
+to $120$ &#10003;. Note the $0$: exactly four matches is impossible, since if four letters are
+correct the fifth has nowhere else to go.)</p>
+
+<p><b>(c) Why no contradiction.</b> $\mathbf{P}(M=1) = 0.375$ and $\mathbf{P}(M=0) \approx 0.3667$
+are two values of a legitimate distribution on $\{0,1,2,3,5\}$; nothing requires the value $0$ to
+be the most likely. The near-tie is the interesting part: $M$ is a sum of five indicators, each
+of mean $1/5$, so $\mathbb{E}[M] = 1$ &mdash; on average one letter is correct, whatever $n$ is.
+As $n$ grows, the alternating sum $\sum_{k=0}^{n}(-1)^k/k!$ is the truncated series for $e^{-1}$,
+so</p>
+<p>$$\mathbf{P}(M=0) \longrightarrow e^{-1} = 0.3679 ,$$</p>
+<p>and the convergence is ferociously fast: already at $n = 5$ the value $0.3667$ is within
+$0.0013$ of the limit. Adding a sixth letter barely changes the chance that nobody gets the right
+one.</p>
+
+<p><b>Answer.</b> $\;$(a) $\mathbf{P}(M=0) = 44/120 = 11/30 \approx 0.3667$;
+(b) $\mathbf{P}(M=1) = 45/120 = 3/8 = 0.375$; (c) no contradiction &mdash; and
+$\mathbf{P}(M=0)\to e^{-1}\approx 0.3679$.</p>
+<p><b>Trap.</b> Reasoning &ldquo;each letter misses its envelope with probability $4/5$, and there
+are five letters, so $\mathbf{P}(M=0) = (4/5)^5 = 0.328$&rdquo; &mdash; or worse, $4/5 = 0.8$. The
+five events $A_i^c$ are <em>not</em> independent: knowing letter 1 is misplaced makes it slightly
+easier for the others to be misplaced too, and the true $0.3667$ differs from $0.328$ by more than
+$10\%$ relatively. Inclusion&ndash;exclusion, which assumes nothing, is the right tool here.</p>
+<p class="srcref">Tool: G1 &sect;1.2 (inclusion&ndash;exclusion, general form) &middot; G1 &sect;4.3 (permutations) &middot; B&amp;T &sect;1.2, &sect;1.6</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q13" data-diff="1" data-topic="conditioning">
+<p><b>Q13.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; The multiplication rule &middot; <span class="ref">G1 &sect;2.2</span></span></p>
+<p>You have $5$ visually identical keys, exactly one of which opens a door. You try them in a
+uniformly random order, setting aside each key that fails.
+(a) Using the multiplication rule, find the probability that the door opens on the third try.
+(b) Find the probability that it opens within the first two tries.
+(c) Now suppose you are distracted and each try picks a key uniformly at random from all $5$,
+possibly repeating one you already tried. Find the probability that the door first opens on the
+third try, and compare.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $F_i$ be the event that try $i$ fails and $S_i$ that try $i$ succeeds. The
+multiplication (chain) rule of G1 &sect;2.2 says
+$\mathbf{P}(F_1\cap F_2\cap S_3) = \mathbf{P}(F_1)\,\mathbf{P}(F_2\mid F_1)\,
+\mathbf{P}(S_3 \mid F_1\cap F_2)$ &mdash; walk down one branch of the tree, multiplying the
+conditional probability of each new step given everything before it.</p>
+
+<p><b>(a) Without replacement.</b> First try: $4$ of the $5$ keys fail, so
+$\mathbf{P}(F_1) = 4/5$. Given that, $4$ keys remain of which $3$ fail:
+$\mathbf{P}(F_2\mid F_1) = 3/4$. Given both failures, $3$ keys remain and exactly one works:
+$\mathbf{P}(S_3\mid F_1\cap F_2) = 1/3$. Hence</p>
+<p>$$\mathbf{P}(\text{opens on try 3}) = \frac45\cdot\frac34\cdot\frac13
+ = \frac{12}{60} = \frac15 = 0.2 .$$</p>
+<p><b>Interpretation.</b> The answer is $1/5$ &mdash; the same as opening on try 1, or try 4, or
+try 5. That is no accident: the right key is equally likely to occupy any position in a uniformly
+random ordering, so the position at which the door opens is uniform on $\{1,2,3,4,5\}$. (A
+$500{,}000$-run simulation gives $0.2001$.)</p>
+
+<p><b>(b)</b> The events &ldquo;opens on try 1&rdquo; and &ldquo;opens on try 2&rdquo; are
+disjoint, each of probability $1/5$ by the above, so
+$\mathbf{P}(\le 2 \text{ tries}) = 1/5 + 1/5 = 2/5 = 0.4$.</p>
+
+<p><b>(c) With replacement.</b> Now the tries are independent, each succeeding with probability
+$1/5$, so the conditional probabilities never update:</p>
+<p>$$\mathbf{P}(\text{first success on try 3}) = \left(\frac45\right)^{\!2}\cdot\frac15
+ = \frac{16}{25}\cdot\frac15 = \frac{16}{125} = 0.128 .$$</p>
+<p>This is smaller than $0.2$, and the whole distribution now has an infinite tail: the
+probability of still being locked out after five tries is $(4/5)^5 = 0.32768$, whereas without
+replacement it is $0$. Discarding failed keys is worth a lot.</p>
+
+<p><b>Answer.</b> $\;$(a) $1/5 = 0.2$; (b) $2/5 = 0.4$; (c) $16/125 = 0.128$.</p>
+<p><b>Trap.</b> Assuming that later tries must be less likely to be the winning one, and
+answering (a) with something below $1/5$ &mdash; or computing $(4/5)^2(1/5) = 0.128$ for the
+without-replacement case. Under sampling without replacement the <em>conditional</em> success
+probability rises ($1/5, 1/4, 1/3, 1/2, 1$) exactly fast enough to offset the shrinking chance of
+getting that far, and the products all come out to $1/5$.</p>
+<p class="srcref">Tool: G1 &sect;2.2 (multiplication rule, sequential tree models) &middot; G1 &sect;3.5 &middot; B&amp;T &sect;1.3</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q14" data-diff="2" data-topic="conditioning">
+<p><b>Q14.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; True or false, with reason &middot; <span class="ref">G1 &sect;2.1</span></span></p>
+<p>Decide whether each statement is true for <em>all</em> events with the stated conditioning
+events of positive probability. Prove it or give an explicit counterexample.</p>
+<p>(i) If $\mathbf{P}(A\mid B) &gt; \mathbf{P}(A)$ then $\mathbf{P}(B\mid A) &gt; \mathbf{P}(B)$.<br>
+(ii) $\mathbf{P}(A\mid B) + \mathbf{P}(A^c\mid B) = 1$.<br>
+(iii) $\mathbf{P}(A\mid B) + \mathbf{P}(A\mid B^c) = 1$.<br>
+(iv) If $\mathbf{P}(A\mid B) = 0$ then $A$ and $B$ are disjoint (i.e. $A\cap B = \varnothing$).</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(i) TRUE.</b> Both sides are restatements of one inequality about the joint probability.
+Since $\mathbf{P}(B) &gt; 0$, multiply through:</p>
+<p>$$\mathbf{P}(A\mid B) &gt; \mathbf{P}(A)
+ \iff \frac{\mathbf{P}(A\cap B)}{\mathbf{P}(B)} &gt; \mathbf{P}(A)
+ \iff \mathbf{P}(A\cap B) &gt; \mathbf{P}(A)\mathbf{P}(B).$$</p>
+<p>Since also $\mathbf{P}(A) &gt; 0$ (it is at least $\mathbf{P}(A\cap B) &gt;
+\mathbf{P}(A)\mathbf{P}(B) \ge 0$, and if $\mathbf{P}(A)$ were $0$ the first inequality would
+read $\mathbf{P}(A\mid B) &gt; 0$ with $\mathbf{P}(A\cap B) \le \mathbf{P}(A) = 0$, impossible),
+dividing the same inequality by $\mathbf{P}(A)$ gives
+$\mathbf{P}(B\mid A) &gt; \mathbf{P}(B)$. <em>Meaning:</em> &ldquo;$B$ is evidence for $A$&rdquo;
+and &ldquo;$A$ is evidence for $B$&rdquo; are the same statement, both equal to &ldquo;$A$ and $B$
+are positively correlated&rdquo;. Evidence is symmetric even when causation is not.</p>
+
+<p><b>(ii) TRUE.</b> Conditioning on a fixed $B$ produces a legitimate probability law
+$\mathbf{P}(\cdot\mid B)$ on $\Omega$ (G1 &sect;2.1: it is nonnegative, assigns
+$\mathbf{P}(\Omega\mid B) = \mathbf{P}(B)/\mathbf{P}(B) = 1$, and is additive because the
+numerators are). The complement rule therefore holds inside it. Directly:
+$A\cap B$ and $A^c\cap B$ are disjoint with union $B$, so
+$\mathbf{P}(A\cap B) + \mathbf{P}(A^c\cap B) = \mathbf{P}(B)$; divide by $\mathbf{P}(B)$.</p>
+
+<p><b>(iii) FALSE.</b> The two conditional probabilities live in <em>different</em> universes
+($B$ and $B^c$), so nothing ties them together. Counterexample with a fair six-sided die: let
+$A = \{1,2,3,4\}$ and $B = \{2,4,6\}$. Then
+$A\cap B = \{2,4\}$ gives $\mathbf{P}(A\mid B) = 2/3 \approx 0.6667$, and
+$A\cap B^c = \{1,3\}$ gives $\mathbf{P}(A\mid B^c) = 2/3$, so the sum is
+$4/3 \approx 1.3333 \ne 1$. An even blunter counterexample is $A = \Omega$, where the sum is $2$.
+What <em>is</em> always true is the total probability theorem,
+$\mathbf{P}(B)\mathbf{P}(A\mid B) + \mathbf{P}(B^c)\mathbf{P}(A\mid B^c) = \mathbf{P}(A)$;
+check it here: $\tfrac12\cdot\tfrac23 + \tfrac12\cdot\tfrac23 = \tfrac23 = \mathbf{P}(A)$ &#10003;.</p>
+
+<p><b>(iv) FALSE.</b> $\mathbf{P}(A\mid B) = 0$ says only $\mathbf{P}(A\cap B) = 0$, and a set can
+be nonempty yet have probability zero. Take the uniform model on the unit square of Q6, with
+$A = \{(x,y) : y = x\}$ (the diagonal) and $B = \{(x,y): x \le 1/2\}$. Then $\mathbf{P}(B) = 1/2 &gt; 0$
+and $A\cap B$ is the half-diagonal &mdash; a nonempty set of zero area &mdash; so
+$\mathbf{P}(A\mid B) = 0/0.5 = 0$ while $A\cap B \ne \varnothing$. In a <em>finite</em> model with
+all outcomes of positive probability the implication does hold, which is why the claim feels true.</p>
+
+<p><b>Answer.</b> $\;$(i) True; (ii) True; (iii) False; (iv) False.</p>
+<p><b>Trap.</b> Statement (iii) is the one that fools people, because (ii) is true and the two
+look alike. The rule to remember: conditional probabilities add to $1$ when you vary the event
+<em>in front of</em> the bar over a partition, never when you vary the event <em>behind</em> it.
+Incidentally the die example in (iii) has $\mathbf{P}(A\mid B) = \mathbf{P}(A\mid B^c) =
+\mathbf{P}(A) = 2/3$, so $A$ and $B$ there are independent &mdash; independence does not rescue
+(iii) either.</p>
+<p class="srcref">Tool: G1 &sect;2.1 (conditional probability as a law) &middot; G1 &sect;2.3 (total probability) &middot; B&amp;T &sect;1.3&ndash;1.4</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q15" data-diff="2" data-topic="conditioning">
+<p><b>Q15.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Which tool applies? &middot; <span class="ref">G1 &sect;2.5</span></span></p>
+<p>For each scenario, name the single tool of note G1 that answers it &mdash; the discrete uniform
+law with a counting formula, the multiplication rule, the total probability theorem, Bayes' rule,
+or inclusion&ndash;exclusion &mdash; and write down the formula you would evaluate, with every
+symbol defined. Do <em>not</em> compute anything.</p>
+<p>(a) A plant runs three shifts producing known fractions of the daily output, each with its own
+known defect rate. What fraction of the day's output is defective?<br>
+(b) A defective item is found. What is the chance it came from the night shift?<br>
+(c) Five cards are dealt from a shuffled $52$-card deck. What is the probability they are all
+from the same suit?<br>
+(d) Four chips are drawn one at a time without replacement from an urn with known composition.
+What is the probability all four are red?<br>
+(e) $A$ and $B$ are independent events with known probabilities. What is
+$\mathbf{P}(A\cup B)$?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a) Total probability theorem.</b> The shifts $S_1,S_2,S_3$ partition the sample space
+(every item comes from exactly one shift), the weights $\mathbf{P}(S_i)$ are the output fractions,
+and the defect rates are the conditionals $\mathbf{P}(D\mid S_i)$. Then</p>
+<p>$$\mathbf{P}(D) = \sum_{i=1}^{3}\mathbf{P}(S_i)\,\mathbf{P}(D\mid S_i).$$</p>
+<p><em>Signal:</em> you are given the causes' probabilities and the effect's probability under
+each cause, and want the effect &mdash; forward direction.</p>
+
+<p><b>(b) Bayes' rule.</b> Same partition, but the direction is reversed: the effect $D$ is
+observed and a cause is wanted.</p>
+<p>$$\mathbf{P}(S_3\mid D) = \frac{\mathbf{P}(S_3)\mathbf{P}(D\mid S_3)}
+{\sum_{i=1}^{3}\mathbf{P}(S_i)\mathbf{P}(D\mid S_i)} .$$</p>
+<p>Note the denominator is exactly (a): Bayes always needs the total probability computation as
+its normalizer.</p>
+
+<p><b>(c) Discrete uniform law with combinations.</b> All $\binom{52}{5}$ five-card subsets are
+equally likely; favourable ones are chosen by picking a suit ($4$ ways) and then $5$ of its $13$
+cards:</p>
+<p>$$\mathbf{P}(\text{flush, including straight flushes}) = \frac{4\binom{13}{5}}{\binom{52}{5}} .$$</p>
+<p><em>Signal:</em> a physically symmetric mechanism and a question with no conditioning in it
+&mdash; the answer is a ratio of counts.</p>
+
+<p><b>(d) Multiplication rule.</b> With $R_i$ = &ldquo;draw $i$ is red&rdquo;, the composition
+changes after each draw, so chain conditionals:</p>
+<p>$$\mathbf{P}(R_1\cap R_2\cap R_3\cap R_4)
+ = \mathbf{P}(R_1)\mathbf{P}(R_2\mid R_1)\mathbf{P}(R_3\mid R_1\cap R_2)
+ \mathbf{P}(R_4\mid R_1\cap R_2\cap R_3).$$</p>
+<p><em>Signal:</em> a sequential experiment described stage by stage. (Combinations would also
+work here, $\binom{r}{4}/\binom{n}{4}$ &mdash; when both tools fit, they must agree.)</p>
+
+<p><b>(e) Inclusion&ndash;exclusion, with independence supplying the intersection.</b></p>
+<p>$$\mathbf{P}(A\cup B) = \mathbf{P}(A) + \mathbf{P}(B) - \mathbf{P}(A\cap B)
+ = \mathbf{P}(A) + \mathbf{P}(B) - \mathbf{P}(A)\mathbf{P}(B).$$</p>
+<p>Independence is <em>not</em> a rule about unions; it is a rule about intersections, which then
+feeds inclusion&ndash;exclusion.</p>
+
+<p><b>Answer.</b> $\;$(a) total probability; (b) Bayes' rule; (c) uniform law $+$ combinations;
+(d) multiplication rule; (e) inclusion&ndash;exclusion with
+$\mathbf{P}(A\cap B) = \mathbf{P}(A)\mathbf{P}(B)$.</p>
+<p><b>Trap.</b> Pairs (a)/(b) are the classic confusion: both use the same three numbers per
+shift, and the giveaway is which way the conditioning bar points in the <em>question</em>. If the
+observed thing is the effect and the unknown is the cause, it is Bayes. In (e), writing
+$\mathbf{P}(A\cup B) = \mathbf{P}(A) + \mathbf{P}(B)$ &ldquo;because they are independent&rdquo;
+confuses independent with disjoint &mdash; see Q21.</p>
+<p class="srcref">Tool: G1 &sect;2.5 (which-tool decision guide) &middot; G1 &sect;5.2 (master cheatsheet) &middot; B&amp;T &sect;1.3&ndash;1.6</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q16" data-diff="2" data-topic="total-probability">
+<p><b>Q16.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Total probability theorem &middot; <span class="ref">G1 &sect;2.3</span></span></p>
+<p>An assembler buys one component from three suppliers: supplier 1 provides $50\%$ of the
+components with defect rate $0.02$, supplier 2 provides $30\%$ with defect rate $0.03$, and
+supplier 3 provides $20\%$ with defect rate $0.05$. A component is drawn at random from the
+warehouse.
+(a) What is the probability it is defective?
+(b) Two components are drawn independently (the warehouse is large). What is the probability at
+least one is defective?
+(c) Given that a drawn component is defective, which supplier is most likely to have made it?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $S_1,S_2,S_3$ be the events that the component came from supplier $1,2,3$.
+They are disjoint and exhaust the warehouse, so they form a partition with
+$\mathbf{P}(S_1)=0.50$, $\mathbf{P}(S_2)=0.30$, $\mathbf{P}(S_3)=0.20$ (summing to $1$ &#10003;).
+Let $D$ be the event that the component is defective, with
+$\mathbf{P}(D\mid S_1)=0.02$, $\mathbf{P}(D\mid S_2)=0.03$, $\mathbf{P}(D\mid S_3)=0.05$.</p>
+
+<p><b>(a) Total probability theorem</b> (G1 &sect;2.3): split $D$ along the partition and add the
+branch weights.</p>
+<p>$$\mathbf{P}(D) = \sum_{i=1}^{3}\mathbf{P}(S_i)\mathbf{P}(D\mid S_i)
+ = (0.50)(0.02) + (0.30)(0.03) + (0.20)(0.05)$$</p>
+<p>$$= 0.0100 + 0.0090 + 0.0100 = 0.029 .$$</p>
+<p>Note the answer lies between the smallest and largest branch rates, $0.02$ and $0.05$, as any
+weighted average must.</p>
+
+<p><b>(b) Complement, then independence.</b> &ldquo;At least one defective&rdquo; is the
+complement of &ldquo;both good&rdquo;, and the two draws are independent each with
+$\mathbf{P}(\text{good}) = 1 - 0.029 = 0.971$:</p>
+<p>$$\mathbf{P}(\text{at least one}) = 1 - (0.971)^2 = 1 - 0.942841 = 0.057159 .$$</p>
+<p>Slightly less than $2 \times 0.029 = 0.058$, the difference $0.000841 = 0.029^2$ being the
+double-counted event that both are defective.</p>
+
+<p><b>(c) Bayes' rule.</b> Each posterior is a branch weight divided by the total from (a):</p>
+<p>$$\mathbf{P}(S_1\mid D) = \frac{0.0100}{0.029} = 0.3448,\quad
+\mathbf{P}(S_2\mid D) = \frac{0.0090}{0.029} = 0.3103,\quad
+\mathbf{P}(S_3\mid D) = \frac{0.0100}{0.029} = 0.3448,$$</p>
+<p>and these sum to $1$ &#10003;. Suppliers 1 and 3 are <em>tied</em> as most likely, at
+$10/29 \approx 0.3448$ each.</p>
+<p><b>Interpretation.</b> Supplier 3 has the worst defect rate ($0.05$, more than twice supplier
+1's) but ships only $20\%$ of the volume; supplier 1 is clean but huge. Volume and rate multiply,
+and here $0.50\times0.02$ exactly equals $0.20\times0.05$. Blaming the worst supplier for a given
+defect is only half the calculation.</p>
+
+<p><b>Answer.</b> $\;$(a) $0.029$; (b) $0.057159$; (c) suppliers 1 and 3 tie at
+$10/29 \approx 0.3448$, ahead of supplier 2's $9/29 \approx 0.3103$.</p>
+<p><b>Trap.</b> Averaging the three defect rates unweighted:
+$(0.02+0.03+0.05)/3 = 0.0333$, which overstates $\mathbf{P}(D)$ by about $15\%$ because it gives
+the small, bad supplier equal say. The total probability theorem is a <em>weighted</em> average,
+and the weights are the partition's probabilities.</p>
+<p class="srcref">Tool: G1 &sect;2.3 (total probability theorem) &middot; G1 &sect;2.4 (Bayes' rule) &middot; B&amp;T &sect;1.4</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q17" data-diff="2" data-topic="bayes">
+<p><b>Q17.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Base rates and false positives &middot; <span class="ref">G1 &sect;2.4</span></span></p>
+<p>A condition affects $0.4\%$ of a population. A screening test has sensitivity $0.99$ (it is
+positive on $99\%$ of those who have the condition) and specificity $0.97$ (it is negative on
+$97\%$ of those who do not).
+(a) A randomly selected person tests positive. What is the probability they have the condition?
+(b) Explain the number by counting per $100{,}000$ people screened.
+(c) The person is re-tested with a second, independent test of the same quality and is positive
+again. Now what is the probability?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $C$ be &ldquo;has the condition&rdquo; and $+$ be &ldquo;tests positive&rdquo;.
+Given: the prior (base rate) $\mathbf{P}(C) = 0.004$, so $\mathbf{P}(C^c) = 0.996$; the sensitivity
+$\mathbf{P}(+\mid C) = 0.99$; the specificity $\mathbf{P}(-\mid C^c) = 0.97$, hence the
+false-positive rate $\mathbf{P}(+\mid C^c) = 1 - 0.97 = 0.03$.</p>
+
+<p><b>(a) Bayes' rule</b> with the two-element partition $\{C, C^c\}$:</p>
+<p>$$\mathbf{P}(C\mid +) = \frac{\mathbf{P}(C)\mathbf{P}(+\mid C)}
+{\mathbf{P}(C)\mathbf{P}(+\mid C) + \mathbf{P}(C^c)\mathbf{P}(+\mid C^c)} .$$</p>
+<p>The two branch weights are</p>
+<p>$$\mathbf{P}(C)\mathbf{P}(+\mid C) = (0.004)(0.99) = 0.00396, \qquad
+\mathbf{P}(C^c)\mathbf{P}(+\mid C^c) = (0.996)(0.03) = 0.02988,$$</p>
+<p>so the denominator (the total probability of a positive) is
+$\mathbf{P}(+) = 0.00396 + 0.02988 = 0.03384$ and</p>
+<p>$$\mathbf{P}(C\mid +) = \frac{0.00396}{0.03384} = \frac{11}{94} = 0.1170 .$$</p>
+
+<p><b>(b) The count that makes it obvious.</b> Screen $100{,}000$ people. About
+$0.004 \times 100{,}000 = 400$ have the condition, and $0.99$ of them test positive: $396$ true
+positives. The other $99{,}600$ are healthy, and $0.03$ of them test positive anyway:
+$0.03\times99{,}600 = 2988$ false positives. Total positives $396 + 2988 = 3384$, of whom $396$
+are genuinely affected: $396/3384 = 0.1170$. The false positives outnumber the true ones more than
+seven to one, purely because the healthy group is $249$ times larger than the affected one.</p>
+
+<p><b>(c) Two positives.</b> Assume the two tests are conditionally independent given the person's
+true status (see Q24 &mdash; they are <em>not</em> independent unconditionally). Then the
+likelihoods multiply within each branch:</p>
+<p>$$\mathbf{P}(++\mid C) = 0.99^2 = 0.9801,\qquad \mathbf{P}(++\mid C^c) = 0.03^2 = 0.0009,$$</p>
+<p>$$\mathbf{P}(C\mid ++) = \frac{(0.004)(0.9801)}{(0.004)(0.9801) + (0.996)(0.0009)}
+ = \frac{0.0039204}{0.0039204 + 0.0008964} = \frac{0.0039204}{0.0048168} = 0.8139 .$$</p>
+<p>One positive leaves the odds against; two positives flip them decisively, because each test
+multiplies the odds by the likelihood ratio $0.99/0.03 = 33$.</p>
+
+<p><b>Answer.</b> $\;$(a) $11/94 \approx 0.1170$; (b) $396$ true against $2988$ false positives
+per $100{,}000$; (c) $\approx 0.8139$.</p>
+<p><b>Trap.</b> &ldquo;The test is $99\%$ accurate, so a positive means a $99\%$ chance of having
+it.&rdquo; That confuses $\mathbf{P}(+\mid C)$ with $\mathbf{P}(C\mid +)$ &mdash; the two differ
+here by a factor of more than eight. A rare condition makes the false-positive pool enormous
+relative to the true-positive pool, and no test quality short of near-perfect specificity fixes
+that on a single screening.</p>
+<p class="srcref">Tool: G1 &sect;2.4 (Bayes' rule, false-positive puzzle) &middot; G1 &sect;2.3 &middot; B&amp;T &sect;1.4</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q18" data-diff="2" data-topic="bayes">
+<p><b>Q18.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Bayes in odds form &middot; <span class="ref">G1 &sect;2.4</span></span></p>
+<p>Before any physical evidence, an investigator's model assigns probability $0.001$ that a
+particular individual is the source of a sample. A fibre analysis is then reported: the fibre
+type would certainly be present if the individual were the source, i.e. $\mathbf{P}(E\mid G) = 1$,
+whereas among non-sources only a fraction $0.002$ would produce it,
+$\mathbf{P}(E\mid G^c) = 0.002$.
+(a) Write Bayes' rule in odds form and compute the posterior probability of $G$ after $E$.
+(b) A second, conditionally independent piece of evidence arrives with likelihood ratio $20$.
+Update again.
+(c) A commentator says &ldquo;only $0.2\%$ of innocent people would show this fibre, so there is a
+$99.8\%$ chance the individual is the source.&rdquo; Name and diagnose the error.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> The <em>odds</em> of an event are $\mathrm{odds}(G) = \mathbf{P}(G)/\mathbf{P}(G^c)$.
+Dividing the two forms of Bayes' rule, $\mathbf{P}(G\mid E) \propto \mathbf{P}(G)\mathbf{P}(E\mid G)$
+and $\mathbf{P}(G^c\mid E) \propto \mathbf{P}(G^c)\mathbf{P}(E\mid G^c)$, the common denominator
+$\mathbf{P}(E)$ cancels and leaves the odds form</p>
+<p>$$\underbrace{\frac{\mathbf{P}(G\mid E)}{\mathbf{P}(G^c\mid E)}}_{\text{posterior odds}}
+ = \underbrace{\frac{\mathbf{P}(G)}{\mathbf{P}(G^c)}}_{\text{prior odds}}\times
+ \underbrace{\frac{\mathbf{P}(E\mid G)}{\mathbf{P}(E\mid G^c)}}_{\text{likelihood ratio}} .$$</p>
+
+<p><b>(a)</b> Prior odds: $\dfrac{0.001}{0.999} = \dfrac{1}{999} \approx 0.001001$, i.e. $1$ to
+$999$. Likelihood ratio: $\dfrac{1}{0.002} = 500$. Multiplying,</p>
+<p>$$\text{posterior odds} = \frac{1}{999}\times 500 = \frac{500}{999} \approx 0.5005 ,$$</p>
+<p>and converting odds $o$ back to a probability via $p = o/(1+o)$,</p>
+<p>$$\mathbf{P}(G\mid E) = \frac{500/999}{1 + 500/999} = \frac{500}{1499} \approx 0.3336 .$$</p>
+<p>Cross-check by the standard form:
+$\dfrac{(0.001)(1)}{(0.001)(1) + (0.999)(0.002)} = \dfrac{0.001}{0.001 + 0.001998}
+= \dfrac{0.001}{0.002998} = 0.3336$ &#10003;.</p>
+
+<p><b>(b)</b> Conditional independence given $G$ (and given $G^c$) is exactly what licenses
+multiplying likelihood ratios. So</p>
+<p>$$\text{posterior odds} = \frac{500}{999}\times 20 = \frac{10000}{999} \approx 10.01,
+\qquad \mathbf{P}(G\mid E_1,E_2) = \frac{10000}{10999} \approx 0.9092 .$$</p>
+<p>This is the practical charm of the odds form: evidence accumulates by <em>multiplication</em>,
+with no renormalizing integral at each step.</p>
+
+<p><b>(c) The prosecutor's fallacy.</b> The commentator has read $\mathbf{P}(E\mid G^c) = 0.002$
+as if it were $\mathbf{P}(G^c\mid E)$, and then reported $1 - 0.002$. The correct
+$\mathbf{P}(G^c\mid E) = 1 - 0.3336 = 0.6664$ &mdash; still favouring innocence &mdash; is more
+than $300$ times the quoted $0.002$. The gap is exactly the prior odds: a likelihood ratio of
+$500$ applied to prior odds of $1{:}999$ cannot outrun the base rate on its own.</p>
+
+<p><b>Answer.</b> $\;$(a) posterior odds $500/999 \approx 0.5005$, i.e.
+$\mathbf{P}(G\mid E) = 500/1499 \approx 0.3336$;
+(b) odds $10000/999 \approx 10.01$, $\mathbf{P} = 10000/10999 \approx 0.9092$;
+(c) the prosecutor's fallacy &mdash; confusing $\mathbf{P}(E\mid G^c)$ with $\mathbf{P}(G^c\mid E)$.</p>
+<p><b>Trap.</b> Besides (c), a common arithmetic slip is treating &ldquo;odds $0.5005$&rdquo; as a
+probability. Odds of about $1{:}2$ correspond to a probability of about $1/3$, not $1/2$; always
+convert with $p = o/(1+o)$.</p>
+<p class="srcref">Tool: G1 &sect;2.4 (Bayes' rule; odds form) &middot; G1 &sect;3.3 (conditional independence) &middot; B&amp;T &sect;1.4</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q19" data-diff="3" data-topic="bayes">
+<p><b>Q19.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Inference then prediction &middot; <span class="ref">G1 &sect;2.4</span></span></p>
+<p>A drawer holds three coins that are indistinguishable by touch. Coin A lands heads with
+probability $0.3$, coin B with probability $0.5$, coin C with probability $0.8$. You reach in and
+pick coin A with probability $0.5$, coin B with probability $0.3$, coin C with probability $0.2$.
+You flip the chosen coin four times, independently, and observe exactly $3$ heads (in some order).
+(a) Compute the probability of that observation.
+(b) Compute the posterior probability of each coin.
+(c) You now flip the <em>same</em> coin a fifth time. What is the probability it comes up heads?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $A,B,C$ be the events that the chosen coin is A, B, C; they partition the
+sample space with priors $0.5, 0.3, 0.2$. Let $E = \{3$ heads in $4$ flips$\}$ and let $H_5$ be
+&ldquo;the fifth flip is heads&rdquo;. Given the identity of the coin, the flips are independent
+with a fixed bias, so the conditional probability of $E$ is a binomial term (G1 &sect;4.5).</p>
+
+<p><b>Step 1 &mdash; the three likelihoods.</b> With $\binom43 = 4$ orders for which flip is the
+tail,</p>
+<p>$$\mathbf{P}(E\mid A) = 4(0.3)^3(0.7) = 4(0.027)(0.7) = 0.0756,$$</p>
+<p>$$\mathbf{P}(E\mid B) = 4(0.5)^3(0.5) = 4(0.125)(0.5) = 0.25,$$</p>
+<p>$$\mathbf{P}(E\mid C) = 4(0.8)^3(0.2) = 4(0.512)(0.2) = 0.4096 .$$</p>
+
+<p><b>Step 2 &mdash; total probability theorem.</b> The branch weights are</p>
+<p>$$(0.5)(0.0756) = 0.0378,\qquad (0.3)(0.25) = 0.075,\qquad (0.2)(0.4096) = 0.08192,$$</p>
+<p>$$\mathbf{P}(E) = 0.0378 + 0.075 + 0.08192 = 0.19472 .$$</p>
+
+<p><b>Step 3 &mdash; Bayes' rule.</b> Divide each branch weight by $\mathbf{P}(E)$:</p>
+<p>$$\mathbf{P}(A\mid E) = \frac{0.0378}{0.19472} = 0.1941,\quad
+\mathbf{P}(B\mid E) = \frac{0.075}{0.19472} = 0.3852,\quad
+\mathbf{P}(C\mid E) = \frac{0.08192}{0.19472} = 0.4207,$$</p>
+<p>summing to $1$ &#10003;. The evidence has more than doubled coin C's probability (from $0.20$ to
+$0.4207$) and cut coin A's by more than half (from $0.50$ to $0.1941$), which is what three heads
+out of four should do.</p>
+
+<p><b>Step 4 &mdash; prediction by conditioning again.</b> Condition the fifth flip on the coin's
+identity, using the <em>posterior</em> as the new weights (the total probability theorem applied
+inside the conditional universe defined by $E$):</p>
+<p>$$\mathbf{P}(H_5\mid E) = \sum_{k\in\{A,B,C\}}\mathbf{P}(k\mid E)\,\mathbf{P}(H\mid k)$$</p>
+<p>$$= (0.1941)(0.3) + (0.3852)(0.5) + (0.4207)(0.8)
+ = 0.05824 + 0.19259 + 0.33657 = 0.5874 .$$</p>
+<p>A Monte Carlo run of $2{,}000{,}000$ replications in <code>computes/qb_s1.py</code> returns
+$\mathbf{P}(E) = 0.1946$ and $\mathbf{P}(H_5\mid E) = 0.5871$, matching to three decimals.</p>
+
+<p><b>Answer.</b> $\;$(a) $\mathbf{P}(E) = 0.19472$;
+(b) $\mathbf{P}(A\mid E) = 0.1941$, $\mathbf{P}(B\mid E) = 0.3852$, $\mathbf{P}(C\mid E) = 0.4207$;
+(c) $\mathbf{P}(H_5\mid E) = 0.5874$.</p>
+<p><b>Trap.</b> Answering (c) with the <em>prior</em> mixture
+$(0.5)(0.3) + (0.3)(0.5) + (0.2)(0.8) = 0.15 + 0.15 + 0.16 = 0.46$. That is the probability the
+<em>first</em> flip is heads, before any data. The four flips are not independent of the fifth
+&mdash; they are only conditionally independent <em>given the coin</em> &mdash; so observing them
+shifts the weights and drags the prediction up from $0.46$ to $0.5874$. A second trap is dropping
+the $\binom43 = 4$ from the likelihoods; here it cancels in the posterior (it multiplies all three
+branches) but not in $\mathbf{P}(E)$, which would come out four times too small.</p>
+<p class="srcref">Tool: G1 &sect;2.4 (Bayes' rule) &middot; G1 &sect;2.3 (total probability) &middot; G1 &sect;4.5 (binomial probabilities) &middot; B&amp;T &sect;1.4</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q20" data-diff="3" data-topic="total-probability">
+<p><b>Q20.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Interpretation: a reversal, explained &middot; <span class="ref">G1 &sect;2.3</span></span></p>
+<p>Two treatments were each given to $100$ patients across two hospitals, with these results.</p>
+<table>
+<thead><tr><th class="l">&nbsp;</th><th class="l">Hospital 1</th><th class="l">Hospital 2</th><th class="l">Overall</th></tr></thead>
+<tbody>
+<tr><td class="l">Treatment A</td><td class="l">$81$ of $90$ recovered</td><td class="l">$3$ of $10$ recovered</td><td class="l">$84$ of $100$</td></tr>
+<tr><td class="l">Treatment B</td><td class="l">$19$ of $20$ recovered</td><td class="l">$28$ of $80$ recovered</td><td class="l">$47$ of $100$</td></tr>
+</tbody>
+</table>
+<p>(a) Compute all six recovery rates and verify the overall ones with the total probability
+theorem.
+(b) Treatment B has the higher recovery rate in <em>each</em> hospital, yet the lower rate
+overall. Is one of the numbers wrong? Explain precisely which quantity does the reversing.
+(c) A patient is about to be treated at Hospital 2. Which treatment should they be given, and
+why does the &ldquo;overall&rdquo; column not answer that question?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $R$ be recovery, $T$ the treatment ($A$ or $B$), and $H_1, H_2$ the hospital.
+For a fixed treatment, $\{H_1,H_2\}$ partitions that treatment's patients, so the total
+probability theorem applies <em>within each row</em>:</p>
+<p>$$\mathbf{P}(R\mid T) = \mathbf{P}(H_1\mid T)\mathbf{P}(R\mid T,H_1)
+ + \mathbf{P}(H_2\mid T)\mathbf{P}(R\mid T,H_2).$$</p>
+
+<p><b>(a) The six rates.</b> Within hospitals:
+$\mathbf{P}(R\mid A,H_1) = 81/90 = 0.90$, $\mathbf{P}(R\mid A,H_2) = 3/10 = 0.30$,
+$\mathbf{P}(R\mid B,H_1) = 19/20 = 0.95$, $\mathbf{P}(R\mid B,H_2) = 28/80 = 0.35$.
+The hospital mixes differ sharply:
+$\mathbf{P}(H_1\mid A) = 90/100 = 0.90$ against $\mathbf{P}(H_1\mid B) = 20/100 = 0.20$.
+Now assemble:</p>
+<p>$$\mathbf{P}(R\mid A) = (0.90)(0.90) + (0.10)(0.30) = 0.81 + 0.03 = 0.84 ,$$</p>
+<p>$$\mathbf{P}(R\mid B) = (0.20)(0.95) + (0.80)(0.35) = 0.19 + 0.28 = 0.47 ,$$</p>
+<p>matching the raw counts $84/100$ and $47/100$ &#10003;.</p>
+
+<p><b>(b) Nothing is wrong.</b> B beats A by exactly $0.05$ in each hospital
+($0.95 - 0.90 = 0.05$ and $0.35 - 0.30 = 0.05$), yet loses overall by
+$0.47 - 0.84 = -0.37$. The reversal is produced by the <em>weights</em>, not the conditional
+rates. Hospital 2 is the hard environment: its recovery rates ($0.30$, $0.35$) are about a third
+of Hospital 1's ($0.90$, $0.95$). Treatment A's patients were $90\%$ drawn from the easy hospital,
+treatment B's were $80\%$ drawn from the hard one. Since $\mathbf{P}(R\mid T)$ is a weighted
+average of the two conditional rates, the choice of weights can move it far more ($0.90 - 0.30 =
+0.60$ of range) than the within-hospital advantage ($0.05$) can. This is Simpson's paradox, and
+the total probability theorem is exactly the identity that makes it unsurprising: a weighted
+average of two numbers is not determined by the numbers alone.</p>
+
+<p><b>(c) Give treatment B.</b> The patient's hospital is <em>known</em> to be Hospital 2, so the
+relevant probability is the conditional one for that hospital: $0.35$ for B against $0.30$ for A.
+The overall column answers a different question &mdash; &ldquo;what fraction of past patients
+receiving this treatment recovered?&rdquo; &mdash; and those past patients were not assigned to
+hospitals at random. The overall figure mixes treatment quality with hospital allocation; once you
+condition on the hospital, the allocation is fixed and the comparison is clean. (Had the hospital
+been unknown and treatment allocation genuinely random, the overall column would be the right one.)</p>
+
+<p><b>Answer.</b> $\;$(a) A: $0.90$, $0.30$, overall $0.84$; B: $0.95$, $0.35$, overall $0.47$
+&mdash; both overall figures reproduced by the total probability theorem.
+(b) No error: the reversal comes from the unequal hospital weights $(0.90, 0.10)$ versus
+$(0.20, 0.80)$, not from the conditional rates. (c) Treatment B.</p>
+<p><b>Trap.</b> Concluding from &ldquo;$84\% &gt; 47\%$&rdquo; that A is the better treatment.
+The overall percentages are averages over different populations, so comparing them compares
+hospital mixes as much as treatments. Whenever two conditional comparisons agree and the
+aggregate disagrees, look for a lurking partition whose weights differ between the groups.</p>
+<p class="srcref">Tool: G1 &sect;2.3 (total probability theorem as a weighted average) &middot; G1 &sect;2.1 &middot; B&amp;T &sect;1.4</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q21" data-diff="1" data-topic="independence">
+<p><b>Q21.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Disjoint is not independent &middot; <span class="ref">G1 &sect;3.2</span></span></p>
+<p>A commuter's trip is described by two events: $A = \{$she cycles$\}$ with
+$\mathbf{P}(A) = 0.30$ and $B = \{$she takes the train$\}$ with $\mathbf{P}(B) = 0.45$. She does
+exactly one of cycling, taking the train, or walking, so $A$ and $B$ are disjoint.
+(a) Compute $\mathbf{P}(A\cup B)$ and $\mathbf{P}(A\mid B)$.
+(b) True or false: because $A$ and $B$ cannot happen together, they are independent. Justify.
+(c) Under what circumstances can two disjoint events be independent?
+(d) If instead $A$ and $B$ were independent with the same marginal probabilities, what would
+$\mathbf{P}(A\cup B)$ be?</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>(a)</b> Disjointness means $A\cap B = \varnothing$, so Axiom 3 applies directly:
+$\mathbf{P}(A\cup B) = 0.30 + 0.45 = 0.75$. And</p>
+<p>$$\mathbf{P}(A\mid B) = \frac{\mathbf{P}(A\cap B)}{\mathbf{P}(B)} = \frac{0}{0.45} = 0 .$$</p>
+
+<p><b>(b) FALSE, and emphatically so.</b> Independence means
+$\mathbf{P}(A\cap B) = \mathbf{P}(A)\mathbf{P}(B)$, equivalently
+$\mathbf{P}(A\mid B) = \mathbf{P}(A)$ &mdash; knowing $B$ leaves your belief about $A$ unchanged.
+Here $\mathbf{P}(A\cap B) = 0$ but $\mathbf{P}(A)\mathbf{P}(B) = (0.30)(0.45) = 0.135 \ne 0$, so
+the defining equation fails. Conceptually, disjointness is the <em>strongest possible
+dependence</em>: learning that she took the train tells you with certainty that she did not cycle,
+dropping $\mathbf{P}(A)$ from $0.30$ to $0$. Far from carrying no information, $B$ settles $A$
+completely.</p>
+
+<p><b>(c)</b> Only in the degenerate case. If $A$ and $B$ are disjoint and independent, then
+$0 = \mathbf{P}(A\cap B) = \mathbf{P}(A)\mathbf{P}(B)$, which forces $\mathbf{P}(A) = 0$ or
+$\mathbf{P}(B) = 0$. So two disjoint events are independent exactly when at least one of them has
+probability zero &mdash; a case with no content.</p>
+
+<p><b>(d)</b> If independent, $\mathbf{P}(A\cap B) = 0.135$ and inclusion&ndash;exclusion gives</p>
+<p>$$\mathbf{P}(A\cup B) = 0.30 + 0.45 - 0.135 = 0.615 ,$$</p>
+<p>which is $0.135$ smaller than the disjoint answer $0.75$ &mdash; exactly the overlap that a
+disjoint model forbids and an independent model requires.</p>
+
+<p><b>Answer.</b> $\;$(a) $0.75$ and $0$; (b) false &mdash; $0 \ne 0.135$; (c) only if
+$\mathbf{P}(A) = 0$ or $\mathbf{P}(B) = 0$; (d) $0.615$.</p>
+<p><b>Trap.</b> Hearing &ldquo;$A$ and $B$ have nothing to do with each other&rdquo; in the phrase
+&ldquo;mutually exclusive&rdquo;. The two words point in opposite directions: <em>disjoint</em> is
+a statement about the sets ($A\cap B = \varnothing$) and implies maximal dependence;
+<em>independent</em> is a statement about the probability law
+($\mathbf{P}(A\cap B) = \mathbf{P}(A)\mathbf{P}(B)$) and requires the overlap to be exactly as big
+as chance would make it. You cannot read either one off a Venn diagram alone &mdash;
+independence depends on the numbers, not the picture.</p>
+<p class="srcref">Tool: G1 &sect;3.2 (independence of two events) &middot; G1 &sect;5.3 (top gotchas) &middot; B&amp;T &sect;1.5</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q22" data-diff="2" data-topic="independence">
+<p><b>Q22.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Independent components in a system &middot; <span class="ref">G1 &sect;3.4</span></span></p>
+<p>A system passes a signal from left to right through three stages in series. Stage 1 is a
+parallel pair of components $1$ and $2$ (the stage works if <em>either</em> works), each working
+with probability $0.8$. Stage 2 is a single component $3$, working with probability $0.95$. Stage
+3 is a parallel pair of components $4$ and $5$, each working with probability $0.7$. All five
+components fail independently.
+(a) Find the probability the system works.
+(b) Given that the system has failed, find the probability that component $3$ was one of the
+failures.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $W_i$ be the event that component $i$ works, and $W$ that the system works.
+The system works exactly when all three stages work:
+$W = (W_1\cup W_2)\cap W_3 \cap (W_4\cup W_5)$. Independence of the five components means the
+probability of an intersection of events built from <em>disjoint groups</em> of components
+factors (G1 &sect;3.4).</p>
+
+<p><b>Step 1 &mdash; each parallel stage, by the complement.</b> A parallel pair fails only if
+both members fail, and failures are independent:</p>
+<p>$$\mathbf{P}(W_1\cup W_2) = 1 - \mathbf{P}(W_1^c)\mathbf{P}(W_2^c) = 1 - (0.2)(0.2)
+ = 1 - 0.04 = 0.96 ,$$</p>
+<p>$$\mathbf{P}(W_4\cup W_5) = 1 - (0.3)(0.3) = 1 - 0.09 = 0.91 .$$</p>
+
+<p><b>Step 2 &mdash; the three stages in series.</b> The stages involve disjoint sets of
+components ($\{1,2\}$, $\{3\}$, $\{4,5\}$), so their events are independent and multiply:</p>
+<p>$$\mathbf{P}(W) = (0.96)(0.95)(0.91) .$$</p>
+<p>Working left to right: $0.96 \times 0.95 = 0.912$, and $0.912 \times 0.91 = 0.82992$.
+So $\mathbf{P}(W) = 0.82992$ and $\mathbf{P}(W^c) = 1 - 0.82992 = 0.17008$. (A
+$2{,}000{,}000$-run simulation gives $0.8296$.)</p>
+
+<p><b>Step 3 &mdash; the conditional probability.</b> Because component $3$ is alone in its stage,
+$W_3^c$ <em>implies</em> $W^c$: if component 3 fails the system fails, regardless of the others.
+Therefore $\mathbf{P}(W_3^c \cap W^c) = \mathbf{P}(W_3^c) = 0.05$, and</p>
+<p>$$\mathbf{P}(W_3^c\mid W^c) = \frac{\mathbf{P}(W_3^c\cap W^c)}{\mathbf{P}(W^c)}
+ = \frac{0.05}{0.17008} = 0.2940 .$$</p>
+<p><b>Interpretation.</b> Component $3$ is by far the most reliable single part ($0.95$), yet it
+is responsible for nearly $30\%$ of system failures, because it has no backup. Redundancy, not
+per-part quality, is what the two parallel stages buy. (Simulation: $0.2927$.)</p>
+
+<p><b>Answer.</b> $\;$(a) $\mathbf{P}(W) = 0.82992$; (b) $\mathbf{P}(W_3^c\mid W^c)
+= 0.05/0.17008 \approx 0.2940$.</p>
+<p><b>Trap.</b> Multiplying within the parallel stages: $\;(0.8)(0.8) = 0.64$ is the probability
+that <em>both</em> components of stage 1 work, which is not what a parallel stage needs. Doing
+that everywhere gives $(0.8)(0.8)(0.95)(0.7)(0.7) = 0.29792$, a wildly pessimistic figure. Series
+means intersect (multiply the reliabilities); parallel means union (multiply the
+<em>un</em>reliabilities and subtract from one). A second slip in (b) is to compute
+$\mathbf{P}(W^c\mid W_3^c) = 1$ and report that: the question asks for the reverse conditional.</p>
+<p class="srcref">Tool: G1 &sect;3.4 (independence of a collection of events) &middot; G1 &sect;3.6 &middot; B&amp;T &sect;1.5</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q23" data-diff="3" data-topic="independence">
+<p><b>Q23.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span>
+ &middot; Independent, but not conditionally independent &middot; <span class="ref">G1 &sect;3.3</span></span></p>
+<p>A production line halts if either of two unrelated things happens on a given shift: a
+mechanical jam $J$, with $\mathbf{P}(J) = 0.10$, or a power dip $D$, with $\mathbf{P}(D) = 0.05$.
+The two causes arise independently, and the line halts if and only if at least one occurs; write
+$S = J \cup D$ for the halt.
+(a) Compute $\mathbf{P}(S)$, $\mathbf{P}(J\mid S)$ and $\mathbf{P}(D\mid S)$.
+(b) Show that $J$ and $D$ are <em>not</em> conditionally independent given $S$, by comparing
+$\mathbf{P}(J\cap D\mid S)$ with $\mathbf{P}(J\mid S)\mathbf{P}(D\mid S)$.
+(c) Compute $\mathbf{P}(J\mid S\cap D)$ and $\mathbf{P}(J\mid S\cap D^c)$ and interpret.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Unconditionally, $J$ and $D$ are independent by assumption:
+$\mathbf{P}(J\cap D) = (0.10)(0.05) = 0.005$. Conditional independence given a third event $C$
+means $\mathbf{P}(J\cap D\mid C) = \mathbf{P}(J\mid C)\mathbf{P}(D\mid C)$ (G1 &sect;3.3), a
+separate condition that neither implies nor is implied by independence.</p>
+
+<p><b>(a)</b> By inclusion&ndash;exclusion,</p>
+<p>$$\mathbf{P}(S) = \mathbf{P}(J) + \mathbf{P}(D) - \mathbf{P}(J\cap D)
+ = 0.10 + 0.05 - 0.005 = 0.145 .$$</p>
+<p>Since $J \subseteq S$ (a jam always halts the line), $J\cap S = J$, and likewise for $D$:</p>
+<p>$$\mathbf{P}(J\mid S) = \frac{0.10}{0.145} = \frac{20}{29} = 0.6897, \qquad
+\mathbf{P}(D\mid S) = \frac{0.05}{0.145} = \frac{10}{29} = 0.3448 .$$</p>
+<p>Both jump above their priors, as they must &mdash; a halt is evidence for each cause.</p>
+
+<p><b>(b)</b> Also $J\cap D \subseteq S$, so</p>
+<p>$$\mathbf{P}(J\cap D\mid S) = \frac{0.005}{0.145} = \frac{1}{29} = 0.03448 ,$$</p>
+<p>whereas the product of the conditionals is</p>
+<p>$$\mathbf{P}(J\mid S)\,\mathbf{P}(D\mid S) = (0.6897)(0.3448) = 0.2378 .$$</p>
+<p>These differ by a factor of nearly seven, so conditional independence fails badly, even though
+$\mathbf{P}(J\cap D) = 0.005 = (0.10)(0.05) = \mathbf{P}(J)\mathbf{P}(D)$ holds exactly.
+(A $3{,}000{,}000$-run simulation returns $\mathbf{P}(J\mid S) = 0.6883$ and
+$\mathbf{P}(J\cap D\mid S) = 0.0346$.)</p>
+
+<p><b>(c) Explaining away.</b> Given the halt <em>and</em> a confirmed power dip, the dip already
+accounts for the halt, so $S$ becomes uninformative:</p>
+<p>$$\mathbf{P}(J\mid S\cap D) = \frac{\mathbf{P}(J\cap D\cap S)}{\mathbf{P}(D\cap S)}
+ = \frac{\mathbf{P}(J\cap D)}{\mathbf{P}(D)} = \frac{0.005}{0.05} = 0.10 = \mathbf{P}(J),$$</p>
+<p>using $S \supseteq D$ so that $D\cap S = D$. Conversely, given the halt and <em>no</em> power
+dip, the jam is the only remaining explanation:</p>
+<p>$$\mathbf{P}(J\mid S\cap D^c) = \frac{\mathbf{P}(J\cap D^c)}{\mathbf{P}(S\cap D^c)}
+ = \frac{(0.10)(0.95)}{(0.95)(0.10)} = \frac{0.095}{0.095} = 1 .$$</p>
+<p><b>Interpretation.</b> Belief in a jam runs $0.10 \to 0.6897 \to 0.10$ as you learn first that
+the line halted, then that a dip occurred: the dip <em>explains away</em> the halt and returns the
+jam to its prior. Two causes that are independent a priori become dependent once a common
+consequence is observed; competing explanations of the same fact are always in tension.</p>
+
+<p><b>Answer.</b> $\;$(a) $\mathbf{P}(S) = 0.145$, $\mathbf{P}(J\mid S) = 20/29 \approx 0.6897$,
+$\mathbf{P}(D\mid S) = 10/29 \approx 0.3448$;
+(b) $1/29 \approx 0.03448$ against $0.2378$ &mdash; not conditionally independent;
+(c) $\mathbf{P}(J\mid S\cap D) = 0.10$ and $\mathbf{P}(J\mid S\cap D^c) = 1$.</p>
+<p><b>Trap.</b> Assuming that independent events stay independent under any conditioning, and
+writing $\mathbf{P}(J\cap D\mid S) = \mathbf{P}(J\mid S)\mathbf{P}(D\mid S) = 0.2378$. The
+conditioning event $S$ is a <em>common effect</em> of $J$ and $D$; conditioning on a common
+effect creates dependence, exactly as conditioning on a common cause destroys it (compare Q24,
+where the reverse pattern holds). Independence is a property of a probability law, and
+conditioning replaces the law.</p>
+<p class="srcref">Tool: G1 &sect;3.3 (conditional independence) &middot; G1 &sect;3.2 &middot; B&amp;T &sect;1.5</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q24" data-diff="2" data-topic="independence">
+<p><b>Q24.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+ &middot; Conditionally independent, but not independent &middot; <span class="ref">G1 &sect;3.3</span></span></p>
+<p>A patient drawn at random has a condition with probability $0.2$. Two diagnostic tests are run.
+Given the patient's true status, the two test results are independent, and each test is positive
+with probability $0.9$ on an affected patient and $0.1$ on an unaffected one. Let $T_1, T_2$ be
+the events that test 1, test 2 is positive.
+(a) Compute $\mathbf{P}(T_1)$ and $\mathbf{P}(T_1\cap T_2)$.
+(b) Are $T_1$ and $T_2$ independent? Quantify the dependence with
+$\mathbf{P}(T_2\mid T_1)$.
+(c) Explain in words why conditional independence given the patient's status does not make the
+results independent.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Let $C$ be &ldquo;has the condition&rdquo;, $\mathbf{P}(C) = 0.2$,
+$\mathbf{P}(C^c) = 0.8$. The modelling assumption is
+$\mathbf{P}(T_1\cap T_2\mid C) = \mathbf{P}(T_1\mid C)\mathbf{P}(T_2\mid C) = 0.9^2$ and likewise
+$\mathbf{P}(T_1\cap T_2\mid C^c) = 0.1^2$. This is conditional independence given each element of
+the partition $\{C, C^c\}$ &mdash; not independence.</p>
+
+<p><b>(a) Total probability theorem, twice.</b> For a single test,</p>
+<p>$$\mathbf{P}(T_1) = \mathbf{P}(C)\mathbf{P}(T_1\mid C) + \mathbf{P}(C^c)\mathbf{P}(T_1\mid C^c)
+ = (0.2)(0.9) + (0.8)(0.1) = 0.18 + 0.08 = 0.26 ,$$</p>
+<p>and by symmetry $\mathbf{P}(T_2) = 0.26$ as well. For both,</p>
+<p>$$\mathbf{P}(T_1\cap T_2) = (0.2)(0.9)^2 + (0.8)(0.1)^2 = (0.2)(0.81) + (0.8)(0.01)
+ = 0.162 + 0.008 = 0.17 .$$</p>
+
+<p><b>(b) Not independent.</b> Independence would require</p>
+<p>$$\mathbf{P}(T_1)\mathbf{P}(T_2) = (0.26)^2 = 0.0676 ,$$</p>
+<p>but the true joint probability is $0.17$, larger by a factor of
+$0.17/0.0676 = 2.515$. The conditional view makes the size of the effect vivid:</p>
+<p>$$\mathbf{P}(T_2\mid T_1) = \frac{\mathbf{P}(T_1\cap T_2)}{\mathbf{P}(T_1)}
+ = \frac{0.17}{0.26} = \frac{17}{26} = 0.6538 ,$$</p>
+<p>against an unconditional $\mathbf{P}(T_2) = 0.26$ &mdash; a first positive result multiplies
+the chance of a second by about $2.5$.</p>
+
+<p><b>(c) Why.</b> The two tests share an unknown: the patient's status. Conditional independence
+says that <em>once you know</em> whether the patient is affected, the first result tells you
+nothing further about the second &mdash; the residual randomness is just independent measurement
+noise. But you do not know the status. A positive first test is evidence that the patient is
+affected (indeed $\mathbf{P}(C\mid T_1) = 0.18/0.26 = 0.6923$, up from $0.2$), and an affected
+patient is far more likely to test positive again. The information flows from $T_1$ to $T_2$
+<em>through</em> the hidden variable $C$. Blocking the path by conditioning on $C$ removes the
+dependence; leaving $C$ unknown leaves it in place.</p>
+
+<p><b>Answer.</b> $\;$(a) $\mathbf{P}(T_1) = 0.26$, $\mathbf{P}(T_1\cap T_2) = 0.17$;
+(b) not independent &mdash; $0.17 \ne 0.26^2 = 0.0676$, and
+$\mathbf{P}(T_2\mid T_1) = 17/26 \approx 0.6538$;
+(c) the shared unknown status couples the two results.</p>
+<p><b>Trap.</b> Writing $\mathbf{P}(T_1\cap T_2) = 0.26^2 = 0.0676$ because &ldquo;the tests are
+independent&rdquo;. The tests are conditionally independent given $C$; that is a statement inside
+each branch of the tree, and averaging over branches destroys it. Concretely, $0.0676$ understates
+the truth by a factor of $2.5$ &mdash; and it is the same error that would make the two-positive
+Bayes update in Q17(c) meaningless. Q23 shows the opposite pattern: independent unconditionally,
+dependent once you condition. Neither property implies the other.</p>
+<p class="srcref">Tool: G1 &sect;3.3 (conditional independence) &middot; G1 &sect;2.3 (total probability) &middot; B&amp;T &sect;1.5</p>
+</div></details>
+</div>
+
+
+<div class="ex qcard" id="q25" data-diff="1" data-topic="independence">
+<p><b>Q25.</b> <span class="qmeta"><span class="stars">&#9733;</span>
+ &middot; Interpretation: independence means no information &middot; <span class="ref">G1 &sect;3.2</span></span></p>
+<p>A condition affects $5\%$ of a population. A proposed screening question is answered
+&ldquo;yes&rdquo; by $20\%$ of affected people and also by $20\%$ of unaffected people. Let $C$ be
+&ldquo;affected&rdquo; and $Y$ be &ldquo;answers yes&rdquo;.
+(a) Compute $\mathbf{P}(Y)$, $\mathbf{P}(C\mid Y)$ and $\mathbf{P}(C\mid Y^c)$.
+(b) Verify directly that $C$ and $Y$ are independent.
+(c) State what the likelihood ratio is here and what it says about the screening question's
+usefulness.</p>
+<details class="sol"><summary>Solution</summary><div class="body">
+<p><b>Setup.</b> Given: $\mathbf{P}(C) = 0.05$, $\mathbf{P}(C^c) = 0.95$, and
+$\mathbf{P}(Y\mid C) = \mathbf{P}(Y\mid C^c) = 0.20$.</p>
+
+<p><b>(a) Total probability theorem.</b></p>
+<p>$$\mathbf{P}(Y) = (0.05)(0.20) + (0.95)(0.20) = 0.010 + 0.190 = 0.20 .$$</p>
+<p>(As it must be: a weighted average of two equal numbers is that number.) Then by Bayes' rule</p>
+<p>$$\mathbf{P}(C\mid Y) = \frac{(0.05)(0.20)}{0.20} = \frac{0.010}{0.20} = 0.05 ,$$</p>
+<p>$$\mathbf{P}(C\mid Y^c) = \frac{\mathbf{P}(C)\mathbf{P}(Y^c\mid C)}{\mathbf{P}(Y^c)}
+ = \frac{(0.05)(0.80)}{0.80} = \frac{0.040}{0.80} = 0.05 .$$</p>
+<p>Both posteriors equal the prior $0.05$ exactly.</p>
+
+<p><b>(b) The product rule.</b> $\;\mathbf{P}(C\cap Y) = \mathbf{P}(C)\mathbf{P}(Y\mid C)
+= (0.05)(0.20) = 0.010$, while $\mathbf{P}(C)\mathbf{P}(Y) = (0.05)(0.20) = 0.010$. They agree, so
+$C$ and $Y$ are independent by definition (G1 &sect;3.2).</p>
+
+<p><b>(c) Likelihood ratio.</b>
+$\dfrac{\mathbf{P}(Y\mid C)}{\mathbf{P}(Y\mid C^c)} = \dfrac{0.20}{0.20} = 1$. In the odds form of
+Bayes' rule (Q18), the posterior odds equal the prior odds times the likelihood ratio, so a
+likelihood ratio of $1$ leaves the odds &mdash; and hence the probability &mdash; untouched. The
+question is diagnostically worthless: it partitions the population into a $20\%$ group and an
+$80\%$ group, but both groups have the same $5\%$ prevalence as the population at large. This is
+the operational content of independence: an observation is independent of a hypothesis exactly
+when observing it changes nothing you believe about the hypothesis.</p>
+
+<p><b>Answer.</b> $\;$(a) $\mathbf{P}(Y) = 0.20$ and
+$\mathbf{P}(C\mid Y) = \mathbf{P}(C\mid Y^c) = 0.05$; (b) $\mathbf{P}(C\cap Y) = 0.010
+= \mathbf{P}(C)\mathbf{P}(Y)$; (c) likelihood ratio $1$ &mdash; the question carries no
+information.</p>
+<p><b>Trap.</b> Reading &ldquo;$20\%$ of affected people say yes&rdquo; as though it were a
+positive finding and concluding that a &ldquo;yes&rdquo; raises suspicion. What makes a finding
+informative is not the size of $\mathbf{P}(Y\mid C)$ but the <em>gap</em> between
+$\mathbf{P}(Y\mid C)$ and $\mathbf{P}(Y\mid C^c)$. A test with sensitivity $0.20$ and
+false-positive rate $0.05$ would be useful (likelihood ratio $4$) despite missing most cases;
+this one, with sensitivity $0.20$ and false-positive rate $0.20$, is useless despite identical
+sensitivity.</p>
+<p class="srcref">Tool: G1 &sect;3.2 (independence; $\mathbf{P}(A\mid B) = \mathbf{P}(A)$) &middot; G1 &sect;2.4 &middot; B&amp;T &sect;1.5</p>
+</div></details>
+</div>

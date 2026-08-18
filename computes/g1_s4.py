@@ -326,6 +326,75 @@ rec("multinom_triples_n10_r3", sum(1 for a in range(11) for b in range(11 - a)))
 rec("multinom_6_321_seq_check", comb(6, 3) * comb(3, 2) * comb(1, 1))
 rec("fact_9_over_216", factorial(9) // 216)
 
+print()
+print("=" * 78)
+print("4.4  Stars and bars: unordered sampling WITH replacement (multisets)")
+print("=" * 78)
+from itertools import combinations, combinations_with_replacement, permutations, product
+
+# the bijection multiset  <->  arrangement of k stars and n-1 bars
+rec("multiset_formula_check",
+    all(len(list(combinations_with_replacement(range(n), k))) == comb(n + k - 1, k)
+        for n in range(1, 9) for k in range(0, 8)),
+    "brute-force enumeration vs C(n+k-1,k), all n<=8, k<=7")
+rec("multiset_3_2", comb(3 + 2 - 1, 2))
+rec("multiset_3_2_list", ["".join(str(x + 1) for x in t)
+                          for t in combinations_with_replacement(range(3), 2)])
+rec("multiset_6_6", comb(6 + 6 - 1, 6))
+rec("multiset_6_6_symmetry", comb(11, 6) == comb(11, 5))
+rec("multiset_stars_bars_symbols", [6, 5], "k = 6 stars, n-1 = 5 bars, 11 symbols in a row")
+rec("dice2_multisets", comb(2 + 6 - 1, 2), "unordered results of two dice")
+rec("dice2_ordered", 6 ** 2)
+rec("dice2_multiset_probs_unequal",
+    [str(Fraction(1, 36)), str(Fraction(2, 36))], "P({1,1}) vs P({1,2})")
+
+# the completed 2x2 sampling table, illustrated at n = 5, k = 3
+nT, kT = 5, 3
+rec("sampling_table_params", {"n": nT, "k": kT})
+rec("sampling_ordered_with", nT ** kT)
+rec("sampling_ordered_without", perm(nT, kT))
+rec("sampling_unordered_without", comb(nT, kT))
+rec("sampling_unordered_with", comb(nT + kT - 1, kT))
+rec("sampling_table_brute_check",
+    [len(list(product(range(nT), repeat=kT))) == nT ** kT,
+     len(list(permutations(range(nT), kT))) == perm(nT, kT),
+     len(list(combinations(range(nT), kT))) == comb(nT, kT),
+     len(list(combinations_with_replacement(range(nT), kT))) == comb(nT + kT - 1, kT)])
+rec("candies_10_among_4", comb(10 + 4 - 1, 10))
+rec("candies_10_among_4_positive", comb(9, 3))
+rec("candies_positive_brute",
+    sum(1 for a in range(1, 11) for b in range(1, 11 - a)
+        for c in range(1, 11 - a - b) if 10 - a - b - c >= 1))
+
+print()
+print("=" * 78)
+print("4.9  hypergeometric variance and the finite-population correction")
+print("=" * 78)
+pmfH = [hyper(nH, mH, kH, i) for i in range(kH + 1)]
+meanH = sum(i * p for i, p in enumerate(pmfH))
+varH = sum(i * i * p for i, p in enumerate(pmfH)) - meanH ** 2
+var_formula = (Fraction(kH) * Fraction(mH, nH) * (1 - Fraction(mH, nH))
+               * Fraction(nH - kH, nH - 1))
+rec("hyper_var_from_pmf_frac", str(varH))
+rec("hyper_var_from_pmf", round(float(varH), 6))
+rec("hyper_var_formula_frac", str(var_formula))
+rec("hyper_var_formula", round(float(var_formula), 6))
+rec("hyper_var_matches", varH == var_formula)
+rec("hyper_binom_var_frac", str(Fraction(kH) * Fraction(mH, nH) * (1 - Fraction(mH, nH))))
+rec("hyper_binom_var", round(float(Fraction(kH) * Fraction(mH, nH) * (1 - Fraction(mH, nH))), 6))
+rec("hyper_fpc_frac", str(Fraction(nH - kH, nH - 1)))
+rec("hyper_fpc", round((nH - kH) / (nH - 1), 6))
+rec("hyper_fpc_k1", Fraction(nH - 1, nH - 1) == 1, "k = 1 kills the correction")
+rec("hyper_fpc_kn", float(Fraction(nH - nH, nH - 1)), "k = n kills the variance")
+# variance of the with-replacement (binomial) cousin, drawn in the widget
+rec("hyper_var_ratio_is_fpc", varH / (Fraction(kH) * Fraction(mH, nH) * (1 - Fraction(mH, nH)))
+    == Fraction(nH - kH, nH - 1))
+# same comparison for the components batch of Practice 4.16
+rec("pq_hyper_defect_var",
+    round(float(Fraction(4) * Fraction(3, 20) * (1 - Fraction(3, 20)) * Fraction(16, 19)), 6))
+rec("pq_hyper_defect_binom_var", round(float(Fraction(4) * Fraction(3, 20) * (1 - Fraction(3, 20))), 6))
+rec("pq_hyper_defect_fpc_frac", str(Fraction(16, 19)))
+
 with open("d:/Python-UV/MIT_Applied_Prob/computes/g1_s4.json", "w", encoding="utf-8") as f:
     json.dump(R, f, indent=1, default=str)
 print("\nwrote computes/g1_s4.json")

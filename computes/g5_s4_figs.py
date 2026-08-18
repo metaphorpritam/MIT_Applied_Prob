@@ -501,8 +501,38 @@ def fig_rec19_f():
     save(fig, "rec19_f")
 
 
+# =====================================================================
+# Fig 4.11 - random-walk sample paths: symmetric vs drifting
+# =====================================================================
+def fig_randomwalk():
+    n = 200
+    rng = np.random.default_rng(4711)
+    fig, axes = plt.subplots(1, 2, figsize=(9.8, 4.0), sharey=True)
+    steps = np.arange(n + 1)
+    for ax, p, title in ((axes[0], 0.50, "symmetric  $p=1/2$:  no drift"),
+                         (axes[1], 0.60, "drifting  $p=0.6$:  $\mathbb{E}[\mathrm{step}]=p-q=0.2$")):
+        for k in range(7):
+            inc = np.where(rng.random(n) < p, 1, -1)
+            path = np.concatenate([[0], np.cumsum(inc)])
+            ax.plot(steps, path, color=PAL[k % 8], lw=1.1, alpha=0.85)
+        ax.axhline(0, color=AXIS_C, lw=1.0)
+        ax.plot(steps, (2 * p - 1) * steps, color=INK, lw=1.8, ls="--",
+                label="mean $(p-q)\,n$")
+        sd = np.sqrt(4 * p * (1 - p) * steps)
+        ax.plot(steps, (2 * p - 1) * steps + sd, color=MUTED, lw=1.2, ls=":",
+                label="mean $\pm\,\sqrt{4pq\,n}$")
+        ax.plot(steps, (2 * p - 1) * steps - sd, color=MUTED, lw=1.2, ls=":")
+        ax.set_title(title)
+        ax.set_xlabel("number of steps $n$")
+        ax.legend(loc="upper left")
+    axes[0].set_ylabel("position $X_n$")
+    axes[0].set_ylim(-38, 62)
+    fig.tight_layout()
+    save(fig, "randomwalk")
+
+
 for f in (fig_firststep, fig_chain_abs, fig_chain_time, fig_recipe, fig_spiderfly,
           fig_gambler_chain, fig_gambler_curves, fig_rec19_chain, fig_rec19_cond,
-          fig_rec19_f):
+          fig_rec19_f, fig_randomwalk):
     f()
 print("done")
