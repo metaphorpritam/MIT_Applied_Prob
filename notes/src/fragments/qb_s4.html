@@ -91,6 +91,7 @@ $$\operatorname{var}(X\mid Y=1)=1,\quad \operatorname{var}(X\mid Y=2)=4,\quad \o
 Dependence is visible in the PMF: $\mathbf{P}(X=2)=0.5\times0.5=0.25$ but $\mathbf{P}(X=2\mid Y=1)=0$. Since $0\ne0.25$, $X$ and $Y$ are dependent. (What <em>does</em> follow from a constant $\mathbb{E}[X\mid Y]$ is $\operatorname{cov}(X,Y)=0$ &mdash; uncorrelated, not independent.)</p>
 <p><b>(c) True.</b> $\operatorname{var}(X\mid Y=y)\ge0$ for every $y$, so an average of zero forces $\operatorname{var}(X\mid Y=y)=0$ for every $y$ that occurs with positive probability. A random variable with zero variance is a constant, so given $Y=y$ the value of $X$ is pinned to the single number $\mathbb{E}[X\mid Y=y]=g(y)$. Hence $X=g(Y)$ almost surely, and then $\operatorname{var}(X)=\operatorname{var}(\mathbb{E}[X\mid Y])$: all of the variance is between-group.</p>
 <p><b>Answer.</b> $\;$(a) True. (b) False &mdash; constant conditional mean gives $\operatorname{cov}=0$, not independence; the counterexample has $\operatorname{var}(X)=2.5$ with all of it within-group. (c) True.</p>
+<p><b>Trap.</b> Answering (b) "True" on the ground that a constant $\mathbb{E}[X\mid Y]$ means $Y$ tells you nothing about $X$. It tells you nothing about the <em>mean</em> of $X$ &mdash; which is exactly why $\operatorname{cov}(X,Y)=0$ &mdash; but in the counterexample $\mathbf{P}(X=2)=0.25$ while $\mathbf{P}(X=2\mid Y=1)=0$, so $Y$ still controls the spread. Uncorrelated is the most you may conclude; independence is the wrong answer.</p>
 <p class="srcref">Tool: G4 &sect;1.3 (total variance; nonnegativity of each term) &middot; G3 &sect;4 (uncorrelated $\ne$ independent) &middot; B&amp;T &sect;4.3</p>
 </div></details>
 </div>
@@ -110,6 +111,7 @@ $$\underbrace{\mathbb{E}[N]\operatorname{var}(X)}_{120\times36\;=\;4320}+\underb
 so $\sigma_Y=\sqrt{43\,520}=208.614477$ dollars.</p>
 <p><b>(b) Which term wins.</b> The count term is $39\,200/43\,520=0.900735$, i.e. $90.07\%$ of the variance. Uncertainty in <em>how many</em> customers show up dominates uncertainty in <em>what each one spends</em>, because the per-customer noise averages out across $120$ customers while the count noise is multiplied by the full mean ticket $\mathbb{E}[X]=14$. A $60\,000$-day simulation gives $\mathbb{E}[Y]\approx1681.35$ and $\operatorname{var}(Y)\approx43\,389$.</p>
 <p><b>Answer.</b> $\;\mathbb{E}[Y]=\$1680$, $\;\operatorname{var}(Y)=4320+39\,200=43\,520$ ($\sigma_Y=\$208.61$); the customer count supplies $90.07\%$ of the variance.</p>
+<p><b>Trap.</b> Multiplying the two variances, $\operatorname{var}(N)\operatorname{var}(X)=200\times36=7200$, or keeping only the first term, $\mathbb{E}[N]\operatorname{var}(X)=4320$. Neither is $43\,520$: the count term carries $(\mathbb{E}[X])^2=196$, not $\operatorname{var}(X)$, and dropping it discards the $90.07\%$ of the variance that part (b) is about.</p>
 <p class="srcref">Tool: G4 &sect;2.2 (mean and variance of a random sum) &middot; B&amp;T &sect;4.4</p>
 </div></details>
 </div>
@@ -247,6 +249,7 @@ so $\sigma_T=\sqrt{17.1875}=4.145781$ tosses. A $2\times10^5$-game simulation gi
 <br>Total $\mathbf{P}(T=2)=0.06+0.04=0.10$. The simulation gives $0.100055$.</p>
 <p><b>(c) Why the shortcut fails.</b> Replacing the random $K$ by its mean destroys exactly the term $(\mathbb{E}[X])^2\operatorname{var}(K)=7.8125$. A Pascal variable with a fixed $k=2.5$ heads would have variance $2.5\times3.75=9.375$, understating the true $17.1875$ by $45\%$ &mdash; and it is not even a legal distribution, since $k$ must be a positive integer. More generally, plugging a mean into a nonlinear place is the error $\mathbb{E}[g(K)]\ne g(\mathbb{E}[K])$; here the variance is linear in $k$ but the <em>randomness</em> of $k$ contributes separately.</p>
 <p><b>Answer.</b> $\;\mathbb{E}[T]=6.25$, $\;\operatorname{var}(T)=9.375+7.8125=17.1875$ ($\sigma_T=4.145781$), $\;\mathbf{P}(T=2)=0.10$.</p>
+<p><b>Trap.</b> In (b), adding the two conditional probabilities unweighted: $0.24+0.16=0.400000$. Those two numbers are $\mathbf{P}(T=2\mid K=1)$ and $\mathbf{P}(T=2\mid K=2)$; total probability multiplies each by $\mathbf{P}(K=k)=0.25$ before adding, which is what turns $0.40$ into the correct $0.10$. A conditional probability is not the probability of the intersection.</p>
 <p class="srcref">Tool: G4 &sect;2.2 (random sums), &sect;2.4&ndash;2.5 (geometric interarrivals, Pascal) &middot; B&amp;T &sect;4.4, &sect;6.1</p>
 </div></details>
 </div>
@@ -276,8 +279,8 @@ $$\mathbf{P}=\underbrace{0.251021}_{\text{2 in first}}\times\underbrace{e^{-1.5}
 </div></details>
 </div>
 
-<div class="ex qcard" id="q85" data-diff="2" data-topic="poisson-process">
-<p><b>Q85.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+<div class="ex qcard" id="q85" data-diff="1" data-topic="poisson-process">
+<p><b>Q85.</b> <span class="qmeta"><span class="stars">&#9733;</span>
  &middot; Exponential interarrivals, memorylessness &middot; <span class="ref">G4 &sect;3.3</span></span></p>
 <p>Emergency calls reach a dispatcher as a Poisson process with rate $\lambda=5$ per hour. Let $T$ be the time until the next call, measured in minutes from now.</p>
 <p>(a) State the distribution of $T$ and its mean. &nbsp; (b) Find $\mathbf{P}(T&gt;20)$. &nbsp; (c) Eight minutes pass with no call. Find the probability of a further wait exceeding $20$ minutes, and the expected further wait. &nbsp; (d) Find $\mathbf{P}(5&lt;T&lt;15)$.</p>
@@ -383,12 +386,13 @@ $$\mathbf{P}(N_S=5,N_L=20)=0.160623\times0.079804=0.012818 .$$
 Cross-check by the conditional route: $\mathbf{P}(N=25)\mathbf{P}(\text{Bin}(25,0.25)=5)=0.077905\times0.164538=0.012818$. &#10003; A $2\times10^6$-window simulation gives $0.012845$, and the sample covariance of $(N_S,N_L)$ is $-0.002$, i.e. zero to simulation noise.</p>
 <p><b>(c) Resolving the objection.</b> The objection would be right if $N$ were <em>fixed</em>: given $N=25$, indeed $N_L=25-N_S$ and the correlation is $-1$. But $N$ is itself random and Poisson. A larger $N_S$ is evidence of a busier window, which raises the expected $N_L$ too; this positive effect through $N$ exactly cancels the negative "shares of a fixed pie" effect, leaving $\operatorname{cov}(N_S,N_L)=0$. The cancellation is exact only for the Poisson total &mdash; that is the special property of Poisson splitting. (Check with total variance: $\operatorname{var}(N)=24=\operatorname{var}(N_S)+\operatorname{var}(N_L)+2\operatorname{cov}=6+18+0$. &#10003;)</p>
 <p><b>Answer.</b> $\;$(a) $N_S\sim$ Poisson($6$) and $N_L\sim$ Poisson($18$), independent. (b) $0.012818$. (c) Conditionally on $N$ they are perfectly negatively dependent, but the randomness of the Poisson total exactly offsets it, giving $\operatorname{cov}(N_S,N_L)=0$ and full independence.</p>
+<p><b>Trap.</b> Answering (c) by computing the covariance <em>after</em> fixing the total: with $N=25$ held fixed, $N_L=25-N_S$ gives $\operatorname{cov}(N_S,N_L\mid N=25)=-\operatorname{var}(N_S\mid N=25)=-25(0.25)(0.75)=-4.687500$ and a correlation of exactly $-1$. That is a genuine number, but it answers a conditional question; the unconditional covariance the student was arguing about is $0$.</p>
 <p class="srcref">Tool: G4 &sect;4.3 (splitting a Poisson process) &middot; G2 &sect;4 (independence via factorization of a joint PMF) &middot; B&amp;T &sect;6.2</p>
 </div></details>
 </div>
 
-<div class="ex qcard" id="q90" data-diff="2" data-topic="merging-splitting">
-<p><b>Q90.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+<div class="ex qcard" id="q90" data-diff="1" data-topic="merging-splitting">
+<p><b>Q90.</b> <span class="qmeta"><span class="stars">&#9733;</span>
  &middot; Splitting, then merging &middot; <span class="ref">G4 &sect;4.2&ndash;4.3</span></span></p>
 <p>Emails reach inbox 1 as a Poisson process of rate $10$ per hour; each is independently urgent with probability $0.20$. Inbox 2 receives an independent Poisson stream at $4$ per hour.</p>
 <p>(a) Find the probability of exactly $4$ urgent emails in a $3$-hour window. &nbsp; (b) Given that exactly $8$ emails arrived in inbox 1 during one particular hour, find the probability that exactly $2$ of them were urgent. &nbsp; (c) Considering both inboxes together, find the mean time between consecutive emails and the probability that the next email is from inbox 1.</p>
@@ -488,6 +492,7 @@ whereas a Poisson($41$) would give $e^{-41}=1.562882\times10^{-18}$ &mdash; nine
 <p><b>(iv) Law of total variance</b> (G4 &sect;1.3): $\operatorname{var}(X)=\mathbb{E}[\operatorname{var}(X\mid C)]+\operatorname{var}(\mathbb{E}[X\mid C])$, with $C$ the class. The first term is the within-class scatter, the second the spread of the class averages &mdash; exactly the split being asked for.</p>
 <p><b>(v) Memorylessness / fresh start</b> (G4 &sect;3.3, &sect;2.4). The additional wait of a Poisson process, given any elapsed silence, is exponential with the original rate; the silent $10$ minutes carry no information.</p>
 <p><b>Answer.</b> $\;$(i) iterated expectations; (ii) random-sum variance formula; (iii) random incidence / length bias; (iv) law of total variance; (v) memorylessness of the exponential (fresh start).</p>
+<p><b>Trap.</b> The two tempting mis-picks. In (iii), reaching for the ordinary mean gap $\mathbb{E}[X]$ &mdash; that is the average over intervals, whereas arriving at a random <em>time</em> gives $\mathbb{E}[L]=\mathbb{E}[X^2]/\mathbb{E}[X]$, strictly larger unless every gap is the same length. In (v), reasoning that ten silent minutes make a call "overdue" and shorten the remaining wait &mdash; memorylessness says the additional wait is exponential with the <em>original</em> mean $1/\lambda$, neither shorter nor longer.</p>
 <p class="srcref">Tool: G4 &sect;5.1 (the conditioning toolkit on one page) &middot; B&amp;T &sect;4.3&ndash;4.4, &sect;6.1&ndash;6.2</p>
 </div></details>
 </div>

@@ -1,4 +1,5 @@
 <h2 id="qb-s7">&sect;7 &nbsp; Classical statistical inference</h2>
+<p class="srcref">Drills G7 &sect;1&ndash;&sect;5 &middot; Bertsekas&ndash;Tsitsiklis &sect;9.1&ndash;&sect;9.3 &middot; every number recomputed in <code>computes/qb_s7.py</code></p>
 
 <p>Sixteen problems on the classical half of the course: treating the unknown as a
 fixed constant and letting the <em>data</em> be the only random thing. They drill the
@@ -63,7 +64,7 @@ $\mathrm{MSE}(\hat B_{25})=9.16$. (c) Neither unbiased; only $\hat A_n$ is
 asymptotically unbiased and consistent. (d)
 $\mathrm{MSE}(\hat A_{100})=0.0409$; the variance drops like $1/n$, the squared
 bias like $1/n^2$.</p>
-<p><i>Trap.</i> "$\hat B_n$ has small variance, so it is a good estimator." Variance
+<p><b>Trap.</b> "$\hat B_n$ has small variance, so it is a good estimator." Variance
 alone is not quality: the constant estimator $\hat\Theta_n\equiv0$ has variance $0$
 and is useless. MSE is the honest scorecard because it charges you for bias too.</p>
 <p class="srcref">Tool: G7 &sect;1.1 (bias, consistency), &sect;1.2 (MSE decomposition),
@@ -109,8 +110,11 @@ sample variance $1.14867$ &mdash; matching both claims.) For the sample mean,
 $$\operatorname{var}(M_{10})=\frac{v}{n}=\frac{9}{10}=0.9 .$$
 Both estimators are unbiased, so MSE $=$ variance for both, and the ratio is
 $$\frac{0.1272727}{0.1}=1.2727 .$$
-The weighted estimator has $27.3\%$ more MSE. Getting the same precision from it
-would need about $27\%$ more data.</p>
+The weighted estimator has $27.3\%$ more MSE. Because that variance is
+$\frac{2(2n+1)}{3n(n+1)}v$ and <em>not</em> proportional to $1/n$, the extra data it
+needs is not the same $27.3\%$: solving $\frac{2(2m+1)}{3m(m+1)}=\frac{1}{10}$ gives
+$m=12.8521$, i.e. about $29\%$ more readings (computes key
+<code>Q136_m_for_equal_precision</code>; the penalty rises to $\tfrac13$ as $n$ grows).</p>
 <p><b>Step 4 &mdash; consistency.</b> $\hat\Theta_n$ is unbiased and
 $\operatorname{var}(\hat\Theta_n)=\frac{2(2n+1)}{3n(n+1)}v\to0$ as $n\to\infty$
 (the numerator grows like $n$, the denominator like $n^2$; at $n=100$ the coefficient
@@ -121,7 +125,7 @@ $\hat\Theta_n$ is consistent.</p>
 $\operatorname{var}(\hat\Theta_n)=\dfrac{2(2n+1)}{3n(n+1)}v$; at $n=10,v=9$ its
 variance is $1.1454545$ against $0.9$ for $M_{10}$, i.e. $1.2727$ times larger; it is
 consistent.</p>
-<p><i>Trap.</i> "Unbiased and consistent, so it is as good as the sample mean."
+<p><b>Trap.</b> "Unbiased and consistent, so it is as good as the sample mean."
 Unbiasedness is a statement about the center of the sampling distribution, not its
 width. Among all unbiased linear estimators $\sum w_iX_i$ with $\sum w_i=1$, the
 variance $v\sum w_i^2$ is minimized by the <em>equal</em> weights $w_i=1/n$ &mdash;
@@ -196,7 +200,7 @@ Q135's $\hat B_n$) destroys consistency outright.</p>
 $\mathrm{MSE}(M)=0.0222222\theta^2$,
 $\mathrm{MSE}(\text{unbiased})=0.0125\theta^2$,
 $\mathrm{MSE}(c^\star M)=0.0123457\theta^2$ &mdash; the biased estimator wins.</p>
-<p><i>Trap.</i> A careless reader sets $c^\star=\mathbb{E}[M]/\mathbb{E}[M^2]$ and
+<p><b>Trap.</b> A careless reader sets $c^\star=\mathbb{E}[M]/\mathbb{E}[M^2]$ and
 stops, worried that the answer depends on $\theta$. It does not: the numerator carries
 $\theta^2$ and so does the denominator. Had they not cancelled, $c^\star$ would be an
 oracle quantity, not an estimator &mdash; exactly the failure that sinks the
@@ -254,9 +258,9 @@ $$z\sqrt{\frac{1}{4n}}\le0.02
 Sample sizes are integers and the inequality must hold, so round <em>up</em>:
 $n=2401$. Check: $1.9599640\sqrt{0.25/2401}=0.0199996\le0.02$. $\checkmark$</p>
 <p><b>Answer.</b> $\;$(a) $\max_\theta\theta(1-\theta)=\tfrac14$ at $\theta=\tfrac12$.
-(b) conservative $[0.0873,\,0.1527]$, plug-in $[0.0988,\,0.1412]$.
+(b) conservative $[0.0873,\,0.1527]$, plug-in <span style="white-space:nowrap">$[0.0988,\,0.1412]$.</span>
 (c) $n=2401$.</p>
-<p><i>Trap.</i> Rounding $2400.91$ down to $2400$, or &mdash; worse &mdash; using the
+<p><b>Trap.</b> Rounding $2400.91$ down to $2400$, or &mdash; worse &mdash; using the
 plug-in variance for the design calculation. You do not have $\hat\theta_n$ before you
 sample; using a guessed $\theta=0.12$ would give $n=\lceil z^2(0.1056)/0.0004\rceil=1015$,
 and if the true rate turned out to be near $\tfrac12$ the delivered margin would be
@@ -319,7 +323,7 @@ twenty intervals misses &mdash; and there is no way to tell which. For reference
 $\mathbf{P}(N=19)=0.3773536$ and $\mathbf{P}(N\le18)=0.2641605$.</p>
 <p><b>Answer.</b> $\;$(i) F, (ii) T, (iii) F, (iv) F; (v) $\mathbb{E}[N]=19$;
 (vi) $0.95^{20}=0.3584859$.</p>
-<p><i>Trap.</i> Reading (vi) as "$95\%$ of $20$ intervals contain $\theta$, so the answer
+<p><b>Trap.</b> Reading (vi) as "$95\%$ of $20$ intervals contain $\theta$, so the answer
 is certain to be $19$." $19$ is the <em>expected</em> count; the standard deviation is
 $\sqrt{20(0.95)(0.05)}=0.9747$, and the single most likely outcome ($0.3774$) is
 indeed $19$, but $20$ is nearly as likely and values of $18$ or below carry $26.4\%$ of
@@ -384,7 +388,7 @@ interval in name only. This is the difference between a bound and a guess.</p>
 $\tfrac12\delta_0+\tfrac12\delta_{10}$; (b) $n=664$; (c) $\sigma=10$ gives $n=2654$
 (valid but $4\times$ wasteful), the uniform assumption gives $n=222$ (invalid &mdash; an
 unjustified distributional assumption, not a bound).</p>
-<p><i>Trap.</i> Reaching for the Bernoulli $\tfrac14$ bound directly. That bound is
+<p><b>Trap.</b> Reaching for the Bernoulli $\tfrac14$ bound directly. That bound is
 $\operatorname{var}\le\tfrac14$ for a variable on $[0,1]$; the general statement is
 $\operatorname{var}\le(b-a)^2/4$ for support $[a,b]$, and forgetting to rescale by
 $(b-a)^2=100$ would give $n=\lceil(2.5758293\times0.5/0.5)^2\rceil=7$ &mdash; off by two
@@ -438,7 +442,7 @@ The data are about $12.2$ times more likely under $\hat\theta=0.325$ than under 
 fair-coin machine.</p>
 <p><b>Answer.</b> $\;\hat\theta=0.325$; $\widehat{\text{odds}}=0.4814815$;
 $\widehat{\theta^2}=0.105625$; likelihood ratio $=12.2148$.</p>
-<p><i>Trap.</i> Reading the $12.2$ as "the machine is $12.2$ times more likely to have
+<p><b>Trap.</b> Reading the $12.2$ as "the machine is $12.2$ times more likely to have
 $\theta=0.325$ than $\theta=0.5$." Likelihoods are probabilities <em>of the data</em>,
 not of the parameter; converting them into statements about $\theta$ requires a prior
 (G6 &sect;3). A second trap: estimating the odds by rerunning the maximization in a new
@@ -493,7 +497,7 @@ $$z=\frac{11-10.1}{0.6099180}=\frac{0.9}{0.6099180}=1.4756081,\qquad
 <p><b>Answer.</b> $\;\hat\mu_{\text{ML}}=10.1$, $\hat v_{\text{ML}}=0.372$;
 $\hat s_n^2=0.465=\frac{n}{n-1}\hat v_{\text{ML}}$;
 $\widehat{\mathbf{P}}(X&gt;11)=0.0700246$.</p>
-<p><i>Trap.</i> Using $\hat s_n^2=0.465$ in Step 4 "because it is the unbiased one."
+<p><b>Trap.</b> Using $\hat s_n^2=0.465$ in Step 4 "because it is the unbiased one."
 The invariance principle applies to the <em>ML</em> estimates; substituting $0.465$
 gives $1-\Phi(0.9/0.6819091)=1-\Phi(1.3198240)=0.0934469$, a $33.4\%$ larger answer, and
 it is the ML estimate of nothing. (Note also that unbiasedness is not preserved by nonlinear
@@ -559,7 +563,7 @@ too), whereas here it is a <em>shift</em> (which does not), so removing the bias
 profit.</p>
 <p><b>Answer.</b> $\;\hat\theta_{\text{ML}}=3.2$; bias $=+1/n=0.2$; unbiased estimator
 $\min_iX_i-1/n=3.0$; MSEs $0.08$ and $0.04$ respectively.</p>
-<p><i>Trap.</i> Writing $\ell(\theta)=n\theta-\sum_ix_i$ <em>without</em> the constraint
+<p><b>Trap.</b> Writing $\ell(\theta)=n\theta-\sum_ix_i$ <em>without</em> the constraint
 and concluding "no maximum, $\hat\theta=+\infty$." The constraint region is part of the
 likelihood; dropping it loses the entire answer. The mirror-image trap is answering
 $\bar x=20.4/5=4.08$ because "the mean of the model is $\theta+1$, so
@@ -632,7 +636,7 @@ it would have returned $1.0$ had all six landed heads, asserting that tails is
 impossible on the evidence of six tosses.</p>
 <p><b>Answer.</b> $\;$ML $=5/6=0.8333333$; MAP (flat) $=5/6=0.8333333$;
 MAP (prior $\propto\theta(1-\theta)$) $=0.75$; posterior mean (flat) $=(k+1)/(n+2)=0.75$.</p>
-<p><i>Trap.</i> "A flat prior makes everything Bayesian collapse to the classical answer."
+<p><b>Trap.</b> "A flat prior makes everything Bayesian collapse to the classical answer."
 Only the <em>mode</em> collapses. The posterior mean under the same flat prior is
 $0.75$, differing from ML by $0.0833$; the posterior variance, credible intervals and
 predictive distribution have no classical counterpart at all. A flat prior kills the
@@ -689,8 +693,8 @@ $$\sum_ix_ie_i=1(0.04)+2(-0.13)+3(0.20)+4(-0.17)+5(0.06)
 Both vanish, as they must: they <em>are</em> the two normal equations
 $\partial Q/\partial\theta_0=0$ and $\partial Q/\partial\theta_1=0$ rewritten.</p>
 <p><b>Step 5 &mdash; SSE and $R^2$.</b> Directly,
-$$\mathrm{SSE}=0.04^2+0.13^2+0.20^2+0.17^2+0.06^2
-=0.0016+0.0169+0.0400+0.0289+0.0036=0.0910 .$$
+$$\begin{aligned}\mathrm{SSE}&=0.04^2+0.13^2+0.20^2+0.17^2+0.06^2\
+&=0.0016+0.0169+0.0400+0.0289+0.0036=0.0910 .\end{aligned}$$
 The shortcut of &sect;3.3 agrees without forming residuals:
 $\mathrm{SSE}=S_{yy}-S_{xy}^2/S_{xx}=38.90-19.7^2/10=38.90-38.809=0.091$. $\checkmark$
 Then
@@ -699,7 +703,7 @@ $$R^2=1-\frac{\mathrm{SSE}}{S_{yy}}=1-\frac{0.091}{38.90}=1-0.0023393=0.9976607 
 <p><b>Answer.</b> $\;\hat\theta_0=0.09$, $\hat\theta_1=1.97$;
 residuals $(0.04,-0.13,0.20,-0.17,0.06)$ with both identities $=0$;
 $\mathrm{SSE}=0.091$, $R^2=0.9976607$; $\hat y(6)=11.91$.</p>
-<p><i>Trap.</i> Computing $\hat\theta_0$ as $\bar y - \hat\theta_1$ (forgetting $\bar x$),
+<p><b>Trap.</b> Computing $\hat\theta_0$ as $\bar y - \hat\theta_1$ (forgetting $\bar x$),
 which gives $6.0-1.97=4.03$ &mdash; a line missing every data point. The intercept
 formula exists precisely to force the line through the centroid $(\bar x,\bar y)=(3,6)$,
 and indeed $\hat y(3)=0.09+5.91=6.00=\bar y$.</p>
@@ -761,7 +765,7 @@ $\hat\theta_1=1.97$, not $1.9945455$.
 $\mathrm{SSE}=0.0983636&gt;0.0910$.
 (c) The reported line minimizes no criterion at all and violates both residual
 identities.</p>
-<p><i>Trap.</i> Concluding "the two slopes are close, so it does not matter." The gap
+<p><b>Trap.</b> Concluding "the two slopes are close, so it does not matter." The gap
 here is small only because $\hat\theta_0=0.09$ is nearly zero. Shift every $y_i$ up by
 $50$: the correct slope stays $1.97$ (a vertical shift changes only the intercept), while
 $\sum x_iy_i/\sum x_i^2$ jumps to $(109.7+50\cdot15)/55=15.63$ &mdash; a factor of eight
@@ -828,7 +832,7 @@ from $y$, refit the other way; and neither is a statement that changing $x$
 $\hat y(12)=23.73$ is arithmetic, not evidence; the $95\%$ slope interval is
 $[1.7947245,\ 2.1452755]$; regressing $x$ on $y$ gives slope $0.5064267$, and
 $\hat\theta_1\hat\beta_1=R^2=0.9976607$.</p>
-<p><i>Trap.</i> The tempting answer is that (ii) is true "because the model is linear."
+<p><b>Trap.</b> The tempting answer is that (ii) is true "because the model is linear."
 The model is linear <em>by assumption</em>, and the assumption was only ever tested where
 data exist. A fitted line is an interpolation device with an extrapolation-shaped
 formula.</p>
@@ -871,10 +875,10 @@ $L(0)=(0.7777778)^{10}=0.0810131$, $L(2)=1.2052767$ and $L(3)=4.6489243$: the ra
 crosses $1$ between $k=1$ and $k=2$.</p>
 <p><b>Step 3 &mdash; calibrating to $\alpha\le0.05$.</b> Compute upper tails under $H_0$
 ($p=0.1$):
-$$\mathbf{P}(X\ge2)=0.2639011,\quad
-\mathbf{P}(X\ge3)=0.0701908,\quad
-\mathbf{P}(X\ge4)=0.0127952,\quad
-\mathbf{P}(X\ge5)=0.0016349 .$$
+$$\begin{aligned}
+\mathbf{P}(X\ge2)&=0.2639011, &\qquad \mathbf{P}(X\ge3)&=0.0701908,\
+\mathbf{P}(X\ge4)&=0.0127952, &\qquad \mathbf{P}(X\ge5)&=0.0016349 .
+\end{aligned}$$
 The smallest threshold whose tail does not exceed $0.05$ is $k=4$, since
 $\mathbf{P}(X\ge3)=0.0701908&gt;0.05$ while $\mathbf{P}(X\ge4)=0.0127952\le0.05$.
 So $R=\{X\ge4\}$ and $\alpha=0.0127952$.</p>
@@ -894,7 +898,7 @@ but at $\alpha=0.0702$.</p>
 <p><b>Answer.</b> $\;L(k)=3^k(7/9)^{10-k}$, increasing in $k$; $L(4)=17.9315653$;
 $R=\{X\ge4\}$ with $\alpha=0.0127952$ and $\beta=0.6496107$ (power $0.3503893$);
 exact $\alpha=0.05$ is unattainable because $X$ is discrete.</p>
-<p><i>Trap.</i> Choosing $k=3$ "because $0.0702$ is closer to $0.05$ than $0.0128$ is."
+<p><b>Trap.</b> Choosing $k=3$ "because $0.0702$ is closer to $0.05$ than $0.0128$ is."
 Closeness is not the criterion &mdash; the level is a promise, an upper bound on the
 false-rejection rate, and $0.0702&gt;0.05$ breaks it. A second trap: reporting
 $\beta=1-\alpha=0.987$. $\alpha$ and $\beta$ are computed under <em>different</em>
@@ -954,7 +958,7 @@ roughly four times her sample.</p>
 <p><b>Answer.</b> $\;c=0.5482845$; $\beta=0.5575868$ (power $0.4424132$); "we conclude
 $\mu=0$" is wrong &mdash; the correct statement is "insufficient evidence to reject at the
 $5\%$ level"; $n=35$ gives $\beta\le0.10$.</p>
-<p><i>Trap.</i> "Not rejecting at $\alpha=0.05$ means $\mathbf{P}(H_0)=0.95$." There is no
+<p><b>Trap.</b> "Not rejecting at $\alpha=0.05$ means $\mathbf{P}(H_0)=0.95$." There is no
 probability attached to $H_0$ in classical inference &mdash; $\mu$ is a constant, not a
 random variable. Attaching one requires a prior and turns the problem into the Bayesian
 MAP comparison of G6 &sect;3. A second trap: reading $\alpha=0.05$ as if it bounded the
@@ -1026,8 +1030,10 @@ thresholds:</p>
 0.05 &amp; 15.7052164 &amp; 0.2652645 &amp; 0.7347355\\
 0.01 &amp; 18.7831174 &amp; 0.4640388 &amp; 0.5359612
 \end{array}$$</p>
-<p>At fixed $n$, moving $\xi$ right shrinks the $H_0$ tail and grows the $H_1$ one: every
-factor-of-five reduction in $\alpha$ here roughly doubles $\beta$. There is no threshold
+<p>At fixed $n$, moving $\xi$ right shrinks the $H_0$ tail and grows the $H_1$ one: halving
+$\alpha$ from $0.10$ to $0.05$ multiplies $\beta$ by $1.4729$, and the further five-fold
+cut to $0.01$ multiplies it by $1.7493$ &mdash; so the factor-of-ten reduction in $\alpha$
+across the table costs a factor $2.5766$ in $\beta$. There is no threshold
 that makes both small &mdash; the two error probabilities are linked by a single dial, and
 the only way off the curve is more data (G7 &sect;4.5, &sect;4.6).</p>
 <p><b>Step 5 &mdash; the $n$ that buys $\beta\le0.05$.</b> Increase $n$, recalibrating
@@ -1043,7 +1049,7 @@ pull apart at rate $\sqrt n$.</p>
 (equivalently $\xi_L=2.5121436$, or $1.5705216$ on the sample mean);
 $\beta=0.2652645$; the tradeoff is $(\alpha,\beta)=(0.10,0.1801),\ (0.05,0.2653),\
 (0.01,0.4640)$; $n=23$ gives $\beta=0.0496647$ at $\alpha=0.05$.</p>
-<p><i>Trap.</i> Rejecting for <em>small</em> $S$ because "$H_1$ has the smaller
+<p><b>Trap.</b> Rejecting for <em>small</em> $S$ because "$H_1$ has the smaller
 parameter $\lambda_1=1/2$." The parameter is a rate, not a mean: a smaller rate means
 <em>longer</em> lifetimes. Getting the direction wrong flips the test into one with
 $\alpha=0.05$ and $\beta=\mathbf{P}(S&gt;\text{lower quantile};H_1)$ close to $1$ &mdash;

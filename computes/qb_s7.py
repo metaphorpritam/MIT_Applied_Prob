@@ -795,6 +795,8 @@ rec("Q150_beta_ratio_10_to_05", float(0.2652645 / 0.1801000),
     "alpha halved (0.10 -> 0.05): beta multiplied by this")
 rec("Q150_beta_ratio_05_to_01", float(0.4640388 / 0.2652645),
     "alpha / 5 (0.05 -> 0.01): beta multiplied by this")
+rec("Q150_beta_ratio_10_to_01", float(0.4640388 / 0.1801000),
+    "alpha / 10 (0.10 -> 0.01), the full span of the table: beta multiplied by this")
 
 out = Path(__file__).with_suffix(".json")
 out.write_text(json.dumps(J, indent=1, sort_keys=True), encoding="utf-8")

@@ -173,14 +173,24 @@ h3 {
   margin: 28px 0 6px 0; letter-spacing: -.002em; scroll-margin-top: 12px;
 }
 h4 { font-size: 15px; margin: 18px 0 4px 0; font-weight: 700; }
-p { margin: 0 0 12px 0; text-align: justify; hyphens: auto; }
+p { margin: 0 0 12px 0; text-align: left; hyphens: auto; text-wrap: pretty; }
 ul, ol { margin: 8px 0 12px 18px; padding-left: 8px; }
 li { margin: 4px 0; }
 li > ul, li > ol { margin-top: 4px; margin-bottom: 4px; }
 a { color: var(--link); text-underline-offset: 2px; text-decoration-thickness: .06em; }
 a:hover { text-decoration-color: var(--s1); }
 b, strong { font-weight: 700; }
+/* the ✓ glyph carries a wide right side bearing, so a following period or comma
+   floats away from it and reads as opening the next sentence. Pull the
+   punctuation back to a normal tight fit. */
+.chk { margin-right: -0.16em; }
 mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding: 2px 0; }
+/* never break the line between inline math and the punctuation that closes the
+   sentence: the container is an inline-block, so browsers otherwise allow it */
+mjx-container:not([display="true"]) { break-after: avoid; }
+/* the check-mark glyph comes from a fallback symbol font whose right side
+   bearing leaves a visible gap before a following period or comma */
+.ck { margin-right: -.09em; }
 /* ---------- figures ---------- */
 .fig {
   display: block; margin: 18px auto 6px auto; max-width: 100%;
@@ -262,6 +272,13 @@ th {
 }
 td.l, th.l { text-align: left; }
 td.num { text-align: right; font-variant-numeric: tabular-nums; }
+/* wide reference tables: scroll inside their own box instead of pushing the
+   page body sideways (the display:block rule below only fires under 700px) */
+.tablewrap { overflow-x: auto; max-width: 100%; margin: 16px 0; }
+.tablewrap > table { margin: 0 auto; }
+/* distribution zoos: the two moment columns hold one short fraction each, so
+   shrink them to their content and give the slack to the prose columns */
+table.zoo td.num, table.zoo th.num { width: 1%; }
 tr:nth-child(even) td { background: var(--trEven); }
 .check { color: var(--good); font-weight: bold; }
 .cross { color: var(--faint); }
@@ -378,6 +395,17 @@ canvas.plot { width: 100%; display: block; }
   details.sol > summary { list-style: none; }
   details.sol > summary::marker, details.sol > summary::-webkit-details-marker { display: none; }
   .qbfilter { display: none; }
+  /* on screen an over-wide display equation scrolls sideways; on paper there is
+     nothing to scroll, so the scrollbar track prints and the right-hand end of
+     the formula (usually the result) is simply cut off. Let print overflow be
+     visible and shrink the math instead of clipping it. */
+  mjx-container[display="true"] {
+    overflow: visible !important; max-width: none !important;
+    font-size: 96% !important;
+  }
+  /* on paper a scroll container cannot be scrolled: it prints its chrome and
+     clips whatever overflows, so let display math spill instead of being cut */
+  mjx-container[display="true"] { overflow-x: visible; overflow-y: visible; }
   /* never leave a content-free colored strip (a box's bottom padding/border)
      stranded at the top of the next sheet */
   .defn, .note, .thm, .warn, .recipe, .summary, .widget,
@@ -386,11 +414,25 @@ canvas.plot { width: 100%; display: block; }
      solutions are collapsed <details>), so keep them whole; long worked
      Examples must stay breakable or they strand a near-empty page. */
   .ex:has(> details.sol) { break-inside: avoid; page-break-inside: avoid; }
+  /* question-bank cards are the exception: print forces their solutions open,
+     so a card routinely runs longer than a sheet. Keeping it whole pushes the
+     stem onto a fresh page and leaves the previous one mostly blank; let them
+     break, with orphans/widows doing the fine control. */
+  .ex.qcard, .qcard details.sol { break-inside: auto; page-break-inside: auto; }
+  .qcard p, .qcard li { orphans: 3; widows: 3; }
+  .qcard > p:first-of-type { break-after: avoid; page-break-after: avoid; }
   .fig { break-inside: avoid; page-break-inside: avoid; break-after: avoid; page-break-after: avoid; }
+  /* a long table must be allowed to split across sheets, but never mid-row:
+     a broken row strands its Result/Conditions text under an empty Statement */
+  tr, th, td { break-inside: avoid; page-break-inside: avoid; }
   h2, h3, h4 { break-after: avoid; page-break-after: avoid; }
   h2 { margin-top: 26px; }
   p { orphans: 3; widows: 3; }
   table { display: table; }
+  /* the scroll box is a screen device: on paper it would clip the right-hand
+     columns, so let the table lay itself out inside the page instead */
+  .tablewrap { overflow: visible !important; max-width: 100%; }
+  .tablewrap > table { max-width: 100%; }
   /* the compile footer must sit on the preceding page, never alone on a blank sheet */
   #main > hr:last-of-type { break-before: avoid; page-break-before: avoid; margin-top: 14px; }
   #main > hr:last-of-type + .small { break-before: avoid; page-break-before: avoid; }

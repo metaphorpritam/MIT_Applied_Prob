@@ -439,42 +439,41 @@ put("q45_mc_EX", float(hh.mean()))
 put("q45_mc_var", float(hh.var()))
 
 # ---------------------------------------------------------------- Q46
-sec("Q46 - sum of three independent geometrics (three game levels)")
-ps = [F(1, 2), F(2, 5), F(1, 4)]
+sec("Q46 - coupon collector: three equally likely toy types, T = boxes to get all three")
+n46_types = 3
+ps = [F(n46_types - i, n46_types) for i in range(n46_types)]   # 1, 2/3, 1/3
 for i, pi in enumerate(ps, start=1):
     put(f"q46_p{i}", pi)
     put(f"q46_E_T{i}", 1 / pi)
     put(f"q46_var_T{i}", (1 - pi) / pi**2)
 ET46 = sum(1 / pi for pi in ps)
-put("q46_ET", ET46)
+put("q46_ET", ET46, "= 3 * (1 + 1/2 + 1/3) = 11/2")
+put("q46_harmonic", sum(F(1, k) for k in range(1, n46_types + 1)), "= 11/6")
 varT46 = sum((1 - pi) / pi**2 for pi in ps)
 put("q46_varT", varT46)
 put("q46_sdT", float(varT46) ** 0.5)
-# exact PMF of the sum near its lower end, by convolution over compositions
-def geo46(i: int, k: int) -> F:
-    p = ps[i]
-    return (1 - p) ** (k - 1) * p
-
-
-put("q46_P_T3", geo46(0, 1) * geo46(1, 1) * geo46(2, 1), "the only composition is (1,1,1)")
-p46_4 = (geo46(0, 2) * geo46(1, 1) * geo46(2, 1)
-         + geo46(0, 1) * geo46(1, 2) * geo46(2, 1)
-         + geo46(0, 1) * geo46(1, 1) * geo46(2, 2))
-put("q46_P_T4", p46_4, "compositions (2,1,1) + (1,2,1) + (1,1,2)")
-for i, term in enumerate([geo46(0, 2) * geo46(1, 1) * geo46(2, 1),
-                          geo46(0, 1) * geo46(1, 2) * geo46(2, 1),
-                          geo46(0, 1) * geo46(1, 1) * geo46(2, 2)], start=1):
-    put(f"q46_P_T4_term{i}", term)
-put("q46_wrong_one_pass_p", ps[0] * ps[1] * ps[2], "P(clear all three on the first try)")
-put("q46_wrong_20", 1 / (ps[0] * ps[1] * ps[2]), "the single-geometric wrong answer")
-# Monte-Carlo
-n46 = 300_000
-t46 = (rng.geometric(0.5, n46).astype(np.int64)
-       + rng.geometric(0.4, n46).astype(np.int64)
-       + rng.geometric(0.25, n46).astype(np.int64))
-put("q46_mc_ET", float(t46.mean()), "300k trials")
+put("q46_P_T3", ps[1] * ps[2], "the fastest possible collection: 1 * (2/3) * (1/3)")
+put("q46_wrong_3", 3, "the 'three types, three boxes' wrong answer")
+put("q46_wrong_gap", float(ET46) - 3)
+put("q46_last_stage_share_mean", float((1 / ps[2]) / ET46), "fraction of E[T] in the last stage")
+put("q46_last_stage_share_var", float(((1 - ps[2]) / ps[2] ** 2) / varT46))
+# Monte-Carlo: simulate the collection directly (no stage decomposition assumed)
+n46 = 50_000
+boxes46 = rng.integers(0, n46_types, size=(n46, 40))
+t46 = np.empty(n46, dtype=np.int64)
+for r in range(n46):
+    seen = set()
+    row = boxes46[r]
+    for j, b in enumerate(row):
+        seen.add(int(b))
+        if len(seen) == n46_types:
+            t46[r] = j + 1
+            break
+    else:
+        t46[r] = len(row)
+put("q46_mc_ET", float(t46.mean()), "50k simulated collections")
 put("q46_mc_varT", float(t46.var()))
-put("q46_mc_P_T4", float((t46 == 4).mean()))
+put("q46_mc_P_T3", float((t46 == 3).mean()))
 
 # ---------------------------------------------------------------- Q47
 sec("Q47 - tail-sum formula, applied to the max of two fair dice")
@@ -506,7 +505,6 @@ put("q37_fail_prob", float(q37**4))
 put("q43_both_succeed", float(pa * pb))
 put("q43_check_inclusion_exclusion", float(pa + pb - pa * pb), "must equal q43_pT")
 put("q45_var_gap", 1.125 - 4 * 0.25 * 0.75)
-put("q46_wrong_gap", float(1 / (ps[0] * ps[1] * ps[2])) - float(ET46))
 put("q47_excess_over_single_die", float(EM_direct) - 3.5)
 put("q47_single_die_mean", 3.5)
 

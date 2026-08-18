@@ -182,6 +182,10 @@ mean $8.985$ &mdash; matching $0.512$ and $9$.)</p>
 memoryless, so nothing changed." What is memoryless is the <em>remaining</em> wait, $X-4$; the
 variable $X$ itself counts from the original start, so it must exceed $4$. Answering $5$
 contradicts the conditioning event.</p>
+<p><b>Where this recurs.</b> The geometric is the workhorse of this section: Q37 truncates it,
+Q43 takes the minimum of two, Q46 adds three of them. It is also the first-success time of a
+Bernoulli process, so the fresh-start property proved here is exactly what Q81 in &sect;4 uses,
+while Q80 there counts to the $k$th success instead of the first.</p>
 <p class="srcref">Tool: G2 &sect;3.5 (geometric memorylessness) &middot; B&amp;T &sect;2.6</p>
 </div></details>
 </div>
@@ -324,7 +328,8 @@ needed if the question asked for $\operatorname{var}(S)$ or for $\mathbb{E}[I_iI
 <p><b>Answer.</b> $\;\mathbb{E}[S] = 8\big(1-(7/8)^5\big) = 3.8967$ stops.</p>
 <p><b>Trap.</b> Two wrong answers: $5$ ("one stop per passenger" &mdash; ignores collisions) and
 $8\cdot\frac58 = 5$ (a garbled proportionality). Both exceed the truth, because every pair of
-passengers sharing a floor removes a stop.</p>
+passengers sharing a floor removes a stop. The indicators here are dependent as well, which
+costs the mean nothing; Q45 shows what that same dependence does to a variance.</p>
 <p class="srcref">Tool: G2 &sect;4.8 (indicator decomposition, linearity) &middot; B&amp;T &sect;2.4</p>
 </div></details>
 </div>
@@ -430,7 +435,9 @@ policy fails to grip with probability $q^4 = 0.2401$.</p>
 $\mathbb{E}[N] = 2.533$ attempts versus $\mathbb{E}[X] = 3.3333$ uncapped.</p>
 <p><b>Trap.</b> $\mathbb{E}[\min(X,4)] \ne \min(\mathbb{E}[X],4) = \min(3.3333,4) = 3.3333$.
 The minimum is a nonlinear function, so it cannot be pushed through an expectation; the truth
-$2.533$ is strictly smaller because truncation only ever shortens outcomes.</p>
+$2.533$ is strictly smaller because truncation only ever shortens outcomes. (Compare Q30: there
+memorylessness <em>lengthened</em> a conditional mean to $4+1/p$; here truncation shortens an
+unconditional one. Same geometric, opposite direction.)</p>
 <p class="srcref">Tool: G2 &sect;3.6 (total expectation), &sect;3.5 (memorylessness) &middot; B&amp;T &sect;2.6</p>
 </div></details>
 </div>
@@ -633,7 +640,10 @@ The correct value is $\mathbf{P}(X=0,Y=0) = 1/3$, not $1/9$. Uncorrelated does n
 independent; it only licenses variances to add.</p>
 <p><b>Trap.</b> The example is the canonical one: a symmetric $X$ and an even function of it are
 always uncorrelated and never independent (unless degenerate). Any argument of the form "the
-means multiplied, so the variables are independent" is unsalvageable.</p>
+means multiplied, so the variables are independent" is unsalvageable. Q64 in &sect;3 is the
+continuous twin of this card &mdash; a point drawn uniformly on the unit circle, where
+$\cos\Theta$ and $\sin\Theta$ are uncorrelated yet each pins down the other; and Q45 is the
+opposite pathology, summands correlated enough that variances do <em>not</em> add.</p>
 <p class="srcref">Tool: G2 &sect;4.5 (independence), &sect;4.7 (variance of a sum) &middot; B&amp;T &sect;2.7</p>
 </div></details>
 </div>
@@ -705,6 +715,10 @@ $\mathbb{E}[T] = \min(1/0.25,\,1/0.40) = 2.5$" &mdash; the minimum of the two wa
 <em>either</em> alone, not equal to the faster one; (ii) adding probabilities,
 $0.25+0.40 = 0.65$ &mdash; that double-counts rounds in which both succeed, which have probability
 $0.25(0.40) = 0.10$; note $0.65 - 0.10 = 0.55$ &#10003;, recovering the correct $p_T$.</p>
+<p><b>Connection.</b> Two independent geometrics run in parallel give another geometric &mdash;
+the discrete face of merging two Bernoulli processes, which &sect;4 takes up directly. Compare
+Q46, where three geometrics are run <em>in series</em> instead and the sum is emphatically not
+geometric; Q83 in &sect;4 sums a random number of them.</p>
 <p class="srcref">Tool: G2 &sect;3.5 (geometric tail probabilities), &sect;4.5 (independence) &middot; B&amp;T &sect;2.2, &sect;2.7</p>
 </div></details>
 </div>
@@ -826,7 +840,11 @@ $\operatorname{var}(\text{geom}(p)) = (1-p)/p^2$:</p>
 \operatorname{var}(T_3) = \frac{2/3}{(1/3)^2} = \frac{2/3}{1/9} = 6 ,$$</p>
 <p>$$\operatorname{var}(T) = 0 + 0.75 + 6 = 6.75,\qquad \sigma_T = \sqrt{6.75} = 2.598076 .$$</p>
 <p>(The first stage has zero variance because the very first box is always useful:
-$T_1 \equiv 1$. Monte Carlo, $50{,}000$ runs: $\mathbb{E}[T]\approx 5.518$ &#10003;.)</p>
+$T_1 \equiv 1$. Monte Carlo over $50{,}000$ simulated collections &mdash; drawing boxes one at
+a time and stopping when the third type first appears, with no stage decomposition assumed
+&mdash; gives $\mathbb{E}[T] \approx 5.5182$, $\operatorname{var}(T) \approx 6.822$ and
+$\mathbf{P}(T=3) \approx 0.2220$ against the exact $1\cdot\frac23\cdot\frac13 = \frac29 = 0.2222$
+&#10003;.)</p>
 <p><b>Interpretation.</b> Almost all of the waiting &mdash; and nearly all of the uncertainty
 &mdash; sits in the last stage, where only one of three types is still useful. This is the general
 shape of the coupon-collector problem: the mean is $n\sum_{k=1}^{n}1/k$ and the final coupon
@@ -875,7 +893,7 @@ i.e. $\tfrac1{36},\tfrac3{36},\tfrac5{36},\tfrac7{36},\tfrac9{36},\tfrac{11}{36}
 $m=1,\dots,6$ (summing to $36/36 = 1$ &#10003;). Then</p>
 <p>$$\mathbb{E}[M] = \frac{1(1) + 2(3) + 3(5) + 4(7) + 5(9) + 6(11)}{36}
 = \frac{1+6+15+28+45+66}{36} = \frac{161}{36} = 4.472222 \ \checkmark$$</p>
-<p>(Monte Carlo, $400{,}000$ paired rolls: $4.4776$ &#10003;.)</p>
+<p>(Monte Carlo, $400{,}000$ paired rolls: $4.4720$ &#10003;.)</p>
 <p><b>Answer.</b> $\;\mathbb{E}[X] = \sum_{k\ge1}\mathbf{P}(X\ge k)$, and for the maximum of two
 fair dice $\mathbb{E}[M] = 161/36 = 4.4722$.</p>
 <p><b>Trap.</b> Answering $3.5$ &mdash; the mean of a single die &mdash; or "$3.5$ for each die so

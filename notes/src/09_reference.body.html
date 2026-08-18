@@ -1,44 +1,48 @@
 <h2 id="rf-s0">§0 &nbsp; How to use this reference</h2>
-<p class="srcref">Sources: the seven study notes G1–G7 and the question bank Q · Bertsekas–Tsitsiklis (<b>B&amp;T</b>) for every in-syllabus result · the Chen–Blitzstein <em>Probability Cheatsheet</em> v2.0 for the enrichment topics of §3–§4 · corpus counts from <code>computes/rf_s0.py</code>. A bare "§N" inside a citation such as "G3 §4" always means <em>that note's</em> section N; every reference to the textbook carries the "B&amp;T" prefix.</p>
+<p class="srcref">Sources: the seven study notes G1–G7 and the question bank Q · Bertsekas–Tsitsiklis (<b>B&amp;T</b>) for every in-syllabus result · the Chen–Blitzstein <em>Probability Cheatsheet</em> v2.0 for the enrichment topics of §2–§3 · corpus counts from <code>computes/rf_s0.py</code>. A bare "§N" inside a citation such as "G3 §4" always means <em>that note's</em> section N; every reference to the textbook carries the "B&amp;T" prefix.</p>
 
-<p>This page is the eighth and last, and it is the only one that teaches nothing. The seven notes G1–G7 are a course: they build the subject in order, across <b>28</b> numbered teaching sections, deriving every result before using it. Reading them is a linear activity. Looking something up is not — and that is the gap this page fills. It has two halves, and they serve two different readers.</p>
+<p>This page is the ninth and last, and it is the only one that teaches nothing. The seven notes G1–G7 are a course: they build the subject in order, across <b>28</b> numbered teaching sections, deriving every result before using it. Reading them is a linear activity. Looking something up is not — and that is the gap this page fills. It has two halves, and they serve two different readers.</p>
 
-<p><b>The lookup half (§1–§2)</b> is for the reader who already did the course and now wants one number, one density, or one identity, fast. An audit of these notes against a standard one-page cheatsheet reached a blunt verdict: coverage is strong — of <b>189</b> checked items only <b>3</b> were in the 6.041 syllabus and genuinely absent — but "the distribution facts exist but are scattered across four tables in four different notes." That is a retrieval problem, not a content problem, and §1 and §2 solve it by consolidation. §1 is one table of every named distribution in the course — PMF or PDF, range, mean, variance, the mechanism that generates it, and the note that derives it. §2 is the master formula sheet: the expectation, variance, conditioning, transform, limit, and inference identities of all seven notes on one surface, grouped by what you are trying to do rather than by which week they were taught.</p>
+<p><b>The lookup half (§1)</b> is for the reader who already did the course and now wants one number, one density, or one identity, fast. An audit of these notes against a standard one-page cheatsheet reached a blunt verdict: coverage is strong — of <b>189</b> checked items only <b>3</b> were in the 6.041 syllabus and genuinely absent — but "the distribution facts exist but are scattered across four tables in four different notes." That is a retrieval problem, not a content problem, and §1 solves it by consolidation. §1.1–§1.2 are one table of every named distribution in the course — PMF or PDF, range, mean, variance, the mechanism that generates it, and the note that derives it. §1.4 is the master formula sheet: the expectation, variance, conditioning, transform, limit, and inference identities of all seven notes on one surface, grouped by what you are trying to do rather than by which week they were taught.</p>
 
-<p><b>The enrichment half (§3–§4)</b> is for a different reader: someone arriving from Harvard's Stat 110 or from self-study, who has met machinery that 6.041 simply does not use. The same audit classified <b>32</b> cheatsheet items as out-of-syllabus rather than missing — chiefly moment generating functions, order statistics, and a zoo of named distributions and identities wider than B&amp;T needs. Those are collected here, stated properly and connected back to the in-course machinery they generalize, so that a reader coming the other way is not left guessing whether an unfamiliar symbol was something these notes forgot.</p>
+<p><b>The enrichment half (§2–§3)</b> is for a different reader: someone arriving from Harvard's Stat 110 or from self-study, who has met machinery that 6.041 simply does not use. The same audit classified <b>32</b> cheatsheet items as out-of-syllabus rather than missing — chiefly moment generating functions, order statistics, and a zoo of named distributions and identities wider than B&amp;T needs. Those are collected here, stated properly and connected back to the in-course machinery they generalize, so that a reader coming the other way is not left guessing whether an unfamiliar symbol was something these notes forgot.</p>
 
-<p>Nothing on this page is derived from scratch. Every in-syllabus entry carries a pointer to the note section that does the work — <em>that</em> is where the argument, the intuition, the worked examples, and the figures live. Treat an entry here as an index card, and the cited section as the thing the card indexes. (The enrichment entries of §3–§4 have no such parent section by construction, so they carry short self-contained justifications instead, plus a B&amp;T or cheatsheet citation.)</p>
+<p>Nothing on this page is derived from scratch. Every in-syllabus entry carries a pointer to the note section that does the work — <em>that</em> is where the argument, the intuition, the worked examples, and the figures live. Treat an entry here as an index card, and the cited section as the thing the card indexes. (The enrichment entries of §2–§3 have no such parent section by construction, so they carry short self-contained justifications instead, plus a B&amp;T or cheatsheet citation.)</p>
 
 <div class="recipe"><b>Recipe — looking something up.</b>
 <ol>
-<li><b>You want a distribution.</b> Its PMF or PDF, its range, its mean or variance, or "which family is this mechanism?" → <b>§1</b>, the consolidated distribution table. It covers the discrete families of G2 §1 and G2 §3, the continuous families of G3 §1, the Erlang and the arrival-process families of G4 §3–§4, and the normal in the form used by the CLT in G6 §2.</li>
-<li><b>You want an identity.</b> An expectation or variance rule, a conditioning law, a convolution, a bound, an estimator or a test statistic → <b>§2</b>, the master formula sheet. Each line names its home section: linearity and variance rules in G2 §2–§3, joint and derived distributions in G3 §2 and G3 §4, iterated expectation and random sums in G4 §1–§2, steady-state and absorption equations in G5 §3–§4, inequalities and the CLT in G6 §1–§2, estimators, confidence intervals and tests in G7 §1–§4.</li>
+<li><b>You want a distribution.</b> Its PMF or PDF, its range, its mean or variance, or "which family is this mechanism?" → <b>§1.1–§1.2</b>, the consolidated distribution table. It covers the discrete families of G2 §1 and G2 §3, the continuous families of G3 §1, the beta of G3 §3 and G6 §3, the Erlang and the arrival-process families of G4 §3–§4, and the normal in the form used by the CLT in G6 §2 — plus two rows, chi-square and Student-$t$, that are flagged <b>beyond 6.041</b> because no section of these notes derives them.</li>
+<li><b>You want an identity.</b> An expectation or variance rule, a conditioning law, a convolution, a bound, an estimator or a test statistic → <b>§1.4</b>, the master formula sheet. Each line names its home section: linearity and variance rules in G2 §2–§3, joint and derived distributions in G3 §2 and G3 §4, iterated expectation and random sums in G4 §1–§2, steady-state and absorption equations in G5 §3–§4, inequalities and the CLT in G6 §1–§2, estimators, confidence intervals and tests in G7 §1–§4.</li>
 <li><b>You do not know which tool you need.</b> Do not start here. Start at the note itself — its §0 orientation says what the note is for, and its §5 summary is a one-screen recap. This page assumes you already know the name of the thing you are hunting.</li>
-<li><b>You met a symbol these notes never used.</b> a moment generating function $M_X(t)$, an order statistic $X_{(k)}$, a named family that appears nowhere in G1–G7 → <b>§3</b> and <b>§4</b>, the beyond-syllabus half.</li>
-<li><b>You want to practise instead of look up.</b> That is the previous page, Q · Question Bank: <b>150</b> original questions with fully worked solutions, filtered by difficulty and by section.</li>
+<li><b>You met a symbol these notes never used.</b> a moment generating function $M_X(t)$, an order statistic $X_{(k)}$, a named family that appears nowhere in G1–G7 → <b>§2</b> and <b>§3</b>, the beyond-syllabus half.</li>
+<li><b>You want to practise instead of look up.</b> That is the previous page, Q · Question Bank: <b>170</b> original questions with fully worked solutions, filtered by difficulty and by section.</li>
 </ol>
 </div>
 
-<div class="warn"><b>Gotcha — §3 and §4 are not part of MIT 6.041.</b> They are outside the syllabus of this course and outside B&amp;T's treatment of it. Nothing in them is examinable in 6.041, nothing in the seven notes depends on them, and no exercise in the question bank needs them. They are here because this site is public and some of its readers are taking a different course (Stat 110 covers this material) or reading on their own with a broader cheatsheet in hand — and because it is genuinely useful to be told "this is a real topic, it is just not <em>this</em> course's topic" rather than to wonder whether you missed a lecture. <b>If you are working through 6.041, you are not behind for skipping §3 and §4 entirely.</b> The converse warning also holds: do not import a §3 technique into a 6.041 solution and expect credit for it — the graded path to every in-syllabus result is the one the cited note takes.</div>
+<div class="warn"><b>Gotcha — §2 and §3 are not part of MIT 6.041.</b> They are outside the syllabus of this course and outside B&amp;T's treatment of it. Nothing in them is examinable in 6.041, nothing in the seven notes depends on them, and no exercise in the question bank needs them. They are here because this site is public and some of its readers are taking a different course (Stat 110 covers this material) or reading on their own with a broader cheatsheet in hand — and because it is genuinely useful to be told "this is a real topic, it is just not <em>this</em> course's topic" rather than to wonder whether you missed a lecture. <b>If you are working through 6.041, you are not behind for skipping §2 and §3 entirely.</b> The converse warning also holds: do not import a §2 or §3 technique into a 6.041 solution and expect credit for it — the graded path to every in-syllabus result is the one the cited note takes.</div>
 
 <div class="note"><b>Interpretation — why consolidation is worth a page of its own.</b> A teaching note and a reference table are optimized against different costs. A note minimizes the effort of understanding a result the first time, which means derivation, motivation, figures, and one idea at a time, spread over the week it belongs to. A table minimizes the time to re-find a result you have already understood, which means everything comparable placed side by side, with the derivations stripped out. The seven notes are excellent at the first job and structurally bad at the second — the geometric mean $1/p$ is derived in G2 §3 and the exponential mean $1/\lambda$ in G3 §1, two notes and several weeks apart, even though the whole point is that they are the same fact at two time resolutions (G4 §3). Putting the two on adjacent rows of one table is not a summary of the notes; it is a different, complementary object.</div>
 
 <div class="summary">
 <b>§0 in one screen.</b>
 This page is a lookup surface and an appendix, not a lesson — every in-syllabus entry points at the note that derives it, and derives nothing itself.
-<b>§1</b> one consolidated table of every named distribution (PMF/PDF, range, mean, variance, mechanism, home section) · <b>§2</b> the master formula sheet, grouped by task rather than by week · <b>§3–§4</b> curated topics <em>beyond</em> the 6.041 syllabus, for readers arriving from Stat 110 or self-study.
-Skipping §3 and §4 costs a 6.041 student nothing; they are examinable in no part of this course.
+<b>§1.1–§1.2</b> one consolidated table of every named distribution (PMF/PDF, range, mean, variance, mechanism, home section) · <b>§1.4</b> the master formula sheet, grouped by task rather than by week · <b>§2–§3</b> curated topics <em>beyond</em> the 6.041 syllabus, for readers arriving from Stat 110 or self-study.
+Skipping §2 and §3 costs a 6.041 student nothing; they are examinable in no part of this course.
 </div>
 
 <h2 id="rf-s1">§1 &nbsp; The distribution table and the master formula sheet</h2>
 <p class="srcref">Sources: consolidated from the seven study notes — G1 §1–§4, G2 §1–§4, G3 §1–§4, G4 §1–§4, G5 §1–§4, G6 §1–§4, G7 §1–§4 · Bertsekas–Tsitsiklis §1.2–§1.6, §2.2–§2.7, §3.1–§3.6, §4.1–§4.5, §5.1–§5.4, §6.1–§6.2, §7.1–§7.4, §8.1–§8.4, §9.1–§9.3 · every number below recomputed in <code>computes/rf_s1.py</code>.</p>
 
 <p>Everything in this section already exists somewhere in the seven notes. That is exactly the
-problem it solves. The distribution facts are spread across four separate tables in four separate
-files — the discrete zoo lives at the end of G2, the continuous zoo at the end of G3, the
-Bernoulli-versus-Poisson correspondence at the end of G4, and the hypergeometric is stranded in the
-counting note, G1 §4 — each with its own column headings, its own notation for the parameters, and
-its own idea of what belongs in a table. When you are mid-problem and want to know whether the
+problem it solves. The distribution facts are scattered: the audit behind §0 counts <b>seven</b>
+fragments carrying a table of distribution facts (<code>g2_s1</code>, <code>g2_s5</code>,
+<code>g3_s5</code>, <code>g5_s5</code>, <code>g6_s2</code>, <code>g6_s3</code>, <code>g7_s0</code>
+— <code>rf_s0.json</code>, key <code>fragments_with_distribution_tables</code>), of which
+<b>four</b> are the full zoos a reader would actually look a family up in: the discrete zoo at the
+end of G2 (G2 §5.2), the continuous zoo at the end of G3, the Bernoulli-versus-Poisson
+correspondence at the end of G4, and the hypergeometric, stranded in the counting note at G1 §4.
+The other three are local, single-purpose tables. Each of the four has its own column headings, its
+own notation for the parameters, and its own idea of what belongs in a table. When you are mid-problem and want to know whether the
 Pascal variance carries a factor $k$ or a factor $k^2$, four tables in four files is three tables too
 many. So this section reprints all of it once, with a single column scheme, in first-appearance
 order of usefulness, with a pointer back to the note that <em>derives</em> each row. Nothing here is
@@ -65,7 +69,8 @@ balls are red. In the multivariate row at the foot of the table, $r$ is the numb
 $\theta_k$ the probability that one trial lands in category $k$ (so $\sum_{k=1}^r\theta_k=1$), and
 $N_k$ the count of trials that did.</p>
 
-<table>
+<div class="tablewrap">
+<table class="zoo">
 <thead>
 <tr><th class="l">Distribution</th><th class="l">PMF and support</th><th class="num">$\mathbb{E}[X]$</th><th class="num">$\operatorname{var}(X)$</th><th class="l">The story — when it arises</th><th class="l">Where it is derived</th></tr>
 </thead>
@@ -84,7 +89,8 @@ $N_k$ the count of trials that did.</p>
   <td class="num">$\dfrac{a+b}{2}$</td>
   <td class="num">$\dfrac{(b-a)(b-a+2)}{12}$</td>
   <td class="l">"Fair", "equally likely", "picked at random" over a finite range with no value preferred. The mean is forced by symmetry; only the variance needs work.</td>
-  <td class="l">G2 §2, G2 §3; B&amp;T §2.2</td>
+  <td class="l">G2 §3 (the $n=6$ die worked in full, including the $(n^2-1)/12$ form);
+  G2 §5.2 (the zoo row in the $(b-a)(b-a+2)/12$ parametrization used here); B&amp;T §2.2</td>
 </tr>
 <tr>
   <td class="l"><b>Binomial$(n,p)$</b></td>
@@ -129,7 +135,7 @@ $N_k$ the count of trials that did.</p>
 <tr><td class="l" colspan="6"><b>Multivariate — the one joint discrete family on the syllabus.</b> Every row above describes a single random variable; this one describes a random <em>vector</em>, so the two numeric columns are read <em>per coordinate</em> and a fifth number, the covariance between two coordinates, has to be carried alongside them.</td></tr>
 <tr>
   <td class="l"><b>Multinomial$(n;\theta_1,\ldots,\theta_r)$</b><br><span class="small">the vector $(N_1,\ldots,N_r)$, not a scalar</span></td>
-  <td class="l">$p_{N_1,\ldots,N_r}(n_1,\ldots,n_r)=\dbinom{n}{n_1,\ldots,n_r}\theta_1^{n_1}\cdots\theta_r^{n_r}=\dfrac{n!}{n_1!\cdots n_r!}\,\theta_1^{n_1}\cdots\theta_r^{n_r}$ &nbsp; on the simplex $n_k\ge0$, $\sum_kn_k=n$ (zero elsewhere); each marginal is $N_k\sim$ Binomial$(n,\theta_k)$</td>
+  <td class="l">$p_{N_1,\ldots,N_r}(n_1,\ldots,n_r)=\dbinom{n}{n_1,\ldots,n_r}\theta_1^{n_1}\cdots\theta_r^{n_r}$ &nbsp; on the simplex $n_k\ge0$, $\sum_kn_k=n$ (zero elsewhere); each marginal is $N_k\sim$ Binomial$(n,\theta_k)$</td>
   <td class="num">$\mathbb{E}[N_k]=n\theta_k$</td>
   <td class="num">$\operatorname{var}(N_k)=n\theta_k(1-\theta_k)$<br>$\operatorname{cov}(N_i,N_j)=-n\theta_i\theta_j$, &nbsp;$i\ne j$</td>
   <td class="l">$n$ independent trials sorted into $r$ categories, category $k$ carrying probability $\theta_k$ on every trial; $N_k$ counts the trials that landed in category $k$. The binomial is the case $r=2$, with $(\theta_1,\theta_2)=(p,1-p)$. Read the row as $r$ binomials tied together by the constraint $\sum_kN_k=n$ — which is exactly why the covariances are negative.</td>
@@ -137,6 +143,7 @@ $N_k$ the count of trials that did.</p>
 </tr>
 </tbody>
 </table>
+</div>
 
 <p><b>Every row of that table recomputed.</b> <code>computes/rf_s1.py</code> block A evaluates each
 PMF numerically over its support, checks it sums to $1$, and compares brute-force
@@ -189,7 +196,8 @@ $B(\alpha,\beta)=\int_0^1q^{\alpha-1}(1-q)^{\beta-1}dq$. Recall throughout that 
 <em>density</em>, not a probability: $f_X(x)$ may exceed $1$, and only $\int_a^bf_X$ is a
 probability (G3 §1).</p>
 
-<table>
+<div class="tablewrap">
+<table class="zoo">
 <thead>
 <tr><th class="l">Distribution</th><th class="l">PDF and support (CDF where it is elementary)</th><th class="num">$\mathbb{E}[X]$</th><th class="num">$\operatorname{var}(X)$</th><th class="l">The story — when it arises</th><th class="l">Where it is derived</th></tr>
 </thead>
@@ -220,7 +228,7 @@ probability (G3 §1).</p>
 </tr>
 <tr>
   <td class="l"><b>Normal $N(\mu,\sigma^2)$</b></td>
-  <td class="l">$f_X(x)=\dfrac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2}$ on all of $\mathbb{R}$; CDF has no closed form — standardize and read $\Phi\!\big(\frac{x-\mu}{\sigma}\big)$</td>
+  <td class="l">$f_X(x)=\dfrac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$ on all of $\mathbb{R}$; CDF has no closed form — standardize and read $\Phi\!\big(\frac{x-\mu}{\sigma}\big)$</td>
   <td class="num">$\mu$</td>
   <td class="num">$\sigma^{2}$</td>
   <td class="l">The aggregate of many small independent effects; measurement noise; and — by the central limit theorem — the approximate distribution of <em>any</em> standardized sum of enough i.i.d. terms with finite variance.</td>
@@ -245,13 +253,14 @@ probability (G3 §1).</p>
 <tr>
   <td class="l"><b>Student-$t_\nu$</b><br><span class="small"><b>beyond 6.041</b></span></td>
   <td class="l">the distribution of $Z/\sqrt{V/\nu}$ with $Z\sim N(0,1)$ independent of $V\sim\chi^2_\nu$; on all of $\mathbb{R}$</td>
-  <td class="num">$0$ &nbsp;($\nu&gt;1$)</td>
-  <td class="num">$\dfrac{\nu}{\nu-2}$ &nbsp;($\nu&gt;2$)</td>
+  <td class="num">$0$&nbsp;$(\nu&gt;1)$</td>
+  <td class="num">$\dfrac{\nu}{\nu-2}$&nbsp;$(\nu&gt;2)$</td>
   <td class="l">What replaces $\Phi$ when $\sigma$ is estimated from a <em>small</em> normal sample: heavier tails, so wider intervals. It converges to $N(0,1)$ as $\nu\to\infty$, which is why 6.041's large-$n$ intervals can ignore it.</td>
   <td class="l">Nowhere in these notes; the pointer is G7 §1, whose confidence intervals use $z$ from $\Phi$ and are justified by the CLT, i.e. by $n$ being large.</td>
 </tr>
 </tbody>
 </table>
+</div>
 
 <p><b>Every row recomputed.</b> Block B of <code>computes/rf_s1.py</code> integrates each density
 numerically — total mass, $\int xf$, $\int x^2f$ — and compares against the closed forms:
@@ -274,6 +283,32 @@ question here asks for the $k$th arrival, and $k$ is a count), but you will meet
 any Bayesian course, where it is the conjugate prior for a Poisson rate, and it is what the
 $\chi^2_\nu$ row above secretly is — $\chi^2_\nu=\Gamma(\nu/2,\,1/2)$, which is exactly where the
 half-integer shapes earn their keep.</div>
+
+<div class="ex"><b>Practice 1.1 (reading the story column backwards).</b> For each sentence, name the
+distribution and write its mean, using only the tables above. (a) "A machine produces defective parts
+independently with probability $0.02$; a batch of $500$ is inspected — how many defectives?"
+(b) "…how many parts must be inspected to find the first defective?" (c) "…to find the third
+defective?" (d) "A crate holds $500$ parts of which $10$ are defective; $20$ are drawn without
+replacement — how many defectives among them?" (e) "Defects appear along a wire at a rate of
+$0.02$ per metre — how many in $500$ metres?" (f) "…how far to the third defect?"
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(a) <b>Binomial$(500,0.02)$</b> — a fixed number of independent identical trials, count the
+successes. Mean $np=500\times0.02=10$.</p>
+<p>(b) <b>Geometric$(0.02)$</b> — wait for the first success, unbounded. Mean $1/p=50$ parts. Note
+this is the trials-until convention of §1.3; a source using failures-before would say $49$.</p>
+<p>(c) <b>Pascal of order $3$</b> at $p=0.02$ — the trial index of the third success. Mean
+$k/p=3/0.02=150$ parts, variance $k(1-p)/p^2=3(0.98)/0.0004=7350$.</p>
+<p>(d) <b>Hypergeometric</b> with $n=500$, $m=10$, $k=20$ — <em>without replacement</em>, so not
+binomial. Mean $km/n=20\times10/500=0.4$, the same as the binomial with $p=10/500$; the variance is
+smaller by the factor $(n-k)/(n-1)=480/499=0.961924$.</p>
+<p>(e) <b>Poisson</b> with parameter $\lambda\tau=0.02\times500=10$ — a count in a continuous window,
+mean and variance both $10$. Compare (a): same mean, but the variance is $10$ here against
+$np(1-p)=9.8$ there, because the binomial's $(1-p)$ factor has been killed by the limit.</p>
+<p>(f) <b>Erlang of order $3$</b> at $\lambda=0.02$ — the position of the third arrival in continuous
+space. Mean $k/\lambda=150$ metres, variance $k/\lambda^2=7500$. Set (c) beside (f): the same story
+told on the two clocks of block D, with the Pascal variance $7350$ approaching the Erlang $7500$ as
+the slot shrinks.</p>
+</div></details></div>
 
 <h3>1.3 The one convention clash: which "geometric"?</h3>
 
@@ -305,6 +340,30 @@ from outside these notes, read its support first: if $0$ is in the support, it i
 convention and its mean is one less than ours. This matches the gotcha in G2 §3, where the
 convention is first flagged.</div>
 
+<div class="ex"><b>Practice 1.2 (spotting the convention in a quoted formula).</b> A
+reference you are reading defines its geometric by $p_Y(j)=(1-p)^jp$ for $j=0,1,2,\ldots$ and quotes
+"mean $q/p$, variance $q/p^2$", with $q=1-p$. (i) Which convention is that, and what is the
+one-second test? (ii) Your problem asks for the expected number of tosses of a fair coin up to and
+including the first head — what do you report? (iii) The same reference gives the negative binomial
+mean as $kq/p$; you need the trial index of the third success at $p=0.2$ — what is it? (iv) Do you
+have to adjust the quoted variance as well?
+<details class="sol"><summary>Solution</summary><div class="body">
+<p>(i) <b>Failures-before-the-first-success</b>, i.e. our $Y=X-1$. Two tests, either instantly
+decisive: <em>is $0$ in the support?</em> — it is, and our $X$ starts at $1$; or <em>set $p=1$</em> —
+their mean is $q/p=0$, while a sure success still costs one trial, so ours must be $1$. Whenever
+$0$ is in the support the quoted mean is one <em>less</em> than ours (§1.3).</p>
+<p>(ii) $\mathbb{E}[X]=1/p=2$ tosses. Their formula returns $q/p=1$ — the number of <em>failures</em>
+before the head — so add the successful toss back: $1+1=2$
+(<code>E_p12conv_trials</code>, <code>E_p12conv_failures</code>).</p>
+<p>(iii) Add $k$, not $1$: the Pascal of order $k$ counts $k$ successes as well as the failures, so
+$\mathbb{E}[T_k]=k/p=3/0.2=15$ trials, against their $kq/p=3(0.8)/0.2=12$ failures; $12+3=15$ ✓
+(<code>E_p12conv_pascal_trials</code>, <code>E_p12conv_pascal_failures</code>). This is the shift of
+§1.3 applied $k$ times, once per geometric gap.</p>
+<p>(iv) <b>No.</b> $Y=X-1$ is a shift, and a shift never changes a variance (affine-map row, block B),
+so both conventions give $(1-p)/p^2$ — at $p=0.2$, $20$ (<code>E_p12conv_var_both</code>). Only means
+need repair, which is exactly why the mistake survives a variance check.</p>
+</div></details></div>
+
 <h3>1.4 The master formula sheet</h3>
 
 <p>The whole course in one table, grouped by theme, each line pointing at the note section that
@@ -313,6 +372,7 @@ consequence of, or a refinement of, the ones above it. Where a row needs a hypot
 independence, most often — the hypothesis is stated in the row and not left implied, because
 silently assuming independence is the single most expensive error in this material.</p>
 
+<div class="tablewrap">
 <table>
 <thead>
 <tr><th class="l">Result</th><th class="l">Statement</th><th class="l">Conditions / notes</th><th class="l">Derived in</th></tr>
@@ -353,8 +413,9 @@ silently assuming independence is the single most expensive error in this materi
 <tr><td class="l">Law of total variance</td><td class="l">$\operatorname{var}(X)=\mathbb{E}\big[\operatorname{var}(X\mid Y)\big]+\operatorname{var}\big(\mathbb{E}[X\mid Y]\big)$</td><td class="l">"Average variability <em>within</em>" plus "variability <em>between</em>". Both terms are $\ge0$, so $\operatorname{var}(X)$ is at least either one — dropping the second term is the classic understatement of risk.</td><td class="l">G4 §1; B&amp;T §4.3</td></tr>
 <tr><td class="l">Random sum, conditional</td><td class="l">$Y=X_1+\cdots+X_N$: &nbsp; $\mathbb{E}[Y\mid N]=N\,\mathbb{E}[X]$, &nbsp; $\operatorname{var}(Y\mid N)=N\operatorname{var}(X)$</td><td class="l">$X_i$ i.i.d. and independent of the count $N$. Both are random variables — functions of $N$.</td><td class="l">G4 §2; B&amp;T §4.5</td></tr>
 <tr><td class="l">Random sum, unconditional</td><td class="l">$\mathbb{E}[Y]=\mathbb{E}[N]\,\mathbb{E}[X]$; &nbsp; $\operatorname{var}(Y)=\mathbb{E}[N]\operatorname{var}(X)+\big(\mathbb{E}[X]\big)^2\operatorname{var}(N)$</td><td class="l">Same hypotheses. The mean needs two numbers, the variance needs four: $Y$ is random both because each term is and because <em>how many terms</em> there are is.</td><td class="l">G4 §2; B&amp;T §4.5</td></tr>
+<tr><td class="l">Joint CDF and marginals</td><td class="l">$F_{X,Y}(x,y)=\mathbf{P}(X\le x,\ Y\le y)$; &nbsp; $f_{X,Y}=\dfrac{\partial^2F_{X,Y}}{\partial x\,\partial y}$; &nbsp; $F_X(x)=\lim_{y\to\infty}F_{X,Y}(x,y)$, &nbsp; $f_X(x)=\int f_{X,Y}(x,y)\,dy$ (discrete: $p_X(x)=\sum_yp_{X,Y}(x,y)$)</td><td class="l">The CDF needs no density — it is defined for discrete, continuous and mixed pairs alike, which is what makes it the tool of choice for a $\min$ or a $\max$. Independence has a CDF form too: $F_{X,Y}=F_XF_Y$ for <em>all</em> $x,y$.</td><td class="l">G3 §2 (§2.1 the joint CDF, §2.2 the marginals); B&amp;T §3.4</td></tr>
 <tr><td class="l">Derived distributions</td><td class="l">Discrete: $p_Y(y)=\sum_{x:g(x)=y}p_X(x)$. Continuous: get $F_Y(y)=\mathbf{P}(g(X)\le y)$ first, then differentiate, $f_Y=dF_Y/dy$</td><td class="l">Never differentiate a PDF directly through a nonlinear $g$. Linear special case: $f_Y(y)=\frac{1}{|a|}f_X\big(\frac{y-b}{a}\big)$ for $Y=aX+b$.</td><td class="l">G3 §4; B&amp;T §4.1</td></tr>
-<tr><td class="l">Convolution</td><td class="l">$W=X+Y$ independent: &nbsp; $p_W(w)=\sum_xp_X(x)p_Y(w-x)$; &nbsp; $f_W(w)=\int f_X(x)f_Y(w-x)\,dx$</td><td class="l"><b>Independence required.</b> Closure facts that follow: two independent normals sum to a normal; $k$ independent Exp$(\lambda)$ sum to Erlang$(k,\lambda)$.</td><td class="l">G3 §4; B&amp;T §4.1</td></tr>
+<tr><td class="l">Convolution</td><td class="l">$W=X+Y$ independent: &nbsp; $p_W(w)=\sum_xp_X(x)p_Y(w-x)$; &nbsp; $f_W(w)=\int f_X(x)f_Y(w-x)\,dx$</td><td class="l"><b>Independence required.</b> Closure facts that follow: two independent normals sum to a normal; $k$ independent Exp$(\lambda)$ sum to Erlang$(k,\lambda)$; and, in the discrete sum, Binomial$(n,p)+$Binomial$(m,p)=$Binomial$(n+m,p)$ — the <em>same</em> $p$ in both, since the sum is then just $n+m$ trials of one Bernoulli process. Convolving Binomial$(7,0.3)$ with Binomial$(5,0.3)$ reproduces Binomial$(12,0.3)$ to $1.4\times10^{-16}$ (<code>F_binom_closure_maxdev</code>); with mismatched $p=0.3$ and $0.6$ the sum has mean $5.1$ but variance $2.67$, not the $2.9325$ a binomial with that mean would have, so it is not binomial at all.</td><td class="l">G3 §4; B&amp;T §4.1</td></tr>
 
 <tr><td class="l" colspan="4"><b>D. Arrival processes</b></td></tr>
 <tr><td class="l">Bernoulli process</td><td class="l">Count in $n$ trials: Binomial$(n,p)$, mean $np$, variance $np(1-p)$. Interarrival: geometric$(p)$, mean $1/p$. Time of the $k$th success: Pascal of order $k$, mean $k/p$, variance $k(1-p)/p^2$</td><td class="l">Independent trials, same $p$ every trial. Memoryless: given no success in the first $m$ trials, the remaining wait is again geometric$(p)$.</td><td class="l">G4 §2; B&amp;T §6.1</td></tr>
@@ -384,7 +445,9 @@ silently assuming independence is the single most expensive error in this materi
 <tr><td class="l">The model</td><td class="l">$X_{n+1}=X_n\pm1$ with $\mathbf{P}(+1)=p$; states $0$ and $m$ absorbing; $\rho=\dfrac{1-p}{p}$ is the odds ratio</td><td class="l">The walk <b>is a Markov chain</b> — the next fortune depends on the past only through the current one — so nothing here is a special theory: every tool of block E applies unchanged, and the two closed forms below are just the absorption equations of block E solved in a case where the answer happens to be elementary. $\rho&gt;1$ means an unfavorable game, $\rho=1$ a fair one.</td><td class="l">G5 §1 (Markov property), G5 §4 (this chain); B&amp;T §7.4, Example 7.11</td></tr>
 <tr><td class="l">Reaching the target before ruin</td><td class="l">$a_i=\begin{cases}\dfrac{1-\rho^{\,i}}{1-\rho^{\,m}}, & p\ne\tfrac12,\\[1.4ex] \dfrac im, & p=\tfrac12,\end{cases}$ &nbsp; and $\mathbf{P}(\text{ruin})=1-a_i$</td><td class="l">$a_i$ starts from fortune $i$. <em>Method:</em> first-step analysis $a_i=p\,a_{i+1}+(1-p)a_{i-1}$ with $a_0=0$, $a_m=1$; write $a_i=p\,a_i+(1-p)a_i$, so the successive differences satisfy $\delta_i=\rho\,\delta_{i-1}$, then telescope. The symmetric answer $i/m$ is <em>linear</em> in the stake; a small edge bends it into an exponential. At $m=20$, $i=10$: $a=0.5$ when $p=\tfrac12$ but only $0.118501$ at $p=0.45$ — five points of edge turn a coin flip into a $1$-in-$8$ shot.</td><td class="l">G5 §4 (§4.3, Example 4.4); B&amp;T §7.4</td></tr>
 <tr><td class="l">Expected duration</td><td class="l">$D_i=\begin{cases}\dfrac{i-m\,a_i}{1-2p}, & p\ne\tfrac12,\\[1.4ex] i\,(m-i), & p=\tfrac12\end{cases}$</td><td class="l">Same recursion with a $+1$ for the step taken: $D_i=1+p\,D_{i+1}+(1-p)D_{i-1}$, $D_0=D_m=0$. The symmetric case is the memorable one — $i(m-i)$, a parabola maximized at the midpoint, and <em>the fair game lasts longest</em>. At $m=20$, $i=10$: $D=100$ rounds symmetric (simulation $99.482440$) against $76.299894$ at $p=0.45$.</td><td class="l">G5 §4 (§4.3); B&amp;T §7.4</td></tr>
-<tr><td class="l">Unbounded target</td><td class="l">Let $m\to\infty$: if $p\le\tfrac12$ then $a_i\to0$ — ruin is certain; if $p&gt;\tfrac12$ then $a_i\to1-\rho^{\,i}$, strictly less than $1$</td><td class="l">The fair walk is recurrent but the fortune is not bounded away from $0$, so a fixed bankroll is eventually wiped out however large it is; an edge buys you a positive survival probability but never a guarantee. At $p=0.55$, $i=10$: $1-(9/11)^{10}=0.865569$.</td><td class="l">G5 §4; G5 §2 (recurrence vs transience)</td></tr>
+<tr><td class="l">Unbounded target</td><td class="l">Let $m\to\infty$: if $p\le\tfrac12$ then $a_i\to0$ — ruin is certain; if $p&gt;\tfrac12$ then $a_i\to1-\rho^{\,i}$, strictly less than $1$</td><td class="l">The fair walk is recurrent but the fortune is not bounded away from $0$, so a fixed bankroll is eventually wiped out however large it is; an edge buys you a positive survival probability but never a guarantee. At $p=0.55$, $i=10$: $\rho=9/11$ and $1-\rho^{10}=\tfrac{22450640200}{25937424601}=0.865569$
+    (<code>F_rw_p55_i10_a_limit</code>; the finite-$m$ formula at $m=5000$ already returns the same
+    six decimals, <code>F_rw_p55_i10_a_m5000</code>).</td><td class="l">G5 §4; G5 §2 (recurrence vs transience)</td></tr>
 
 <tr><td class="l" colspan="4"><b>H. Limit theorems</b></td></tr>
 <tr><td class="l">Markov inequality</td><td class="l">$\mathbf{P}(X\ge a)\le\dfrac{\mathbb{E}[X]}{a}$ for $a&gt;0$</td><td class="l">Needs $X\ge0$ and the mean; nothing else. A guarantee for every distribution meeting the hypothesis — and usually very loose.</td><td class="l">G6 §1; B&amp;T §5.1</td></tr>
@@ -405,17 +468,23 @@ silently assuming independence is the single most expensive error in this materi
 <tr><td class="l">Likelihood ratio test</td><td class="l">Reject $H_0$ iff $\dfrac{p_X(x;H_1)}{p_X(x;H_0)}&gt;\xi$; &nbsp; $\alpha(R)=\mathbf{P}(X\in R;H_0)$, &nbsp; $\beta(R)=\mathbf{P}(X\notin R;H_1)$</td><td class="l">Both hypotheses simple. Fix $\alpha$ first, then solve for $\xi$, then report $\beta$ — you do not get to choose both error rates. Note $\alpha$ means a false-alarm rate here and a confidence level in the CI row; they are different quantities.</td><td class="l">G7 §4; B&amp;T §9.3</td></tr>
 </tbody>
 </table>
+</div>
 
 <div class="recipe"><b>Recipe — using this sheet under time pressure.</b>
 <ol>
 <li><b>Name the object before the formula.</b> Is the thing you want a number, a random variable, a
 distribution, or a bound? Block C's first row exists because that question is answered wrongly more
 often than any other.</li>
-<li><b>Check the hypothesis column before the statement column.</b> Independence is required in
-five places on this sheet — products of expectations, variance of a sum, convolution, the Poisson
-splitting independence, and the summed-gap variances of blocks F and D — and is required nowhere
-else. Linearity of expectation and total expectation never need it, which is exactly why the
-coupon-collector row of block F and the indicator rows of block B work at all.</li>
+<li><b>Check the hypothesis column before the statement column.</b> Independence is never
+implied here: every row that needs it says so in its own Conditions cell, and there are more of them
+than people remember — products of expectations, convolution, both random-sum rows, merging,
+splitting (plus the bonus independence <em>between</em> the two split Poisson streams), competing
+exponentials, the independent-trials hypotheses of the Bernoulli and Poisson process rows and of the
+waiting times in block F, and the i.i.d. hypotheses of the limit theorems in block H. One row is
+easy to misfile: <b>variance of a sum is unconditional</b> as printed — it is only the
+<em>vanishing of its cross terms</em> that needs independence. And linearity of expectation and
+total expectation never need it at all, which is exactly why the coupon-collector row of block F and
+the indicator rows of block B work.</li>
 <li><b>Match units.</b> $p$ is dimensionless, $\lambda$ is $1/\text{time}$, a variance carries
 squared units, $\rho$ carries none. A dimensional mismatch is a modeling error you can catch without
 doing the problem.</li>
@@ -427,57 +496,7 @@ table entry in the special case ($k=1$ for Pascal or Erlang, $n=1$ for binomial)
 wrong, not the table.</li>
 </ol></div>
 
-<h3>1.5 Constants worth carrying in your head</h3>
-
-<p>Every value recomputed in <code>computes/rf_s1.py</code>; the key names are given so you can check
-them yourself.</p>
-
-<table>
-<thead>
-<tr><th class="l">Constant</th><th class="num">Value</th><th class="l">Where it bites</th><th class="l">Key</th></tr>
-</thead>
-<tbody>
-<tr><td class="l">Normal percentile $z$ at $90\%$, $95\%$, $99\%$</td><td class="num">$1.644854$, $1.959964$, $2.575829$</td><td class="l">Every confidence interval in G7 §1. The familiar $1.96$ is $1.959964$ rounded.</td><td class="l"><code>D_z_90/95/99</code></td></tr>
-<tr><td class="l">Bernoulli variance bound $\sigma^2=f(1-f)$</td><td class="num">$\le1/4$, at $f=1/2$</td><td class="l">Poll sizing in G6 §1 and G7 §1 when $f$ is unknown — using $1/4$ keeps the guarantee valid whatever $f$ turns out to be.</td><td class="l">G6 §1</td></tr>
-<tr><td class="l">Hypergeometric finite-population correction, $n=20,k=5$</td><td class="num">$\frac{15}{19}=0.789474$</td><td class="l">The exact penalty for sampling without replacement; variance $1.2\to18/19=0.947368$.</td><td class="l"><code>A_hyper_fpc</code></td></tr>
-<tr><td class="l">Geometric mean gap between the two conventions</td><td class="num">exactly $1$, at every $p$</td><td class="l">§1.3. Variances are equal; only the means differ.</td><td class="l"><code>C_p*_gap</code></td></tr>
-<tr><td class="l">Radar posterior (Bayes, odds form)</td><td class="num">$0.052632\times9.9=0.521053\Rightarrow0.342561$</td><td class="l">G1 §2. A $99\%$-sensitive test on a $5\%$ prior still leaves the disease/plane the <em>less</em> likely explanation.</td><td class="l"><code>D_bayes_*</code></td></tr>
-<tr><td class="l">The $\tfrac12$ correction on Binomial$(36,\tfrac12)$, $k=21$</td><td class="num">exact $0.878508$; corrected $0.878327$; uncorrected $0.841345$</td><td class="l">G6 §2. One added constant cuts the error from $0.037163$ to $0.000180$.</td><td class="l"><code>D_clt_*</code></td></tr>
-<tr><td class="l">Two-state chain steady state, $p_{11}=0.5$, $p_{21}=0.2$</td><td class="num">$\pi=(2/7,5/7)=(0.285714,0.714286)$</td><td class="l">G5 §3. Mean recurrence times $3.5$ and $1.4$; $P^{50}$ has both rows already equal to $\pi$ to six decimals; detailed balance holds, both sides $0.142857$.</td><td class="l"><code>D_markov_*</code></td></tr>
-<tr><td class="l">Signal-plus-noise correlation, $Y=X+N$ with equal variances</td><td class="num">$\rho=1/\sqrt2=0.707107$</td><td class="l">G3 §4. Half of $Y$'s variance is noise $X$ knows nothing about, so linear LMS removes $\rho^2=0.5$ of the prior variance and no more.</td><td class="l"><code>D_rho_signal_noise</code></td></tr>
-<tr><td class="l">The four waiting times, fair coin and fair die</td><td class="num">$2$, $6$, $6$, $14.7$</td><td class="l">Block F of §1.4: first head ($1/p$, G2 §3), third head ($k/p$, G4 §2), the pattern HH (first-step analysis, G2 §3), and all six faces ($6H_6=147/10$, G4 §3). The pattern HH costs exactly what the <em>third</em> head costs, $6$; the trap answer for HH is $1/p^2=4$, which forgets that a tail destroys a banked head.</td><td class="l"><code>F_wt_*</code></td></tr>
-<tr><td class="l">Symmetric random walk, $m=20$ from $i=10$</td><td class="num">$a_i=0.5$, $D_i=100$</td><td class="l">Block G of §1.4 and G5 §4: $i/m$ and $i(m-i)$. Five points of edge ($p=0.45$) drop $a_i$ to $0.118501$ and the duration to $76.299894$.</td><td class="l"><code>F_rw_*</code></td></tr>
-<tr><td class="l">$t_9$ versus $z$ at $97.5\%$ &nbsp;<span class="small">(beyond 6.041)</span></td><td class="num">$2.262157$ versus $1.959964$ — $15.4\%$ wider</td><td class="l">The size of the error 6.041 tolerates by using $\Phi$ with an estimated $\sigma$ at small $n$. By $\nu=100$ the $t$ value is $1.983972$ and the gap is $1.2\%$.</td><td class="l"><code>B_t_crit_975_df9</code></td></tr>
-</tbody>
-</table>
-
-<div class="ex"><b>Practice 1.1 (reading the story column backwards).</b> For each sentence, name the
-distribution and write its mean, using only the tables above. (a) "A machine produces defective parts
-independently with probability $0.02$; a batch of $500$ is inspected — how many defectives?"
-(b) "…how many parts must be inspected to find the first defective?" (c) "…to find the third
-defective?" (d) "A crate holds $500$ parts of which $10$ are defective; $20$ are drawn without
-replacement — how many defectives among them?" (e) "Defects appear along a wire at a rate of
-$0.02$ per metre — how many in $500$ metres?" (f) "…how far to the third defect?"
-<details class="sol"><summary>Solution</summary><div class="body">
-<p>(a) <b>Binomial$(500,0.02)$</b> — a fixed number of independent identical trials, count the
-successes. Mean $np=500\times0.02=10$.</p>
-<p>(b) <b>Geometric$(0.02)$</b> — wait for the first success, unbounded. Mean $1/p=50$ parts. Note
-this is the trials-until convention of §1.3; a source using failures-before would say $49$.</p>
-<p>(c) <b>Pascal of order $3$</b> at $p=0.02$ — the trial index of the third success. Mean
-$k/p=3/0.02=150$ parts, variance $k(1-p)/p^2=3(0.98)/0.0004=7350$.</p>
-<p>(d) <b>Hypergeometric</b> with $n=500$, $m=10$, $k=20$ — <em>without replacement</em>, so not
-binomial. Mean $km/n=20\times10/500=0.4$, the same as the binomial with $p=10/500$; the variance is
-smaller by the factor $(n-k)/(n-1)=480/499=0.961924$.</p>
-<p>(e) <b>Poisson</b> with parameter $\lambda\tau=0.02\times500=10$ — a count in a continuous window,
-mean and variance both $10$. Compare (a): same mean, but the variance is $10$ here against
-$np(1-p)=9.8$ there, because the binomial's $(1-p)$ factor has been killed by the limit.</p>
-<p>(f) <b>Erlang of order $3$</b> at $\lambda=0.02$ — the position of the third arrival in continuous
-space. Mean $k/\lambda=150$ metres, variance $k/\lambda^2=7500$. Set (c) beside (f): the same story
-told on the two clocks of block D, with the Pascal variance $7350$ approaching the Erlang $7500$ as
-the slot shrinks.</p>
-</div></details></div>
-
-<div class="ex"><b>Practice 1.2 (which row, and does it need independence?).</b> You have $X$ and $Y$
+<div class="ex"><b>Practice 1.3 (which row, and does it need independence?).</b> You have $X$ and $Y$
 with $\mathbb{E}[X]=3$, $\mathbb{E}[Y]=5$, $\operatorname{var}(X)=4$, $\operatorname{var}(Y)=9$,
 $\operatorname{cov}(X,Y)=-3$. Find (i) $\mathbb{E}[2X-Y+1]$, (ii) $\operatorname{var}(2X-Y)$,
 (iii) $\rho$, (iv) $\mathbb{E}[XY]$, and (v) the MSE of the best linear estimator of $Y$ from $X$.
@@ -501,6 +520,32 @@ $Y$'s variance and no more. No independence — indeed if they <em>were</em> ind
 the MSE would be the full $9$: independence is exactly the case where the data are useless.</p>
 </div></details></div>
 
+<h3>1.5 Constants worth carrying in your head</h3>
+
+<p>Every value recomputed in <code>computes/rf_s1.py</code>; the key names are given so you can check
+them yourself.</p>
+
+<div class="tablewrap">
+<table>
+<thead>
+<tr><th class="l">Constant</th><th class="num">Value</th><th class="l">Where it bites</th><th class="l">Key</th></tr>
+</thead>
+<tbody>
+<tr><td class="l">Normal percentile $z$ at $90\%$, $95\%$, $99\%$</td><td class="num">$1.644854$, $1.959964$, $2.575829$</td><td class="l">Every confidence interval in G7 §1. The familiar $1.96$ is $1.959964$ rounded.</td><td class="l"><code>D_z_90/95/99</code></td></tr>
+<tr><td class="l">Bernoulli variance bound $\sigma^2=f(1-f)$</td><td class="num">$\le1/4$, at $f=1/2$</td><td class="l">Poll sizing in G6 §1 and G7 §1 when $f$ is unknown — using $1/4$ keeps the guarantee valid whatever $f$ turns out to be; at $f=0.1$ the true variance is only $0.09$.</td><td class="l"><code>D_bern_var_bound_*</code></td></tr>
+<tr><td class="l">Hypergeometric finite-population correction, $n=20,k=5$</td><td class="num">$\frac{15}{19}=0.789474$</td><td class="l">The exact penalty for sampling without replacement; variance $1.2\to18/19=0.947368$.</td><td class="l"><code>A_hyper_fpc</code></td></tr>
+<tr><td class="l">Geometric mean gap between the two conventions</td><td class="num">exactly $1$, at every $p$</td><td class="l">§1.3. Variances are equal; only the means differ.</td><td class="l"><code>C_p*_gap</code></td></tr>
+<tr><td class="l">Radar posterior (Bayes, odds form)</td><td class="num">$0.052632\times9.9=0.521053\Rightarrow0.342561$</td><td class="l">G1 §2. A $99\%$-sensitive test on a $5\%$ prior still leaves the disease/plane the <em>less</em> likely explanation.</td><td class="l"><code>D_bayes_*</code></td></tr>
+<tr><td class="l">The $\tfrac12$ correction on Binomial$(36,\tfrac12)$, $k=21$</td><td class="num">exact $0.878508$; corrected $0.878327$; uncorrected $0.841345$</td><td class="l">G6 §2. One added constant cuts the error from $0.037163$ to $0.000180$.</td><td class="l"><code>D_clt_*</code></td></tr>
+<tr><td class="l">Two-state chain steady state, $p_{11}=0.5$, $p_{21}=0.2$</td><td class="num">$\pi=(2/7,5/7)=(0.285714,0.714286)$</td><td class="l">G5 §3. Mean recurrence times $3.5$ and $1.4$; $P^{50}$ has both rows already equal to $\pi$ to six decimals; detailed balance holds, both sides $0.142857$.</td><td class="l"><code>D_markov_*</code></td></tr>
+<tr><td class="l">Signal-plus-noise correlation, $Y=X+N$ with equal variances</td><td class="num">$\rho=1/\sqrt2=0.707107$</td><td class="l">G3 §4. Half of $Y$'s variance is noise $X$ knows nothing about, so linear LMS removes $\rho^2=0.5$ of the prior variance and no more.</td><td class="l"><code>D_rho_signal_noise</code></td></tr>
+<tr><td class="l">The four waiting times, fair coin and fair die</td><td class="num">$2$, $6$, $6$, $14.7$</td><td class="l">Block F of §1.4: first head ($1/p$, G2 §3), third head ($k/p$, G4 §2), the pattern HH (first-step analysis, G2 §3), and all six faces ($6H_6=147/10$, G4 §3). The pattern HH costs exactly what the <em>third</em> head costs, $6$; the trap answer for HH is $1/p^2=4$, which forgets that a tail destroys a banked head.</td><td class="l"><code>F_wt_*</code></td></tr>
+<tr><td class="l">Symmetric random walk, $m=20$ from $i=10$</td><td class="num">$a_i=0.5$, $D_i=100$</td><td class="l">Block G of §1.4 and G5 §4: $i/m$ and $i(m-i)$. Five points of edge ($p=0.45$) drop $a_i$ to $0.118501$ and the duration to $76.299894$.</td><td class="l"><code>F_rw_*</code></td></tr>
+<tr><td class="l">$t_9$ versus $z$ at $97.5\%$ &nbsp;<span class="small">(beyond 6.041)</span></td><td class="num">$2.262157$ versus $1.959964$ — $15.4\%$ wider</td><td class="l">The size of the error 6.041 tolerates by using $\Phi$ with an estimated $\sigma$ at small $n$. By $\nu=100$ the $t$ value is $1.983972$ and the gap is $1.2\%$.</td><td class="l"><code>B_t_crit_975_df9</code></td></tr>
+</tbody>
+</table>
+</div>
+
 <div class="summary"><b>§1 in one box.</b>
 <ul>
 <li><b>Seven discrete families</b> (§1.1): Bernoulli, discrete uniform, binomial, geometric, Pascal,
@@ -520,9 +565,11 @@ cheatsheet and many texts count failures, mean $(1-p)/p$. Means differ by exactl
 agree. <code>scipy</code> follows ours.</li>
 <li><b>The master sheet</b> (§1.4) is grouped A–I: probability laws, expectation and variance,
 conditioning, arrival processes, Markov chains, waiting times, the random walk, limit theorems,
-inference. Independence is needed in only a handful of places — products of expectations, variance
-of a sum, convolution, Poisson splitting, and the summed gaps behind the Pascal and Erlang variances
-— and nowhere else.</li>
+inference. Independence is stated in the Conditions cell of every row that needs it — products of
+expectations, convolution, the random-sum rows, merging and splitting, competing exponentials, the
+independent-trials and i.i.d. hypotheses of blocks D, F and H, and the summed gaps behind the Pascal
+and Erlang variances — and is never assumed silently. The variance-of-a-sum row is <em>not</em> on
+that list: it holds always, and only its cross terms vanish under independence.</li>
 <li><b>Numbers to keep</b> (§1.5): $z=1.959964$ at $95\%$; $\sigma^2\le1/4$ for a Bernoulli;
 $\rho=1/\sqrt2$ for equal-variance signal plus noise; the $\tfrac12$ correction cutting a CLT error
 from $0.037163$ to $0.000180$; $\pi=(2/7,5/7)$ for the two-state chain; and the waiting-time trio
@@ -630,7 +677,7 @@ below) or a numerical approximation of $\Phi^{-1}$.</div>
 
 <div class="ex"><b>Example 2.1 — inverse-CDF sampling of an exponential.</b>
 <p><b>Statement.</b> Using only a stream of $\mathrm{Unif}(0,1)$ numbers, generate draws from
-$	ext{Exp}(\lambda)$, and verify both directions of the theorem numerically at $\lambda=1.5$.</p>
+$\text{Exp}(\lambda)$, and verify both directions of the theorem numerically at $\lambda=1.5$.</p>
 <p><b>Step 1 — the CDF.</b> For the exponential, $f(x)=\lambda e^{-\lambda x}$ on $x\ge0$, so
 $$F(x)=\int_0^{x}\lambda e^{-\lambda t}\,dt=\big[-e^{-\lambda t}\big]_0^{x}=1-e^{-\lambda x},
 \qquad x\ge 0,$$
@@ -650,11 +697,11 @@ draw by draw but not in distribution.</p>
 $1/\lambda=0.666667$, the sample variance is $0.445479$ against $1/\lambda^{2}=0.444444$, and the
 simulated tail probability $\mathbf{P}(X&gt;2)$ is $0.049993$ against the exact
 $e^{-1.5\cdot2}=0.049787$. The Kolmogorov–Smirnov distance — the largest vertical gap between the
-empirical CDF and the true $	ext{Exp}(1.5)$ CDF — is $0.000614$, with p-value $0.438$
+empirical CDF and the true $\text{Exp}(1.5)$ CDF — is $0.000614$, with p-value $0.438$
 (<code>u_ks_stat</code>, <code>u_ks_pvalue</code>): no discrepancy at all. Fig. 2.1(a) is the
 histogram against the target density.</p>
 <p><b>Step 5 — the forward direction, on the same example.</b> Take a fresh exponential sample
-$Y\sim	ext{Exp}(1.5)$ generated by a different mechanism and push it through its own CDF:
+$Y\sim\text{Exp}(1.5)$ generated by a different mechanism and push it through its own CDF:
 $F(Y)=1-e^{-1.5Y}$. The result has sample mean $0.499949$ (target $1/2$) and sample variance
 $0.083353$ (target $1/12=0.083333$), with KS distance $0.000317$ to $\mathrm{Unif}(0,1)$ and
 p-value $0.988$ (<code>u_fwd_ks_stat</code>). Fig. 2.1(b). Both directions check out.</p>
@@ -786,7 +833,7 @@ decimals.</p>
 </div>
 
 <div class="ex"><b>Example 2.3 — splitting a sum from its share: $S=X+Y$ and $V=X/(X+Y)$.</b>
-<p><b>Statement.</b> $X$ and $Y$ are independent $	ext{Exp}(\lambda)$ — say two service times.
+<p><b>Statement.</b> $X$ and $Y$ are independent $\text{Exp}(\lambda)$ — say two service times.
 Find the joint density of the total $S=X+Y$ and the first job's share $V=X/(X+Y)$.</p>
 <p><b>Step 1 — invert the map.</b> From $V=X/S$ we get $x=sv$, and then $y=s-x=s(1-v)$. The map is
 one-to-one from $\{x&gt;0,\ y&gt;0\}$ onto $\{s&gt;0,\ 0&lt;v&lt;1\}$: the total is any positive
@@ -946,15 +993,15 @@ density is a shape, not a story.</div>
 <table>
 <thead><tr><th class="l">$j$</th><th class="l">Law</th><th class="num">mean $j/6$</th><th class="num">simulated</th><th class="num">sd</th><th class="num">simulated</th></tr></thead>
 <tbody>
-<tr><td class="l">1 (min)</td><td class="l">Beta$(1,5)$</td><td class="num">$0.166667$</td><td class="num">$0.166671$</td><td class="num">$0.140859$</td><td class="num">$0.140821$</td></tr>
-<tr><td class="l">2</td><td class="l">Beta$(2,4)$</td><td class="num">$0.333333$</td><td class="num">$0.333098$</td><td class="num">$0.178174$</td><td class="num">$0.178073$</td></tr>
-<tr><td class="l">3 (median)</td><td class="l">Beta$(3,3)$</td><td class="num">$0.500000$</td><td class="num">$0.499642$</td><td class="num">$0.188982$</td><td class="num">$0.188934$</td></tr>
-<tr><td class="l">4</td><td class="l">Beta$(4,2)$</td><td class="num">$0.666667$</td><td class="num">$0.666190$</td><td class="num">$0.178476$</td><td class="num">$0.178174$</td></tr>
-<tr><td class="l">5 (max)</td><td class="l">Beta$(5,1)$</td><td class="num">$0.833333$</td><td class="num">$0.832695$</td><td class="num">$0.141254$</td><td class="num">$0.140859$</td></tr>
+<tr><td class="l">1 (min)</td><td class="l">Beta$(1,5)$</td><td class="num">$0.166667$</td><td class="num">$0.166759$</td><td class="num">$0.140859$</td><td class="num">$0.140824$</td></tr>
+<tr><td class="l">2</td><td class="l">Beta$(2,4)$</td><td class="num">$0.333333$</td><td class="num">$0.333992$</td><td class="num">$0.178174$</td><td class="num">$0.178234$</td></tr>
+<tr><td class="l">3 (median)</td><td class="l">Beta$(3,3)$</td><td class="num">$0.500000$</td><td class="num">$0.500891$</td><td class="num">$0.188982$</td><td class="num">$0.188573$</td></tr>
+<tr><td class="l">4</td><td class="l">Beta$(4,2)$</td><td class="num">$0.666667$</td><td class="num">$0.667385$</td><td class="num">$0.178174$</td><td class="num">$0.177606$</td></tr>
+<tr><td class="l">5 (max)</td><td class="l">Beta$(5,1)$</td><td class="num">$0.833333$</td><td class="num">$0.833612$</td><td class="num">$0.140859$</td><td class="num">$0.140633$</td></tr>
 </tbody>
 </table>
 
-<p>The sample range has mean $(n-1)/(n+1)=0.666667$, simulated $0.666025$ (<code>os_range_sim</code>)
+<p>The sample range has mean $(n-1)/(n+1)=0.666667$, simulated $0.666853$ (<code>os_range_sim</code>)
 — it is $\mathbb{E}[U_{(5)}]-\mathbb{E}[U_{(1)}]=\frac56-\frac16$ by linearity of expectation (G2
 §2), which needs no independence and so is untroubled by the gotcha above.</p>
 
@@ -976,7 +1023,7 @@ term by term for $i=0,1,2$ (<code>os_p3_terms</code>) — the same number to six
 arithmetic instead of integration. This equivalence between a Beta tail and a binomial tail is
 worth remembering; it is the reason the two families keep appearing together.</p>
 <p><b>Route 3 — simulation.</b> Sorting $400{,}000$ samples of five uniforms and counting gives
-$0.162477$ (<code>os_p3_sim</code>). The standard error of such a fraction is
+$0.163653$ (<code>os_p3_sim</code>). The standard error of such a fraction is
 $\sqrt{0.1631\cdot0.8369/400000}\approx0.00058$, so the gap of $0.0006$ from the exact value is
 about one standard error — a clean agreement, not a discrepancy.</p>
 <p><b>Interpretation.</b> Roughly one time in six the median of five uniform points lands in the top
@@ -987,16 +1034,16 @@ sample medians are used.</p>
 
 <h4>Exponential order statistics, and the two cross-checks</h4>
 
-<p>For $X_1,\dots,X_n$ i.i.d. $	ext{Exp}(\lambda)$ there is a memoryless shortcut that avoids the
+<p>For $X_1,\dots,X_n$ i.i.d. $\text{Exp}(\lambda)$ there is a memoryless shortcut that avoids the
 density formula entirely. The minimum is the first of $n$ competing exponential clocks, so
-$X_{(1)}\sim	ext{Exp}(n\lambda)$ — "rates add", exactly as G3 §1 derives it — with mean
+$X_{(1)}\sim\text{Exp}(n\lambda)$ — "rates add", exactly as G3 §1 derives it — with mean
 $1/(n\lambda)$. By the memorylessness of the exponential (G4 §3), once the first has fired the
 remaining $n-1$ clocks start fresh, so the additional wait $X_{(2)}-X_{(1)}$ is
-$	ext{Exp}\big((n-1)\lambda\big)$, independent of the first, and so on. Summing the gaps,
+$\text{Exp}\big((n-1)\lambda\big)$, independent of the first, and so on. Summing the gaps,
 $$\mathbb{E}\big[X_{(k)}\big]=\sum_{i=1}^{k}\frac{1}{\lambda\,(n-i+1)}
 =\frac{1}{\lambda}\left(\frac1n+\frac{1}{n-1}+\cdots+\frac{1}{n-k+1}\right).$$
 At $\lambda=1$, $n=5$ this gives $0.200000,\ 0.450000,\ 0.783333,\ 1.283333,\ 2.283333$ against
-simulated $0.200014,\ 0.450311,\ 0.783701,\ 1.284314,\ 2.284697$ (<code>eo_true</code>,
+simulated $0.200496,\ 0.449761,\ 0.782750,\ 1.283151,\ 2.283776$ (<code>eo_true</code>,
 <code>eo_sim</code>). Note the last entry: $\mathbb{E}[X_{(n)}]=\frac1\lambda\big(1+\frac12+\cdots+
 \frac1n\big)$, the harmonic number $H_5=2.283333$ — which is exactly the "harmonic pattern" G3 §1
 finds for the maximum of three exponentials in its Example 1.7 and its Practice 1.14.</p>
@@ -1021,17 +1068,17 @@ $n\int_0^1(1-w)w^{n-1}dw=n\big(\frac1n-\frac{1}{n+1}\big)=\frac{1}{n+1}$).</p>
 =(1-x)^{n}$, so $F_{U_{(1)}}(x)=1-(1-x)^{n}$; differentiating gives $n(1-x)^{n-1}$, the same
 density. And by the tail formula for a nonnegative random variable,
 $\mathbb{E}[U_{(1)}]=\int_0^1(1-x)^{n}dx=\frac{1}{n+1}$, agreeing. At $n=5$: $1/6=0.166667$ against
-the simulated $0.166671$ in the table above. It matches the gap picture — the smallest point sits at
+the simulated $0.166759$ in the table above. It matches the gap picture — the smallest point sits at
 the end of the first of $n+1$ equal average gaps.</p>
 </div></details></div>
 
 <div class="ex"><b>Practice 2.5.</b> Five customers arrive; their service times are i.i.d.
-$	ext{Exp}(1)$. (a) What is the expected time until the third service finishes? (b) Which gap
+$\text{Exp}(1)$. (a) What is the expected time until the third service finishes? (b) Which gap
 between consecutive completions is longest on average, and why?
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>(a)</b> The third completion is $X_{(3)}$, and by the gap decomposition
 $$\mathbb{E}\big[X_{(3)}\big]=\frac15+\frac14+\frac13=0.200000+0.250000+0.333333=0.783333,$$
-matching the simulated $0.783701$ (<code>eo_true</code>, <code>eo_sim</code>). Reading the terms:
+matching the simulated $0.782750$ (<code>eo_true</code>, <code>eo_sim</code>). Reading the terms:
 five clocks race to the first completion (mean wait $1/5$), then four race to the second (mean
 $1/4$), then three to the third (mean $1/3$).</p>
 <p><b>(b)</b> The last one. The gaps have means $\frac{1}{5},\frac14,\frac13,\frac12,1$ — increasing,
@@ -1067,8 +1114,8 @@ $1-(1-F)^n$: the max/min rules of G3 §1.</li>
 <li><b>Uniform sample.</b> $U_{(j)}\sim\mathrm{Beta}(j,n-j+1)$, mean $j/(n+1)$, variance
 $\frac{j(n-j+1)}{(n+1)^2(n+2)}$; the $n$ points cut $(0,1)$ into $n+1$ gaps of equal average
 length. Range mean $(n-1)/(n+1)$. At $n=5$, $\mathbf{P}(U_{(3)}&gt;0.7)=0.163080$ by Beta tail,
-binomial tail, or simulation ($0.162477$).</li>
-<li><b>Exponential sample.</b> $X_{(1)}\sim	ext{Exp}(n\lambda)$ and the gaps are independent
+binomial tail, or simulation ($0.163653$).</li>
+<li><b>Exponential sample.</b> $X_{(1)}\sim\text{Exp}(n\lambda)$ and the gaps are independent
 exponentials of rates $n\lambda,(n-1)\lambda,\dots$, so
 $\mathbb{E}[X_{(k)}]=\frac1\lambda\sum_{i=1}^{k}\frac{1}{n-i+1}$; the max has mean
 $H_n/\lambda$ ($H_5=2.283333$), the harmonic pattern of G3 §1. Cross-check into G7 §2:
@@ -1094,8 +1141,8 @@ unable to spot this trap is not yet safe with data.</p>
 <div class="defn"><b>Definition (moment generating function; B&amp;T §4.4).</b> The <b>moment generating
 function</b> (MGF) of a random variable $X$ is the function of a real variable $t$
 $$M_X(t)=\mathbb{E}\big[e^{tX}\big]=
-\begin{cases}\displaystyle\sum_x e^{tx}p_X(x), & X \text{ discrete},\\[6pt]
-\displaystyle\int_{-\infty}^{\infty}e^{tx}f_X(x)\,dx, & X\text{ continuous},\end{cases}$$
+\begin{cases}\displaystyle\sum_x e^{tx}p_X(x), &amp; X \text{ discrete},\\[6pt]
+\displaystyle\int_{-\infty}^{\infty}e^{tx}f_X(x)\,dx, &amp; X\text{ continuous},\end{cases}$$
 defined for every $t$ for which the sum or integral is finite. Here $t$ is not a random quantity and
 has no probabilistic meaning at all: it is a bookkeeping variable, a dial you turn to extract
 information about $X$. The expectation is of the random variable $e^{tX}$, computed by the expected
@@ -1222,7 +1269,9 @@ quadrature).</p>
 </tbody>
 </table>
 </div>
-<p><b>Table note.</b> These are the seven named distributions of G2 §1 and G3 §1. Numerical checks
+<p><b>Table note.</b> These are the seven named distributions of G2 §1, G3 §1 and G4 §3 (the
+Poisson is introduced with the Poisson process in G4 §3; the geometric's mean and variance are
+derived in G2 §3). Numerical checks
 (<code>computes/rf_s3.py</code>, §A2): at $t=0.4$ the direct sum/integral and the closed form agree
 to six decimals for every row — e.g. binomial $n=5,p=0.3$: $1.990000$ vs $1.990000$; Poisson
 $\lambda=1.5$: $2.091198$ vs $2.091198$; uniform on $[2,6]$: $5.498522$ vs $5.498522$; exponential
@@ -1297,8 +1346,9 @@ $\big((e^t-1)/t\big)^2$, which is a perfectly good MGF and tells you nothing you
 triangular density of G3 §4 has to be obtained by convolution (or by inverting the transform, which
 is harder than the convolution). Transforms shine on closed families, not on arbitrary sums.</div>
 
-<div class="note"><b>Why 6.041 leaves this out.</b> The course states its own boundary: L12's random
-sums slide reads "mean and variance only; no transforms", which is why G4 §2 quotes the transform
+<div class="note"><b>Why 6.041 leaves this out.</b> The course states its own boundary: the reading
+assignment for L12 (random sums) is B&amp;T §4.5 "mean and variance only; no
+transforms", which is why G4 §2 quotes the transform
 identity $M_Y(t)=M_N\big(\log M_X(t)\big)$ for a random sum $Y=X_1+\cdots+X_N$ only in a parenthesis
 and derives the mean and variance by the law of iterated expectations instead. B&amp;T develops
 transforms properly in §4.4; the lectures skip that section, so G3 §4 routes every sum through
@@ -1402,8 +1452,8 @@ all <code>True</code>.) Open surgery is better for small stones, better for larg
 overall. Every patient has either a small stone or a large one, so whichever stone you have, open
 surgery is the better bet — and the aggregate table recommends PN.</div>
 
-<img class="fig" src="data:image/png;base64,{{IMG:rf_s3_simpson}}" alt="Three panels. Left: grouped bars of success rate for open surgery and PN among small stones (0.931 versus 0.867), large stones (0.730 versus 0.688) and all patients (0.780 versus 0.826), with the last pair marked reversal. Middle: horizontal stacked bars of case mix, open surgery 87 small and 263 large, PN 270 small and 80 large. Right: aggregate success rate plotted as a straight line against the fraction of small stones, one line per treatment, the open-surgery line lying above the PN line everywhere, with each treatment's actual operating point marked — open surgery at fraction 0.249 giving 0.780 and PN at fraction 0.771 giving 0.826." style="max-width:960px">
-<div class="figcap">Fig. 3.2 — Simpson's paradox in the kidney-stone data. Left: the reversal. Middle: the lurking variable is wildly unbalanced across treatments. Right: each aggregate is a weighted average sliding along its own line, and the two treatments are read at different points of it (data: Charig et al. 1986; all values <code>computes/rf_s3.py</code>, §B1).</div>
+<img class="fig" src="data:image/png;base64,{{IMG:rf_s3_simpson}}" alt="Three panels in two rows. Top left: grouped bars of success rate for open surgery and PN among small stones (0.931 versus 0.867), large stones (0.730 versus 0.688) and all patients (0.780 versus 0.826), with the last pair marked reversal. Top right: horizontal stacked bars of case mix, open surgery 87 small and 263 large, PN 270 small and 80 large. Bottom, spanning the width: aggregate success rate plotted as a straight line against the fraction of small stones, one line per treatment, the open-surgery line lying above the PN line everywhere, with each treatment's actual operating point marked — open surgery at fraction 0.249 giving 0.780 and PN at fraction 0.771 giving 0.826, and a dashed vertical line at the common mix w = 0.510." style="max-width:900px">
+<div class="figcap">Fig. 3.2 — Simpson's paradox in the kidney-stone data. Top left: the reversal. Top right: the lurking variable is wildly unbalanced across treatments. Bottom: each aggregate is a weighted average sliding along its own line, and the two treatments are read at different points of it (data: Charig et al. 1986; all values <code>computes/rf_s3.py</code>, §B1).</div>
 
 <h4>Why it happens: the weights, not the rates</h4>
 
@@ -1431,7 +1481,7 @@ hard ones. PN wins the aggregate not by treating patients better but by treating
 in the real study, surgeons sent the severe cases to open surgery, exactly the sort of association
 that makes the lurking variable dangerous.</p>
 
-<div class="note"><b>Interpretation (the right-hand panel of Fig. 3.2).</b> Write the aggregate as a
+<div class="note"><b>Interpretation (the bottom panel of Fig. 3.2).</b> Write the aggregate as a
 function of the small-stone share $w=\mathbf{P}(C\mid\text{treatment})$:
 $$r(w)=r_{\text{large}}+w\big(r_{\text{small}}-r_{\text{large}}\big),$$
 a straight line from the large-stone rate at $w=0$ to the small-stone rate at $w=1$. Open surgery's

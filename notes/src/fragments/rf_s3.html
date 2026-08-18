@@ -16,8 +16,8 @@ unable to spot this trap is not yet safe with data.</p>
 <div class="defn"><b>Definition (moment generating function; B&amp;T §4.4).</b> The <b>moment generating
 function</b> (MGF) of a random variable $X$ is the function of a real variable $t$
 $$M_X(t)=\mathbb{E}\big[e^{tX}\big]=
-\begin{cases}\displaystyle\sum_x e^{tx}p_X(x), & X \text{ discrete},\\[6pt]
-\displaystyle\int_{-\infty}^{\infty}e^{tx}f_X(x)\,dx, & X\text{ continuous},\end{cases}$$
+\begin{cases}\displaystyle\sum_x e^{tx}p_X(x), &amp; X \text{ discrete},\\[6pt]
+\displaystyle\int_{-\infty}^{\infty}e^{tx}f_X(x)\,dx, &amp; X\text{ continuous},\end{cases}$$
 defined for every $t$ for which the sum or integral is finite. Here $t$ is not a random quantity and
 has no probabilistic meaning at all: it is a bookkeeping variable, a dial you turn to extract
 information about $X$. The expectation is of the random variable $e^{tX}$, computed by the expected
@@ -144,7 +144,9 @@ quadrature).</p>
 </tbody>
 </table>
 </div>
-<p><b>Table note.</b> These are the seven named distributions of G2 §1 and G3 §1. Numerical checks
+<p><b>Table note.</b> These are the seven named distributions of G2 §1, G3 §1 and G4 §3 (the
+Poisson is introduced with the Poisson process in G4 §3; the geometric's mean and variance are
+derived in G2 §3). Numerical checks
 (<code>computes/rf_s3.py</code>, §A2): at $t=0.4$ the direct sum/integral and the closed form agree
 to six decimals for every row — e.g. binomial $n=5,p=0.3$: $1.990000$ vs $1.990000$; Poisson
 $\lambda=1.5$: $2.091198$ vs $2.091198$; uniform on $[2,6]$: $5.498522$ vs $5.498522$; exponential
@@ -219,8 +221,9 @@ $\big((e^t-1)/t\big)^2$, which is a perfectly good MGF and tells you nothing you
 triangular density of G3 §4 has to be obtained by convolution (or by inverting the transform, which
 is harder than the convolution). Transforms shine on closed families, not on arbitrary sums.</div>
 
-<div class="note"><b>Why 6.041 leaves this out.</b> The course states its own boundary: L12's random
-sums slide reads "mean and variance only; no transforms", which is why G4 §2 quotes the transform
+<div class="note"><b>Why 6.041 leaves this out.</b> The course states its own boundary: the reading
+assignment for L12 (random sums) is B&amp;T §4.5 "mean and variance only; no
+transforms", which is why G4 §2 quotes the transform
 identity $M_Y(t)=M_N\big(\log M_X(t)\big)$ for a random sum $Y=X_1+\cdots+X_N$ only in a parenthesis
 and derives the mean and variance by the law of iterated expectations instead. B&amp;T develops
 transforms properly in §4.4; the lectures skip that section, so G3 §4 routes every sum through
@@ -324,8 +327,8 @@ all <code>True</code>.) Open surgery is better for small stones, better for larg
 overall. Every patient has either a small stone or a large one, so whichever stone you have, open
 surgery is the better bet — and the aggregate table recommends PN.</div>
 
-<img class="fig" src="data:image/png;base64,{{IMG:rf_s3_simpson}}" alt="Three panels. Left: grouped bars of success rate for open surgery and PN among small stones (0.931 versus 0.867), large stones (0.730 versus 0.688) and all patients (0.780 versus 0.826), with the last pair marked reversal. Middle: horizontal stacked bars of case mix, open surgery 87 small and 263 large, PN 270 small and 80 large. Right: aggregate success rate plotted as a straight line against the fraction of small stones, one line per treatment, the open-surgery line lying above the PN line everywhere, with each treatment's actual operating point marked — open surgery at fraction 0.249 giving 0.780 and PN at fraction 0.771 giving 0.826." style="max-width:960px">
-<div class="figcap">Fig. 3.2 — Simpson's paradox in the kidney-stone data. Left: the reversal. Middle: the lurking variable is wildly unbalanced across treatments. Right: each aggregate is a weighted average sliding along its own line, and the two treatments are read at different points of it (data: Charig et al. 1986; all values <code>computes/rf_s3.py</code>, §B1).</div>
+<img class="fig" src="data:image/png;base64,{{IMG:rf_s3_simpson}}" alt="Three panels in two rows. Top left: grouped bars of success rate for open surgery and PN among small stones (0.931 versus 0.867), large stones (0.730 versus 0.688) and all patients (0.780 versus 0.826), with the last pair marked reversal. Top right: horizontal stacked bars of case mix, open surgery 87 small and 263 large, PN 270 small and 80 large. Bottom, spanning the width: aggregate success rate plotted as a straight line against the fraction of small stones, one line per treatment, the open-surgery line lying above the PN line everywhere, with each treatment's actual operating point marked — open surgery at fraction 0.249 giving 0.780 and PN at fraction 0.771 giving 0.826, and a dashed vertical line at the common mix w = 0.510." style="max-width:900px">
+<div class="figcap">Fig. 3.2 — Simpson's paradox in the kidney-stone data. Top left: the reversal. Top right: the lurking variable is wildly unbalanced across treatments. Bottom: each aggregate is a weighted average sliding along its own line, and the two treatments are read at different points of it (data: Charig et al. 1986; all values <code>computes/rf_s3.py</code>, §B1).</div>
 
 <h4>Why it happens: the weights, not the rates</h4>
 
@@ -353,7 +356,7 @@ hard ones. PN wins the aggregate not by treating patients better but by treating
 in the real study, surgeons sent the severe cases to open surgery, exactly the sort of association
 that makes the lurking variable dangerous.</p>
 
-<div class="note"><b>Interpretation (the right-hand panel of Fig. 3.2).</b> Write the aggregate as a
+<div class="note"><b>Interpretation (the bottom panel of Fig. 3.2).</b> Write the aggregate as a
 function of the small-stone share $w=\mathbf{P}(C\mid\text{treatment})$:
 $$r(w)=r_{\text{large}}+w\big(r_{\text{small}}-r_{\text{large}}\big),$$
 a straight line from the large-stone rate at $w=0$ to the small-stone rate at $w=1$. Open surgery's

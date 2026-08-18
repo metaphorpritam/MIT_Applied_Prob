@@ -224,22 +224,32 @@ show("q59_mu_table", float(500 + 2.33 * 1.2))
 show("q59_check_tail", float(Phi((500 - (500 + 2.33 * 1.2)) / 1.2)))
 show("q59_wrong_z_1p96", float(500 + 1.96 * 1.2), "two-sided 95% mix-up")
 
-# ------------------------------------------------------- Q60 uniform triangle
-head("Q60  (X,Y) uniform on {0 <= y <= x <= 1}")
-show("q60_area", 0.5)
-show("q60_density", 2.0)
-show("q60_fX_at_0p5", float(2 * 0.5))
-show("q60_fY_at_0p5", float(2 * (1 - 0.5)))
-show("q60_EX", float(integrate.quad(lambda x: x * 2 * x, 0, 1)[0]), "= 2/3")
-show("q60_EY", float(integrate.quad(lambda y: y * 2 * (1 - y), 0, 1)[0]), "= 1/3")
-show("q60_P_sum_le_1", float(2 * 0.25), "2 x area(1/4)")
-show("q60_P_Y_gt_0p5", float(integrate.quad(lambda y: 2 * (1 - y), 0.5, 1)[0]), "= 1/4")
-uu = rng.random(N)
-vv = rng.random(N)
-Xt, Yt = np.maximum(uu, vv), np.minimum(uu, vv)
-show("q60_mc_EX", float(Xt.mean()))
-show("q60_mc_EY", float(Yt.mean()))
-show("q60_mc_P_sum_le_1", float((Xt + Yt <= 1).mean()))
+# ------------------------------------------------ Q60 continuous Bayes (G3 s3)
+# Prior f_T(t) = 2t on [0,1]; X | T=t ~ Bin(3, t); observe X = 1.
+head("Q60  continuous prior, discrete observation (Bayes)")
+prior60 = lambda t: 2 * t
+lik60 = lambda t: 3 * t * (1 - t) ** 2                      # P(X=1 | T=t)
+show("q60_prior_mean", float(integrate.quad(lambda t: t * prior60(t), 0, 1)[0]), "= 2/3")
+show("q60_prior_P_gt_half", float(integrate.quad(prior60, 0.5, 1)[0]), "= 3/4")
+den60 = integrate.quad(lambda t: prior60(t) * lik60(t), 0, 1)[0]
+show("q60_P_X_eq_1", float(den60), "= 1/5, the Bayes denominator")
+show("q60_beta_integral", float(integrate.quad(lambda t: t**2 * (1 - t) ** 2, 0, 1)[0]), "= 1/30")
+post60 = lambda t: prior60(t) * lik60(t) / den60
+show("q60_post_const", float(post60(0.5) / (0.5**2 * 0.5**2)), "= 30, i.e. Beta(3,3)")
+show("q60_post_norm_check", float(integrate.quad(post60, 0, 1)[0]))
+show("q60_post_at_0p25", float(post60(0.25)))
+show("q60_post_at_0p5", float(post60(0.5)), "the mode")
+show("q60_post_mean", float(integrate.quad(lambda t: t * post60(t), 0, 1)[0]), "= 1/2")
+show("q60_post_var", float(integrate.quad(lambda t: t**2 * post60(t), 0, 1)[0] - 0.5**2), "= 1/28")
+show("q60_post_P_gt_half", float(integrate.quad(post60, 0.5, 1)[0]), "= 1/2 by symmetry")
+show("q60_ml_estimate", 1.0 / 3.0, "the wrong answer: ignores the prior")
+# Monte Carlo: draw from the prior, keep the draws that produced X = 1.
+t60 = np.sqrt(rng.random(N))                                # prior f(t) = 2t
+x60 = rng.binomial(3, t60)
+keep = t60[x60 == 1]
+show("q60_mc_P_X_eq_1", float((x60 == 1).mean()))
+show("q60_mc_post_mean", float(keep.mean()))
+show("q60_mc_post_P_gt_half", float((keep > 0.5).mean()))
 
 # ---------------------------------------------------- Q61 exponential wedge
 head("Q61  f(x,y) = c e^{-y} on 0 <= x <= y")

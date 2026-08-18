@@ -437,6 +437,9 @@ show("q84_wrong_lambda3", math.exp(-3) * 9 / 2, "using lambda*tau=3 over half an
 show("q86_wrong_le5", float(sum(math.exp(-7.5) * 7.5**j / math.factorial(j) for j in range(6))),
      "including k=5 by mistake")
 show("q89_var_sum_check", 6.0 + 18.0 + 0.0, "= var(N) = 24 with zero covariance")
+show("q77_wrong_var_product", 200.0 * 36.0, "var(N)var(X): multiplying the variances")
+show("q83_wrong_unweighted_PT2", (1 - 0.4) * 0.4 + 0.4**2, "P(T=2) with the K-weights dropped")
+show("q89_cond_cov_given_25", -25 * 0.25 * 0.75, "cov(N_S,N_L | N=25): the fixed-total answer")
 show("q91_bias_ratio", 16.0 / 8.0)
 show("q93_between_share", 1029.0 / 1070.0)
 show("q93_pure_poisson_P0", math.exp(-41.0), "Poisson(41) at 0, for contrast")

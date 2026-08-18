@@ -211,21 +211,61 @@ for _ in range(M9):
 put("q9_mc", hits / M9)
 
 # ----------------------------------------------------------------- Q10 stars/bars
-head("Q10  12 identical grants among 5 departments (stars and bars)")
-put("q10_free", comb(12 + 5 - 1, 5 - 1))
-put("q10_atleast1", comb(11, 4))
-put("q10_distinguishable", 5**12)
-put("q10_P_dept1_gets_zero", F(comb(12 + 4 - 1, 3), comb(16, 4)), "C(15,3)/C(16,4)")
-put("q10_C15_3", comb(15, 3))
-# brute force check of both counts
-allocs = [t for t in product(range(13), repeat=5) if sum(t) == 12]
+head("Q10  12 identical pallets among 5 stores, dock capacity 4 (stars and bars + I-E)")
+n_pal, n_st, cap = 12, 5, 4
+q10_free = comb(n_pal + n_st - 1, n_st - 1)
+put("q10_free", q10_free, "C(16,4), unrestricted allocations")
+put("q10_C16_4_numerator", 16 * 15 * 14 * 13)
+put("q10_distinguishable", n_st**n_pal, "5^12, the independent-routing sample space")
+# (a) inclusion-exclusion on the violation events V_i = {store i gets >= 5}
+q10_single = comb((n_pal - (cap + 1)) + n_st - 1, n_st - 1)  # pre-pay 5 to one store
+put("q10_C11_4_numerator", 11 * 10 * 9 * 8)
+put("q10_violate_single", q10_single, "|V_i| = C(11,4)")
+q10_pair = comb((n_pal - 2 * (cap + 1)) + n_st - 1, n_st - 1)  # pre-pay 5 to each of two
+put("q10_violate_pair", q10_pair, "|V_i n V_j| = C(6,4)")
+put("q10_n_singles", comb(n_st, 1))
+put("q10_n_pairs", comb(n_st, 2))
+put("q10_triple_needs", 3 * (cap + 1), "15 > 12 pallets, so triple intersections are empty")
+q10_union = comb(n_st, 1) * q10_single - comb(n_st, 2) * q10_pair
+put("q10_singles_term", comb(n_st, 1) * q10_single)
+put("q10_pairs_term", comb(n_st, 2) * q10_pair)
+put("q10_violating", q10_union, "|union V_i| = 5(330) - 10(15)")
+q10_capped = q10_free - q10_union
+put("q10_capped", q10_capped, "allocations respecting the cap of 4 everywhere")
+put("q10_trap_one_term_only", q10_free - comb(n_st, 1) * q10_single, "stopping I-E after one term")
+# (b) store 1 >= 3 and store 5 = 0: pre-pay the lower bound, delete the empty bin
+q10_b = comb((n_pal - 3) + (n_st - 1) - 1, (n_st - 1) - 1)
+put("q10_C12_3_numerator", 12 * 11 * 10)
+put("q10_lb_delbin", q10_b, "C(12,3): 9 pallets free among 4 stores")
+# (c) uniform law over the 1820 allocations
+q10_P_cap = F(q10_capped, q10_free)
+put("q10_P_capped_uniform", q10_P_cap, "320/1820 = 16/91")
+# (d) independent routing: weight each count vector by its multinomial coefficient
+allocs = [t for t in product(range(n_pal + 1), repeat=n_st) if sum(t) == n_pal]
 put("q10_brute_free", len(allocs))
-put("q10_brute_atleast1", sum(1 for t in allocs if min(t) >= 1))
-put("q10_brute_dept1_zero", sum(1 for t in allocs if t[0] == 0))
-assert len(allocs) == comb(16, 4)
-assert sum(1 for t in allocs if min(t) >= 1) == comb(11, 4)
-assert sum(1 for t in allocs if t[0] == 0) == comb(15, 3)
+q10_brute_capped = sum(1 for t in allocs if max(t) <= cap)
+put("q10_brute_capped", q10_brute_capped, "brute-force check of (a)")
+q10_brute_b = sum(1 for t in allocs if t[0] >= 3 and t[4] == 0)
+put("q10_brute_lb_delbin", q10_brute_b, "brute-force check of (b)")
 
+
+def multinom(t: tuple[int, ...]) -> int:
+    m = factorial(sum(t))
+    for k in t:
+        m //= factorial(k)
+    return m
+
+
+q10_weight_capped = sum(multinom(t) for t in allocs if max(t) <= cap)
+put("q10_routings_capped", q10_weight_capped, "routings out of 5^12 with no store over 4")
+q10_P_indep = F(q10_weight_capped, n_st**n_pal)
+put("q10_P_capped_indep", q10_P_indep, "the independent-routing answer quoted in (d)")
+put("q10_multinom_33222", multinom((3, 3, 2, 2, 2)), "weight of the balanced vector")
+put("q10_multinom_120000", multinom((12, 0, 0, 0, 0)), "weight of the lopsided vector")
+put("q10_uniform_weight_each", F(1, q10_free), "1/1820, what the uniform model gives both")
+assert len(allocs) == q10_free == 1820
+assert q10_brute_capped == q10_capped == 320
+assert q10_brute_b == q10_b == 220
 # ----------------------------------------------------------------- Q11 circular
 head("Q11  8 people at a round table")
 put("q11_circular_total", factorial(7))
@@ -556,10 +596,6 @@ put("q9_C10_4", comb(10, 4))
 put("q9_C12_3", comb(12, 3))
 put("q9_C9_4", comb(9, 4))
 put("q9_inner_counts", [comb(4, 3), comb(5, 3), comb(6, 3)])
-put("q10_C16_4_numerator", 16 * 15 * 14 * 13)
-put("q10_C11_4_numerator", 11 * 10 * 9 * 8)
-put("q10_C15_3_numerator", 15 * 14 * 13)
-put("q10_indep_dept1_zero", (4 / 5) ** 12, "different model: each grant picks a dept")
 put("q11_6fact", factorial(6))
 put("q11_5fact", factorial(5))
 put("q12_ie_partial", 1 - F(1, 2) + F(1, 6) - F(1, 24) + F(1, 120), "P(M>=1)")

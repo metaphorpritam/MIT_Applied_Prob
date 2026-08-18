@@ -191,6 +191,21 @@ rec("q122_bound_at_100", s2u / (100 * d ** 2))
 mcM4 = rng.uniform(0, 2, size=(4_000, 10_000)).mean(axis=1)
 rec("q122_mc_n10000_hits", int(np.sum(np.abs(mcM4 ** 2 - 1) >= epsq)))
 
+# ------------------------------------------------- Q122(c): the L19 counterexample
+hdr("Q122(c) - Y_n = 0 w.p. 1-1/n, = n w.p. 1/n:  Y_n -> 0 in probability, E[Y_n] = 1")
+rng_yn = np.random.default_rng(11223344)          # own stream: leaves the main rng untouched
+for nyn in (100, 10_000):
+    rec(f"q122c_E_Y_{nyn}", nyn * (1.0 / nyn), "n * (1/n) = 1 for every n")
+    rec(f"q122c_E_Y2_{nyn}", float(nyn ** 2 * (1.0 / nyn)), "n^2 * (1/n) = n")
+    rec(f"q122c_var_Y_{nyn}", float(nyn ** 2 * (1.0 / nyn) - 1.0), "= n - 1")
+    rec(f"q122c_sd_Y_{nyn}", math.sqrt(nyn - 1.0))
+    rec(f"q122c_P_dev_{nyn}", 1.0 / nyn, "P(|Y_n - 0| >= eps) = 1/n for any 0 < eps <= n")
+    draws = rng_yn.random(4_000_000) < (1.0 / nyn)
+    rec(f"q122c_E_Y_mc_{nyn}", float(np.mean(draws * nyn)))
+rec("q122c_P_dev_at_1e6", 1.0 / 1_000_000, "still exactly 1/n; E[Y_n] still 1")
+rec("q122c_E_limit", 0.0, "E of the limit r.v. Y = 0")
+rec("q122c_limit_of_E", 1.0, "lim E[Y_n] = 1  !=  E[lim Y_n] = 0")
+
 # ---------------------------------------------------------------- Q123
 hdr("Q123 - plain CLT: 200 service times, mean 3, sd 2; P(total > 620)")
 n123, m123, sd123 = 200, 3.0, 2.0

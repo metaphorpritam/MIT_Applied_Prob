@@ -8,8 +8,9 @@ the four things it does <em>not</em> say, sample sizes priced by Chebyshev again
 priced by the central limit theorem, and normal approximations including the $\tfrac12$ continuity
 correction and the regime where the approximation quietly fails. The second half asks what you may
 claim about an unknown: posteriors for discrete and continuous parameters, a conjugate coin-bias
-calculation, MAP against the conditional mean and the cases where they disagree by a factor of
-three, and LMS / linear LMS estimation with the orthogonality property and the
+calculation, MAP against the conditional mean, the reparametrization in which two MAP estimates of
+the same quantity disagree by a factor of three, and LMS / linear LMS estimation with the
+orthogonality property and the
 $(1-\rho^2)\operatorname{var}(\Theta)$ error formula. Every number below is recomputed in
 <code>computes/qb_s6.py</code>, with Monte-Carlo cross-checks on the tails, the posteriors and the
 estimators.</p>
@@ -290,6 +291,11 @@ $M_n$ be the sample mean. (a) Prove directly &mdash; without quoting any continu
 &mdash; that $M_n^2$ converges in probability to $1$, by converting a tolerance on $M_n^2$ into a
 tolerance on $M_n$. (b) Evaluate your bound at $\epsilon=0.1$ for $n=100$ and $n=10{,}000$ and
 compare with the true probabilities.</p>
+<p>(c) A separate sequence, to test what the mode of convergence does <em>not</em> control. Let
+$Y_n$ take two values,
+$$\mathbf{P}(Y_n=0)=1-\frac1n,\qquad \mathbf{P}(Y_n=n)=\frac1n .$$
+Compute $\mathbf{P}(|Y_n|\ge\epsilon)$ for a fixed $\epsilon\in(0,1)$, $\mathbb{E}[Y_n]$ and
+$\operatorname{var}(Y_n)$, and give the convergence verdict for $Y_n$.</p>
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>(a) Step 1 &mdash; a deterministic implication.</b> Suppose $|M_n-1|\le\delta$ for some
 $\delta&gt;0$. Then, factoring the difference of squares,
@@ -315,9 +321,25 @@ At $n=10{,}000$ the bound is $0.013992$. The truth is far smaller: $\operatornam
 $z=8.453940$ standard deviations up) or $M_n\le\sqrt{0.9}=0.948683$ ($z=8.888314$ down), for a
 total probability of about $1.44\times10^{-17}$; $4{,}000$ simulated runs at $n=10{,}000$
 produced $0$ exceedances, as expected.</p>
+<p><b>(c) Convergence in probability without convergence of the mean.</b> Fix any
+$\epsilon\in(0,1)$. Since $n\ge1&gt;\epsilon$, the only way to have $|Y_n|\ge\epsilon$ is $Y_n=n$, so
+$$\mathbf{P}(|Y_n-0|\ge\epsilon)=\frac1n\;\xrightarrow[n\to\infty]{}\;0 ,$$
+for every fixed $\epsilon$: $Y_n\to0$ in probability, by the definition itself and with no
+inequality needed. Yet the mean never moves:
+$$\mathbb{E}[Y_n]=0\Big(1-\frac1n\Big)+n\cdot\frac1n=1\quad\text{for every }n ,$$
+so $\lim_n\mathbb{E}[Y_n]=1$ while $\mathbb{E}[\lim_n Y_n]=\mathbb{E}[0]=0$. Four million draws
+give $1.000900$ at $n=100$ and $1.000000$ at $n=10{,}000$&nbsp;&#10003;. The second moment is
+$\mathbb{E}[Y_n^2]=n^2(1/n)=n$, so
+$$\operatorname{var}(Y_n)=n-1 ,$$
+which is $99$ at $n=100$ and $9999$ at $n=10{,}000$ &mdash; it <em>diverges</em>. The vanishing
+probability $1/n$ and the growing value $n$ multiply to a constant $1$: the mass escapes to
+infinity fast enough to carry a fixed unit of expectation with it. Verdict: $Y_n\to0$ in
+probability; $\mathbb{E}[Y_n]\not\to0$; $\operatorname{var}(Y_n)\to\infty$.</p>
 <p><b>Answer.</b> $\;\mathbf{P}(|M_n^2-1|&gt;0.1)\le 139.920590/n$, i.e. $1.399206$ (vacuous) at
 $n=100$ and $0.013992$ at $n=10{,}000$, against a true value near $1.4\times10^{-17}$ &mdash; the
-bound exceeds the truth by some $10^{15}$.</p>
+bound exceeds the truth by some $10^{15}$. In (c), $Y_n\to0$ in probability with
+$\mathbf{P}(|Y_n|\ge\epsilon)=1/n$, while $\mathbb{E}[Y_n]=1$ for every $n$ and
+$\operatorname{var}(Y_n)=n-1\to\infty$.</p>
 <p><b>The tempting wrong answer.</b> "Apply Chebyshev to $M_n^2$ directly with variance
 $\operatorname{var}(M_n^2)$." That is legal but requires fourth moments of $X$ and a computation of
 $\operatorname{var}(M_n^2)$; the $\delta$-conversion needs only what the weak law already gives.
@@ -541,8 +563,10 @@ which sum to $1$&nbsp;&#10003;.</p>
 <p><b>Step 4 &mdash; the two summaries.</b> The largest posterior probability is at $\theta=3$, so
 $\hat\theta_{\text{MAP}}=3$, and it is wrong with probability $1-0.491769=0.508231$. The
 conditional expectation is
-$$\mathbb{E}[\Theta\mid X=4]=1(0.112152)+2(0.396079)+3(0.491769)
-=0.112152+0.792159+1.475308=2.379618 ,$$
+$$\begin{aligned}
+\mathbb{E}[\Theta\mid X=4]&=1(0.112152)+2(0.396079)+3(0.491769)\\
+&=0.112152+0.792159+1.475308=2.379618 ,
+\end{aligned}$$
 against a prior mean of $1(0.5)+2(0.3)+3(0.2)=1.7$: the data pulled the estimate up.</p>
 <p><b>Answer.</b> $\;$posterior $(0.112152,\;0.396079,\;0.491769)$;
 $\hat\theta_{\text{MAP}}=3$; $\mathbb{E}[\Theta\mid X=4]=2.379618$.</p>

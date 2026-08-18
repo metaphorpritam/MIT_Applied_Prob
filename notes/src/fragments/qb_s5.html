@@ -198,7 +198,7 @@ Numerically $P^{200}$ has rows 1 and 2 equal to $(0.571429,\,0.428571,\,0,\,0)$ 
 <p>Decide true or false and justify each. (a) Every finite-state Markov chain has at least one recurrent state. (b) If a chain has exactly one recurrent class, then $r_{ij}(n)$ converges to a limit that does not depend on $i$. (c) If a chain has a single aperiodic recurrent class together with some transient states, then $\pi_j=0$ for every transient $j$.</p>
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> Recall: $i$ is recurrent iff every state accessible from $i$ can reach $i$ back; $\pi_j$ is the unique solution of the balance equations $\pi_j=\sum_k\pi_kp_{kj}$ with $\sum_j\pi_j=1$, and equals the long-run fraction of time spent in $j$.</p>
-<p><b>Step 1 (part a &mdash; TRUE).</b> Suppose every state were transient. Start at any state $i_1$. Because $i_1$ is transient, there is a state $i_2$ accessible from $i_1$ that cannot reach $i_1$ back. Then the accessible set of $i_2$ is a <em>strict</em> subset of that of $i_1$: it is contained in it (anything reachable from $i_2$ is reachable from $i_1$) and it omits $i_1$. Repeat from $i_2$. Each step strictly shrinks a subset of a finite state space, so the process must terminate &mdash; and it terminates exactly at a state that is not transient. Hence at least one recurrent state exists. (This argument uses finiteness essentially; an infinite chain such as the unbiased random walk on $\mathbb{Z}$ modified to drift right can have all states transient.)</p>
+<p><b>Step 1 (part a &mdash; TRUE).</b> Suppose every state were transient. Start at any state $i_1$. Because $i_1$ is transient, there is a state $i_2$ accessible from $i_1$ that cannot reach $i_1$ back. Then the accessible set of $i_2$ is a <em>strict</em> subset of that of $i_1$: it is contained in it (anything reachable from $i_2$ is reachable from $i_1$) and it omits $i_1$. Repeat from $i_2$. Each step strictly shrinks a subset of a finite state space, so the process must terminate &mdash; and it terminates exactly at a state that is not transient. Hence at least one recurrent state exists. (This argument uses finiteness essentially; an infinite chain such as the random walk on $\mathbb{Z}$ with a rightward drift ($p&gt;1/2$) has all states transient.)</p>
 <p><b>Step 2 (part b &mdash; FALSE).</b> The single-class hypothesis is not sufficient; aperiodicity is also needed. Counterexample: the two-state chain $p_{12}=p_{21}=1$ is irreducible, hence has exactly one recurrent class $\{1,2\}$, yet
 $$r_{11}(200)=1,\qquad r_{11}(201)=0,$$
 so $r_{11}(n)$ has no limit at all. The correct statement adds "and that class is aperiodic".</p>
@@ -292,8 +292,8 @@ $$P=\begin{pmatrix}0.4&amp;0.4&amp;0.2&amp;0\\0.3&amp;0.4&amp;0.3&amp;0\\0&amp;0
 A student writes "this is a birth&ndash;death chain, so I can use local balance": $\pi_0p_{01}=\pi_1p_{10}$, i.e. $0.4\pi_0=0.3\pi_1$, giving $\pi_1=\frac43\pi_0$. (a) Identify the error. (b) Write the correct cut equation across the boundary separating $\{0\}$ from $\{1,2,3\}$ and deduce the true ratio $\pi_1/\pi_0$. (c) The true steady state is $\pi=(5/27,\,10/27,\,8/27,\,4/27)$; verify it satisfies the cut equation separating $\{0,1\}$ from $\{2,3\}$.</p>
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> Cut (or "flow balance") equations are always valid for any partition of the state space: in steady state, the long-run rate of transitions from $S$ to $S^{c}$ equals the rate from $S^{c}$ to $S$, because every crossing one way must eventually be matched by a crossing back. The <em>local balance</em> shortcut $\pi_ip_{i,i+1}=\pi_{i+1}p_{i+1,i}$ is the special case where the only way across the cut $\{0,\dots,i\}\mid\{i+1,\dots\}$ is the single pair of arrows $i\leftrightarrow i+1$ &mdash; i.e. a genuine birth&ndash;death chain.</p>
-<p><b>Step 1 (part a &mdash; the error).</b> This chain is <em>not</em> birth&ndash;death: $p_{02}=0.2&gt;0$ is a jump of two states at once. So the cut between $\{0\}$ and $\{1,2,3\}$ is crossed not only by $0\to1$ but also by $0\to2$, and the student's equation leaves out that flow. The chain also lacks the return arrow $2\to0$, so the two sides of his equation are not even the same cut.</p>
-<p><b>Step 2 (part b &mdash; the correct cut).</b> Flow out of $\{0\}$: $\pi_0(p_{01}+p_{02})=\pi_0(0.4+0.2)=0.6\,\pi_0$. Flow into $\{0\}$: $\pi_1p_{10}+\pi_2p_{20}+\pi_3p_{30}=0.3\,\pi_1+0+0=0.3\,\pi_1$. Equating,
+<p><b>Step 1 (part a &mdash; the error).</b> This chain is <em>not</em> birth&ndash;death: $p_{02}=0.2&gt;0$ is a jump of two states at once. So the cut between $\{0\}$ and $\{1,2,3\}$ is crossed not only by $0\to1$ but also by $0\to2$, and the student's equation leaves out that flow.</p>
+<p><b>Step 2 (part b &mdash; the correct cut).</b> Outward across the cut $\{0\}\mid\{1,2,3\}$ go both $0\to1$ and $0\to2$, while inward there is only $1\to0$, since $p_{20}=p_{30}=0$ &mdash; which is exactly why the correct cut equation reads $0.6\,\pi_0=0.3\,\pi_1$ and not the student's $0.4\,\pi_0=0.3\,\pi_1$. Flow out of $\{0\}$: $\pi_0(p_{01}+p_{02})=\pi_0(0.4+0.2)=0.6\,\pi_0$. Flow into $\{0\}$: $\pi_1p_{10}+\pi_2p_{20}+\pi_3p_{30}=0.3\,\pi_1+0+0=0.3\,\pi_1$. Equating,
 $$0.6\,\pi_0=0.3\,\pi_1\;\Longrightarrow\;\pi_1=2\,\pi_0 .$$
 The true ratio is $2$, not the student's $4/3=1.333333$ &mdash; a $50\%$ error, and it propagates. Carrying his pairwise ratios all the way up and normalizing gives $\pi^{\text{student}}=(0.283019,\,0.377358,\,0.226415,\,0.113208)$ against the truth $(0.185185,\,0.370370,\,0.296296,\,0.148148)$: he overstates $\pi_0$ by $0.097834$, because he has ignored an escape route out of state 0 and so made state 0 look stickier than it is.</p>
 <p><b>Step 3 (part c &mdash; verify the other cut).</b> Across $\{0,1\}\mid\{2,3\}$ the crossing arrows are $0\to2$ ($0.2$), $1\to2$ ($0.3$) going out, and $2\to1$ ($0.5$) coming back ($p_{30}=p_{31}=0$). With $\pi_0=5/27=0.185185$, $\pi_1=10/27=0.370370$, $\pi_2=8/27=0.296296$:
@@ -372,7 +372,7 @@ $$\pi_2(0.1)=\pi_3(0.4)\;\Longrightarrow\;\pi_3=0.25\,\pi_2=0.03125\,\pi_0,$$
 $$\pi_3(0.1)=\pi_4(0.5)\;\Longrightarrow\;\pi_4=0.2\,\pi_3=0.00625\,\pi_0 .$$</p>
 <p><b>Step 3 (normalize).</b> The relative weights are $1,\;0.5,\;0.125,\;0.03125,\;0.00625$, summing to $1.6625$. Hence $\pi_0=1/1.6625=0.601504$ and
 $$\pi=(0.601504,\;0.300752,\;0.075188,\;0.018797,\;0.003759).$$
-Solving the full $5\times5$ balance system numerically reproduces this exactly, and $200{,}000$ simulated chains give $(0.6022,\,0.3005,\,0.0745,\,0.0192,\,0.0037)\;\checkmark$.</p>
+Solving the full $5\times5$ balance system numerically reproduces this exactly, and $200{,}000$ simulated chains give $(0.6026,\,0.2998,\,0.0752,\,0.0186,\,0.0039)\;\checkmark$.</p>
 <p><b>Step 4 (part c).</b>
 $$\mathbb{E}[X]=\sum_{i=0}^{4}i\,\pi_i=0.300752+2(0.075188)+3(0.018797)+4(0.003759)$$
 $$=0.300752+0.150376+0.056391+0.015038=0.522556\ \text{tickets}.$$</p>
@@ -397,10 +397,10 @@ For each question below, name the system of equations you would set up, write it
 <p><b>Setup.</b> States 4 and 5 are absorbing; $\{1,2,3\}$ is a transient class, since from 1 you can reach 4 and never return. Each of the four questions is a different linear system &mdash; recognizing which is the entire skill.</p>
 <p><b>Step 1 (i) &mdash; $n$-step recursion.</b> Unknowns $r_{ij}(n)$; recursion $r_{ij}(n)=\sum_kr_{ik}(n-1)p_{kj}$ with initial condition $r_{ij}(0)=\delta_{ij}$. No boundary conditions and no solving &mdash; just iterate (equivalently, read off $P^3$). Iterating gives
 $$\mathbf{P}(X_3=2\mid X_0=1)=0.21 ,$$
-confirmed by $400{,}000$ simulated paths ($0.2100$).</p>
+confirmed by $400{,}000$ simulated paths ($0.2109$).</p>
 <p><b>Step 2 (ii) &mdash; absorption equations.</b> Unknowns $a_i=\mathbf{P}(\text{absorbed at }4\mid X_0=i)$ for the transient $i$; equations $a_i=\sum_{j}p_{ij}a_j$ with the boundary conditions $a_4=1$, $a_5=0$. That is
 $$a_1=0.2a_1+0.5a_2+0.1a_3+0.2,\quad a_2=0.3a_1+0.1a_2+0.4a_3,\quad a_3=0.4a_2+0.2a_3+0.1 .$$
-Solving the $3\times3$ system: $(a_1,a_2,a_3)=(0.446203,\,0.262658,\,0.256329)$, so the answer is $a_1=0.446203$. Simulation gives $0.4461\;\checkmark$. Note there is no "$1+$" here &mdash; these are probabilities, and time does not enter.</p>
+Solving the $3\times3$ system: $(a_1,a_2,a_3)=(0.446203,\,0.262658,\,0.256329)$, so the answer is $a_1=0.446203$. Simulation gives $0.4479\;\checkmark$. Note there is no "$1+$" here &mdash; these are probabilities, and time does not enter.</p>
 <p><b>Step 3 (iii) &mdash; expected-time equations.</b> Unknowns $\mu_i=\mathbb{E}[\text{steps to absorption}\mid X_0=i]$; equations $\mu_i=1+\sum_{j\text{ transient}}p_{ij}\mu_j$ with $\mu_4=\mu_5=0$. The "$1+$" counts the step you are about to take. Solving gives
 $$(\mu_1,\mu_2,\mu_3)=(4.082278,\,3.892405,\,3.196203),$$
 so the answer is $\mu_1=4.082278$ steps. Same coefficient matrix $I-Q$ as in (ii), different right-hand side (all ones instead of the absorption column).</p>
@@ -424,7 +424,7 @@ $$a_3=0.5\,a_2+0.5\,a_4=0.5\,a_2+0.5(1)=0.5\,a_2+0.5 .$$</p>
 $$a_3=0.5(0.7a_3)+0.5=0.35\,a_3+0.5\;\Longrightarrow\;0.65\,a_3=0.5\;\Longrightarrow\;a_3=\frac{0.5}{0.65}=\frac{10}{13}=0.769231 .$$</p>
 <p><b>Step 3 (back-substitute).</b>
 $$a_2=0.7\,a_3=0.7\cdot\frac{10}{13}=\frac{7}{13}=0.538462 .$$
-Check the first equation directly: $0.3(0)+0.7(0.769231)=0.538462\;\checkmark$. Monte Carlo with $300{,}000$ games gives $0.5382$ from square 2 and $0.7689$ from square 3 $\checkmark$.</p>
+Check the first equation directly: $0.3(0)+0.7(0.769231)=0.538462\;\checkmark$. Monte Carlo with $300{,}000$ games gives $0.5385$ from square 2 and $0.7691$ from square 3 $\checkmark$.</p>
 <p><b>Answer.</b> $\;a_2=7/13=0.538462$ (so the game ends on square 1 with probability $6/13=0.461538$).</p>
 <p><b>Trap.</b> Guessing $0.5$ "by symmetry" because square 2 sits between the two ends. The chain is not symmetric: from 2 the token heads toward 4 with probability $0.7$ but toward 1 with only $0.3$, while square 3 is an even coin flip. That bias is what pushes $a_2$ above $0.5$.</p>
 <p class="srcref">Tool: G5 &sect;4.1 (absorption probabilities, first-step analysis) &middot; B&amp;T &sect;7.4</p>
@@ -452,7 +452,7 @@ $$=1+0.5+0.3\mu_2+0.2\mu_2+0.5+0.3\mu_2=2+0.8\,\mu_2 .$$
 Hence $0.2\,\mu_2=2$ and $\mu_2=10$.</p>
 <p><b>Step 4 (back-substitute).</b>
 $$\mu_3=1+0.6(10)=7,\qquad \mu_1=\tfrac53+10=\tfrac{35}{3}=11.666667 .$$
-Check the middle equation: $1+0.3(11.666667)+0.2(10)+0.5(7)=1+3.5+2+3.5=10=\mu_2\;\checkmark$. A Monte-Carlo run of $200{,}000$ beetles started in chamber 1 gives a mean exit time of $11.6482$ minutes $\checkmark$.</p>
+Check the middle equation: $1+0.3(11.666667)+0.2(10)+0.5(7)=1+3.5+2+3.5=10=\mu_2\;\checkmark$. A Monte-Carlo run of $200{,}000$ beetles started in chamber 1 gives a mean exit time of $11.6595$ minutes $\checkmark$.</p>
 <p><b>Answer.</b> $\;\mu_1=35/3=11.666667$ minutes, $\mu_2=10$, $\mu_3=7$.</p>
 <p><b>Trap.</b> Dropping the "$+1$" and solving $\mu_i=\sum_jp_{ij}\mu_j$. That homogeneous system has only the solution $\mu_1=\mu_2=\mu_3=0$ &mdash; a clear signal that you have written the equations for an absorption <em>probability</em> (Q112) rather than an expected time. The $+1$ is the minute spent on the step you just took.</p>
 <p class="srcref">Tool: G5 &sect;4.2 (expected time to absorption) &middot; B&amp;T &sect;7.4</p>
@@ -475,10 +475,10 @@ Because $\rho&gt;1$ the walk drifts downward: unfavorable odds.</p>
 <p><b>Step 2 (part a).</b> With $i=4$, $m=10$:
 $$\rho^{4}=(1.222222)^4=2.231520,\qquad \rho^{10}=(1.222222)^{10}=7.438781,$$
 $$a_4=\frac{1-2.231520}{1-7.438781}=\frac{-1.231520}{-6.438781}=0.191266 .$$
-So she reaches 10 chips with probability about $19.13\%$, and is ruined with probability $1-0.191266=0.808734$. Monte Carlo over $300{,}000$ sessions gives $0.1914\;\checkmark$.</p>
+So she reaches 10 chips with probability about $19.13\%$, and is ruined with probability $1-0.191266=0.808734$. Monte Carlo over $300{,}000$ sessions gives $0.1912\;\checkmark$.</p>
 <p><b>Step 3 (part b).</b> With $1-2p=1-0.90=0.10$ and $m\,a_4=10(0.191266)=1.912660$:
 $$D_4=\frac{4-1.912660}{0.10}=\frac{2.087340}{0.10}=20.873404\ \text{rounds}.$$
-Simulation gives $20.931\;\checkmark$. Sanity check on the sign: the numerator $i-m\,a_i$ is the expected <em>loss</em> in chips, $4-1.912660=2.087340$, and $1-2p=0.10$ is the expected loss per round, so $D_i$ is total expected loss divided by loss per round &mdash; a Wald-style identity, and both quantities are positive, so $D_4&gt;0\;\checkmark$.</p>
+Simulation gives $20.857\;\checkmark$. Sanity check on the sign: the numerator $i-m\,a_i$ is the expected <em>loss</em> in chips, $4-1.912660=2.087340$, and $1-2p=0.10$ is the expected loss per round, so $D_i$ is total expected loss divided by loss per round &mdash; a Wald-style identity, and both quantities are positive, so $D_4&gt;0\;\checkmark$.</p>
 <p><b>Step 4 (part c &mdash; the fair game).</b> For $p=0.5$ the formulas degenerate ($\rho=1$ makes both numerator and denominator zero) and the limits are $a_i=i/m$ and $D_i=i(m-i)$:
 $$a_4=\frac{4}{10}=0.4,\qquad D_4=4(10-4)=24\ \text{rounds}.$$
 Comment: shaving the win probability from $0.50$ to $0.45$ &mdash; a $5$ percentage-point edge for the house &mdash; cuts her success probability from $0.4$ to $0.191266$, less than half. The reason is that the edge compounds: it is the <em>ratio</em> $\rho^{\,i}$ that appears, so the disadvantage is exponentiated by the distance she must travel. The expected duration falls only mildly, from $24$ to $20.873404$ rounds, because most of her sessions end in ruin either way &mdash; she just gets there a little faster.</p>

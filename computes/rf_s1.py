@@ -18,6 +18,8 @@ Blocks:
   F  the multinomial row (joint PMF, means, variances, covariances, marginals),
      the four classic waiting times (first success, kth success, pattern HH,
      coupon collector), and the random walk / gambler's ruin closed forms
+  G  two further sheet constants: the Bernoulli variance bound f(1-f) <= 1/4
+     and the binomial closure Bin(n,p)+Bin(m,p) = Bin(n+m,p)
 """
 import io
 import json
@@ -313,20 +315,30 @@ rec("E_p11d_hyper_fpc", r6((N2 - K2) / (N2 - 1)))
 rec("E_p11e_pois_meanvar", r6(pd_ * nd_))
 rec("E_p11f_erlang_mean", r6(3 / pd_))
 rec("E_p11f_erlang_var", r6(3 / pd_**2))
+# Practice 1.2: reading a quoted formula in the other geometric convention
+pc = 0.5
+rec("E_p12conv_trials", r6(1 / pc))                  # our X: tosses incl. the head
+rec("E_p12conv_failures", r6((1 - pc) / pc))         # their Y = X-1
+pk, kk_ = 0.2, 3
+rec("E_p12conv_pascal_trials", r6(kk_ / pk))         # trial index of the 3rd success
+rec("E_p12conv_pascal_failures", r6(kk_ * (1 - pk) / pk))
+rec("E_p12conv_shift_is_k", r6(kk_ / pk - kk_ * (1 - pk) / pk))
+rec("E_p12conv_var_both", r6((1 - pk) / pk**2))      # unchanged by the shift
+
 rec("E_p11_pascal_over_erlang_var", r6((3 * (1 - pd_) / pd_**2) / (3 / pd_**2)))
 
-# Practice 1.2: five answers from five moments
+# Practice 1.3: five answers from five moments
 EX, EY, vX, vY, cXY = 3.0, 5.0, 4.0, 9.0, -3.0
-rec("E_p12i_mean", r6(2 * EX - EY + 1))
+rec("E_p13i_mean", r6(2 * EX - EY + 1))
 var_2XmY = 4 * vX + vY + 2 * (2) * (-1) * cXY
-rec("E_p12ii_var", r6(var_2XmY))
-rec("E_p12ii_var_if_indep_wrongly", r6(4 * vX + vY))
+rec("E_p13ii_var", r6(var_2XmY))
+rec("E_p13ii_var_if_indep_wrongly", r6(4 * vX + vY))
 rec("E_p12ii_understatement_pct",
     r6(100 * (var_2XmY - (4 * vX + vY)) / var_2XmY))
 rho12 = cXY / (sqrt(vX) * sqrt(vY))
-rec("E_p12iii_rho", r6(rho12))
-rec("E_p12iv_EXY", r6(cXY + EX * EY))
-rec("E_p12v_lms_mse", r6((1 - rho12**2) * vY))
+rec("E_p13iii_rho", r6(rho12))
+rec("E_p13iv_EXY", r6(cXY + EX * EY))
+rec("E_p13v_lms_mse", r6((1 - rho12**2) * vY))
 # t vs z width, quoted as a percentage in §1.5
 rec("E_t9_over_z_pct", r6(100 * (stats.t.ppf(0.975, 9) / stats.norm.ppf(0.975) - 1)))
 rec("E_t100_over_z_pct", r6(100 * (stats.t.ppf(0.975, 100) / stats.norm.ppf(0.975) - 1)))
@@ -470,6 +482,45 @@ for _ in range(50000):
     steps += t
 rec("F_rw_sim_a_p50_m20_i10", r6(wins / 50000))
 rec("F_rw_sim_D_p50_m20_i10", r6(steps / 50000))
+
+# unbounded target: m -> infinity with p > 1/2 gives a_i -> 1 - rho^i
+p55 = 0.55
+rho55 = Fraction(1) - Fraction(55, 100)
+rho55 = rho55 / Fraction(55, 100)                    # (1-p)/p = 9/11 exactly
+rec("F_rw_p55_rho_exact", str(rho55))
+a55 = 1 - rho55**10
+rec("F_rw_p55_i10_a_limit_exact", str(a55))
+rec("F_rw_p55_i10_a_limit", r6(float(a55)))
+# the limit is approached from below by the finite-m closed form
+r55 = float(rho55)
+rec("F_rw_p55_i10_a_m5000",
+    r6((1 - r55**10) / (1 - r55**5000)))
+rec("F_rw_p50_i10_a_limit", 0.0)                     # p <= 1/2: ruin is certain
+
+# ----------------------------------------------------------------- G
+print("\n--- G  two sheet constants: Bernoulli variance bound, binomial closure ---")
+fgrid = np.linspace(0.0, 1.0, 100001)
+vgrid = fgrid * (1 - fgrid)
+rec("D_bern_var_bound_max", r6(vgrid.max()))
+rec("D_bern_var_bound_argmax", r6(float(fgrid[int(np.argmax(vgrid))])))
+rec("D_bern_var_bound_at_f01", r6(0.1 * 0.9))
+
+# Binomial closure: Bin(n,p) + Bin(m,p) = Bin(n+m,p) for a COMMON p
+nb1, nb2, pb = 7, 5, 0.3
+conv = [sum(stats.binom.pmf(j, nb1, pb) * stats.binom.pmf(kk - j, nb2, pb)
+            for j in range(kk + 1)) for kk in range(nb1 + nb2 + 1)]
+rec("F_binom_closure_nmp", [nb1, nb2, pb])
+rec("F_binom_closure_maxdev",
+    float(max(abs(conv[kk] - stats.binom.pmf(kk, nb1 + nb2, pb))
+              for kk in range(nb1 + nb2 + 1))))
+# it fails when the two p's differ: the sum is then not binomial at all
+conv2 = [sum(stats.binom.pmf(j, nb1, 0.3) * stats.binom.pmf(kk - j, nb2, 0.6)
+             for j in range(kk + 1)) for kk in range(nb1 + nb2 + 1)]
+mean2 = sum(kk * conv2[kk] for kk in range(nb1 + nb2 + 1))
+var2 = sum(kk * kk * conv2[kk] for kk in range(nb1 + nb2 + 1)) - mean2**2
+rec("F_binom_mixedp_mean", r6(mean2))
+rec("F_binom_mixedp_var", r6(var2))
+rec("F_binom_mixedp_var_if_binom", r6(mean2 * (1 - mean2 / (nb1 + nb2))))
 
 with open("d:/Python-UV/MIT_Applied_Prob/computes/rf_s1.json", "w",
           encoding="utf-8") as f:

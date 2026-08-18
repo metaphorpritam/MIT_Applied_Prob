@@ -149,3 +149,11 @@ Post-launch expansion: cheatsheet audit (189 items; 3 in-syllabus gaps, 1 dangli
 ## 2026-08-15 04:23 UTC — tags: session, qb, bugfix
 
 QB render review found a REAL BUG affecting ALL 9 pages: print CSS had 'details.sol { open: true; }' — 'open' is an HTML attribute not a CSS property, so it was silently discarded and every printed/PDF copy carried ZERO solutions. Fixed with proper display rules + marker suppression; also hid .qbfilter in print, normalized qb_s7 h2 (was the only one carrying a Q-range, wrapping the TOC), code-wrapped qb_s2 srcref path. Verifying by re-shoot. Math/pedagogy lenses for qb and ALL rf lenses died on token limit (resets 3:30am) — must re-run: Workflow resume wf_dc345a8e-209 (qb) and wf_c8516af1-c35 (rf).
+
+## 2026-08-18 21:07 UTC — tags: session, rf, review
+
+RF review (8/8) found REAL defects, all fixed+verified: 9 TAB chars replacing \text (rendered as 'extExp(lambda)' garbage), order-statistic sd column asymmetric/wrong for j=4,5 (now symmetric 0.140859/0.178174/0.188982/...), simulated columns disagreeing with compute JSON, systematic off-by-one in EVERY section pointer on the navigation page (said §1-2 lookup/§3-4 enrichment; actual §1/§2-3), 'eighth and last'->ninth, '150 questions'->170, wrong independence inventory. Contrast with the qb math-0 lens which produced 2 hallucinated 'criticals'. LESSON: demand file+JSON evidence in review prompts; it separates the two.
+
+## 2026-08-18 21:09 UTC — tags: session, qb, provenance
+
+QB review round 2 (12/12): found a PROVENANCE defect class — math correct but quoted Monte-Carlo/enumeration figures stale or fabricated. qb_s1 Q10's compute block still computed a DELETED problem; qb_s2 Q46's block was for a different problem entirely; Q47 MC off by 0.005; EIGHT stale MC values in qb_s5; qb_s7 missing its srcref. All fixed+verified (q10/q46 compute blocks rewritten and re-run). The two hallucinated 'criticals' were correctly SKIPPED by the fixers thanks to the calibration warning. Lesson for skill_learnings: a compute script can drift out of sync with its prose when a question is re-modelled — reviewers must diff prose numbers against JSON keys, not just recompute.

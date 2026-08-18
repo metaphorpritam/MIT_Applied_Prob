@@ -192,14 +192,24 @@ h3 {
   margin: 28px 0 6px 0; letter-spacing: -.002em; scroll-margin-top: 12px;
 }
 h4 { font-size: 15px; margin: 18px 0 4px 0; font-weight: 700; }
-p { margin: 0 0 12px 0; text-align: justify; hyphens: auto; }
+p { margin: 0 0 12px 0; text-align: left; hyphens: auto; text-wrap: pretty; }
 ul, ol { margin: 8px 0 12px 18px; padding-left: 8px; }
 li { margin: 4px 0; }
 li > ul, li > ol { margin-top: 4px; margin-bottom: 4px; }
 a { color: var(--link); text-underline-offset: 2px; text-decoration-thickness: .06em; }
 a:hover { text-decoration-color: var(--s1); }
 b, strong { font-weight: 700; }
+/* the ✓ glyph carries a wide right side bearing, so a following period or comma
+   floats away from it and reads as opening the next sentence. Pull the
+   punctuation back to a normal tight fit. */
+.chk { margin-right: -0.16em; }
 mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding: 2px 0; }
+/* never break the line between inline math and the punctuation that closes the
+   sentence: the container is an inline-block, so browsers otherwise allow it */
+mjx-container:not([display="true"]) { break-after: avoid; }
+/* the check-mark glyph comes from a fallback symbol font whose right side
+   bearing leaves a visible gap before a following period or comma */
+.ck { margin-right: -.09em; }
 /* ---------- figures ---------- */
 .fig {
   display: block; margin: 18px auto 6px auto; max-width: 100%;
@@ -281,6 +291,13 @@ th {
 }
 td.l, th.l { text-align: left; }
 td.num { text-align: right; font-variant-numeric: tabular-nums; }
+/* wide reference tables: scroll inside their own box instead of pushing the
+   page body sideways (the display:block rule below only fires under 700px) */
+.tablewrap { overflow-x: auto; max-width: 100%; margin: 16px 0; }
+.tablewrap > table { margin: 0 auto; }
+/* distribution zoos: the two moment columns hold one short fraction each, so
+   shrink them to their content and give the slack to the prose columns */
+table.zoo td.num, table.zoo th.num { width: 1%; }
 tr:nth-child(even) td { background: var(--trEven); }
 .check { color: var(--good); font-weight: bold; }
 .cross { color: var(--faint); }
@@ -397,6 +414,17 @@ canvas.plot { width: 100%; display: block; }
   details.sol > summary { list-style: none; }
   details.sol > summary::marker, details.sol > summary::-webkit-details-marker { display: none; }
   .qbfilter { display: none; }
+  /* on screen an over-wide display equation scrolls sideways; on paper there is
+     nothing to scroll, so the scrollbar track prints and the right-hand end of
+     the formula (usually the result) is simply cut off. Let print overflow be
+     visible and shrink the math instead of clipping it. */
+  mjx-container[display="true"] {
+    overflow: visible !important; max-width: none !important;
+    font-size: 96% !important;
+  }
+  /* on paper a scroll container cannot be scrolled: it prints its chrome and
+     clips whatever overflows, so let display math spill instead of being cut */
+  mjx-container[display="true"] { overflow-x: visible; overflow-y: visible; }
   /* never leave a content-free colored strip (a box's bottom padding/border)
      stranded at the top of the next sheet */
   .defn, .note, .thm, .warn, .recipe, .summary, .widget,
@@ -405,11 +433,25 @@ canvas.plot { width: 100%; display: block; }
      solutions are collapsed <details>), so keep them whole; long worked
      Examples must stay breakable or they strand a near-empty page. */
   .ex:has(> details.sol) { break-inside: avoid; page-break-inside: avoid; }
+  /* question-bank cards are the exception: print forces their solutions open,
+     so a card routinely runs longer than a sheet. Keeping it whole pushes the
+     stem onto a fresh page and leaves the previous one mostly blank; let them
+     break, with orphans/widows doing the fine control. */
+  .ex.qcard, .qcard details.sol { break-inside: auto; page-break-inside: auto; }
+  .qcard p, .qcard li { orphans: 3; widows: 3; }
+  .qcard > p:first-of-type { break-after: avoid; page-break-after: avoid; }
   .fig { break-inside: avoid; page-break-inside: avoid; break-after: avoid; page-break-after: avoid; }
+  /* a long table must be allowed to split across sheets, but never mid-row:
+     a broken row strands its Result/Conditions text under an empty Statement */
+  tr, th, td { break-inside: avoid; page-break-inside: avoid; }
   h2, h3, h4 { break-after: avoid; page-break-after: avoid; }
   h2 { margin-top: 26px; }
   p { orphans: 3; widows: 3; }
   table { display: table; }
+  /* the scroll box is a screen device: on paper it would clip the right-hand
+     columns, so let the table lay itself out inside the page instead */
+  .tablewrap { overflow: visible !important; max-width: 100%; }
+  .tablewrap > table { max-width: 100%; }
   /* the compile footer must sit on the preceding page, never alone on a blank sheet */
   #main > hr:last-of-type { break-before: avoid; page-break-before: avoid; margin-top: 14px; }
   #main > hr:last-of-type + .small { break-before: avoid; page-break-before: avoid; }
@@ -1021,11 +1063,11 @@ canvas.plot { width: 100%; display: block; }
 </nav>
 <main id="main">
 <h1 class="title">Q · Question Bank</h1>
-<div class="subtitle">150 practice problems with fully worked solutions, spanning the whole course — MIT 6.041 Lectures 1–25</div>
+<div class="subtitle">170 practice problems with fully worked solutions, spanning the whole course — MIT 6.041 Lectures 1–25</div>
 <h2 id="qb-s0">§0 &nbsp; How to use this question bank</h2>
-<p class="srcref">Companion to notes G1–G7 · all 150 questions original, written against those notes' notation · Bertsekas–Tsitsiklis (<b>B&amp;T</b>) cited throughout for the underlying theory.</p>
+<p class="srcref">Companion to notes G1–G7 · all 170 questions original, written against those notes' notation · Bertsekas–Tsitsiklis (<b>B&amp;T</b>) cited throughout for the underlying theory.</p>
 
-<p>This is the practice half of the course. It holds <b>150 questions</b>, organised into seven sections that mirror the seven study notes one-for-one — fundamentals, discrete random variables, continuous random variables, iterated expectations and arrival processes, Markov chains, limit theorems and Bayesian inference, and classical statistical inference. Nothing here restates a worked example from the notes: every question is fresh, self-contained (you never have to go hunting for a missing definition), and tagged with the note section that teaches the tool it wants. Every solution is worked in full — each step justified, each intermediate value substituted, ending in a bold <b>Answer</b> line — and every solution is hidden behind a click, so the page reads as a problem set until you decide otherwise.</p>
+<p>This is the practice half of the course. It holds <b>170 questions</b>, organised into eight sections. The first seven mirror the seven study notes one-for-one — fundamentals, discrete random variables, continuous random variables, iterated expectations and arrival processes, Markov chains, limit theorems and Bayesian inference, and classical statistical inference — and the eighth is a cross-cutting set of exam classics (the multinomial, random walks, and waiting times) that no single note owns outright. Nothing here restates a worked example from the notes: every question is fresh, self-contained (you never have to go hunting for a missing definition), and tagged with the note section that teaches the tool it wants. Every solution is worked in full — each step justified, each intermediate value substituted, ending in a bold <b>Answer</b> line — and every solution is hidden behind a click, so the page reads as a problem set until you decide otherwise.</p>
 
 <p>The questions are deliberately mixed in form. Some ask for a number; some ask you to derive an identity; some are true-or-false and score only the <em>reason</em>; some ask only <em>which tool applies and why</em>, with no arithmetic at all; some hand you a plausible-looking wrong solution and ask you to find the break. That mixture is on purpose: an exam tests whether you can choose the right machinery under time pressure, and choosing is a separate skill from grinding.</p>
 
@@ -1057,7 +1099,8 @@ canvas.plot { width: 100%; display: block; }
     <button class="qbchip" data-f="sec" data-v="4">4 &middot; Processes</button>
     <button class="qbchip" data-f="sec" data-v="5">5 &middot; Markov</button>
     <button class="qbchip" data-f="sec" data-v="6">6 &middot; Limits &amp; Bayes</button>
-    <button class="qbchip" data-f="sec" data-v="7">7 &middot; Inference</button></div>
+    <button class="qbchip" data-f="sec" data-v="7">7 &middot; Inference</button>
+    <button class="qbchip" data-f="sec" data-v="8">8 &middot; Exam classics</button></div>
   <div class="row"><span class="qbcount" id="qbcount"></span>
     <button class="qbchip" id="qbrandom">&#127922; random question</button>
     <button class="qbchip" id="qbreveal">show/hide all solutions</button></div>
@@ -1188,7 +1231,7 @@ canvas.plot { width: 100%; display: block; }
 
 <div class="summary">
 <b>§0 in one screen.</b>
-150 original questions, seven sections mirroring notes G1–G7, every solution fully worked and one click away.
+170 original questions — seven sections mirroring notes G1–G7 plus a cross-cutting eighth of exam classics — every solution fully worked and one click away.
 Difficulty: <span class="qmeta"><span class="stars">&#9733;</span></span> warm-up (one definition applied) &middot; <span class="qmeta"><span class="stars">&#9733;&#9733;</span></span> exam-level (two or three ideas combined) &middot; <span class="qmeta"><span class="stars">&#9733;&#9733;&#9733;</span></span> challenging (nonobvious setup or a real derivation).
 Practise rule: attempt first; when stuck open the <em>cited note section</em>, not the solution; re-attempt the three-star items a week later, cold.
 The sticky bar above filters the whole bank live — by difficulty, by section, or both — and will also pick a random visible question or open every visible solution at once.
@@ -1247,7 +1290,7 @@ $\mathbf{P}(B) = \mathbf{P}(A\cap B) + \mathbf{P}(A^c\cap B)$, hence</p>
 and again the two pieces $\{$exactly one$\}$ and $A\cap B$ are disjoint with union $A\cup B$:</p>
 <p>$$\mathbf{P}(\text{exactly one}) = \mathbf{P}(A\cup B) - \mathbf{P}(A\cap B) = 0.75 - 0.20 = 0.55 .$$</p>
 <p>Cross-check with the symmetric-difference formula $\mathbf{P}(A)+\mathbf{P}(B)-2\mathbf{P}(A\cap B)
-= 0.55 + 0.40 - 2(0.20) = 0.95 - 0.40 = 0.55$ &#10003;. (The overlap is counted twice by the sum and
+= 0.55 + 0.40 - 2(0.20) = 0.95 - 0.40 = 0.55$ <span class="ck">&#10003;</span>. (The overlap is counted twice by the sum and
 must be removed twice, because &ldquo;exactly one&rdquo; wants it counted zero times.)</p>
 
 <p><b>(d) Complement of the union (De Morgan).</b> $A^c \cap B^c = (A\cup B)^c$, so</p>
@@ -1299,7 +1342,7 @@ coarse ones. Counting them, $0$ heads happens in $1$ way ($TTT$), $1$ head in $3
 ($HTT,THT,TTH$), $2$ heads in $3$ ways, $3$ heads in $1$ way, so the correct law is</p>
 <p>$$\mathbf{P}(0)=\tfrac18=0.125,\quad \mathbf{P}(1)=\tfrac38=0.375,\quad
 \mathbf{P}(2)=\tfrac38=0.375,\quad \mathbf{P}(3)=\tfrac18=0.125 ,$$</p>
-<p>which sums to $1$ &#10003;, not $0.25$ apiece. <em>Repair:</em> keep $\Omega_1$, replace the
+<p>which sums to $1$ <span class="ck">&#10003;</span>, not $0.25$ apiece. <em>Repair:</em> keep $\Omega_1$, replace the
 uniform law with these four numbers. The lesson is that the discrete uniform law is a modelling
 assumption about a <em>particular</em> sample space, not a property that survives regrouping.</p>
 
@@ -1370,8 +1413,10 @@ already carries $1/3$ of the mass.</p>
 
 <p><b>(d)</b> Countable additivity (Axiom 3 in its strengthened form). The event
 &ldquo;$n$ is even&rdquo; is a union of <em>infinitely many</em> disjoint singletons. Finite
-additivity licenses only finite unions; no finite number of steps reaches this event, so without
-countable additivity the event would have no assigned probability at all.</p>
+additivity licenses only finite unions, and no finite number of steps reaches this event, so
+without countable additivity its probability would not be determined by the individual outcome
+probabilities &mdash; the geometric sum used in (c) is exactly the step that countable additivity
+licenses.</p>
 
 <p><b>Answer.</b> $\;$(a) $c = 1/3$; (b) $\mathbf{P}(n\ge4) = 8/27 \approx 0.2963$;
 (c) $\mathbf{P}(\text{even}) = 2/5 = 0.4$; (d) countable additivity.</p>
@@ -1418,8 +1463,8 @@ order &ldquo;exactly three, then exactly two&rdquo;:</p>
 <p>Hence $\mathbf{P}(\text{exactly one}) = 102/200 = 0.51$ and
 $\mathbf{P}(\text{exactly two}) = 48/200 = 0.24$ (part (d)), with
 $\mathbf{P}(\text{exactly three}) = 12/200 = 0.06$.</p>
-<p><b>Consistency check.</b> $102 + 48 + 12 = 162$ &#10003;, matching the union, and
-$0.51+0.24+0.06+0.19 = 1.00$ &#10003;.</p>
+<p><b>Consistency check.</b> $102 + 48 + 12 = 162$ <span class="ck">&#10003;</span>, matching the union, and
+$0.51+0.24+0.06+0.19 = 1.00$ <span class="ck">&#10003;</span>.</p>
 
 <p><b>Answer.</b> $\;$(a) $0.81$; (b) $0.19$; (c) $0.51$; (d) $0.24$.</p>
 <p><b>Trap.</b> Adding $92+78+64 = 234$ and reporting $234/200 = 1.17$ &mdash; a probability
@@ -1585,7 +1630,7 @@ still appears twice. So the count is</p>
  \approx 0.1818 .$$</p>
 <p><b>Interpretation of the clean $2/11$.</b> Think of the eleven positions and ask only where the
 two I's land: all $\binom{11}{2} = 55$ position-pairs are equally likely, and $10$ of them are
-adjacent pairs (positions $1$&ndash;$2$ through $10$&ndash;$11$), giving $10/55 = 2/11$ &#10003;.
+adjacent pairs (positions $1$&ndash;$2$ through $10$&ndash;$11$), giving $10/55 = 2/11$ <span class="ck">&#10003;</span>.
 The B's and the rest never entered.</p>
 
 <p><b>Answer.</b> $\;$(a) $9\,979\,200$; (b) $1\,814\,400$; (c) $2/11 \approx 0.1818$.</p>
@@ -1666,7 +1711,7 @@ G1 &sect;4.6.</p>
 counts add.</p>
 <p><em>All three on Alpha (size 4).</em> One Alpha seat is left, filled by any of the remaining
 $12$ students: $\binom{12}{1} = 12$ ways. The remaining $11$ students split into $5$ and $6$:
-$\binom{11}{5} = 462$ ways. Total $12 \cdot 462 = 5544$.</p>
+$\binom{11}{5} = 462$ ways. Total $12 \cdot 462 = 5544.$</p>
 <p><em>All three on Beta (size 5).</em> Two Beta seats left: $\binom{12}{2} = 66$; the remaining
 $10$ split into $4$ and $6$: $\binom{10}{4} = 210$. Total $66 \cdot 210 = 13\,860$.</p>
 <p><em>All three on Gamma (size 6).</em> Three Gamma seats left: $\binom{12}{3} = 220$; the
@@ -1751,7 +1796,8 @@ inclusion&ndash;exclusion as in (a).</p>
 <p><b>(c)</b> By the discrete uniform law on the $1820$ equally likely allocations,</p>
 <p>$$\mathbf{P}(\text{no store exceeds }4) = \frac{320}{1820} = \frac{16}{91} \approx 0.1758 .$$</p>
 <p>(A brute-force enumeration of all $1820$ allocations in <code>computes/qb_s1.py</code> confirms
-the counts $1820$, $320$ and $220$.)</p>
+the counts $1820$, $320$ and $220$, and the multinomial-weighted sum over the same list returns the
+$0.6448$ quoted in (d).)</p>
 
 <p><b>(d) The two models are genuinely different.</b> The independent-routing model must give the
 larger value, and by a wide margin ($0.6448$ against $0.1758$). Under it the $12$ pallets are
@@ -1802,7 +1848,7 @@ arrangements, and the block has $2! = 2$ internal orders (Ann&ndash;Bob or Bob&n
 \qquad \mathbf{P} = \frac{1440}{5040} = \frac{2}{7} \approx 0.2857 .$$</p>
 <p><em>Sanity check without counting:</em> condition on where Ann sits. Bob is equally likely to
 occupy any of the other $7$ seats, and exactly $2$ of them (Ann's left and right) are adjacent
-&mdash; giving $2/7$ immediately &#10003;.</p>
+&mdash; giving $2/7$ immediately <span class="ck">&#10003;</span>.</p>
 
 <p><b>(b) Glue three.</b> A block of $3$ plus $5$ individuals is $6$ objects around a circle:
 $(6-1)! = 5! = 120$ circular arrangements, times $3! = 6$ internal orders of the block:</p>
@@ -1821,7 +1867,7 @@ labelled seats, and the two-person block occupies two of them, so its <em>starti
 also be chosen. Done consistently in the labelled-seat space, the block can start at any of the
 $8$ seats and the remaining $6$ people fill the remaining $6$ seats in $6!$ ways:
 $8 \cdot 2 \cdot 6! = 8 \cdot 2 \cdot 720 = 11\,520$, and</p>
-<p>$$\frac{11\,520}{40\,320} = \frac{2}{7} \approx 0.2857 \;\;\text{&#10003;},$$</p>
+<p>$$\frac{11\,520}{40\,320} = \frac{2}{7} \approx 0.2857 \;\text{<span class="ck">&#10003;</span>,}$$</p>
 <p>the same answer as the circular space, as it must be: the two spaces differ by a uniform factor
 of $8$ in both numerator and denominator.</p>
 
@@ -1877,7 +1923,7 @@ of four objects is</p>
 <p>So the count is $5 \cdot 9 = 45$ and</p>
 <p>$$\mathbf{P}(M=1) = \frac{45}{120} = \frac38 = 0.375 .$$</p>
 <p>(The full enumeration gives the counts $44, 45, 20, 10, 0, 1$ for $M = 0,1,2,3,4,5$, which sum
-to $120$ &#10003;. Note the $0$: exactly four matches is impossible, since if four letters are
+to $120$ <span class="ck">&#10003;</span>. Note the $0$: exactly four matches is impossible, since if four letters are
 correct the fifth has nowhere else to go.)</p>
 
 <p><b>(c) Why no contradiction.</b> $\mathbf{P}(M=1) = 0.375$ and $\mathbf{P}(M=0) \approx 0.3667$
@@ -1993,7 +2039,7 @@ $A\cap B^c = \{1,3\}$ gives $\mathbf{P}(A\mid B^c) = 2/3$, so the sum is
 $4/3 \approx 1.3333 \ne 1$. An even blunter counterexample is $A = \Omega$, where the sum is $2$.
 What <em>is</em> always true is the total probability theorem,
 $\mathbf{P}(B)\mathbf{P}(A\mid B) + \mathbf{P}(B^c)\mathbf{P}(A\mid B^c) = \mathbf{P}(A)$;
-check it here: $\tfrac12\cdot\tfrac23 + \tfrac12\cdot\tfrac23 = \tfrac23 = \mathbf{P}(A)$ &#10003;.</p>
+check it here: $\tfrac12\cdot\tfrac23 + \tfrac12\cdot\tfrac23 = \tfrac23 = \mathbf{P}(A)$ <span class="ck">&#10003;</span>.</p>
 
 <p><b>(iv) FALSE.</b> $\mathbf{P}(A\mid B) = 0$ says only $\mathbf{P}(A\cap B) = 0$, and a set can
 be nonempty yet have probability zero. Take the uniform model on the unit square of Q6, with
@@ -2093,7 +2139,7 @@ least one is defective?
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> Let $S_1,S_2,S_3$ be the events that the component came from supplier $1,2,3$.
 They are disjoint and exhaust the warehouse, so they form a partition with
-$\mathbf{P}(S_1)=0.50$, $\mathbf{P}(S_2)=0.30$, $\mathbf{P}(S_3)=0.20$ (summing to $1$ &#10003;).
+$\mathbf{P}(S_1)=0.50$, $\mathbf{P}(S_2)=0.30$, $\mathbf{P}(S_3)=0.20$ (summing to $1$ <span class="ck">&#10003;</span>).
 Let $D$ be the event that the component is defective, with
 $\mathbf{P}(D\mid S_1)=0.02$, $\mathbf{P}(D\mid S_2)=0.03$, $\mathbf{P}(D\mid S_3)=0.05$.</p>
 
@@ -2116,7 +2162,7 @@ double-counted event that both are defective.</p>
 <p>$$\mathbf{P}(S_1\mid D) = \frac{0.0100}{0.029} = 0.3448,\quad
 \mathbf{P}(S_2\mid D) = \frac{0.0090}{0.029} = 0.3103,\quad
 \mathbf{P}(S_3\mid D) = \frac{0.0100}{0.029} = 0.3448,$$</p>
-<p>and these sum to $1$ &#10003;. Suppliers 1 and 3 are <em>tied</em> as most likely, at
+<p>and these sum to $1$ <span class="ck">&#10003;</span>. Suppliers 1 and 3 are <em>tied</em> as most likely, at
 $10/29 \approx 0.3448$ each.</p>
 <p><b>Interpretation.</b> Supplier 3 has the worst defect rate ($0.05$, more than twice supplier
 1's) but ships only $20\%$ of the volume; supplier 1 is clean but huge. Volume and rate multiply,
@@ -2171,8 +2217,10 @@ seven to one, purely because the healthy group is $249$ times larger than the af
 true status (see Q24 &mdash; they are <em>not</em> independent unconditionally). Then the
 likelihoods multiply within each branch:</p>
 <p>$$\mathbf{P}(++\mid C) = 0.99^2 = 0.9801,\qquad \mathbf{P}(++\mid C^c) = 0.03^2 = 0.0009,$$</p>
-<p>$$\mathbf{P}(C\mid ++) = \frac{(0.004)(0.9801)}{(0.004)(0.9801) + (0.996)(0.0009)}
- = \frac{0.0039204}{0.0039204 + 0.0008964} = \frac{0.0039204}{0.0048168} = 0.8139 .$$</p>
+<p>$$\begin{aligned}
+\mathbf{P}(C\mid ++) &= \frac{(0.004)(0.9801)}{(0.004)(0.9801) + (0.996)(0.0009)}\[2pt]
+ &= \frac{0.0039204}{0.0039204 + 0.0008964} = \frac{0.0039204}{0.0048168} = 0.8139 .
+\end{aligned}$$</p>
 <p>One positive leaves the odds against; two positives flip them decisively, because each test
 multiplies the odds by the likelihood ratio $0.99/0.03 = 33$.</p>
 
@@ -2217,7 +2265,7 @@ $999$. Likelihood ratio: $\dfrac{1}{0.002} = 500$. Multiplying,</p>
 <p>$$\mathbf{P}(G\mid E) = \frac{500/999}{1 + 500/999} = \frac{500}{1499} \approx 0.3336 .$$</p>
 <p>Cross-check by the standard form:
 $\dfrac{(0.001)(1)}{(0.001)(1) + (0.999)(0.002)} = \dfrac{0.001}{0.001 + 0.001998}
-= \dfrac{0.001}{0.002998} = 0.3336$ &#10003;.</p>
+= \dfrac{0.001}{0.002998} = 0.3336$ <span class="ck">&#10003;</span>.</p>
 
 <p><b>(b)</b> Conditional independence given $G$ (and given $G^c$) is exactly what licenses
 multiplying likelihood ratios. So</p>
@@ -2274,7 +2322,7 @@ tail,</p>
 <p>$$\mathbf{P}(A\mid E) = \frac{0.0378}{0.19472} = 0.1941,\quad
 \mathbf{P}(B\mid E) = \frac{0.075}{0.19472} = 0.3852,\quad
 \mathbf{P}(C\mid E) = \frac{0.08192}{0.19472} = 0.4207,$$</p>
-<p>summing to $1$ &#10003;. The evidence has more than doubled coin C's probability (from $0.20$ to
+<p>summing to $1$ <span class="ck">&#10003;</span>. The evidence has more than doubled coin C's probability (from $0.20$ to
 $0.4207$) and cut coin A's by more than half (from $0.50$ to $0.1941$), which is what three heads
 out of four should do.</p>
 
@@ -2334,7 +2382,7 @@ $\mathbf{P}(H_1\mid A) = 90/100 = 0.90$ against $\mathbf{P}(H_1\mid B) = 20/100 
 Now assemble:</p>
 <p>$$\mathbf{P}(R\mid A) = (0.90)(0.90) + (0.10)(0.30) = 0.81 + 0.03 = 0.84 ,$$</p>
 <p>$$\mathbf{P}(R\mid B) = (0.20)(0.95) + (0.80)(0.35) = 0.19 + 0.28 = 0.47 ,$$</p>
-<p>matching the raw counts $84/100$ and $47/100$ &#10003;.</p>
+<p>matching the raw counts $84/100$ and $47/100$ <span class="ck">&#10003;</span>.</p>
 
 <p><b>(b) Nothing is wrong.</b> B beats A by exactly $0.05$ in each hospital
 ($0.95 - 0.90 = 0.05$ and $0.35 - 0.30 = 0.05$), yet loses overall by
@@ -2825,6 +2873,10 @@ mean $8.985$ &mdash; matching $0.512$ and $9$.)</p>
 memoryless, so nothing changed." What is memoryless is the <em>remaining</em> wait, $X-4$; the
 variable $X$ itself counts from the original start, so it must exceed $4$. Answering $5$
 contradicts the conditioning event.</p>
+<p><b>Where this recurs.</b> The geometric is the workhorse of this section: Q37 truncates it,
+Q43 takes the minimum of two, Q46 adds three of them. It is also the first-success time of a
+Bernoulli process, so the fresh-start property proved here is exactly what Q81 in &sect;4 uses,
+while Q80 there counts to the $k$th success instead of the first.</p>
 <p class="srcref">Tool: G2 &sect;3.5 (geometric memorylessness) &middot; B&amp;T &sect;2.6</p>
 </div></details>
 </div>
@@ -2967,7 +3019,8 @@ needed if the question asked for $\operatorname{var}(S)$ or for $\mathbb{E}[I_iI
 <p><b>Answer.</b> $\;\mathbb{E}[S] = 8\big(1-(7/8)^5\big) = 3.8967$ stops.</p>
 <p><b>Trap.</b> Two wrong answers: $5$ ("one stop per passenger" &mdash; ignores collisions) and
 $8\cdot\frac58 = 5$ (a garbled proportionality). Both exceed the truth, because every pair of
-passengers sharing a floor removes a stop.</p>
+passengers sharing a floor removes a stop. The indicators here are dependent as well, which
+costs the mean nothing; Q45 shows what that same dependence does to a variance.</p>
 <p class="srcref">Tool: G2 &sect;4.8 (indicator decomposition, linearity) &middot; B&amp;T &sect;2.4</p>
 </div></details>
 </div>
@@ -3073,7 +3126,9 @@ policy fails to grip with probability $q^4 = 0.2401$.</p>
 $\mathbb{E}[N] = 2.533$ attempts versus $\mathbb{E}[X] = 3.3333$ uncapped.</p>
 <p><b>Trap.</b> $\mathbb{E}[\min(X,4)] \ne \min(\mathbb{E}[X],4) = \min(3.3333,4) = 3.3333$.
 The minimum is a nonlinear function, so it cannot be pushed through an expectation; the truth
-$2.533$ is strictly smaller because truncation only ever shortens outcomes.</p>
+$2.533$ is strictly smaller because truncation only ever shortens outcomes. (Compare Q30: there
+memorylessness <em>lengthened</em> a conditional mean to $4+1/p$; here truncation shortens an
+unconditional one. Same geometric, opposite direction.)</p>
 <p class="srcref">Tool: G2 &sect;3.6 (total expectation), &sect;3.5 (memorylessness) &middot; B&amp;T &sect;2.6</p>
 </div></details>
 </div>
@@ -3276,7 +3331,10 @@ The correct value is $\mathbf{P}(X=0,Y=0) = 1/3$, not $1/9$. Uncorrelated does n
 independent; it only licenses variances to add.</p>
 <p><b>Trap.</b> The example is the canonical one: a symmetric $X$ and an even function of it are
 always uncorrelated and never independent (unless degenerate). Any argument of the form "the
-means multiplied, so the variables are independent" is unsalvageable.</p>
+means multiplied, so the variables are independent" is unsalvageable. Q64 in &sect;3 is the
+continuous twin of this card &mdash; a point drawn uniformly on the unit circle, where
+$\cos\Theta$ and $\sin\Theta$ are uncorrelated yet each pins down the other; and Q45 is the
+opposite pathology, summands correlated enough that variances do <em>not</em> add.</p>
 <p class="srcref">Tool: G2 &sect;4.5 (independence), &sect;4.7 (variance of a sum) &middot; B&amp;T &sect;2.7</p>
 </div></details>
 </div>
@@ -3348,6 +3406,10 @@ $\mathbb{E}[T] = \min(1/0.25,\,1/0.40) = 2.5$" &mdash; the minimum of the two wa
 <em>either</em> alone, not equal to the faster one; (ii) adding probabilities,
 $0.25+0.40 = 0.65$ &mdash; that double-counts rounds in which both succeed, which have probability
 $0.25(0.40) = 0.10$; note $0.65 - 0.10 = 0.55$ &#10003;, recovering the correct $p_T$.</p>
+<p><b>Connection.</b> Two independent geometrics run in parallel give another geometric &mdash;
+the discrete face of merging two Bernoulli processes, which &sect;4 takes up directly. Compare
+Q46, where three geometrics are run <em>in series</em> instead and the sum is emphatically not
+geometric; Q83 in &sect;4 sums a random number of them.</p>
 <p class="srcref">Tool: G2 &sect;3.5 (geometric tail probabilities), &sect;4.5 (independence) &middot; B&amp;T &sect;2.2, &sect;2.7</p>
 </div></details>
 </div>
@@ -3469,7 +3531,11 @@ $\operatorname{var}(\text{geom}(p)) = (1-p)/p^2$:</p>
 \operatorname{var}(T_3) = \frac{2/3}{(1/3)^2} = \frac{2/3}{1/9} = 6 ,$$</p>
 <p>$$\operatorname{var}(T) = 0 + 0.75 + 6 = 6.75,\qquad \sigma_T = \sqrt{6.75} = 2.598076 .$$</p>
 <p>(The first stage has zero variance because the very first box is always useful:
-$T_1 \equiv 1$. Monte Carlo, $50{,}000$ runs: $\mathbb{E}[T]\approx 5.518$ &#10003;.)</p>
+$T_1 \equiv 1$. Monte Carlo over $50{,}000$ simulated collections &mdash; drawing boxes one at
+a time and stopping when the third type first appears, with no stage decomposition assumed
+&mdash; gives $\mathbb{E}[T] \approx 5.5182$, $\operatorname{var}(T) \approx 6.822$ and
+$\mathbf{P}(T=3) \approx 0.2220$ against the exact $1\cdot\frac23\cdot\frac13 = \frac29 = 0.2222$
+&#10003;.)</p>
 <p><b>Interpretation.</b> Almost all of the waiting &mdash; and nearly all of the uncertainty
 &mdash; sits in the last stage, where only one of three types is still useful. This is the general
 shape of the coupon-collector problem: the mean is $n\sum_{k=1}^{n}1/k$ and the final coupon
@@ -3518,7 +3584,7 @@ i.e. $\tfrac1{36},\tfrac3{36},\tfrac5{36},\tfrac7{36},\tfrac9{36},\tfrac{11}{36}
 $m=1,\dots,6$ (summing to $36/36 = 1$ &#10003;). Then</p>
 <p>$$\mathbb{E}[M] = \frac{1(1) + 2(3) + 3(5) + 4(7) + 5(9) + 6(11)}{36}
 = \frac{1+6+15+28+45+66}{36} = \frac{161}{36} = 4.472222 \ \checkmark$$</p>
-<p>(Monte Carlo, $400{,}000$ paired rolls: $4.4776$ &#10003;.)</p>
+<p>(Monte Carlo, $400{,}000$ paired rolls: $4.4720$ &#10003;.)</p>
 <p><b>Answer.</b> $\;\mathbb{E}[X] = \sum_{k\ge1}\mathbf{P}(X\ge k)$, and for the maximum of two
 fair dice $\mathbb{E}[M] = 161/36 = 4.4722$.</p>
 <p><b>Trap.</b> Answering $3.5$ &mdash; the mean of a single die &mdash; or "$3.5$ for each die so
@@ -3532,9 +3598,9 @@ $\mathbf{P}(X\ge1)$.</p>
 
 <h2 id="qb-s3">&sect;3 &nbsp; Continuous random variables</h2>
 
-<p class="srcref">Drills G3 &sect;1&ndash;&sect;2 and &sect;4 &middot; Bertsekas&ndash;Tsitsiklis &sect;3.1&ndash;3.5, &sect;4.1&ndash;4.2 &middot; every number recomputed in <code>computes/qb_s3.py</code></p>
+<p class="srcref">Drills G3 &sect;1&ndash;&sect;4 &middot; Bertsekas&ndash;Tsitsiklis &sect;3.1&ndash;3.5, &sect;4.1&ndash;4.2 &middot; every number recomputed in <code>computes/qb_s3.py</code></p>
 
-<p>Twenty-five problems on densities, ordered <b>by difficulty, not by theme</b>: Q48&ndash;Q55 are &#9733;, Q56&ndash;Q67 are &#9733;&#9733;, Q68&ndash;Q72 are &#9733;&#9733;&#9733;. Four threads are braided through that ordering, so work down the list and pick each thread up as it comes. <b>Earning a PDF, and CDFs</b> (Q48&ndash;49, Q56&ndash;57, Q72): normalize a density, integrate it for probabilities and moments, pass back and forth between $f_X$ and $F_X$, and handle the two distributions here that are part jump and part ramp. <b>The named families</b> (Q50&ndash;51, Q54a, Q58&ndash;59, Q67): the uniform (density $1/(b-a)$, mean $(a+b)/2$, variance $(b-a)^2/12$), the exponential (memorylessness, and the min/max of independent exponentials), and the normal (standardization and reading $\Phi$ off a table, in both directions). <b>Two dimensions</b> (Q52, Q55, Q60&ndash;61, Q66, Q69): joint PDFs over regions that are <em>not</em> rectangles, marginals by slicing, conditional densities as renormalized slices, $\mathbb{E}[X\mid Y=y]$, and the factorization test for independence &mdash; with the triangle trap that catches almost everyone. <b>Transformations and covariance</b> (Q53&ndash;54, Q62&ndash;65, Q68, Q70&ndash;71): derived distributions by the CDF method and by the monotonic-change-of-variables formula (watch the $|dg/dx|$), two convolutions (a uniform plus an exponential in Q63, and two exponentials at unequal rates in Q71), and covariance/correlation, including a pair that is uncorrelated but as dependent as two variables can be. Where a problem has a trap, the solution names the wrong answer you were about to give. One caveat on coverage: continuous inference &mdash; G3 &sect;3, the four faces of Bayes' rule &mdash; is <em>not</em> drilled in this section, which is why the source line above says &sect;1&ndash;&sect;2 and &sect;4.</p>
+<p>Twenty-five problems on densities, ordered <b>by difficulty, not by theme</b>: Q48&ndash;Q55 are &#9733;, Q56&ndash;Q67 are &#9733;&#9733;, Q68&ndash;Q72 are &#9733;&#9733;&#9733;. Four threads are braided through that ordering, so work down the list and pick each thread up as it comes. <b>Earning a PDF, and CDFs</b> (Q48&ndash;49, Q56&ndash;57, Q72): normalize a density, integrate it for probabilities and moments, pass back and forth between $f_X$ and $F_X$, and handle the two distributions here that are part jump and part ramp. <b>The named families</b> (Q50&ndash;51, Q54a, Q58&ndash;59, Q67): the uniform (density $1/(b-a)$, mean $(a+b)/2$, variance $(b-a)^2/12$), the exponential (memorylessness, and the min/max of independent exponentials), and the normal (standardization and reading $\Phi$ off a table, in both directions). <b>Two dimensions</b> (Q52, Q55, Q61, Q66, Q69): joint PDFs over regions that are <em>not</em> rectangles, marginals by slicing, conditional densities as renormalized slices, $\mathbb{E}[X\mid Y=y]$, and the factorization test for independence &mdash; with the triangle trap that catches almost everyone. <b>Transformations and covariance</b> (Q53&ndash;54, Q62&ndash;65, Q68, Q70&ndash;71): derived distributions by the CDF method and by the monotonic-change-of-variables formula (watch the $|dg/dx|$), two convolutions (a uniform plus an exponential in Q63, and two exponentials at unequal rates in Q71), and covariance/correlation, including a pair that is uncorrelated but as dependent as two variables can be. Standing on its own is <b>continuous inference</b> (Q60), the (C$\,|\,$D) face of Bayes' rule from G3 &sect;3: a continuous unknown, a discrete observation, and a posterior density whose normalizer is an <em>integral</em> over the parameter rather than a sum. Where a problem has a trap, the solution names the wrong answer you were about to give.</p>
 
 <div class="ex qcard" id="q48" data-diff="1" data-topic="pdf">
 <p><b>Q48.</b> <span class="qmeta"><span class="stars">&#9733;</span>
@@ -3551,9 +3617,17 @@ Summing, $\frac{c}{2}+\frac{c}{2} = c = 1$, so $c = 1$. (Geometric shortcut: the
 $$\mathbf{P}(X \ge 1.5) = \int_{1.5}^{2}(2-x)\,dx = \Big[2x-\frac{x^2}{2}\Big]_{1.5}^{2} = (4-2) - (3 - 1.125) = 2 - 1.875 = 0.125 .$$
 </p>
 <p><b>(c) Mean and variance.</b> The density is symmetric about $x=1$ (reflecting $x \mapsto 2-x$ swaps the two pieces), so $\mathbb{E}[X]=1$. Longhand, as a check:
-$$\mathbb{E}[X] = \int_0^1 x\cdot x\,dx + \int_1^2 x(2-x)\,dx = \frac13 + \Big[x^2-\frac{x^3}{3}\Big]_1^2 = 0.333333 + \Big(\frac43 - \frac23\Big) = 0.333333+0.666667 = 1 .$$
+$$\begin{aligned}
+\mathbb{E}[X] &= \int_0^1 x\cdot x\,dx + \int_1^2 x(2-x)\,dx = \frac13 + \Big[x^2-\frac{x^3}{3}\Big]_1^2\\
+&= 0.333333 + \Big(\frac43 - \frac23\Big) = 0.333333+0.666667 = 1 .
+\end{aligned}
+$$
 For the second moment,
-$$\mathbb{E}[X^2] = \int_0^1 x^3dx + \int_1^2 x^2(2-x)\,dx = 0.25 + \Big[\frac{2x^3}{3}-\frac{x^4}{4}\Big]_1^2 = 0.25 + (5.333333-4) - (0.666667-0.25) = 1.166667,$$
+$$\begin{aligned}
+\mathbb{E}[X^2] &= \int_0^1 x^3dx + \int_1^2 x^2(2-x)\,dx = 0.25 + \Big[\frac{2x^3}{3}-\frac{x^4}{4}\Big]_1^2\\
+&= 0.25 + (5.333333-4) - (0.666667-0.25) = 1.166667,
+\end{aligned}
+$$
 i.e. $\mathbb{E}[X^2] = \frac{7}{6}$. Hence
 $$\operatorname{var}(X) = \mathbb{E}[X^2] - \big(\mathbb{E}[X]\big)^2 = 1.166667 - 1 = 0.166667 = \tfrac16 .$$
 A $4\times10^6$-sample simulation (the tent is the sum of two independent $U(0,1)$'s) gives $\mathbf{P}(X\ge1.5)\approx0.124830$ and $\operatorname{var}\approx0.166715$ &mdash; both confirmed.</p>
@@ -3571,7 +3645,7 @@ $$F_X(x) = \begin{cases} 0, &amp; x \lt 0,\\ x^2/4, &amp; 0 \le x \le 2,\\ 1, &a
 (a) Find the PDF $f_X$. &nbsp; (b) Compute $\mathbf{P}(1 \le X \le 1.5)$. &nbsp; (c) Find the median of $X$ &mdash; the value $m$ with $F_X(m)=1/2$ &mdash; and say whether it is above or below $\mathbb{E}[X] = 4/3$.</p>
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> For a continuous random variable, $f_X(x) = \dfrac{dF_X}{dx}(x)$ wherever the derivative exists (G3 &sect;1.4), and $\mathbf{P}(a \le X \le b) = F_X(b)-F_X(a)$ &mdash; endpoints do not matter because single points carry zero probability.</p>
-<p><b>(a) Differentiate.</b> On $0 \lt x \lt 2$, $\;f_X(x) = \frac{d}{dx}\frac{x^2}{4} = \frac{2x}{4} = \frac{x}{2}$, and $f_X(x)=0$ outside $[0,2]$. Sanity check: $\int_0^2 \frac{x}{2}dx = \big[\frac{x^2}{4}\big]_0^2 = 1$ &#10003;, and $f_X \ge 0$ on the support &#10003;. Sample value: $f_X(1.5) = 0.75$.</p>
+<p><b>(a) Differentiate.</b> On $0 \lt x \lt 2$, $\;f_X(x) = \frac{d}{dx}\frac{x^2}{4} = \frac{2x}{4} = \frac{x}{2}$, and $f_X(x)=0$ outside $[0,2]$. Sanity check: $\int_0^2 \frac{x}{2}dx = \big[\frac{x^2}{4}\big]_0^2 = 1$ <span class="chk">&#10003;</span>, and $f_X \ge 0$ on the support <span class="chk">&#10003;</span>. Sample value: $f_X(1.5) = 0.75$.</p>
 <p><b>(b) A probability from the CDF.</b> No integration needed &mdash; that is the point of having $F_X$:
 $$\mathbf{P}(1 \le X \le 1.5) = F_X(1.5) - F_X(1) = \frac{1.5^2}{4} - \frac{1^2}{4} = \frac{2.25}{4} - \frac{1}{4} = 0.5625 - 0.25 = 0.3125 .$$
 </p>
@@ -3589,11 +3663,15 @@ $$\mathbf{P}(1 \le X \le 1.5) = F_X(1.5) - F_X(1) = \frac{1.5^2}{4} - \frac{1^2}
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> $T \sim \text{Exp}(\lambda)$ with $\mathbb{E}[T]=1/\lambda = 30$, so $\lambda = 1/30 = 0.033333$ per month. The exponential tail is $\mathbf{P}(T \gt t) = e^{-\lambda t}$ for $t \ge 0$ (G3 &sect;1.5). The event asked for is $\{T \gt 30\}$ conditioned on $\{T \gt 18\}$.</p>
 <p><b>Method 1 &mdash; conditional probability.</b> Since $\{T \gt 30\} \subset \{T \gt 18\}$, the intersection is just $\{T \gt 30\}$:
-$$\mathbf{P}(T \gt 30 \mid T \gt 18) = \frac{\mathbf{P}(T \gt 30)}{\mathbf{P}(T \gt 18)} = \frac{e^{-30/30}}{e^{-18/30}} = \frac{e^{-1}}{e^{-0.6}} = \frac{0.367879}{0.548812} = 0.670320 .$$
+$$\begin{aligned}
+\mathbf{P}(T \gt 30 \mid T \gt 18) &= \frac{\mathbf{P}(T \gt 30)}{\mathbf{P}(T \gt 18)} = \frac{e^{-30/30}}{e^{-18/30}}\\
+&= \frac{e^{-1}}{e^{-0.6}} = \frac{0.367879}{0.548812} = 0.670320 .
+\end{aligned}
+$$
 </p>
 <p><b>Method 2 &mdash; memorylessness.</b> The exponential's defining property is $\mathbf{P}(T \gt t+s \mid T \gt t) = \mathbf{P}(T \gt s)$: a used router that still works is stochastically brand new. So the answer is simply
 $$\mathbf{P}(T \gt 12) = e^{-12/30} = e^{-0.4} = 0.670320 ,$$
-the same number, with no division. Simulation of $4\times10^6$ exponentials gives $0.669630$ &#10003;.</p>
+the same number, with no division. Simulation of $4\times10^6$ exponentials gives $0.669630$ <span class="chk">&#10003;</span>.</p>
 <p><b>Answer.</b> $\;e^{-0.4} = 0.670320$.</p>
 <p><b>Trap.</b> The tempting wrong answer is $e^{-30/30}=0.367879$ &mdash; reading "lasts to month 30" off the unconditional tail and forgetting that you have already been told it survived to month 18. Memorylessness resets the clock; it does not delete the question.</p>
 <p class="srcref">Tool: G3 &sect;1.5 (exponential and memorylessness) &middot; B&amp;T &sect;3.3</p>
@@ -3632,7 +3710,7 @@ $$\int_0^1\!\!\int_0^1 (x+2y)\,dy\,dx = \int_0^1 \Big[xy + y^2\Big]_{y=0}^{y=1} 
 So $c \cdot 1.5 = 1$ and $c = 1/1.5 = 2/3 = 0.666667$.</p>
 <p><b>(b) Marginal of $X$.</b> Reusing the inner integral just computed,
 $$f_X(x) = \int_0^1 \frac23 (x+2y)\,dy = \frac23 (x+1), \qquad 0 \le x \le 1,$$
-and $0$ elsewhere. Check: $\int_0^1 \frac23(x+1)dx = \frac23 (1.5) = 1$ &#10003;. Endpoint values: $f_X(0)=0.666667$, $f_X(1)=1.333333$ &mdash; the density rises linearly, so larger $x$ is twice as likely per unit length at the top of the range as at the bottom.</p>
+and $0$ elsewhere. Check: $\int_0^1 \frac23(x+1)dx = \frac23 (1.5) = 1$ <span class="chk">&#10003;</span>. Endpoint values: $f_X(0)=0.666667$, $f_X(1)=1.333333$ &mdash; the density rises linearly, so larger $x$ is twice as likely per unit length at the top of the range as at the bottom.</p>
 <p><b>(c) Mean of $X$.</b> Use the marginal &mdash; never the joint, when only $X$ is involved:
 $$\mathbb{E}[X] = \int_0^1 x\cdot\frac23(x+1)\,dx = \frac23\int_0^1 (x^2+x)\,dx = \frac23\Big(\frac13+\frac12\Big) = \frac23\cdot\frac56 = \frac{5}{9} = 0.555556 .$$
 It exceeds $0.5$, as the upward-sloping marginal demands.</p>
@@ -3672,7 +3750,7 @@ Note the sign bookkeeping: $2ab = 2(2)(-1) = -4$, times $\operatorname{cov} = -3
 $$f_X(x) = \frac{1}{b-a} = \frac{1}{2} = 0.5 \;\;(1 \le x \le 3), \qquad F_X(x) = \frac{x-a}{b-a} = \frac{x-1}{2} \;\;(1 \le x \le 3),$$
 with $F_X = 0$ below $1$ and $1$ above $3$; e.g. $F_X(2.5) = 0.75$. The moments are the two formulas worth memorizing,
 $$\mathbb{E}[X] = \frac{a+b}{2} = \frac{1+3}{2} = 2 \;\Omega, \qquad \operatorname{var}(X) = \frac{(b-a)^2}{12} = \frac{4}{12} = \frac13 = 0.333333 ,$$
-so $\sigma_X = 0.577350$. (Check the variance the long way: $\mathbb{E}[X^2] = \int_1^3 \frac{x^2}{2}dx = \frac{13}{3} = 4.333333$, and $4.333333 - 2^2 = 0.333333$ &#10003;.) Probabilities of intervals are pure length ratios &mdash; the position inside $[a,b]$ is irrelevant:
+so $\sigma_X = 0.577350$. (Check the variance the long way: $\mathbb{E}[X^2] = \int_1^3 \frac{x^2}{2}dx = \frac{13}{3} = 4.333333$, and $4.333333 - 2^2 = 0.333333$ <span class="chk">&#10003;</span>.) Probabilities of intervals are pure length ratios &mdash; the position inside $[a,b]$ is irrelevant:
 $$\mathbf{P}(1.5 \le X \le 2.5) = \frac{2.5-1.5}{3-1} = \frac{1}{2} = 0.5 .$$
 </p>
 <p><b>(b) Setup for the transformation.</b> The map $g(x)=1/x$ is strictly <em>decreasing</em> on $[1,3]$, hence strictly monotonic, so the change-of-variables formula applies (G3 &sect;4.2):
@@ -3683,10 +3761,10 @@ $$f_Y(y) = \frac{f_X(x)}{\big|\,dg/dx\,\big|}\bigg|_{x = g^{-1}(y)} .$$
 <p><b>Step 3 &mdash; substitute.</b> With $f_X(x)=0.5$ and $x = 1/y$,
 $$f_Y(y) = \frac{0.5}{1/x^2} = \frac{x^2}{2} = \frac{1}{2y^2}, \qquad \frac13 \le y \le 1 .$$
 Endpoint values: $f_Y(1/3)= \frac{1}{2(1/9)} = 4.5$, $f_Y(1)=0.5$. Note the reciprocal map has piled the mass up at the small-$y$ end, even though $X$ was flat.</p>
-<p><b>Step 4 &mdash; check.</b> $\displaystyle\int_{1/3}^{1} \frac{dy}{2y^2} = \frac12\Big[-\frac1y\Big]_{1/3}^{1} = \frac12(-1 + 3) = 1$ &#10003;.</p>
+<p><b>Step 4 &mdash; check.</b> $\displaystyle\int_{1/3}^{1} \frac{dy}{2y^2} = \frac12\Big[-\frac1y\Big]_{1/3}^{1} = \frac12(-1 + 3) = 1$ <span class="chk">&#10003;</span>.</p>
 <p><b>Step 5 &mdash; the mean.</b>
 $$\mathbb{E}[Y] = \int_{1/3}^1 y\cdot\frac{1}{2y^2}dy = \frac12\int_{1/3}^1\frac{dy}{y} = \frac12\big[\ln y\big]_{1/3}^1 = \frac{\ln 3}{2} = 0.549306 .$$
-Simulation with $4\times10^6$ draws: $0.549182$ &#10003;. A second check by a different route: $\mathbf{P}(Y \le 0.75) = \mathbf{P}(X \ge 4/3) = \frac{3-4/3}{2} = 0.833333$, and integrating $f_Y$ over $[1/3, 0.75]$ gives the same $0.833333$ &#10003; (simulation $0.833558$).</p>
+Simulation with $4\times10^6$ draws: $0.549182$ <span class="chk">&#10003;</span>. A second check by a different route: $\mathbf{P}(Y \le 0.75) = \mathbf{P}(X \ge 4/3) = \frac{3-4/3}{2} = 0.833333$, and integrating $f_Y$ over $[1/3, 0.75]$ gives the same $0.833333$ &#10003; (simulation $0.833558$).</p>
 <p><b>Answer.</b> $\;f_X = 1/2$ on $[1,3]$, $F_X(x)=(x-1)/2$, $\mathbb{E}[X]=2$, $\operatorname{var}(X)=1/3$, $\mathbf{P}(1.5\le X\le2.5)=0.5$; $\;f_Y(y) = 1/(2y^2)$ on $[1/3,1]$, $\;\mathbb{E}[Y] = \tfrac12\ln 3 \approx 0.549306$.</p>
 <p><b>Traps.</b> (i) Reading $N(\mu,\sigma^2)$-style habits into the uniform and reporting $\operatorname{var}(X) = (b-a)^2 = 4$ or $(b-a)/12$; the formula is $(b-a)^2/12 = 0.333333$, and only the <em>width</em> enters, never the location. (ii) Answering $\mathbb{E}[Y] = 1/\mathbb{E}[X] = 1/2 = 0.5$. Expectation does not pass through nonlinear functions; the true value $0.549306$ is larger, as Jensen's inequality guarantees for the convex map $1/x$.</p>
 <p class="srcref">Tool: G3 &sect;1.3 (continuous uniform: density, CDF, mean, variance), &sect;4.2 (change of variables for strictly monotonic $g$) &middot; B&amp;T &sect;3.1, &sect;4.1</p>
@@ -3702,13 +3780,25 @@ Simulation with $4\times10^6$ draws: $0.549182$ &#10003;. A second check by a di
 <p><b>Step 1 &mdash; the denominator.</b> $f_X(0.5) = \frac23(0.5+1) = \frac23(1.5) = 1$.</p>
 <p><b>Step 2 &mdash; the slice.</b> For $0 \le y \le 1$,
 $$f_{Y|X}(y \mid 0.5) = \frac{\frac23(0.5+2y)}{1} = \frac{0.5+2y}{1.5} .$$
-Check that it is a density: $\int_0^1 \frac{0.5+2y}{1.5}dy = \frac{1}{1.5}\big(0.5 + 1\big) = 1$ &#10003;. Values: $f_{Y|X}(0\mid0.5)=0.333333$, $f_{Y|X}(1\mid0.5)=1.666667$.</p>
+Check that it is a density: $\int_0^1 \frac{0.5+2y}{1.5}dy = \frac{1}{1.5}\big(0.5 + 1\big) = 1$ <span class="chk">&#10003;</span>. Values: $f_{Y|X}(0\mid0.5)=0.333333$, $f_{Y|X}(1\mid0.5)=1.666667$.</p>
 <p><b>Step 3 &mdash; conditional expectation.</b>
-$$\mathbb{E}[Y \mid X = 0.5] = \int_0^1 y\,\frac{0.5+2y}{1.5}\,dy = \frac{1}{1.5}\Big(0.5\cdot\frac12 + 2\cdot\frac13\Big) = \frac{0.25+0.666667}{1.5} = \frac{0.916667}{1.5} = 0.611111 .$$
+$$\begin{aligned}
+\mathbb{E}[Y \mid X = 0.5] &= \int_0^1 y\,\frac{0.5+2y}{1.5}\,dy = \frac{1}{1.5}\Big(0.5\cdot\frac12 + 2\cdot\frac13\Big)\\
+&= \frac{0.25+0.666667}{1.5} = \frac{0.916667}{1.5} = 0.611111 .
+\end{aligned}
+$$
 </p>
 <p><b>Step 4 &mdash; the comparison.</b> $\mathbb{E}[Y] = 11/18 = 0.611111$ too &mdash; the two agree exactly. <b>This does not prove independence.</b> The general conditional mean is
 $$\mathbb{E}[Y \mid X = x] = \frac{\frac{x}{2}+\frac23}{x+1},$$
-which equals $0.666667$ at $x=0$ and $0.583333$ at $x=1$ &mdash; it genuinely varies with $x$, and merely happens to cross the unconditional mean near $x=0.5$. Independence requires $f_{Y|X}(y\mid x)$ to be the <em>same function of $y$</em> for every $x$, which fails here: $f_{Y|X}(y\mid0) = \frac{2y}{1}$ differs from $f_{Y|X}(y\mid0.5)$.</p>
+which equals $0.666667$ at $x=0$ and $0.583333$ at $x=1$ &mdash; it genuinely varies with $x$. It crosses the unconditional mean $11/18$ at <em>exactly</em> $x=1/2$:
+$$\begin{aligned}
+\frac{\frac{x}{2}+\frac23}{x+1} = \frac{11}{18} \;&\Longrightarrow\; 18\Big(\frac{x}{2}+\frac23\Big) = 11(x+1)\\
+&\Longrightarrow\; 9x+12 = 11x+11 \;\Longrightarrow\; x = \tfrac12 ,
+\end{aligned}
+$$
+which is precisely why the value we conditioned on produced the coincidence &mdash; not luck, and not evidence of anything. Independence requires $f_{Y|X}(y\mid x)$ to be the <em>same function of $y$</em> for every $x$, which fails here: at $x=0$ the marginal is $f_X(0)=\frac23(0+1)=\frac23$ (<em>not</em> $1$ &mdash; that was $f_X(0.5)$), so
+$$f_{Y|X}(y \mid 0) = \frac{\frac23(0+2y)}{\frac23} = \frac{\frac43 y}{\frac23} = 2y ,$$
+a different function of $y$ from $f_{Y|X}(y\mid0.5) = \frac{0.5+2y}{1.5}$.</p>
 <p><b>Answer.</b> $\;f_{Y|X}(y\mid0.5) = \dfrac{0.5+2y}{1.5}$ on $[0,1]$, $\;\mathbb{E}[Y\mid X=0.5] = 11/18 \approx 0.611111$; the coincidence with $\mathbb{E}[Y]$ does <b>not</b> imply independence.</p>
 <p><b>Trap.</b> "One conditional mean equals the unconditional mean, so $X$ and $Y$ are independent." Even the stronger statement $\mathbb{E}[Y\mid X=x] = \mathbb{E}[Y]$ for <em>all</em> $x$ (mean-independence) would not suffice &mdash; see Q64.</p>
 <p class="srcref">Tool: G3 &sect;2.3 (conditional PDFs), &sect;2.4 (independence) &middot; B&amp;T &sect;3.5</p>
@@ -3747,17 +3837,17 @@ The integrand is $2/x$, the borderline case $p=1$, which diverges &mdash; logari
 <p><b>Setup.</b> $W$ is neither discrete nor continuous: it puts an atom of probability at $0$ and spreads the rest as a density. The CDF handles all three worlds uniformly (G3 &sect;1.4) &mdash; jumps for atoms, slopes for density.</p>
 <p><b>(a) The CDF.</b> Condition on the light. For $0 \le w \lt 2$,
 $$F_W(w) = \mathbf{P}(\text{green}) \cdot 1 + \mathbf{P}(\text{red}) \cdot \mathbf{P}(U \le w) = 0.3 + 0.7\cdot\frac{w}{2} = 0.3 + 0.35\,w ,$$
-with $F_W(w)=0$ for $w \lt 0$ and $F_W(w)=1$ for $w \ge 2$. Check the top end: $0.3 + 0.35(2) = 1$ &#10003;. So the CDF <b>jumps by $0.3$ at $w=0$</b> &mdash; that jump <em>is</em> $\mathbf{P}(W=0)=0.3$ &mdash; and then <b>ramps with slope $0.35$</b> across $[0,2]$; the slope is the density on the continuous part, $f(w)=0.35$ for $0 \lt w \lt 2$ (which is $0.7 \times \frac12$, the red probability times the uniform density).</p>
+with $F_W(w)=0$ for $w \lt 0$ and $F_W(w)=1$ for $w \ge 2$. Check the top end: $0.3 + 0.35(2) = 1$ <span class="chk">&#10003;</span>. So the CDF <b>jumps by $0.3$ at $w=0$</b> &mdash; that jump <em>is</em> $\mathbf{P}(W=0)=0.3$ &mdash; and then <b>ramps with slope $0.35$</b> across $[0,2]$; the slope is the density on the continuous part, $f(w)=0.35$ for $0 \lt w \lt 2$ (which is $0.7 \times \frac12$, the red probability times the uniform density).</p>
 <p><b>(b) Probabilities.</b>
 $$\mathbf{P}(W \le 1) = F_W(1) = 0.3 + 0.35(1) = 0.65 ; \qquad \mathbf{P}(0 \lt W \le 1) = 0.65 - 0.3 = 0.35 .$$
 Here, unlike in the purely continuous case, the strict inequality matters: excluding the atom removes $0.3$. The median solves $0.3+0.35m = 0.5 \Rightarrow m = 0.2/0.35 = 0.571429$ minutes.</p>
 <p><b>(c) Moments.</b> Expectation of a mixed variable = atom contribution + integral against the density:
 $$\mathbb{E}[W] = \underbrace{0.3 \times 0}_{\text{atom}} + \int_0^2 w\,(0.35)\,dw = 0.35\Big[\frac{w^2}{2}\Big]_0^2 = 0.35(2) = 0.7 \text{ min}.$$
-Cross-check by total expectation: $0.3(0) + 0.7(1) = 0.7$ &#10003;. Second moment:
+Cross-check by total expectation: $0.3(0) + 0.7(1) = 0.7$ <span class="chk">&#10003;</span>. Second moment:
 $$\mathbb{E}[W^2] = 0 + \int_0^2 w^2(0.35)\,dw = 0.35\Big[\frac{w^3}{3}\Big]_0^2 = 0.35\cdot\frac83 = 0.933333 ,$$
 so
 $$\operatorname{var}(W) = 0.933333 - (0.7)^2 = 0.933333 - 0.49 = 0.443333 .$$
-Simulation of $4\times10^6$ arrivals: $\mathbb{E}[W]\approx0.700$, $\operatorname{var}\approx0.4434$ &#10003;.</p>
+Simulation of $4\times10^6$ arrivals: $\mathbb{E}[W]\approx0.700$, $\operatorname{var}\approx0.4434$ <span class="chk">&#10003;</span>.</p>
 <p><b>Answer.</b> $\;F_W(w) = 0.3+0.35w$ on $[0,2)$ (jump $0.3$ at $0$, slope $0.35$); $\;\mathbf{P}(W\le1)=0.65$, $\;\mathbf{P}(0\lt W\le1)=0.35$, median $= 4/7 \approx 0.571429$; $\;\mathbb{E}[W]=0.7$, $\;\operatorname{var}(W)=0.443333$.</p>
 <p><b>Trap.</b> Treating $W$ as $U(0,2)$ conditional on red and forgetting the atom, giving $\mathbb{E}[W]=1$ and $\operatorname{var}(W)=1/3=0.333$. Also common: "$\mathbf{P}(W\le1)=\mathbf{P}(W\lt1)$ because $W$ is continuous" &mdash; false at $w=0$, where the CDF genuinely jumps.</p>
 <p class="srcref">Tool: G3 &sect;1.4 (CDFs cover discrete, continuous and mixed) &middot; B&amp;T &sect;3.2</p>
@@ -3771,10 +3861,14 @@ Simulation of $4\times10^6$ arrivals: $\mathbb{E}[W]\approx0.700$, $\operatornam
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> $\lambda_1 = 1/4 = 0.25$ and $\lambda_2 = 1/6 = 0.166667$ per hour. The tools are the tail form $\mathbf{P}(X \gt t)=e^{-\lambda_1 t}$ and the min-of-independent-exponentials argument of G3 &sect;1.6.</p>
 <p><b>(a) Who fails first.</b> Condition on $Y$ and integrate:
-$$\mathbf{P}(X \lt Y) = \int_0^\infty \mathbf{P}(X \lt y)\,f_Y(y)\,dy = \int_0^\infty \big(1-e^{-\lambda_1 y}\big)\lambda_2 e^{-\lambda_2 y}\,dy = 1 - \frac{\lambda_2}{\lambda_1+\lambda_2} = \frac{\lambda_1}{\lambda_1+\lambda_2},$$
+$$\begin{aligned}
+\mathbf{P}(X \lt Y) &= \int_0^\infty \mathbf{P}(X \lt y)\,f_Y(y)\,dy = \int_0^\infty \big(1-e^{-\lambda_1 y}\big)\lambda_2 e^{-\lambda_2 y}\,dy\\
+&= 1 - \frac{\lambda_2}{\lambda_1+\lambda_2} = \frac{\lambda_1}{\lambda_1+\lambda_2},
+\end{aligned}
+$$
 where the middle integral used $\int_0^\infty \lambda_2 e^{-(\lambda_1+\lambda_2)y}dy = \frac{\lambda_2}{\lambda_1+\lambda_2}$. Substituting, $\lambda_1+\lambda_2 = 0.25+0.166667 = 0.416667$ and
 $$\mathbf{P}(X \lt Y) = \frac{0.25}{0.416667} = 0.6 .$$
-Interpretation: the winner is chosen in proportion to <em>rates</em>, not to means. Simulation: $0.599707$ &#10003;.</p>
+Interpretation: the winner is chosen in proportion to <em>rates</em>, not to means. Simulation: $0.599707$ <span class="chk">&#10003;</span>.</p>
 <p><b>(b) The minimum.</b> For $m \ge 0$, using independence,
 $$\mathbf{P}(M \gt m) = \mathbf{P}(X \gt m,\, Y \gt m) = e^{-\lambda_1 m}e^{-\lambda_2 m} = e^{-(\lambda_1+\lambda_2)m},$$
 which is exactly the tail of an exponential with rate $\lambda_1+\lambda_2 = 0.416667$ &mdash; rates add. Therefore
@@ -3782,7 +3876,7 @@ $$\mathbb{E}[M] = \frac{1}{\lambda_1+\lambda_2} = \frac{1}{0.416667} = 2.4 \text
 shorter than either individual mean ($4$ and $6$), as two ways to fail must be. As a bonus, $\mathbf{P}(M \gt 3) = e^{-0.416667\times3} = e^{-1.25} = 0.286505$.</p>
 <p><b>(c) The maximum, without any new integral.</b> Pointwise, $\min\{X,Y\}+\max\{X,Y\} = X+Y$ &mdash; whichever is smaller, the two sides list the same two numbers. Taking expectations and using linearity,
 $$\mathbb{E}[L] = \mathbb{E}[X] + \mathbb{E}[Y] - \mathbb{E}[M] = 4 + 6 - 2.4 = 7.6 \text{ hours}.$$
-Simulation: $\mathbb{E}[M]\approx2.4003$, $\mathbb{E}[L]\approx7.5972$ &#10003;.</p>
+Simulation: $\mathbb{E}[M]\approx2.4003$, $\mathbb{E}[L]\approx7.5972$ <span class="chk">&#10003;</span>.</p>
 <p><b>Answer.</b> $\;\mathbf{P}(X\lt Y)=0.6$; $\;M \sim \text{Exp}(0.416667)$ with $\mathbb{E}[M]=2.4$ h; $\;\mathbb{E}[L]=7.6$ h.</p>
 <p><b>Traps.</b> (i) Answering $\mathbf{P}(X\lt Y)=\frac{4}{4+6}=0.4$ by mixing means with rates &mdash; it is backwards, and the faster-failing disk must win <em>more</em> than half the time. (ii) Claiming $L$ is exponential: it is not, since $\mathbb{E}[L]=7.6 \ne \mathbb{E}[X]+\mathbb{E}[Y]=10$ and its density $\lambda_1e^{-\lambda_1\ell}(1-e^{-\lambda_2\ell}) + \lambda_2e^{-\lambda_2\ell}(1-e^{-\lambda_1\ell})$ is not a single exponential. Only the <em>minimum</em> inherits the family.</p>
 <p class="srcref">Tool: G3 &sect;1.5&ndash;1.6 (exponential; maxima and minima of independent exponentials) &middot; B&amp;T &sect;3.3, &sect;6.1</p>
@@ -3803,7 +3897,7 @@ $$\frac{500-\mu}{1.2} \le -2.33 .$$
 </p>
 <p><b>Step 3 &mdash; solve for $\mu$.</b> Multiply by $1.2$ (positive, so the inequality direction survives):
 $$500 - \mu \le -2.796 \;\Longrightarrow\; \mu \ge 500 + 2.796 = 502.796 \text{ ml}.$$
-With the exact quantile $2.326348$ the bound is $500 + 2.791617 = 502.791617$ ml; the table rounding costs about $0.004$ ml. Verification: at $\mu = 502.796$, $\mathbf{P}(X\lt500) = \Phi(-2.33) = 0.009903 \le 0.01$ &#10003;.</p>
+With the exact quantile $2.326348$ the bound is $500 + 2.791617 = 502.791617$ ml; the table rounding costs about $0.004$ ml. Verification: at $\mu = 502.796$, $\mathbf{P}(X\lt500) = \Phi(-2.33) = 0.009903 \le 0.01$ <span class="chk">&#10003;</span>.</p>
 <p><b>Why linear in $\sigma$.</b> The admissible mean is $\mu = 500 + z_{0.99}\,\sigma$: the safety margin is a fixed <em>number of standard deviations</em>, so halving the machine's variability to $\sigma=0.6$ halves the overfill to $1.398$ ml &mdash; which is precisely the business case for a more precise filler.</p>
 <p><b>Answer.</b> $\;\mu \ge 502.796$ ml (exact: $502.7916$ ml).</p>
 <p><b>Trap.</b> Using $z = 1.96$ and answering $502.352$ ml. $1.96$ is the <em>two-sided</em> $95\%$ value; here the requirement is one-sided at the $1\%$ level, whose quantile is $2.33$. A one-sided requirement never uses a two-sided quantile.</p>
@@ -3811,29 +3905,37 @@ With the exact quantile $2.326348$ the bound is $500 + 2.791617 = 502.791617$ ml
 </div></details>
 </div>
 
-<div class="ex qcard" id="q60" data-diff="2" data-topic="joint-pdf">
+<div class="ex qcard" id="q60" data-diff="2" data-topic="conditional">
 <p><b>Q60.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
- &middot; Uniform on a triangle &middot; <span class="ref">G3 &sect;2.1&ndash;2.2</span></span></p>
-<p>Two components are stress-tested; the pair $(X,Y)$ of readings is uniform on the triangle $T = \{(x,y): 0 \le y \le x \le 1\}$ &mdash; i.e. the half of the unit square below the diagonal. (a) Write $f_{X,Y}$. &nbsp; (b) Find both marginals and identify each. &nbsp; (c) Find $\mathbf{P}(X+Y \le 1)$. &nbsp; (d) Find $\mathbb{E}[X]$ and $\mathbb{E}[Y]$ and explain the ordering.</p>
+ &middot; Continuous prior, discrete data &middot; <span class="ref">G3 &sect;3.5</span></span></p>
+<p>A newly assembled sensor fails each self-test independently with an unknown probability $\Theta$. From the batch's history, the prior density is $f_\Theta(\theta) = 2\theta$ for $0 \le \theta \le 1$ (a poor batch: large $\theta$ is more likely a priori). You run $n=3$ independent self-tests and observe exactly $X = 1$ failure. (a) Write the Bayes rule for this case &mdash; continuous unknown, discrete observation &mdash; and evaluate its denominator $\mathbf{P}(X=1)$. &nbsp; (b) Find the posterior density $f_{\Theta \mid X}(\theta \mid 1)$ and check it integrates to $1$. &nbsp; (c) Find the posterior mean $\mathbb{E}[\Theta \mid X=1]$ and compare it with the prior mean and with the maximum-likelihood estimate $1/3$. &nbsp; (d) Find $\mathbf{P}(\Theta \gt 1/2 \mid X=1)$ and compare with the prior $\mathbf{P}(\Theta \gt 1/2)$.</p>
 <details class="sol"><summary>Solution</summary><div class="body">
-<p><b>Setup.</b> "Uniform on a region $S$" means $f_{X,Y} = 1/\text{area}(S)$ on $S$ and $0$ elsewhere, so every probability is an area times that constant (G3 &sect;2.1).</p>
-<p><b>(a) The joint density.</b> $T$ is the triangle with vertices $(0,0)$, $(1,0)$, $(1,1)$; its area is $\frac12(1)(1)=0.5$. Hence
-$$f_{X,Y}(x,y) = \begin{cases} 1/0.5 = 2, &amp; 0 \le y \le x \le 1,\\ 0, &amp; \text{otherwise.}\end{cases}$$
-</p>
-<p><b>(b) Marginals by slicing.</b> Fix $x \in [0,1]$; the vertical slice of $T$ is $\{0 \le y \le x\}$, of length $x$:
-$$f_X(x) = \int_0^{x} 2\,dy = 2x, \qquad 0 \le x \le 1 .$$
-Fix $y \in [0,1]$; the horizontal slice is $\{y \le x \le 1\}$, of length $1-y$:
-$$f_Y(y) = \int_{y}^{1} 2\,dx = 2(1-y), \qquad 0 \le y \le 1 .$$
-Both check: $\int_0^1 2x\,dx = 1$ and $\int_0^1 2(1-y)dy = 1$ &#10003;. Sample values $f_X(0.5)=1$, $f_Y(0.5)=1$. Neither marginal is uniform even though the joint density is constant &mdash; the slices have different lengths. $X$ is a rising triangular density (it is the maximum of two independent uniforms), $Y$ a falling one (the minimum).</p>
-<p><b>(c) A probability as an area.</b> The region $T \cap \{x+y \le 1\}$ is bounded by $y=0$, $y=x$ and $x+y=1$; the last two lines meet where $x=y=0.5$. So it is the triangle with vertices $(0,0)$, $(1,0)$, $(0.5,0.5)$, whose area is $\frac12 \times \text{base}\;1 \times \text{height}\;0.5 = 0.25$. Multiply by the density:
-$$\mathbf{P}(X+Y \le 1) = 2 \times 0.25 = 0.5 .$$
-Simulation ($4\times10^6$ points): $0.499720$ &#10003;.</p>
-<p><b>(d) Means.</b>
-$$\mathbb{E}[X] = \int_0^1 x(2x)\,dx = \Big[\frac{2x^3}{3}\Big]_0^1 = \frac23 = 0.666667, \qquad \mathbb{E}[Y] = \int_0^1 y\,2(1-y)\,dy = 2\Big(\frac12-\frac13\Big) = \frac13 = 0.333333 .$$
-The ordering $\mathbb{E}[Y] \lt \mathbb{E}[X]$ is forced: $Y \le X$ pointwise on $T$, so their expectations must obey the same inequality. Also $\mathbb{E}[X]+\mathbb{E}[Y] = 1 = \mathbb{E}[U_1]+\mathbb{E}[U_2]$, since $\max + \min = U_1+U_2$.</p>
-<p><b>Answer.</b> $\;f_{X,Y}=2$ on $T$; $\;f_X(x)=2x$, $\;f_Y(y)=2(1-y)$ on $[0,1]$; $\;\mathbf{P}(X+Y\le1)=0.5$; $\;\mathbb{E}[X]=2/3$, $\;\mathbb{E}[Y]=1/3$.</p>
-<p><b>Trap.</b> Answering $f_X(x)=1$ "because the joint is uniform". A uniform joint density does <em>not</em> give uniform marginals unless the region is a rectangle with sides parallel to the axes.</p>
-<p class="srcref">Tool: G3 &sect;2.1 (uniform on a region), &sect;2.2 (marginals by slicing) &middot; B&amp;T &sect;3.4</p>
+<p><b>Setup.</b> Bayes' rule has four faces, one for each combination of discrete/continuous unknown and discrete/continuous observation (G3 &sect;3.1). Here the unknown $\Theta$ is <em>continuous</em> and the data $X$ is <em>discrete</em>, so the posterior is a density in $\theta$ built from a PMF in $x$, and the normalizer is an <em>integral</em> over $\theta$:
+$$f_{\Theta\mid X}(\theta \mid x) = \frac{f_\Theta(\theta)\,p_{X\mid\Theta}(x \mid \theta)}{\displaystyle\int_{-\infty}^{\infty} f_\Theta(t)\,p_{X\mid\Theta}(x \mid t)\,dt} .$$
+Mixing the two &mdash; summing where you should integrate, or vice versa &mdash; is the one structural error in this topic. Given $\Theta=\theta$, $X \sim \text{Bin}(3,\theta)$, so $p_{X\mid\Theta}(1\mid\theta) = \binom{3}{1}\theta(1-\theta)^2 = 3\theta(1-\theta)^2$.</p>
+<p><b>(a) The denominator.</b> It is the total-probability integral, and it is a genuine probability &mdash; the chance of seeing one failure before you knew $\theta$:
+$$\begin{aligned}
+\mathbf{P}(X=1) &= \int_0^1 2\theta \cdot 3\theta(1-\theta)^2\,d\theta = 6\int_0^1 \theta^2(1-\theta)^2\,d\theta\\
+&= 6\int_0^1 \big(\theta^2 - 2\theta^3 + \theta^4\big)d\theta = 6\Big(\frac13-\frac12+\frac15\Big) = 6\cdot\frac{1}{30} = \frac15 = 0.2 .
+\end{aligned}
+$$
+(The middle integral $\int_0^1\theta^2(1-\theta)^2d\theta = 1/30 = 0.033333$ is the Beta integral $B(3,3) = \frac{2!\,2!}{5!}$; the factorial form saves the expansion.)</p>
+<p><b>(b) The posterior.</b> Divide the numerator by that constant:
+$$f_{\Theta\mid X}(\theta \mid 1) = \frac{2\theta \cdot 3\theta(1-\theta)^2}{1/5} = 30\,\theta^2(1-\theta)^2, \qquad 0 \le \theta \le 1 ,$$
+and $0$ elsewhere. Check: $30 \cdot \frac{1}{30} = 1$ <span class="chk">&#10003;</span>. This is the Beta$(3,3)$ density &mdash; symmetric about $\theta = 1/2$, with $f_{\Theta\mid X}(0.5\mid1) = 30(0.25)(0.25) = 1.875$ and $f_{\Theta\mid X}(0.25\mid1) = 1.054688$. Note what happened to the shape: the prior $2\theta$ was increasing and pinned $f_\Theta(0)=0$; the likelihood $3\theta(1-\theta)^2$ pushes back against large $\theta$ because two of the three tests <em>passed</em>. The product is a hump.</p>
+<p><b>(c) Posterior mean.</b> Integrate against the posterior:
+$$\begin{aligned}
+\mathbb{E}[\Theta \mid X=1] &= \int_0^1 \theta \cdot 30\theta^2(1-\theta)^2\,d\theta = 30\int_0^1\big(\theta^3 - 2\theta^4 + \theta^5\big)d\theta\\
+&= 30\Big(\frac14 - \frac25 + \frac16\Big) = 30\cdot\frac{1}{60} = \frac12 = 0.5 .
+\end{aligned}
+$$
+The prior mean was $\mathbb{E}[\Theta] = \int_0^1 \theta\cdot2\theta\,d\theta = 2/3 = 0.666667$, and the data alone (maximum likelihood, one failure in three) point at $1/3 = 0.333333$. The posterior mean $0.5$ sits <em>between</em> them &mdash; that is what a posterior always does with a proper prior and finite data: it is a compromise, pulled toward the data and away from the prior in proportion to how much data there is. With $n=3$ the pull is only halfway.</p>
+<p><b>(d) A posterior probability.</b> Beta$(3,3)$ is symmetric about $1/2$, so
+$$\mathbf{P}(\Theta \gt 1/2 \mid X=1) = \int_{0.5}^{1} 30\theta^2(1-\theta)^2\,d\theta = 0.5 ,$$
+against the prior value $\mathbf{P}(\Theta \gt 1/2) = \int_{0.5}^1 2\theta\,d\theta = \big[\theta^2\big]_{0.5}^1 = 1 - 0.25 = 0.75$. One observed failure out of three has cut the odds that the batch is worse than a coin flip from $3{:}1$ down to even. Simulation ($4\times10^6$ prior draws $\Theta = \sqrt{U}$, then $X\sim\text{Bin}(3,\Theta)$, keeping the draws with $X=1$): $\mathbf{P}(X=1)\approx0.199974$, posterior mean $\approx0.499877$, $\mathbf{P}(\Theta\gt1/2\mid X=1)\approx0.499411$ <span class="chk">&#10003;</span>.</p>
+<p><b>Answer.</b> $\;\mathbf{P}(X=1)=1/5$; $\;f_{\Theta\mid X}(\theta\mid1) = 30\theta^2(1-\theta)^2$ on $[0,1]$ (Beta$(3,3)$); $\;\mathbb{E}[\Theta\mid X=1]=1/2$; $\;\mathbf{P}(\Theta\gt1/2\mid X=1)=1/2$ (prior: $3/4$).</p>
+<p><b>Traps.</b> (i) Reporting $1/3$ &mdash; the maximum-likelihood estimate &mdash; as the answer to (c). That throws the prior away; the question asked for a <em>posterior</em> quantity. (ii) Skipping the normalization and calling $6\theta^2(1-\theta)^2$ the posterior. It integrates to $1/5$, not $1$, so every probability read off it is five times too small. (iii) Writing $\sum_\theta$ in the denominator out of habit from discrete Bayes: $\Theta$ is continuous, so the total-probability step is $\int f_\Theta(t)p_{X\mid\Theta}(x\mid t)\,dt$.</p>
+<p class="srcref">Tool: G3 &sect;3.5 (C$\,|\,$D: continuous unknown, discrete evidence), &sect;3.1 (one rule, four faces) &middot; B&amp;T &sect;3.6</p>
 </div></details>
 </div>
 
@@ -3846,7 +3948,11 @@ and $0$ elsewhere. (a) Find $c$. &nbsp; (b) Find $f_Y$ and $f_X$, and name each 
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> The support is the wedge above the diagonal in the first quadrant. Order the integration so the inner limits are finite: for a fixed $y$, $x$ ranges over $[0,y]$.</p>
 <p><b>(a) Normalization.</b>
-$$\int_0^\infty\!\!\int_0^{y} c\,e^{-y}\,dx\,dy = \int_0^\infty c\,y\,e^{-y}\,dy = c\cdot\Gamma(2) = c \cdot 1 = 1 \;\Longrightarrow\; c = 1,$$
+$$\begin{aligned}
+\int_0^\infty\!\!\int_0^{y} c\,e^{-y}\,dx\,dy &= \int_0^\infty c\,y\,e^{-y}\,dy = c\cdot\Gamma(2) = c \cdot 1 = 1\\
+&\Longrightarrow\; c = 1,
+\end{aligned}
+$$
 using $\int_0^\infty y e^{-y}dy = \big[-(y+1)e^{-y}\big]_0^\infty = 1$.</p>
 <p><b>(b) Marginals.</b> Integrating out $x$ (the inner integral above, with $c=1$):
 $$f_Y(y) = \int_0^{y} e^{-y}\,dx = y\,e^{-y}, \qquad y \ge 0,$$
@@ -3860,7 +3966,7 @@ $$\mathbb{E}[X \mid Y=y] = \frac{y}{2},$$
 and e.g. $\mathbf{P}(X \le 1 \mid Y = 3) = 1/3$.</p>
 <p><b>(d) Total expectation.</b> First $\mathbb{E}[Y] = \int_0^\infty y\cdot ye^{-y}dy = \Gamma(3) = 2$ (or: the mean of a sum of two $\text{Exp}(1)$'s). Then, since $\mathbb{E}[X\mid Y] = Y/2$ is linear in $Y$,
 $$\mathbb{E}[X] = \mathbb{E}\big[\mathbb{E}[X \mid Y]\big] = \mathbb{E}\Big[\frac{Y}{2}\Big] = \frac{\mathbb{E}[Y]}{2} = \frac{2}{2} = 1 .$$
-Confirmation from the marginal: $X \sim \text{Exp}(1)$ has mean $1$ &#10003;. Simulation ($4\times10^6$ draws of $Y\sim\text{Gamma}(2,1)$ then $X\mid Y \sim U(0,Y)$): $\mathbb{E}[X]\approx0.999$, $\mathbb{E}[Y]\approx1.999$, $\mathbf{P}(X\le1)\approx0.6323$ vs. the exact $1-e^{-1}=0.632121$ &#10003;.</p>
+Confirmation from the marginal: $X \sim \text{Exp}(1)$ has mean $1$ <span class="chk">&#10003;</span>. Simulation ($4\times10^6$ draws of $Y\sim\text{Gamma}(2,1)$ then $X\mid Y \sim U(0,Y)$): $\mathbb{E}[X]\approx0.999$, $\mathbb{E}[Y]\approx1.999$, $\mathbf{P}(X\le1)\approx0.6323$ vs. the exact $1-e^{-1}=0.632121$ <span class="chk">&#10003;</span>.</p>
 <p><b>Answer.</b> $\;c=1$; $\;f_Y(y)=ye^{-y}$, $\;f_X(x)=e^{-x}$; $\;f_{X|Y}(x\mid y)=1/y$ on $[0,y]$ with $\mathbb{E}[X\mid Y=y]=y/2$; $\;\mathbb{E}[X]=1$.</p>
 <p><b>Trap.</b> Writing $f_Y(y) = \int_0^\infty e^{-y}dx$ (limits $0$ to $\infty$ for $x$) and getting $\infty$. On a non-rectangular support the inner limits <em>depend on the outer variable</em> &mdash; here $x$ stops at $y$.</p>
 <p class="srcref">Tool: G3 &sect;2.2 (marginals), &sect;2.3 (conditional PDFs), &sect;2.5 (total expectation) &middot; B&amp;T &sect;3.5</p>
@@ -3879,10 +3985,10 @@ $$f_Y(y) = \frac{f_X(x)}{|dg/dx|}\bigg|_{x=g^{-1}(y)} .$$
 $$\frac{dg}{dx} = \pi\sec^2\!\big(\pi(x-\tfrac12)\big) = \pi\big(1+\tan^2(\pi(x-\tfrac12))\big) = \pi(1+y^2),$$
 using the identity $\sec^2\theta = 1+\tan^2\theta$ and then substituting $y = \tan(\cdot)$ &mdash; a neat trick that avoids ever writing $x$ in terms of $y$. It is positive, so the absolute value changes nothing. With $f_X(x)=1$,
 $$\boxed{\;f_Y(y) = \frac{1}{\pi(1+y^2)}, \qquad -\infty \lt y \lt \infty\;}$$
-&mdash; the standard <b>Cauchy</b> density. Values: $f_Y(0) = 1/\pi = 0.318310$, $f_Y(1) = 1/(2\pi) = 0.159155$. Check: $\int_{-\infty}^\infty \frac{dy}{\pi(1+y^2)} = \frac{1}{\pi}\big[\arctan y\big]_{-\infty}^{\infty} = \frac1\pi\big(\frac\pi2+\frac\pi2\big) = 1$ &#10003;.</p>
+&mdash; the standard <b>Cauchy</b> density. Values: $f_Y(0) = 1/\pi = 0.318310$, $f_Y(1) = 1/(2\pi) = 0.159155$. Check: $\int_{-\infty}^\infty \frac{dy}{\pi(1+y^2)} = \frac{1}{\pi}\big[\arctan y\big]_{-\infty}^{\infty} = \frac1\pi\big(\frac\pi2+\frac\pi2\big) = 1$ <span class="chk">&#10003;</span>.</p>
 <p><b>(c) A probability.</b>
 $$\mathbf{P}(|Y| \le 1) = \frac{1}{\pi}\big[\arctan y\big]_{-1}^{1} = \frac{1}{\pi}\Big(\frac\pi4 + \frac\pi4\Big) = 0.5 .$$
-Sanity check with no calculus: $|Y| \le 1 \iff |\pi(X-\frac12)| \le \frac\pi4 \iff X \in [0.25, 0.75]$, an interval of length $0.5$ &#10003;. Simulation: $0.499451$ &#10003;. (For scale, $\mathbf{P}(|Y|\le10) = 0.936549$ &mdash; still $6\%$ of beams land beyond ten units.)</p>
+Sanity check with no calculus: $|Y| \le 1 \iff |\pi(X-\frac12)| \le \frac\pi4 \iff X \in [0.25, 0.75]$, an interval of length $0.5$ <span class="chk">&#10003;</span>. Simulation: $0.499451$ <span class="chk">&#10003;</span>. (For scale, $\mathbf{P}(|Y|\le10) = 0.936549$ &mdash; still $6\%$ of beams land beyond ten units.)</p>
 <p><b>(d) No.</b> $\displaystyle\int_{-\infty}^{\infty}\frac{|y|}{\pi(1+y^2)}dy = \frac{2}{\pi}\int_0^\infty \frac{y\,dy}{1+y^2} = \frac{1}{\pi}\big[\ln(1+y^2)\big]_0^\infty = \infty$: truncating at $M=1000$ already gives $4.397614$ and it grows like $\frac2\pi\ln M$ forever. Since $\mathbb{E}[|Y|]=\infty$, $\mathbb{E}[Y]$ is undefined &mdash; the two tails are individually infinite and their "cancellation" is not a legitimate value.</p>
 <p><b>Answer.</b> $\;f_Y(y) = \dfrac{1}{\pi(1+y^2)}$ (standard Cauchy); $\;\mathbf{P}(|Y|\le1)=0.5$; $\;\mathbb{E}[Y]$ does <b>not</b> exist.</p>
 <p><b>Trap.</b> Answering $\mathbb{E}[Y]=0$ "by symmetry". Symmetry gives the <em>median</em> $0$ (simulation median: $-0.0014$), but a mean requires absolute integrability first. Averaging Cauchy samples does not converge: the sample mean of $n$ Cauchy draws is itself Cauchy, no matter how large $n$ is.</p>
@@ -3903,13 +4009,13 @@ $$f_Z(z) = \int_0^{z} e^{-(z-x)}dx = e^{-z}\int_0^z e^{x}dx = e^{-z}\big(e^{z}-1
 At $z=0.5$: $1-e^{-0.5} = 0.393469$. At $z=1$: $1-e^{-1}=0.632121$.</p>
 <p><b>Case 2: $z \gt 1$.</b> The uniform runs out first, so the upper limit is $1$:
 $$f_Z(z) = \int_0^{1} e^{-(z-x)}dx = e^{-z}\big(e^{1}-1\big) = (e-1)e^{-z} = 1.718282\,e^{-z} .$$
-At $z=1$ this gives $1.718282 \times 0.367879 = 0.632121$ &mdash; matching Case 1, so $f_Z$ is continuous at the seam &#10003;. At $z=2$: $1.718282 \times 0.135335 = 0.232544$.</p>
+At $z=1$ this gives $1.718282 \times 0.367879 = 0.632121$ &mdash; matching Case 1, so $f_Z$ is continuous at the seam <span class="chk">&#10003;</span>. At $z=2$: $1.718282 \times 0.135335 = 0.232544$.</p>
 <p><b>Normalization check.</b>
 $$\int_0^1\big(1-e^{-z}\big)dz = 1 - \big(1-e^{-1}\big) = e^{-1} = 0.367879, \qquad \int_1^\infty (e-1)e^{-z}dz = (e-1)e^{-1} = 1-e^{-1} = 0.632121 ,$$
-and $0.367879+0.632121 = 1$ &#10003;.</p>
+and $0.367879+0.632121 = 1$ <span class="chk">&#10003;</span>.</p>
 <p><b>Moments &mdash; no integration needed.</b> Linearity of expectation gives $\mathbb{E}[Z] = \mathbb{E}[X]+\mathbb{E}[Y] = 0.5 + 1 = 1.5$ ms; independence lets variances add,
 $$\operatorname{var}(Z) = \frac{(1-0)^2}{12} + \frac{1}{1^2} = 0.083333 + 1 = 1.083333 = \tfrac{13}{12}.$$
-Simulation ($4\times10^6$): $\mathbb{E}[Z]\approx1.5007$, $\operatorname{var}\approx1.0849$, $\mathbf{P}(Z\le1)\approx0.36796$ vs. the exact $e^{-1}=0.367879$ &#10003;.</p>
+Simulation ($4\times10^6$): $\mathbb{E}[Z]\approx1.5007$, $\operatorname{var}\approx1.0849$, $\mathbf{P}(Z\le1)\approx0.36796$ vs. the exact $e^{-1}=0.367879$ <span class="chk">&#10003;</span>.</p>
 <p><b>Answer.</b> $\;f_Z(z) = 1-e^{-z}$ for $0\le z\le 1$ and $(e-1)e^{-z}$ for $z \gt 1$; $\;\mathbb{E}[Z]=1.5$, $\;\operatorname{var}(Z)=13/12\approx1.083333$.</p>
 <p><b>Trap.</b> Using the single formula $\int_0^z e^{-(z-x)}dx$ for all $z$, giving $f_Z(z) = 1-e^{-z} \to 1$ as $z\to\infty$ &mdash; a density that does not decay, and whose integral diverges. The finite support of $f_X$ must cap the integration limit.</p>
 <p class="srcref">Tool: G3 &sect;4.6 (continuous convolution), &sect;4.8 (variance of a sum) &middot; B&amp;T &sect;4.1</p>
@@ -3923,16 +4029,20 @@ Simulation ($4\times10^6$): $\mathbb{E}[Z]\approx1.5007$, $\operatorname{var}\ap
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> $\Theta$ has density $\frac{1}{2\pi}$ on $[0,2\pi]$; expectations of functions of $\Theta$ are integrals against it (the expected-value rule).</p>
 <p><b>(a) Covariance.</b> Each of $\cos$ and $\sin$ integrates to zero over a full period:
-$$\mathbb{E}[X] = \frac{1}{2\pi}\int_0^{2\pi}\cos\theta\,d\theta = \frac{1}{2\pi}\big[\sin\theta\big]_0^{2\pi} = 0, \qquad \mathbb{E}[Y] = \frac{1}{2\pi}\big[-\cos\theta\big]_0^{2\pi} = 0 .$$
+$$\begin{aligned}
+\mathbb{E}[X] &= \frac{1}{2\pi}\int_0^{2\pi}\cos\theta\,d\theta = \frac{1}{2\pi}\big[\sin\theta\big]_0^{2\pi} = 0,\\
+\mathbb{E}[Y] &= \frac{1}{2\pi}\big[-\cos\theta\big]_0^{2\pi} = 0 .
+\end{aligned}
+$$
 For the cross term use the double-angle identity $\sin\theta\cos\theta = \frac12\sin2\theta$:
 $$\mathbb{E}[XY] = \frac{1}{2\pi}\int_0^{2\pi}\tfrac12\sin2\theta\,d\theta = \frac{1}{2\pi}\Big[-\frac{\cos2\theta}{4}\Big]_0^{2\pi} = 0 .$$
 Therefore
 $$\operatorname{cov}(X,Y) = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y] = 0 - 0 = 0, \qquad \rho(X,Y) = 0$$
-(the correlation is defined, since $\operatorname{var}(X) = \frac{1}{2\pi}\int_0^{2\pi}\cos^2\theta\,d\theta = \frac12 \gt 0$). Simulation of $4\times10^6$ angles: sample covariance $-0.000057$ &#10003;.</p>
+(the correlation is defined, since $\operatorname{var}(X) = \frac{1}{2\pi}\int_0^{2\pi}\cos^2\theta\,d\theta = \frac12 \gt 0$). Simulation of $4\times10^6$ angles: sample covariance $-0.000057$ <span class="chk">&#10003;</span>.</p>
 <p><b>(b) False.</b> $X$ and $Y$ are <em>as dependent as possible</em>: they satisfy the exact relation $X^2+Y^2 = \cos^2\Theta+\sin^2\Theta = 1$, so knowing $X$ pins $|Y|$ completely. Zero correlation only says there is no <em>linear</em> trend; the dependence here is perfectly circular, and the positive contributions to $\mathbb{E}[XY]$ from the first and third quadrants exactly cancel the negative ones from the second and fourth.</p>
 <p><b>(c) The decisive conditional probability.</b> Unconditionally, $\mathbf{P}(|Y| \le 0.1) = \frac{2\arcsin(0.1)}{\pi} = 0.063769 \gt 0$. But given $X = 0.9$ we must have $|Y| = \sqrt{1-0.81} = \sqrt{0.19} = 0.435890$, so
 $$\mathbf{P}(|Y| \le 0.1 \mid X = 0.9) = 0 \ne 0.063769 = \mathbf{P}(|Y| \le 0.1) .$$
-Conditioning changed the probability, which is the definition of dependence. (Simulation restricted to $|X-0.9| \lt 0.01$: the empirical conditional frequency is exactly $0$ &#10003;.)</p>
+Conditioning changed the probability, which is the definition of dependence. (Simulation restricted to $|X-0.9| \lt 0.01$: the empirical conditional frequency is exactly $0$ <span class="chk">&#10003;</span>.)</p>
 <p><b>Answer.</b> $\;\operatorname{cov}(X,Y)=0$ and $\rho=0$, yet $X$ and $Y$ are <b>dependent</b> (they satisfy $X^2+Y^2=1$).</p>
 <p><b>Trap.</b> "$\rho = 0 \Rightarrow$ independent." The implication runs one way only: independence forces $\rho=0$, never the reverse. (The one important exception, worth remembering: for a <em>jointly normal</em> pair, zero correlation does imply independence.)</p>
 <p class="srcref">Tool: G3 &sect;4.8 (covariance, correlation, and what $\rho=0$ does not mean), &sect;2.4 (independence) &middot; B&amp;T &sect;4.2</p>
@@ -3953,7 +4063,7 @@ $$z = \frac{25.5-25}{0.360555} = \frac{0.5}{0.360555} = 1.386750 \approx 1.39 .$
 </p>
 <p><b>Step 3 &mdash; the tail.</b>
 $$\mathbf{P}(T \gt 25.5) = 1 - \Phi(1.39) = 1 - 0.9177 = 0.0823 ,$$
-i.e. about $8.2\%$ of parts are scrapped. Exact value with $z = 1.386750$: $1 - 0.917241 = 0.082759$; a $4\times10^6$-part simulation gives $0.082992$ &#10003;.</p>
+i.e. about $8.2\%$ of parts are scrapped. Exact value with $z = 1.386750$: $1 - 0.917241 = 0.082759$; a $4\times10^6$-part simulation gives $0.082992$ <span class="chk">&#10003;</span>.</p>
 <p><b>Answer.</b> $\;\mathbf{P}(T \gt 25.5) \approx 0.0823$ (exact $0.08276$) &mdash; roughly $8\%$ scrapped.</p>
 <p><b>Trap.</b> Adding standard deviations: $0.2+0.3 = 0.5$, giving $z = 0.5/0.5 = 1$ and the answer $1-\Phi(1) = 0.158655$ &mdash; almost double the truth. <em>Variances</em> add under independence; standard deviations never do (here $\sqrt{0.13}=0.3606 \lt 0.5$, since $\sqrt{a^2+b^2} \lt a+b$).</p>
 <p class="srcref">Tool: G3 &sect;4.7 (sum of independent normals), &sect;1.7 (standardization) &middot; B&amp;T &sect;4.1</p>
@@ -3969,11 +4079,15 @@ i.e. about $8.2\%$ of parts are scrapped. Exact value with $z = 1.386750$: $1 - 
 $$\int_0^1\!\!\int_0^{x} 8xy\,dy\,dx = \int_0^1 8x\Big[\frac{y^2}{2}\Big]_0^{x}dx = \int_0^1 4x^3\,dx = \big[x^4\big]_0^1 = 1 \;\text{&#10003;}$$
 So the setup is sound; only the conclusion is wrong.</p>
 <p><b>Step 2 &mdash; the error.</b> The factorization criterion (G3 &sect;2.4) is
-$$X \perp Y \iff f_{X,Y}(x,y) = f_X(x)f_Y(y) \quad \text{for \textbf{every} } (x,y) \in \mathbb{R}^2 ,$$
-including the points where the joint density is $0$. Here the formula $8xy$ factors, but it holds only on the triangle $\{0 \le y \le x \le 1\}$; off the triangle the joint density is $0$ while the product of two positive marginals is not. Equivalently: <b>if the support is not a rectangle (a product set), the variables cannot be independent</b>, whatever the algebra of the formula looks like. The constraint $Y \le X$ is itself a statement about $X$ and $Y$ jointly.</p>
+$$X \perp Y \iff f_{X,Y}(x,y) = f_X(x)f_Y(y) \quad \text{for every } (x,y) \in \mathbb{R}^2 ,$$
+and the words <b>for every</b> are the whole of it &mdash; the identity must hold at <em>all</em> points of the plane, including the points where the joint density is $0$. Here the formula $8xy$ factors, but it holds only on the triangle $\{0 \le y \le x \le 1\}$; off the triangle the joint density is $0$ while the product of two positive marginals is not. Equivalently: <b>if the support is not a rectangle (a product set), the variables cannot be independent</b>, whatever the algebra of the formula looks like. The constraint $Y \le X$ is itself a statement about $X$ and $Y$ jointly.</p>
 <p><b>Step 3 &mdash; the marginals.</b>
-$$f_X(x) = \int_0^{x} 8xy\,dy = 4x^3, \quad 0 \le x \le 1; \qquad f_Y(y) = \int_{y}^{1} 8xy\,dx = 8y\Big[\frac{x^2}{2}\Big]_{y}^{1} = 4y\big(1-y^2\big), \quad 0 \le y \le 1 .$$
-Both check: $\int_0^1 4x^3dx = 1$ and $\int_0^1 4y(1-y^2)dy = 4(\frac12-\frac14) = 1$ &#10003;. Note that the true marginals are <em>not</em> the naive factors $8x$ and $y$ &mdash; another sign something was wrong.</p>
+$$\begin{aligned}
+f_X(x) &= \int_0^{x} 8xy\,dy = 4x^3, &&0 \le x \le 1;\\
+f_Y(y) &= \int_{y}^{1} 8xy\,dx = 8y\Big[\frac{x^2}{2}\Big]_{y}^{1} = 4y\big(1-y^2\big), &&0 \le y \le 1 .
+\end{aligned}
+$$
+Both check: $\int_0^1 4x^3dx = 1$ and $\int_0^1 4y(1-y^2)dy = 4(\frac12-\frac14) = 1$ <span class="chk">&#10003;</span>. Note that the true marginals are <em>not</em> the naive factors $8x$ and $y$ &mdash; another sign something was wrong.</p>
 <p><b>Step 4 &mdash; the counterexample.</b> Take the point $(x,y) = (0.5, 0.75)$, which lies <em>outside</em> the triangle since $y \gt x$:
 $$f_{X,Y}(0.5,0.75) = 0, \qquad f_X(0.5)\,f_Y(0.75) = 4(0.5)^3 \cdot 4(0.75)\big(1-0.5625\big) = 0.5 \times 1.3125 = 0.65625 .$$
 Since $0 \ne 0.65625$, the factorization identity fails and $X$ and $Y$ are dependent. Common sense agrees: observing $X = 0.5$ tells you $Y \le 0.5$ with certainty.</p>
@@ -3996,7 +4110,7 @@ $$\mathbb{E}[T \mid T \gt 3] = 3 + 5 = 8 \text{ minutes}.$$
 </p>
 <p><b>Method 2 &mdash; brute force from the definition.</b> The conditional density is $f_{T\mid T\gt3}(t) = \dfrac{\lambda e^{-\lambda t}}{\mathbf{P}(T\gt3)}$ for $t \gt 3$, with $\mathbf{P}(T \gt 3) = e^{-0.6} = 0.548812$. Then
 $$\mathbb{E}[T\mid T\gt3] = \frac{\int_3^\infty t\,(0.2)e^{-0.2t}dt}{e^{-0.6}} .$$
-Integrating by parts, $\int_3^\infty t\lambda e^{-\lambda t}dt = \big[-\big(t+\tfrac1\lambda\big)e^{-\lambda t}\big]_3^\infty = (3+5)e^{-0.6}$, so the ratio is $(3+5) = 8$ exactly &mdash; the exponential factor cancels, which is memorylessness showing up in the algebra. Simulation of $4\times10^6$ calls: $8.0026$ &#10003;.</p>
+Integrating by parts, $\int_3^\infty t\lambda e^{-\lambda t}dt = \big[-\big(t+\tfrac1\lambda\big)e^{-\lambda t}\big]_3^\infty = (3+5)e^{-0.6}$, so the ratio is $(3+5) = 8$ exactly &mdash; the exponential factor cancels, which is memorylessness showing up in the algebra. Simulation of $4\times10^6$ calls: $8.0026$ <span class="chk">&#10003;</span>.</p>
 <p><b>Interpretation.</b> The "inspection" effect is real: a call you find in progress at minute $3$ is expected to run $60\%$ longer in total than a call picked at random. Nothing has been forgotten &mdash; you simply selected a long call by conditioning on it.</p>
 <p><b>Answer.</b> The claim is <b>false</b>; $\;\mathbb{E}[T \mid T \gt 3] = 3 + 1/\lambda = 8$ minutes.</p>
 <p><b>Trap.</b> The tempting wrong answer is $5$. Memorylessness is a statement about the <em>residual</em> lifetime; the correct slogan is "$\mathbb{E}[\text{remaining}] = 1/\lambda$ regardless of age", never "$\mathbb{E}[\text{total}] = 1/\lambda$ regardless of age".</p>
@@ -4015,18 +4129,22 @@ $$F_Y(y) = \frac{2\sqrt y}{3} .$$
 Check: $F_Y(0)=0$ and $F_Y(1) = 2/3$. Sample: $F_Y(0.25) = 2(0.5)/3 = 0.333333$.</p>
 <p><b>Step 2 &mdash; the preimage, case $1 \lt y \le 4$.</b> Now $\sqrt y \gt 1$, so the left endpoint $-\sqrt y$ falls below the support; the interval is clipped to $[-1, \sqrt y]$ (and $\sqrt y \le 2$ keeps the right endpoint inside). Its length is $\sqrt y + 1$, giving
 $$F_Y(y) = \frac{\sqrt y + 1}{3} .$$
-Continuity at the seam: $\frac{1+1}{3} = \frac23$, matching Step 1 &#10003;. At the top, $F_Y(4) = \frac{2+1}{3} = 1$ &#10003;. Sample: $F_Y(2) = (1.414214+1)/3 = 0.804738$.</p>
+Continuity at the seam: $\frac{1+1}{3} = \frac23$, matching Step 1 <span class="chk">&#10003;</span>. At the top, $F_Y(4) = \frac{2+1}{3} = 1$ <span class="chk">&#10003;</span>. Sample: $F_Y(2) = (1.414214+1)/3 = 0.804738$.</p>
 <p><b>Step 3 &mdash; differentiate on each branch.</b>
 $$f_Y(y) = \frac{d}{dy}\frac{2y^{1/2}}{3} = \frac{1}{3\sqrt y} \;\;(0 \lt y \lt 1); \qquad f_Y(y) = \frac{d}{dy}\frac{y^{1/2}+1}{3} = \frac{1}{6\sqrt y} \;\;(1 \lt y \lt 4).$$
 Values: $f_Y(0.25) = 0.666667$, $f_Y(0.9) = 0.351364$, $f_Y(1.1) = 0.158910$. So the density blows up like $y^{-1/2}$ at $0$ (integrably), and <b>drops by a factor of exactly $2$ at $y=1$</b>: for $y \lt 1$ there are two source values of $x$ (one negative, one positive) feeding each $y$, while for $y \gt 1$ only the positive branch survives. That halving is the whole content of the problem.</p>
 <p><b>Step 4 &mdash; check the total mass.</b>
 $$\int_0^1\frac{dy}{3\sqrt y} = \frac{2\sqrt y}{3}\Big|_0^1 = 0.666667, \qquad \int_1^4\frac{dy}{6\sqrt y} = \frac{\sqrt y}{3}\Big|_1^4 = \frac{2-1}{3} = 0.333333 ,$$
-totaling $1$ &#10003;. (The split $\frac23:\frac13$ just re-states $\mathbf{P}(|X|\le1) = 2/3$.)</p>
+totaling $1$ <span class="chk">&#10003;</span>. (The split $\frac23:\frac13$ just re-states $\mathbf{P}(|X|\le1) = 2/3$.)</p>
 <p><b>Step 5 &mdash; the mean, two ways.</b> Directly from $f_Y$:
-$$\mathbb{E}[Y] = \int_0^1 \frac{y}{3\sqrt y}dy + \int_1^4\frac{y}{6\sqrt y}dy = \frac13\cdot\frac23 + \frac16\cdot\frac23\big(4^{3/2}-1\big) = 0.222222 + \frac{7}{9} = 0.222222+0.777778 = 1 .$$
+$$\begin{aligned}
+\mathbb{E}[Y] &= \int_0^1 \frac{y}{3\sqrt y}dy + \int_1^4\frac{y}{6\sqrt y}dy = \frac13\cdot\frac23 + \frac16\cdot\frac23\big(4^{3/2}-1\big)\\
+&= 0.222222 + \frac{7}{9} = 0.222222+0.777778 = 1 .
+\end{aligned}
+$$
 Or without any derived distribution at all, by the expected-value rule and $\operatorname{var}(X) = \frac{(2-(-1))^2}{12} = 0.75$, $\mathbb{E}[X] = 0.5$:
 $$\mathbb{E}[Y] = \mathbb{E}[X^2] = \operatorname{var}(X) + \big(\mathbb{E}[X]\big)^2 = 0.75 + 0.25 = 1 \;\text{&#10003;}$$
-Simulation ($4\times10^6$): $\mathbf{P}(Y \le 1) \approx 0.666640$, $\mathbb{E}[Y]\approx0.999735$ &#10003;.</p>
+Simulation ($4\times10^6$): $\mathbf{P}(Y \le 1) \approx 0.666640$, $\mathbb{E}[Y]\approx0.999735$ <span class="chk">&#10003;</span>.</p>
 <p><b>Answer.</b> $\;f_Y(y) = \dfrac{1}{3\sqrt y}$ on $(0,1)$ and $\dfrac{1}{6\sqrt y}$ on $(1,4)$; $\;\mathbb{E}[Y]=1$.</p>
 <p><b>Trap.</b> Writing $f_Y(y) = \frac{1}{6\sqrt y}$ on the whole of $(0,4)$ &mdash; the answer you get from the monotonic formula $f_X(x)/|2x|$ applied blindly with one root. It gives $f_Y(0.25) = 0.333333$ instead of $0.666667$ and integrates to only $\frac{2}{6}\cdot 2 = \frac23$, missing a third of the probability. Whenever $g$ is non-monotone, count the roots of $g(x)=y$ separately on each $y$-interval.</p>
 <p class="srcref">Tool: G3 &sect;4.1 (CDF method for derived distributions), &sect;4.2 (why the monotonic shortcut fails here) &middot; B&amp;T &sect;4.1</p>
@@ -4046,7 +4164,7 @@ so $f_{X,Y}(x,y) = 6$ on $S$ and $0$ elsewhere.</p>
 $$f_X(x) = 6\,(x - x^2), \qquad 0 \le x \le 1 .$$
 (This is the Beta$(2,2)$ density; $f_X(0.5) = 6(0.5-0.25) = 1.5$, its peak.) Horizontal slice at $y$: the constraints $y \le x$ and $x^2 \le y$ give $y \le x \le \sqrt y$, of length $\sqrt y - y$, so
 $$f_Y(y) = 6\big(\sqrt y - y\big), \qquad 0 \le y \le 1 .$$
-Checks: $\int_0^1 6(x-x^2)dx = 6(\frac12-\frac13)=1$ &#10003; and $\int_0^1 6(\sqrt y - y)dy = 6(\frac23-\frac12)=1$ &#10003;. Sample: $f_Y(0.25) = 6(0.5-0.25) = 1.5$.</p>
+Checks: $\int_0^1 6(x-x^2)dx = 6(\frac12-\frac13)=1$ &#10003; and $\int_0^1 6(\sqrt y - y)dy = 6(\frac23-\frac12)=1$ <span class="chk">&#10003;</span>. Sample: $f_Y(0.25) = 6(0.5-0.25) = 1.5$.</p>
 <p><b>(c) Conditional density.</b> For $0 \lt y \lt 1$,
 $$f_{X|Y}(x \mid y) = \frac{f_{X,Y}(x,y)}{f_Y(y)} = \frac{6}{6(\sqrt y - y)} = \frac{1}{\sqrt y - y}, \qquad y \le x \le \sqrt y ,$$
 i.e. <b>given $Y=y$, $X$ is uniform on $[\,y,\ \sqrt y\,]$</b> &mdash; a constant slice renormalizes to a uniform. The conditional mean is the midpoint,
@@ -4056,7 +4174,7 @@ At $y=0.25$: $(0.25+0.5)/2 = 0.375$; at $y = 0.81$: $(0.81+0.9)/2 = 0.855$. Noti
 $$\mathbb{E}[X] = \int_0^1 x\cdot6(x-x^2)\,dx = 6\Big(\frac13-\frac14\Big) = 6\cdot\frac{1}{12} = 0.5 .$$
 By the total expectation theorem $\mathbb{E}[X] = \mathbb{E}\big[\mathbb{E}[X\mid Y]\big]$, and the algebra collapses beautifully because $(\sqrt y + y)(\sqrt y - y) = y - y^2$:
 $$\int_0^1 \frac{y+\sqrt y}{2}\cdot 6\big(\sqrt y - y\big)\,dy = 3\int_0^1 \big(y - y^2\big)\,dy = 3\Big(\frac12-\frac13\Big) = 3\cdot\frac16 = 0.5 \;\text{&#10003;}$$
-For contrast, $\mathbb{E}[Y] = \int_0^1 y\cdot6(\sqrt y - y)dy = 6\big(\frac25-\frac13\big) = 0.4 \lt 0.5$, as it must be since $Y \le X$ on $S$. (Rejection-sampling $3\times10^6$ points of the unit square, acceptance rate $0.166736 \approx 1/6$: $\mathbb{E}[X]\approx0.499936$, $\mathbb{E}[Y]\approx0.399917$ &#10003;.)</p>
+For contrast, $\mathbb{E}[Y] = \int_0^1 y\cdot6(\sqrt y - y)dy = 6\big(\frac25-\frac13\big) = 0.4 \lt 0.5$, as it must be since $Y \le X$ on $S$. (Rejection-sampling $3\times10^6$ points of the unit square, acceptance rate $0.166736 \approx 1/6$: $\mathbb{E}[X]\approx0.499936$, $\mathbb{E}[Y]\approx0.399917$ <span class="chk">&#10003;</span>.)</p>
 <p><b>Answer.</b> $\;f_{X,Y}=6$ on $S$; $\;f_X(x)=6(x-x^2)$, $\;f_Y(y)=6(\sqrt y - y)$; $\;X\mid Y=y \sim U[y,\sqrt y\,]$ with $\mathbb{E}[X\mid Y=y] = \frac{y+\sqrt y}{2}$; $\;\mathbb{E}[X]=0.5$.</p>
 <p><b>Trap.</b> Getting the conditional support backwards as $[\sqrt y,\, y]$: on $(0,1)$, $\sqrt y \gt y$, so $\sqrt y$ is the <em>upper</em> limit. Solve the two inequalities $y \le x$ and $x^2 \le y$ separately and intersect &mdash; never guess which curve is on top.</p>
 <p class="srcref">Tool: G3 &sect;2.1 (uniform on a region), &sect;2.2 (marginals), &sect;2.3 (conditional PDFs), &sect;2.5 (total expectation) &middot; B&amp;T &sect;3.4&ndash;3.5</p>
@@ -4070,10 +4188,18 @@ For contrast, $\mathbb{E}[Y] = \int_0^1 y\cdot6(\sqrt y - y)dy = 6\big(\frac25-\
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> $\operatorname{var}(X) = \operatorname{var}(Y) = \frac{(1-0)^2}{12} = 0.083333$, and $\operatorname{cov}(X,Y)=0$ by independence. Covariance is bilinear (G3 &sect;4.8): $\operatorname{cov}(aX+bY,\,cX+dY) = ac\operatorname{var}(X) + bd\operatorname{var}(Y) + (ad+bc)\operatorname{cov}(X,Y)$.</p>
 <p><b>(a) The computation.</b> With $a=b=1$ and $c=1$, $d=-1$:
-$$\operatorname{cov}(U,V) = (1)(1)\operatorname{var}(X) + (1)(-1)\operatorname{var}(Y) + \big((1)(-1)+(1)(1)\big)\cdot 0 = \operatorname{var}(X) - \operatorname{var}(Y) = 0.083333 - 0.083333 = 0 .$$
+$$\begin{aligned}
+\operatorname{cov}(U,V) &= (1)(1)\operatorname{var}(X) + (1)(-1)\operatorname{var}(Y) + \big((1)(-1)+(1)(1)\big)\cdot 0\\
+&= \operatorname{var}(X) - \operatorname{var}(Y) = 0.083333 - 0.083333 = 0 .
+\end{aligned}
+$$
 The cancellation is structural: <em>sum and difference are uncorrelated whenever the two variables are uncorrelated and equally variable</em>. The variances are
-$$\operatorname{var}(U) = \operatorname{var}(X)+\operatorname{var}(Y) = 0.166667, \qquad \operatorname{var}(V) = \operatorname{var}(X)+(-1)^2\operatorname{var}(Y) = 0.166667 ,$$
-both equal to $1/6$, so $\rho(U,V) = 0/(0.166667) = 0$. Simulation: sample covariance $-0.000036$ &#10003;.</p>
+$$\begin{aligned}
+\operatorname{var}(U) &= \operatorname{var}(X)+\operatorname{var}(Y) = 0.166667,\\
+\operatorname{var}(V) &= \operatorname{var}(X)+(-1)^2\operatorname{var}(Y) = 0.166667 ,
+\end{aligned}
+$$
+both equal to $1/6$, so $\rho(U,V) = 0/(0.166667) = 0$. Simulation: sample covariance $-0.000036$ <span class="chk">&#10003;</span>.</p>
 <p><b>(b) False &mdash; they are dependent.</b> The support settles it. Since $X,Y \ge 0$,
 $$|V| = |X-Y| \le X+Y = U \quad\text{always},$$
 so the pair $(U,V)$ is confined to the rotated square $\{|v| \le u,\ |v| \le 2-u\}$ &mdash; a diamond, not a rectangle. Knowing $U$ is small forces $V$ to be small. Concretely,
@@ -4098,7 +4224,7 @@ $$f_Z(z) = \int_0^{z} e^{-x}\cdot 2e^{-2(z-x)}\,dx = 2e^{-2z}\int_0^{z} e^{-x}e^
 where the key move was collecting the exponents: $e^{-x}e^{-2z+2x} = e^{-2z}e^{x}$. Distributing,
 $$\boxed{\;f_Z(z) = 2\big(e^{-z} - e^{-2z}\big), \qquad z \ge 0 .\;}$$
 This is the <em>hypoexponential</em> density &mdash; a difference of two exponentials, not a single one.</p>
-<p><b>(b) Checks and the mode.</b> Nonnegative, since $e^{-z} \ge e^{-2z}$ for $z\ge0$ &#10003;. Total mass:
+<p><b>(b) Checks and the mode.</b> Nonnegative, since $e^{-z} \ge e^{-2z}$ for $z\ge0$ <span class="chk">&#10003;</span>. Total mass:
 $$\int_0^\infty 2\big(e^{-z}-e^{-2z}\big)dz = 2\Big(1 - \frac12\Big) = 1 \;\text{&#10003;}$$
 Also $f_Z(0) = 2(1-1) = 0$: the density starts at zero, unlike either exponential factor. Setting the derivative to zero,
 $$f_Z'(z) = 2\big(-e^{-z}+2e^{-2z}\big) = 0 \;\Longrightarrow\; 2e^{-2z} = e^{-z} \;\Longrightarrow\; e^{-z} = \tfrac12 \;\Longrightarrow\; z^\star = \ln 2 = 0.693147 ,$$
@@ -4107,7 +4233,7 @@ with peak height $f_Z(\ln2) = 2(0.5 - 0.25) = 0.5$. So the sum has a genuine int
 $$\mathbf{P}(Z \gt 1) = \int_1^\infty 2\big(e^{-z}-e^{-2z}\big)dz = 2\Big(e^{-1} - \frac{e^{-2}}{2}\Big) = 2e^{-1} - e^{-2} = 0.735759 - 0.135335 = 0.600424 .$$
 By linearity and independence,
 $$\mathbb{E}[Z] = \frac11 + \frac12 = 1.5 \text{ s}, \qquad \operatorname{var}(Z) = \frac{1}{1^2} + \frac{1}{2^2} = 1 + 0.25 = 1.25 .$$
-(Direct integration of $\int_0^\infty z f_Z(z)dz$ returns $1.5$ &#10003;.) Simulation of $4\times10^6$ requests: $\mathbb{E}[Z]\approx1.499827$, $\operatorname{var}\approx1.250191$, $\mathbf{P}(Z\gt1)\approx0.600394$ &#10003;.</p>
+(Direct integration of $\int_0^\infty z f_Z(z)dz$ returns $1.5$ <span class="chk">&#10003;</span>.) Simulation of $4\times10^6$ requests: $\mathbb{E}[Z]\approx1.499827$, $\operatorname{var}\approx1.250191$, $\mathbf{P}(Z\gt1)\approx0.600394$ <span class="chk">&#10003;</span>.</p>
 <p><b>Answer.</b> $\;f_Z(z) = 2(e^{-z}-e^{-2z})$ for $z \ge 0$; mode at $\ln 2 \approx 0.693147$; $\;\mathbf{P}(Z\gt1) = 2e^{-1}-e^{-2} = 0.600424$, $\;\mathbb{E}[Z]=1.5$, $\;\operatorname{var}(Z)=1.25$.</p>
 <p><b>Trap.</b> Reaching for the Erlang formula $f_Z(z) = \lambda^2 z e^{-\lambda z}$, which would give $f_Z(1) = e^{-1} = 0.367879$ against the true $0.465088$. That formula is only valid when the rates are <em>equal</em>; with $\lambda_1 \ne \lambda_2$ you must convolve, and the correct density degenerates to the Erlang only in the limit $\lambda_2 \to \lambda_1$.</p>
 <p class="srcref">Tool: G3 &sect;4.6 (continuous convolution), &sect;1.5 (exponential) &middot; B&amp;T &sect;4.1</p>
@@ -4126,11 +4252,11 @@ and $F_Y(y) = 1$ for $y \ge 2$, $F_Y(y)=0$ for $y \lt 0$. Since $\lim_{y\uparrow
 $$\mathbb{E}[Y] = \int_0^{2} y\,e^{-y}\,dy \;+\; 2\cdot\mathbf{P}(Y=2) .$$
 Integrating by parts, $\int_0^2 y e^{-y}dy = \big[-(y+1)e^{-y}\big]_0^2 = 1 - 3e^{-2} = 1 - 0.406006 = 0.593994$. The atom contributes $2 \times 0.135335 = 0.270671$. Hence
 $$\mathbb{E}[Y] = 0.593994 + 0.270671 = 0.864665 \text{ years}.$$
-Identity check with $\lambda=1$, $c=2$: $\frac{1-e^{-2}}{1} = 0.864665$ &#10003; &mdash; and indeed the tail formula $\mathbb{E}[Y] = \int_0^\infty \mathbf{P}(Y \gt y)dy = \int_0^2 e^{-y}dy = 1-e^{-2}$ gives it in one line, which is the elegant route. Simulation: $0.864566$ &#10003;.</p>
+Identity check with $\lambda=1$, $c=2$: $\frac{1-e^{-2}}{1} = 0.864665$ &#10003; &mdash; and indeed the tail formula $\mathbb{E}[Y] = \int_0^\infty \mathbf{P}(Y \gt y)dy = \int_0^2 e^{-y}dy = 1-e^{-2}$ gives it in one line, which is the elegant route. Simulation: $0.864566$ <span class="chk">&#10003;</span>.</p>
 <p><b>(c) The variance.</b> Same split for the second moment, with $\int_0^2 y^2e^{-y}dy = \big[-(y^2+2y+2)e^{-y}\big]_0^2 = 2 - 10e^{-2} = 2-1.353353 = 0.646647$:
 $$\mathbb{E}[Y^2] = 0.646647 + 2^2(0.135335) = 0.646647 + 0.541341 = 1.187988 ,$$
 $$\operatorname{var}(Y) = 1.187988 - (0.864665)^2 = 1.187988 - 0.747645 = 0.440343 .$$
-Simulation: $0.440286$ &#10003;. This is well under $\operatorname{var}(X) = 1$: censoring truncates the long right tail, which is exactly where an exponential's variance comes from. The general lesson &mdash; capped measurements always look less variable and shorter-lived than the truth &mdash; is the reason survival analysis treats censored observations specially rather than as ordinary data points.</p>
+Simulation: $0.440286$ <span class="chk">&#10003;</span>. This is well under $\operatorname{var}(X) = 1$: censoring truncates the long right tail, which is exactly where an exponential's variance comes from. The general lesson &mdash; capped measurements always look less variable and shorter-lived than the truth &mdash; is the reason survival analysis treats censored observations specially rather than as ordinary data points.</p>
 <p><b>Answer.</b> $\;F_Y(y) = 1-e^{-y}$ on $[0,2)$ with a jump of $e^{-2}=0.135335$ at $y=2$ ($Y$ is mixed); $\;\mathbb{E}[Y] = 1-e^{-2} = 0.864665$; $\;\operatorname{var}(Y) = 0.440343 \lt 1$.</p>
 <p><b>Trap.</b> Reporting $\mathbb{E}[Y] = \mathbb{E}[X] = 1$ because "the exponential has mean $1$ and $2$ is a long way out". The cap costs $13.5\%$ of the probability its entire tail, worth $0.135$ years of mean. Equally wrong: treating $Y$ as continuous on $[0,2]$ with density $e^{-y}$ renormalized &mdash; that would give $\mathbb{E}[Y] = 0.593994/0.864665 = 0.687$, discarding the atom instead of placing it at $2$.</p>
 <p class="srcref">Tool: G3 &sect;1.4 (CDFs and mixed distributions), &sect;1.5 (exponential tail) &middot; B&amp;T &sect;3.2&ndash;3.3</p>
@@ -4230,6 +4356,7 @@ $$\operatorname{var}(X\mid Y=1)=1,\quad \operatorname{var}(X\mid Y=2)=4,\quad \o
 Dependence is visible in the PMF: $\mathbf{P}(X=2)=0.5\times0.5=0.25$ but $\mathbf{P}(X=2\mid Y=1)=0$. Since $0\ne0.25$, $X$ and $Y$ are dependent. (What <em>does</em> follow from a constant $\mathbb{E}[X\mid Y]$ is $\operatorname{cov}(X,Y)=0$ &mdash; uncorrelated, not independent.)</p>
 <p><b>(c) True.</b> $\operatorname{var}(X\mid Y=y)\ge0$ for every $y$, so an average of zero forces $\operatorname{var}(X\mid Y=y)=0$ for every $y$ that occurs with positive probability. A random variable with zero variance is a constant, so given $Y=y$ the value of $X$ is pinned to the single number $\mathbb{E}[X\mid Y=y]=g(y)$. Hence $X=g(Y)$ almost surely, and then $\operatorname{var}(X)=\operatorname{var}(\mathbb{E}[X\mid Y])$: all of the variance is between-group.</p>
 <p><b>Answer.</b> $\;$(a) True. (b) False &mdash; constant conditional mean gives $\operatorname{cov}=0$, not independence; the counterexample has $\operatorname{var}(X)=2.5$ with all of it within-group. (c) True.</p>
+<p><b>Trap.</b> Answering (b) "True" on the ground that a constant $\mathbb{E}[X\mid Y]$ means $Y$ tells you nothing about $X$. It tells you nothing about the <em>mean</em> of $X$ &mdash; which is exactly why $\operatorname{cov}(X,Y)=0$ &mdash; but in the counterexample $\mathbf{P}(X=2)=0.25$ while $\mathbf{P}(X=2\mid Y=1)=0$, so $Y$ still controls the spread. Uncorrelated is the most you may conclude; independence is the wrong answer.</p>
 <p class="srcref">Tool: G4 &sect;1.3 (total variance; nonnegativity of each term) &middot; G3 &sect;4 (uncorrelated $\ne$ independent) &middot; B&amp;T &sect;4.3</p>
 </div></details>
 </div>
@@ -4249,6 +4376,7 @@ $$\underbrace{\mathbb{E}[N]\operatorname{var}(X)}_{120\times36\;=\;4320}+\underb
 so $\sigma_Y=\sqrt{43\,520}=208.614477$ dollars.</p>
 <p><b>(b) Which term wins.</b> The count term is $39\,200/43\,520=0.900735$, i.e. $90.07\%$ of the variance. Uncertainty in <em>how many</em> customers show up dominates uncertainty in <em>what each one spends</em>, because the per-customer noise averages out across $120$ customers while the count noise is multiplied by the full mean ticket $\mathbb{E}[X]=14$. A $60\,000$-day simulation gives $\mathbb{E}[Y]\approx1681.35$ and $\operatorname{var}(Y)\approx43\,389$.</p>
 <p><b>Answer.</b> $\;\mathbb{E}[Y]=\$1680$, $\;\operatorname{var}(Y)=4320+39\,200=43\,520$ ($\sigma_Y=\$208.61$); the customer count supplies $90.07\%$ of the variance.</p>
+<p><b>Trap.</b> Multiplying the two variances, $\operatorname{var}(N)\operatorname{var}(X)=200\times36=7200$, or keeping only the first term, $\mathbb{E}[N]\operatorname{var}(X)=4320$. Neither is $43\,520$: the count term carries $(\mathbb{E}[X])^2=196$, not $\operatorname{var}(X)$, and dropping it discards the $90.07\%$ of the variance that part (b) is about.</p>
 <p class="srcref">Tool: G4 &sect;2.2 (mean and variance of a random sum) &middot; B&amp;T &sect;4.4</p>
 </div></details>
 </div>
@@ -4386,6 +4514,7 @@ so $\sigma_T=\sqrt{17.1875}=4.145781$ tosses. A $2\times10^5$-game simulation gi
 <br>Total $\mathbf{P}(T=2)=0.06+0.04=0.10$. The simulation gives $0.100055$.</p>
 <p><b>(c) Why the shortcut fails.</b> Replacing the random $K$ by its mean destroys exactly the term $(\mathbb{E}[X])^2\operatorname{var}(K)=7.8125$. A Pascal variable with a fixed $k=2.5$ heads would have variance $2.5\times3.75=9.375$, understating the true $17.1875$ by $45\%$ &mdash; and it is not even a legal distribution, since $k$ must be a positive integer. More generally, plugging a mean into a nonlinear place is the error $\mathbb{E}[g(K)]\ne g(\mathbb{E}[K])$; here the variance is linear in $k$ but the <em>randomness</em> of $k$ contributes separately.</p>
 <p><b>Answer.</b> $\;\mathbb{E}[T]=6.25$, $\;\operatorname{var}(T)=9.375+7.8125=17.1875$ ($\sigma_T=4.145781$), $\;\mathbf{P}(T=2)=0.10$.</p>
+<p><b>Trap.</b> In (b), adding the two conditional probabilities unweighted: $0.24+0.16=0.400000$. Those two numbers are $\mathbf{P}(T=2\mid K=1)$ and $\mathbf{P}(T=2\mid K=2)$; total probability multiplies each by $\mathbf{P}(K=k)=0.25$ before adding, which is what turns $0.40$ into the correct $0.10$. A conditional probability is not the probability of the intersection.</p>
 <p class="srcref">Tool: G4 &sect;2.2 (random sums), &sect;2.4&ndash;2.5 (geometric interarrivals, Pascal) &middot; B&amp;T &sect;4.4, &sect;6.1</p>
 </div></details>
 </div>
@@ -4415,8 +4544,8 @@ $$\mathbf{P}=\underbrace{0.251021}_{\text{2 in first}}\times\underbrace{e^{-1.5}
 </div></details>
 </div>
 
-<div class="ex qcard" id="q85" data-diff="2" data-topic="poisson-process">
-<p><b>Q85.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+<div class="ex qcard" id="q85" data-diff="1" data-topic="poisson-process">
+<p><b>Q85.</b> <span class="qmeta"><span class="stars">&#9733;</span>
  &middot; Exponential interarrivals, memorylessness &middot; <span class="ref">G4 &sect;3.3</span></span></p>
 <p>Emergency calls reach a dispatcher as a Poisson process with rate $\lambda=5$ per hour. Let $T$ be the time until the next call, measured in minutes from now.</p>
 <p>(a) State the distribution of $T$ and its mean. &nbsp; (b) Find $\mathbf{P}(T&gt;20)$. &nbsp; (c) Eight minutes pass with no call. Find the probability of a further wait exceeding $20$ minutes, and the expected further wait. &nbsp; (d) Find $\mathbf{P}(5&lt;T&lt;15)$.</p>
@@ -4522,12 +4651,13 @@ $$\mathbf{P}(N_S=5,N_L=20)=0.160623\times0.079804=0.012818 .$$
 Cross-check by the conditional route: $\mathbf{P}(N=25)\mathbf{P}(\text{Bin}(25,0.25)=5)=0.077905\times0.164538=0.012818$. &#10003; A $2\times10^6$-window simulation gives $0.012845$, and the sample covariance of $(N_S,N_L)$ is $-0.002$, i.e. zero to simulation noise.</p>
 <p><b>(c) Resolving the objection.</b> The objection would be right if $N$ were <em>fixed</em>: given $N=25$, indeed $N_L=25-N_S$ and the correlation is $-1$. But $N$ is itself random and Poisson. A larger $N_S$ is evidence of a busier window, which raises the expected $N_L$ too; this positive effect through $N$ exactly cancels the negative "shares of a fixed pie" effect, leaving $\operatorname{cov}(N_S,N_L)=0$. The cancellation is exact only for the Poisson total &mdash; that is the special property of Poisson splitting. (Check with total variance: $\operatorname{var}(N)=24=\operatorname{var}(N_S)+\operatorname{var}(N_L)+2\operatorname{cov}=6+18+0$. &#10003;)</p>
 <p><b>Answer.</b> $\;$(a) $N_S\sim$ Poisson($6$) and $N_L\sim$ Poisson($18$), independent. (b) $0.012818$. (c) Conditionally on $N$ they are perfectly negatively dependent, but the randomness of the Poisson total exactly offsets it, giving $\operatorname{cov}(N_S,N_L)=0$ and full independence.</p>
+<p><b>Trap.</b> Answering (c) by computing the covariance <em>after</em> fixing the total: with $N=25$ held fixed, $N_L=25-N_S$ gives $\operatorname{cov}(N_S,N_L\mid N=25)=-\operatorname{var}(N_S\mid N=25)=-25(0.25)(0.75)=-4.687500$ and a correlation of exactly $-1$. That is a genuine number, but it answers a conditional question; the unconditional covariance the student was arguing about is $0$.</p>
 <p class="srcref">Tool: G4 &sect;4.3 (splitting a Poisson process) &middot; G2 &sect;4 (independence via factorization of a joint PMF) &middot; B&amp;T &sect;6.2</p>
 </div></details>
 </div>
 
-<div class="ex qcard" id="q90" data-diff="2" data-topic="merging-splitting">
-<p><b>Q90.</b> <span class="qmeta"><span class="stars">&#9733;&#9733;</span>
+<div class="ex qcard" id="q90" data-diff="1" data-topic="merging-splitting">
+<p><b>Q90.</b> <span class="qmeta"><span class="stars">&#9733;</span>
  &middot; Splitting, then merging &middot; <span class="ref">G4 &sect;4.2&ndash;4.3</span></span></p>
 <p>Emails reach inbox 1 as a Poisson process of rate $10$ per hour; each is independently urgent with probability $0.20$. Inbox 2 receives an independent Poisson stream at $4$ per hour.</p>
 <p>(a) Find the probability of exactly $4$ urgent emails in a $3$-hour window. &nbsp; (b) Given that exactly $8$ emails arrived in inbox 1 during one particular hour, find the probability that exactly $2$ of them were urgent. &nbsp; (c) Considering both inboxes together, find the mean time between consecutive emails and the probability that the next email is from inbox 1.</p>
@@ -4627,6 +4757,7 @@ whereas a Poisson($41$) would give $e^{-41}=1.562882\times10^{-18}$ &mdash; nine
 <p><b>(iv) Law of total variance</b> (G4 &sect;1.3): $\operatorname{var}(X)=\mathbb{E}[\operatorname{var}(X\mid C)]+\operatorname{var}(\mathbb{E}[X\mid C])$, with $C$ the class. The first term is the within-class scatter, the second the spread of the class averages &mdash; exactly the split being asked for.</p>
 <p><b>(v) Memorylessness / fresh start</b> (G4 &sect;3.3, &sect;2.4). The additional wait of a Poisson process, given any elapsed silence, is exponential with the original rate; the silent $10$ minutes carry no information.</p>
 <p><b>Answer.</b> $\;$(i) iterated expectations; (ii) random-sum variance formula; (iii) random incidence / length bias; (iv) law of total variance; (v) memorylessness of the exponential (fresh start).</p>
+<p><b>Trap.</b> The two tempting mis-picks. In (iii), reaching for the ordinary mean gap $\mathbb{E}[X]$ &mdash; that is the average over intervals, whereas arriving at a random <em>time</em> gives $\mathbb{E}[L]=\mathbb{E}[X^2]/\mathbb{E}[X]$, strictly larger unless every gap is the same length. In (v), reasoning that ten silent minutes make a call "overdue" and shorten the remaining wait &mdash; memorylessness says the additional wait is exponential with the <em>original</em> mean $1/\lambda$, neither shorter nor longer.</p>
 <p class="srcref">Tool: G4 &sect;5.1 (the conditioning toolkit on one page) &middot; B&amp;T &sect;4.3&ndash;4.4, &sect;6.1&ndash;6.2</p>
 </div></details>
 </div>
@@ -4831,7 +4962,7 @@ Numerically $P^{200}$ has rows 1 and 2 equal to $(0.571429,\,0.428571,\,0,\,0)$ 
 <p>Decide true or false and justify each. (a) Every finite-state Markov chain has at least one recurrent state. (b) If a chain has exactly one recurrent class, then $r_{ij}(n)$ converges to a limit that does not depend on $i$. (c) If a chain has a single aperiodic recurrent class together with some transient states, then $\pi_j=0$ for every transient $j$.</p>
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> Recall: $i$ is recurrent iff every state accessible from $i$ can reach $i$ back; $\pi_j$ is the unique solution of the balance equations $\pi_j=\sum_k\pi_kp_{kj}$ with $\sum_j\pi_j=1$, and equals the long-run fraction of time spent in $j$.</p>
-<p><b>Step 1 (part a &mdash; TRUE).</b> Suppose every state were transient. Start at any state $i_1$. Because $i_1$ is transient, there is a state $i_2$ accessible from $i_1$ that cannot reach $i_1$ back. Then the accessible set of $i_2$ is a <em>strict</em> subset of that of $i_1$: it is contained in it (anything reachable from $i_2$ is reachable from $i_1$) and it omits $i_1$. Repeat from $i_2$. Each step strictly shrinks a subset of a finite state space, so the process must terminate &mdash; and it terminates exactly at a state that is not transient. Hence at least one recurrent state exists. (This argument uses finiteness essentially; an infinite chain such as the unbiased random walk on $\mathbb{Z}$ modified to drift right can have all states transient.)</p>
+<p><b>Step 1 (part a &mdash; TRUE).</b> Suppose every state were transient. Start at any state $i_1$. Because $i_1$ is transient, there is a state $i_2$ accessible from $i_1$ that cannot reach $i_1$ back. Then the accessible set of $i_2$ is a <em>strict</em> subset of that of $i_1$: it is contained in it (anything reachable from $i_2$ is reachable from $i_1$) and it omits $i_1$. Repeat from $i_2$. Each step strictly shrinks a subset of a finite state space, so the process must terminate &mdash; and it terminates exactly at a state that is not transient. Hence at least one recurrent state exists. (This argument uses finiteness essentially; an infinite chain such as the random walk on $\mathbb{Z}$ with a rightward drift ($p&gt;1/2$) has all states transient.)</p>
 <p><b>Step 2 (part b &mdash; FALSE).</b> The single-class hypothesis is not sufficient; aperiodicity is also needed. Counterexample: the two-state chain $p_{12}=p_{21}=1$ is irreducible, hence has exactly one recurrent class $\{1,2\}$, yet
 $$r_{11}(200)=1,\qquad r_{11}(201)=0,$$
 so $r_{11}(n)$ has no limit at all. The correct statement adds "and that class is aperiodic".</p>
@@ -4925,8 +5056,8 @@ $$P=\begin{pmatrix}0.4&amp;0.4&amp;0.2&amp;0\\0.3&amp;0.4&amp;0.3&amp;0\\0&amp;0
 A student writes "this is a birth&ndash;death chain, so I can use local balance": $\pi_0p_{01}=\pi_1p_{10}$, i.e. $0.4\pi_0=0.3\pi_1$, giving $\pi_1=\frac43\pi_0$. (a) Identify the error. (b) Write the correct cut equation across the boundary separating $\{0\}$ from $\{1,2,3\}$ and deduce the true ratio $\pi_1/\pi_0$. (c) The true steady state is $\pi=(5/27,\,10/27,\,8/27,\,4/27)$; verify it satisfies the cut equation separating $\{0,1\}$ from $\{2,3\}$.</p>
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>Setup.</b> Cut (or "flow balance") equations are always valid for any partition of the state space: in steady state, the long-run rate of transitions from $S$ to $S^{c}$ equals the rate from $S^{c}$ to $S$, because every crossing one way must eventually be matched by a crossing back. The <em>local balance</em> shortcut $\pi_ip_{i,i+1}=\pi_{i+1}p_{i+1,i}$ is the special case where the only way across the cut $\{0,\dots,i\}\mid\{i+1,\dots\}$ is the single pair of arrows $i\leftrightarrow i+1$ &mdash; i.e. a genuine birth&ndash;death chain.</p>
-<p><b>Step 1 (part a &mdash; the error).</b> This chain is <em>not</em> birth&ndash;death: $p_{02}=0.2&gt;0$ is a jump of two states at once. So the cut between $\{0\}$ and $\{1,2,3\}$ is crossed not only by $0\to1$ but also by $0\to2$, and the student's equation leaves out that flow. The chain also lacks the return arrow $2\to0$, so the two sides of his equation are not even the same cut.</p>
-<p><b>Step 2 (part b &mdash; the correct cut).</b> Flow out of $\{0\}$: $\pi_0(p_{01}+p_{02})=\pi_0(0.4+0.2)=0.6\,\pi_0$. Flow into $\{0\}$: $\pi_1p_{10}+\pi_2p_{20}+\pi_3p_{30}=0.3\,\pi_1+0+0=0.3\,\pi_1$. Equating,
+<p><b>Step 1 (part a &mdash; the error).</b> This chain is <em>not</em> birth&ndash;death: $p_{02}=0.2&gt;0$ is a jump of two states at once. So the cut between $\{0\}$ and $\{1,2,3\}$ is crossed not only by $0\to1$ but also by $0\to2$, and the student's equation leaves out that flow.</p>
+<p><b>Step 2 (part b &mdash; the correct cut).</b> Outward across the cut $\{0\}\mid\{1,2,3\}$ go both $0\to1$ and $0\to2$, while inward there is only $1\to0$, since $p_{20}=p_{30}=0$ &mdash; which is exactly why the correct cut equation reads $0.6\,\pi_0=0.3\,\pi_1$ and not the student's $0.4\,\pi_0=0.3\,\pi_1$. Flow out of $\{0\}$: $\pi_0(p_{01}+p_{02})=\pi_0(0.4+0.2)=0.6\,\pi_0$. Flow into $\{0\}$: $\pi_1p_{10}+\pi_2p_{20}+\pi_3p_{30}=0.3\,\pi_1+0+0=0.3\,\pi_1$. Equating,
 $$0.6\,\pi_0=0.3\,\pi_1\;\Longrightarrow\;\pi_1=2\,\pi_0 .$$
 The true ratio is $2$, not the student's $4/3=1.333333$ &mdash; a $50\%$ error, and it propagates. Carrying his pairwise ratios all the way up and normalizing gives $\pi^{\text{student}}=(0.283019,\,0.377358,\,0.226415,\,0.113208)$ against the truth $(0.185185,\,0.370370,\,0.296296,\,0.148148)$: he overstates $\pi_0$ by $0.097834$, because he has ignored an escape route out of state 0 and so made state 0 look stickier than it is.</p>
 <p><b>Step 3 (part c &mdash; verify the other cut).</b> Across $\{0,1\}\mid\{2,3\}$ the crossing arrows are $0\to2$ ($0.2$), $1\to2$ ($0.3$) going out, and $2\to1$ ($0.5$) coming back ($p_{30}=p_{31}=0$). With $\pi_0=5/27=0.185185$, $\pi_1=10/27=0.370370$, $\pi_2=8/27=0.296296$:
@@ -5005,7 +5136,7 @@ $$\pi_2(0.1)=\pi_3(0.4)\;\Longrightarrow\;\pi_3=0.25\,\pi_2=0.03125\,\pi_0,$$
 $$\pi_3(0.1)=\pi_4(0.5)\;\Longrightarrow\;\pi_4=0.2\,\pi_3=0.00625\,\pi_0 .$$</p>
 <p><b>Step 3 (normalize).</b> The relative weights are $1,\;0.5,\;0.125,\;0.03125,\;0.00625$, summing to $1.6625$. Hence $\pi_0=1/1.6625=0.601504$ and
 $$\pi=(0.601504,\;0.300752,\;0.075188,\;0.018797,\;0.003759).$$
-Solving the full $5\times5$ balance system numerically reproduces this exactly, and $200{,}000$ simulated chains give $(0.6022,\,0.3005,\,0.0745,\,0.0192,\,0.0037)\;\checkmark$.</p>
+Solving the full $5\times5$ balance system numerically reproduces this exactly, and $200{,}000$ simulated chains give $(0.6026,\,0.2998,\,0.0752,\,0.0186,\,0.0039)\;\checkmark$.</p>
 <p><b>Step 4 (part c).</b>
 $$\mathbb{E}[X]=\sum_{i=0}^{4}i\,\pi_i=0.300752+2(0.075188)+3(0.018797)+4(0.003759)$$
 $$=0.300752+0.150376+0.056391+0.015038=0.522556\ \text{tickets}.$$</p>
@@ -5030,10 +5161,10 @@ For each question below, name the system of equations you would set up, write it
 <p><b>Setup.</b> States 4 and 5 are absorbing; $\{1,2,3\}$ is a transient class, since from 1 you can reach 4 and never return. Each of the four questions is a different linear system &mdash; recognizing which is the entire skill.</p>
 <p><b>Step 1 (i) &mdash; $n$-step recursion.</b> Unknowns $r_{ij}(n)$; recursion $r_{ij}(n)=\sum_kr_{ik}(n-1)p_{kj}$ with initial condition $r_{ij}(0)=\delta_{ij}$. No boundary conditions and no solving &mdash; just iterate (equivalently, read off $P^3$). Iterating gives
 $$\mathbf{P}(X_3=2\mid X_0=1)=0.21 ,$$
-confirmed by $400{,}000$ simulated paths ($0.2100$).</p>
+confirmed by $400{,}000$ simulated paths ($0.2109$).</p>
 <p><b>Step 2 (ii) &mdash; absorption equations.</b> Unknowns $a_i=\mathbf{P}(\text{absorbed at }4\mid X_0=i)$ for the transient $i$; equations $a_i=\sum_{j}p_{ij}a_j$ with the boundary conditions $a_4=1$, $a_5=0$. That is
 $$a_1=0.2a_1+0.5a_2+0.1a_3+0.2,\quad a_2=0.3a_1+0.1a_2+0.4a_3,\quad a_3=0.4a_2+0.2a_3+0.1 .$$
-Solving the $3\times3$ system: $(a_1,a_2,a_3)=(0.446203,\,0.262658,\,0.256329)$, so the answer is $a_1=0.446203$. Simulation gives $0.4461\;\checkmark$. Note there is no "$1+$" here &mdash; these are probabilities, and time does not enter.</p>
+Solving the $3\times3$ system: $(a_1,a_2,a_3)=(0.446203,\,0.262658,\,0.256329)$, so the answer is $a_1=0.446203$. Simulation gives $0.4479\;\checkmark$. Note there is no "$1+$" here &mdash; these are probabilities, and time does not enter.</p>
 <p><b>Step 3 (iii) &mdash; expected-time equations.</b> Unknowns $\mu_i=\mathbb{E}[\text{steps to absorption}\mid X_0=i]$; equations $\mu_i=1+\sum_{j\text{ transient}}p_{ij}\mu_j$ with $\mu_4=\mu_5=0$. The "$1+$" counts the step you are about to take. Solving gives
 $$(\mu_1,\mu_2,\mu_3)=(4.082278,\,3.892405,\,3.196203),$$
 so the answer is $\mu_1=4.082278$ steps. Same coefficient matrix $I-Q$ as in (ii), different right-hand side (all ones instead of the absorption column).</p>
@@ -5057,7 +5188,7 @@ $$a_3=0.5\,a_2+0.5\,a_4=0.5\,a_2+0.5(1)=0.5\,a_2+0.5 .$$</p>
 $$a_3=0.5(0.7a_3)+0.5=0.35\,a_3+0.5\;\Longrightarrow\;0.65\,a_3=0.5\;\Longrightarrow\;a_3=\frac{0.5}{0.65}=\frac{10}{13}=0.769231 .$$</p>
 <p><b>Step 3 (back-substitute).</b>
 $$a_2=0.7\,a_3=0.7\cdot\frac{10}{13}=\frac{7}{13}=0.538462 .$$
-Check the first equation directly: $0.3(0)+0.7(0.769231)=0.538462\;\checkmark$. Monte Carlo with $300{,}000$ games gives $0.5382$ from square 2 and $0.7689$ from square 3 $\checkmark$.</p>
+Check the first equation directly: $0.3(0)+0.7(0.769231)=0.538462\;\checkmark$. Monte Carlo with $300{,}000$ games gives $0.5385$ from square 2 and $0.7691$ from square 3 $\checkmark$.</p>
 <p><b>Answer.</b> $\;a_2=7/13=0.538462$ (so the game ends on square 1 with probability $6/13=0.461538$).</p>
 <p><b>Trap.</b> Guessing $0.5$ "by symmetry" because square 2 sits between the two ends. The chain is not symmetric: from 2 the token heads toward 4 with probability $0.7$ but toward 1 with only $0.3$, while square 3 is an even coin flip. That bias is what pushes $a_2$ above $0.5$.</p>
 <p class="srcref">Tool: G5 &sect;4.1 (absorption probabilities, first-step analysis) &middot; B&amp;T &sect;7.4</p>
@@ -5085,7 +5216,7 @@ $$=1+0.5+0.3\mu_2+0.2\mu_2+0.5+0.3\mu_2=2+0.8\,\mu_2 .$$
 Hence $0.2\,\mu_2=2$ and $\mu_2=10$.</p>
 <p><b>Step 4 (back-substitute).</b>
 $$\mu_3=1+0.6(10)=7,\qquad \mu_1=\tfrac53+10=\tfrac{35}{3}=11.666667 .$$
-Check the middle equation: $1+0.3(11.666667)+0.2(10)+0.5(7)=1+3.5+2+3.5=10=\mu_2\;\checkmark$. A Monte-Carlo run of $200{,}000$ beetles started in chamber 1 gives a mean exit time of $11.6482$ minutes $\checkmark$.</p>
+Check the middle equation: $1+0.3(11.666667)+0.2(10)+0.5(7)=1+3.5+2+3.5=10=\mu_2\;\checkmark$. A Monte-Carlo run of $200{,}000$ beetles started in chamber 1 gives a mean exit time of $11.6595$ minutes $\checkmark$.</p>
 <p><b>Answer.</b> $\;\mu_1=35/3=11.666667$ minutes, $\mu_2=10$, $\mu_3=7$.</p>
 <p><b>Trap.</b> Dropping the "$+1$" and solving $\mu_i=\sum_jp_{ij}\mu_j$. That homogeneous system has only the solution $\mu_1=\mu_2=\mu_3=0$ &mdash; a clear signal that you have written the equations for an absorption <em>probability</em> (Q112) rather than an expected time. The $+1$ is the minute spent on the step you just took.</p>
 <p class="srcref">Tool: G5 &sect;4.2 (expected time to absorption) &middot; B&amp;T &sect;7.4</p>
@@ -5108,10 +5239,10 @@ Because $\rho&gt;1$ the walk drifts downward: unfavorable odds.</p>
 <p><b>Step 2 (part a).</b> With $i=4$, $m=10$:
 $$\rho^{4}=(1.222222)^4=2.231520,\qquad \rho^{10}=(1.222222)^{10}=7.438781,$$
 $$a_4=\frac{1-2.231520}{1-7.438781}=\frac{-1.231520}{-6.438781}=0.191266 .$$
-So she reaches 10 chips with probability about $19.13\%$, and is ruined with probability $1-0.191266=0.808734$. Monte Carlo over $300{,}000$ sessions gives $0.1914\;\checkmark$.</p>
+So she reaches 10 chips with probability about $19.13\%$, and is ruined with probability $1-0.191266=0.808734$. Monte Carlo over $300{,}000$ sessions gives $0.1912\;\checkmark$.</p>
 <p><b>Step 3 (part b).</b> With $1-2p=1-0.90=0.10$ and $m\,a_4=10(0.191266)=1.912660$:
 $$D_4=\frac{4-1.912660}{0.10}=\frac{2.087340}{0.10}=20.873404\ \text{rounds}.$$
-Simulation gives $20.931\;\checkmark$. Sanity check on the sign: the numerator $i-m\,a_i$ is the expected <em>loss</em> in chips, $4-1.912660=2.087340$, and $1-2p=0.10$ is the expected loss per round, so $D_i$ is total expected loss divided by loss per round &mdash; a Wald-style identity, and both quantities are positive, so $D_4&gt;0\;\checkmark$.</p>
+Simulation gives $20.857\;\checkmark$. Sanity check on the sign: the numerator $i-m\,a_i$ is the expected <em>loss</em> in chips, $4-1.912660=2.087340$, and $1-2p=0.10$ is the expected loss per round, so $D_i$ is total expected loss divided by loss per round &mdash; a Wald-style identity, and both quantities are positive, so $D_4&gt;0\;\checkmark$.</p>
 <p><b>Step 4 (part c &mdash; the fair game).</b> For $p=0.5$ the formulas degenerate ($\rho=1$ makes both numerator and denominator zero) and the limits are $a_i=i/m$ and $D_i=i(m-i)$:
 $$a_4=\frac{4}{10}=0.4,\qquad D_4=4(10-4)=24\ \text{rounds}.$$
 Comment: shaving the win probability from $0.50$ to $0.45$ &mdash; a $5$ percentage-point edge for the house &mdash; cuts her success probability from $0.4$ to $0.191266$, less than half. The reason is that the edge compounds: it is the <em>ratio</em> $\rho^{\,i}$ that appears, so the disadvantage is exponentiated by the distance she must travel. The expected duration falls only mildly, from $24$ to $20.873404$ rounds, because most of her sessions end in ruin either way &mdash; she just gets there a little faster.</p>
@@ -5131,8 +5262,9 @@ the four things it does <em>not</em> say, sample sizes priced by Chebyshev again
 priced by the central limit theorem, and normal approximations including the $\tfrac12$ continuity
 correction and the regime where the approximation quietly fails. The second half asks what you may
 claim about an unknown: posteriors for discrete and continuous parameters, a conjugate coin-bias
-calculation, MAP against the conditional mean and the cases where they disagree by a factor of
-three, and LMS / linear LMS estimation with the orthogonality property and the
+calculation, MAP against the conditional mean, the reparametrization in which two MAP estimates of
+the same quantity disagree by a factor of three, and LMS / linear LMS estimation with the
+orthogonality property and the
 $(1-\rho^2)\operatorname{var}(\Theta)$ error formula. Every number below is recomputed in
 <code>computes/qb_s6.py</code>, with Monte-Carlo cross-checks on the tails, the posteriors and the
 estimators.</p>
@@ -5413,6 +5545,11 @@ $M_n$ be the sample mean. (a) Prove directly &mdash; without quoting any continu
 &mdash; that $M_n^2$ converges in probability to $1$, by converting a tolerance on $M_n^2$ into a
 tolerance on $M_n$. (b) Evaluate your bound at $\epsilon=0.1$ for $n=100$ and $n=10{,}000$ and
 compare with the true probabilities.</p>
+<p>(c) A separate sequence, to test what the mode of convergence does <em>not</em> control. Let
+$Y_n$ take two values,
+$$\mathbf{P}(Y_n=0)=1-\frac1n,\qquad \mathbf{P}(Y_n=n)=\frac1n .$$
+Compute $\mathbf{P}(|Y_n|\ge\epsilon)$ for a fixed $\epsilon\in(0,1)$, $\mathbb{E}[Y_n]$ and
+$\operatorname{var}(Y_n)$, and give the convergence verdict for $Y_n$.</p>
 <details class="sol"><summary>Solution</summary><div class="body">
 <p><b>(a) Step 1 &mdash; a deterministic implication.</b> Suppose $|M_n-1|\le\delta$ for some
 $\delta&gt;0$. Then, factoring the difference of squares,
@@ -5438,9 +5575,25 @@ At $n=10{,}000$ the bound is $0.013992$. The truth is far smaller: $\operatornam
 $z=8.453940$ standard deviations up) or $M_n\le\sqrt{0.9}=0.948683$ ($z=8.888314$ down), for a
 total probability of about $1.44\times10^{-17}$; $4{,}000$ simulated runs at $n=10{,}000$
 produced $0$ exceedances, as expected.</p>
+<p><b>(c) Convergence in probability without convergence of the mean.</b> Fix any
+$\epsilon\in(0,1)$. Since $n\ge1&gt;\epsilon$, the only way to have $|Y_n|\ge\epsilon$ is $Y_n=n$, so
+$$\mathbf{P}(|Y_n-0|\ge\epsilon)=\frac1n\;\xrightarrow[n\to\infty]{}\;0 ,$$
+for every fixed $\epsilon$: $Y_n\to0$ in probability, by the definition itself and with no
+inequality needed. Yet the mean never moves:
+$$\mathbb{E}[Y_n]=0\Big(1-\frac1n\Big)+n\cdot\frac1n=1\quad\text{for every }n ,$$
+so $\lim_n\mathbb{E}[Y_n]=1$ while $\mathbb{E}[\lim_n Y_n]=\mathbb{E}[0]=0$. Four million draws
+give $1.000900$ at $n=100$ and $1.000000$ at $n=10{,}000$&nbsp;&#10003;. The second moment is
+$\mathbb{E}[Y_n^2]=n^2(1/n)=n$, so
+$$\operatorname{var}(Y_n)=n-1 ,$$
+which is $99$ at $n=100$ and $9999$ at $n=10{,}000$ &mdash; it <em>diverges</em>. The vanishing
+probability $1/n$ and the growing value $n$ multiply to a constant $1$: the mass escapes to
+infinity fast enough to carry a fixed unit of expectation with it. Verdict: $Y_n\to0$ in
+probability; $\mathbb{E}[Y_n]\not\to0$; $\operatorname{var}(Y_n)\to\infty$.</p>
 <p><b>Answer.</b> $\;\mathbf{P}(|M_n^2-1|&gt;0.1)\le 139.920590/n$, i.e. $1.399206$ (vacuous) at
 $n=100$ and $0.013992$ at $n=10{,}000$, against a true value near $1.4\times10^{-17}$ &mdash; the
-bound exceeds the truth by some $10^{15}$.</p>
+bound exceeds the truth by some $10^{15}$. In (c), $Y_n\to0$ in probability with
+$\mathbf{P}(|Y_n|\ge\epsilon)=1/n$, while $\mathbb{E}[Y_n]=1$ for every $n$ and
+$\operatorname{var}(Y_n)=n-1\to\infty$.</p>
 <p><b>The tempting wrong answer.</b> "Apply Chebyshev to $M_n^2$ directly with variance
 $\operatorname{var}(M_n^2)$." That is legal but requires fourth moments of $X$ and a computation of
 $\operatorname{var}(M_n^2)$; the $\delta$-conversion needs only what the weak law already gives.
@@ -5664,8 +5817,10 @@ which sum to $1$&nbsp;&#10003;.</p>
 <p><b>Step 4 &mdash; the two summaries.</b> The largest posterior probability is at $\theta=3$, so
 $\hat\theta_{\text{MAP}}=3$, and it is wrong with probability $1-0.491769=0.508231$. The
 conditional expectation is
-$$\mathbb{E}[\Theta\mid X=4]=1(0.112152)+2(0.396079)+3(0.491769)
-=0.112152+0.792159+1.475308=2.379618 ,$$
+$$\begin{aligned}
+\mathbb{E}[\Theta\mid X=4]&=1(0.112152)+2(0.396079)+3(0.491769)\\
+&=0.112152+0.792159+1.475308=2.379618 ,
+\end{aligned}$$
 against a prior mean of $1(0.5)+2(0.3)+3(0.2)=1.7$: the data pulled the estimate up.</p>
 <p><b>Answer.</b> $\;$posterior $(0.112152,\;0.396079,\;0.491769)$;
 $\hat\theta_{\text{MAP}}=3$; $\mathbb{E}[\Theta\mid X=4]=2.379618$.</p>
@@ -5971,6 +6126,7 @@ independence does follow is joint normality, where zero correlation is independe
 </div>
 
 <h2 id="qb-s7">&sect;7 &nbsp; Classical statistical inference</h2>
+<p class="srcref">Drills G7 &sect;1&ndash;&sect;5 &middot; Bertsekas&ndash;Tsitsiklis &sect;9.1&ndash;&sect;9.3 &middot; every number recomputed in <code>computes/qb_s7.py</code></p>
 
 <p>Sixteen problems on the classical half of the course: treating the unknown as a
 fixed constant and letting the <em>data</em> be the only random thing. They drill the
@@ -6035,7 +6191,7 @@ $\mathrm{MSE}(\hat B_{25})=9.16$. (c) Neither unbiased; only $\hat A_n$ is
 asymptotically unbiased and consistent. (d)
 $\mathrm{MSE}(\hat A_{100})=0.0409$; the variance drops like $1/n$, the squared
 bias like $1/n^2$.</p>
-<p><i>Trap.</i> "$\hat B_n$ has small variance, so it is a good estimator." Variance
+<p><b>Trap.</b> "$\hat B_n$ has small variance, so it is a good estimator." Variance
 alone is not quality: the constant estimator $\hat\Theta_n\equiv0$ has variance $0$
 and is useless. MSE is the honest scorecard because it charges you for bias too.</p>
 <p class="srcref">Tool: G7 &sect;1.1 (bias, consistency), &sect;1.2 (MSE decomposition),
@@ -6081,8 +6237,11 @@ sample variance $1.14867$ &mdash; matching both claims.) For the sample mean,
 $$\operatorname{var}(M_{10})=\frac{v}{n}=\frac{9}{10}=0.9 .$$
 Both estimators are unbiased, so MSE $=$ variance for both, and the ratio is
 $$\frac{0.1272727}{0.1}=1.2727 .$$
-The weighted estimator has $27.3\%$ more MSE. Getting the same precision from it
-would need about $27\%$ more data.</p>
+The weighted estimator has $27.3\%$ more MSE. Because that variance is
+$\frac{2(2n+1)}{3n(n+1)}v$ and <em>not</em> proportional to $1/n$, the extra data it
+needs is not the same $27.3\%$: solving $\frac{2(2m+1)}{3m(m+1)}=\frac{1}{10}$ gives
+$m=12.8521$, i.e. about $29\%$ more readings (computes key
+<code>Q136_m_for_equal_precision</code>; the penalty rises to $\tfrac13$ as $n$ grows).</p>
 <p><b>Step 4 &mdash; consistency.</b> $\hat\Theta_n$ is unbiased and
 $\operatorname{var}(\hat\Theta_n)=\frac{2(2n+1)}{3n(n+1)}v\to0$ as $n\to\infty$
 (the numerator grows like $n$, the denominator like $n^2$; at $n=100$ the coefficient
@@ -6093,7 +6252,7 @@ $\hat\Theta_n$ is consistent.</p>
 $\operatorname{var}(\hat\Theta_n)=\dfrac{2(2n+1)}{3n(n+1)}v$; at $n=10,v=9$ its
 variance is $1.1454545$ against $0.9$ for $M_{10}$, i.e. $1.2727$ times larger; it is
 consistent.</p>
-<p><i>Trap.</i> "Unbiased and consistent, so it is as good as the sample mean."
+<p><b>Trap.</b> "Unbiased and consistent, so it is as good as the sample mean."
 Unbiasedness is a statement about the center of the sampling distribution, not its
 width. Among all unbiased linear estimators $\sum w_iX_i$ with $\sum w_i=1$, the
 variance $v\sum w_i^2$ is minimized by the <em>equal</em> weights $w_i=1/n$ &mdash;
@@ -6168,7 +6327,7 @@ Q135's $\hat B_n$) destroys consistency outright.</p>
 $\mathrm{MSE}(M)=0.0222222\theta^2$,
 $\mathrm{MSE}(\text{unbiased})=0.0125\theta^2$,
 $\mathrm{MSE}(c^\star M)=0.0123457\theta^2$ &mdash; the biased estimator wins.</p>
-<p><i>Trap.</i> A careless reader sets $c^\star=\mathbb{E}[M]/\mathbb{E}[M^2]$ and
+<p><b>Trap.</b> A careless reader sets $c^\star=\mathbb{E}[M]/\mathbb{E}[M^2]$ and
 stops, worried that the answer depends on $\theta$. It does not: the numerator carries
 $\theta^2$ and so does the denominator. Had they not cancelled, $c^\star$ would be an
 oracle quantity, not an estimator &mdash; exactly the failure that sinks the
@@ -6226,9 +6385,9 @@ $$z\sqrt{\frac{1}{4n}}\le0.02
 Sample sizes are integers and the inequality must hold, so round <em>up</em>:
 $n=2401$. Check: $1.9599640\sqrt{0.25/2401}=0.0199996\le0.02$. $\checkmark$</p>
 <p><b>Answer.</b> $\;$(a) $\max_\theta\theta(1-\theta)=\tfrac14$ at $\theta=\tfrac12$.
-(b) conservative $[0.0873,\,0.1527]$, plug-in $[0.0988,\,0.1412]$.
+(b) conservative $[0.0873,\,0.1527]$, plug-in <span style="white-space:nowrap">$[0.0988,\,0.1412]$.</span>
 (c) $n=2401$.</p>
-<p><i>Trap.</i> Rounding $2400.91$ down to $2400$, or &mdash; worse &mdash; using the
+<p><b>Trap.</b> Rounding $2400.91$ down to $2400$, or &mdash; worse &mdash; using the
 plug-in variance for the design calculation. You do not have $\hat\theta_n$ before you
 sample; using a guessed $\theta=0.12$ would give $n=\lceil z^2(0.1056)/0.0004\rceil=1015$,
 and if the true rate turned out to be near $\tfrac12$ the delivered margin would be
@@ -6291,7 +6450,7 @@ twenty intervals misses &mdash; and there is no way to tell which. For reference
 $\mathbf{P}(N=19)=0.3773536$ and $\mathbf{P}(N\le18)=0.2641605$.</p>
 <p><b>Answer.</b> $\;$(i) F, (ii) T, (iii) F, (iv) F; (v) $\mathbb{E}[N]=19$;
 (vi) $0.95^{20}=0.3584859$.</p>
-<p><i>Trap.</i> Reading (vi) as "$95\%$ of $20$ intervals contain $\theta$, so the answer
+<p><b>Trap.</b> Reading (vi) as "$95\%$ of $20$ intervals contain $\theta$, so the answer
 is certain to be $19$." $19$ is the <em>expected</em> count; the standard deviation is
 $\sqrt{20(0.95)(0.05)}=0.9747$, and the single most likely outcome ($0.3774$) is
 indeed $19$, but $20$ is nearly as likely and values of $18$ or below carry $26.4\%$ of
@@ -6356,7 +6515,7 @@ interval in name only. This is the difference between a bound and a guess.</p>
 $\tfrac12\delta_0+\tfrac12\delta_{10}$; (b) $n=664$; (c) $\sigma=10$ gives $n=2654$
 (valid but $4\times$ wasteful), the uniform assumption gives $n=222$ (invalid &mdash; an
 unjustified distributional assumption, not a bound).</p>
-<p><i>Trap.</i> Reaching for the Bernoulli $\tfrac14$ bound directly. That bound is
+<p><b>Trap.</b> Reaching for the Bernoulli $\tfrac14$ bound directly. That bound is
 $\operatorname{var}\le\tfrac14$ for a variable on $[0,1]$; the general statement is
 $\operatorname{var}\le(b-a)^2/4$ for support $[a,b]$, and forgetting to rescale by
 $(b-a)^2=100$ would give $n=\lceil(2.5758293\times0.5/0.5)^2\rceil=7$ &mdash; off by two
@@ -6410,7 +6569,7 @@ The data are about $12.2$ times more likely under $\hat\theta=0.325$ than under 
 fair-coin machine.</p>
 <p><b>Answer.</b> $\;\hat\theta=0.325$; $\widehat{\text{odds}}=0.4814815$;
 $\widehat{\theta^2}=0.105625$; likelihood ratio $=12.2148$.</p>
-<p><i>Trap.</i> Reading the $12.2$ as "the machine is $12.2$ times more likely to have
+<p><b>Trap.</b> Reading the $12.2$ as "the machine is $12.2$ times more likely to have
 $\theta=0.325$ than $\theta=0.5$." Likelihoods are probabilities <em>of the data</em>,
 not of the parameter; converting them into statements about $\theta$ requires a prior
 (G6 &sect;3). A second trap: estimating the odds by rerunning the maximization in a new
@@ -6465,7 +6624,7 @@ $$z=\frac{11-10.1}{0.6099180}=\frac{0.9}{0.6099180}=1.4756081,\qquad
 <p><b>Answer.</b> $\;\hat\mu_{\text{ML}}=10.1$, $\hat v_{\text{ML}}=0.372$;
 $\hat s_n^2=0.465=\frac{n}{n-1}\hat v_{\text{ML}}$;
 $\widehat{\mathbf{P}}(X&gt;11)=0.0700246$.</p>
-<p><i>Trap.</i> Using $\hat s_n^2=0.465$ in Step 4 "because it is the unbiased one."
+<p><b>Trap.</b> Using $\hat s_n^2=0.465$ in Step 4 "because it is the unbiased one."
 The invariance principle applies to the <em>ML</em> estimates; substituting $0.465$
 gives $1-\Phi(0.9/0.6819091)=1-\Phi(1.3198240)=0.0934469$, a $33.4\%$ larger answer, and
 it is the ML estimate of nothing. (Note also that unbiasedness is not preserved by nonlinear
@@ -6531,7 +6690,7 @@ too), whereas here it is a <em>shift</em> (which does not), so removing the bias
 profit.</p>
 <p><b>Answer.</b> $\;\hat\theta_{\text{ML}}=3.2$; bias $=+1/n=0.2$; unbiased estimator
 $\min_iX_i-1/n=3.0$; MSEs $0.08$ and $0.04$ respectively.</p>
-<p><i>Trap.</i> Writing $\ell(\theta)=n\theta-\sum_ix_i$ <em>without</em> the constraint
+<p><b>Trap.</b> Writing $\ell(\theta)=n\theta-\sum_ix_i$ <em>without</em> the constraint
 and concluding "no maximum, $\hat\theta=+\infty$." The constraint region is part of the
 likelihood; dropping it loses the entire answer. The mirror-image trap is answering
 $\bar x=20.4/5=4.08$ because "the mean of the model is $\theta+1$, so
@@ -6604,7 +6763,7 @@ it would have returned $1.0$ had all six landed heads, asserting that tails is
 impossible on the evidence of six tosses.</p>
 <p><b>Answer.</b> $\;$ML $=5/6=0.8333333$; MAP (flat) $=5/6=0.8333333$;
 MAP (prior $\propto\theta(1-\theta)$) $=0.75$; posterior mean (flat) $=(k+1)/(n+2)=0.75$.</p>
-<p><i>Trap.</i> "A flat prior makes everything Bayesian collapse to the classical answer."
+<p><b>Trap.</b> "A flat prior makes everything Bayesian collapse to the classical answer."
 Only the <em>mode</em> collapses. The posterior mean under the same flat prior is
 $0.75$, differing from ML by $0.0833$; the posterior variance, credible intervals and
 predictive distribution have no classical counterpart at all. A flat prior kills the
@@ -6661,8 +6820,8 @@ $$\sum_ix_ie_i=1(0.04)+2(-0.13)+3(0.20)+4(-0.17)+5(0.06)
 Both vanish, as they must: they <em>are</em> the two normal equations
 $\partial Q/\partial\theta_0=0$ and $\partial Q/\partial\theta_1=0$ rewritten.</p>
 <p><b>Step 5 &mdash; SSE and $R^2$.</b> Directly,
-$$\mathrm{SSE}=0.04^2+0.13^2+0.20^2+0.17^2+0.06^2
-=0.0016+0.0169+0.0400+0.0289+0.0036=0.0910 .$$
+$$\begin{aligned}\mathrm{SSE}&=0.04^2+0.13^2+0.20^2+0.17^2+0.06^2\
+&=0.0016+0.0169+0.0400+0.0289+0.0036=0.0910 .\end{aligned}$$
 The shortcut of &sect;3.3 agrees without forming residuals:
 $\mathrm{SSE}=S_{yy}-S_{xy}^2/S_{xx}=38.90-19.7^2/10=38.90-38.809=0.091$. $\checkmark$
 Then
@@ -6671,7 +6830,7 @@ $$R^2=1-\frac{\mathrm{SSE}}{S_{yy}}=1-\frac{0.091}{38.90}=1-0.0023393=0.9976607 
 <p><b>Answer.</b> $\;\hat\theta_0=0.09$, $\hat\theta_1=1.97$;
 residuals $(0.04,-0.13,0.20,-0.17,0.06)$ with both identities $=0$;
 $\mathrm{SSE}=0.091$, $R^2=0.9976607$; $\hat y(6)=11.91$.</p>
-<p><i>Trap.</i> Computing $\hat\theta_0$ as $\bar y - \hat\theta_1$ (forgetting $\bar x$),
+<p><b>Trap.</b> Computing $\hat\theta_0$ as $\bar y - \hat\theta_1$ (forgetting $\bar x$),
 which gives $6.0-1.97=4.03$ &mdash; a line missing every data point. The intercept
 formula exists precisely to force the line through the centroid $(\bar x,\bar y)=(3,6)$,
 and indeed $\hat y(3)=0.09+5.91=6.00=\bar y$.</p>
@@ -6733,7 +6892,7 @@ $\hat\theta_1=1.97$, not $1.9945455$.
 $\mathrm{SSE}=0.0983636&gt;0.0910$.
 (c) The reported line minimizes no criterion at all and violates both residual
 identities.</p>
-<p><i>Trap.</i> Concluding "the two slopes are close, so it does not matter." The gap
+<p><b>Trap.</b> Concluding "the two slopes are close, so it does not matter." The gap
 here is small only because $\hat\theta_0=0.09$ is nearly zero. Shift every $y_i$ up by
 $50$: the correct slope stays $1.97$ (a vertical shift changes only the intercept), while
 $\sum x_iy_i/\sum x_i^2$ jumps to $(109.7+50\cdot15)/55=15.63$ &mdash; a factor of eight
@@ -6800,7 +6959,7 @@ from $y$, refit the other way; and neither is a statement that changing $x$
 $\hat y(12)=23.73$ is arithmetic, not evidence; the $95\%$ slope interval is
 $[1.7947245,\ 2.1452755]$; regressing $x$ on $y$ gives slope $0.5064267$, and
 $\hat\theta_1\hat\beta_1=R^2=0.9976607$.</p>
-<p><i>Trap.</i> The tempting answer is that (ii) is true "because the model is linear."
+<p><b>Trap.</b> The tempting answer is that (ii) is true "because the model is linear."
 The model is linear <em>by assumption</em>, and the assumption was only ever tested where
 data exist. A fitted line is an interpolation device with an extrapolation-shaped
 formula.</p>
@@ -6843,10 +7002,10 @@ $L(0)=(0.7777778)^{10}=0.0810131$, $L(2)=1.2052767$ and $L(3)=4.6489243$: the ra
 crosses $1$ between $k=1$ and $k=2$.</p>
 <p><b>Step 3 &mdash; calibrating to $\alpha\le0.05$.</b> Compute upper tails under $H_0$
 ($p=0.1$):
-$$\mathbf{P}(X\ge2)=0.2639011,\quad
-\mathbf{P}(X\ge3)=0.0701908,\quad
-\mathbf{P}(X\ge4)=0.0127952,\quad
-\mathbf{P}(X\ge5)=0.0016349 .$$
+$$\begin{aligned}
+\mathbf{P}(X\ge2)&=0.2639011, &\qquad \mathbf{P}(X\ge3)&=0.0701908,\
+\mathbf{P}(X\ge4)&=0.0127952, &\qquad \mathbf{P}(X\ge5)&=0.0016349 .
+\end{aligned}$$
 The smallest threshold whose tail does not exceed $0.05$ is $k=4$, since
 $\mathbf{P}(X\ge3)=0.0701908&gt;0.05$ while $\mathbf{P}(X\ge4)=0.0127952\le0.05$.
 So $R=\{X\ge4\}$ and $\alpha=0.0127952$.</p>
@@ -6866,7 +7025,7 @@ but at $\alpha=0.0702$.</p>
 <p><b>Answer.</b> $\;L(k)=3^k(7/9)^{10-k}$, increasing in $k$; $L(4)=17.9315653$;
 $R=\{X\ge4\}$ with $\alpha=0.0127952$ and $\beta=0.6496107$ (power $0.3503893$);
 exact $\alpha=0.05$ is unattainable because $X$ is discrete.</p>
-<p><i>Trap.</i> Choosing $k=3$ "because $0.0702$ is closer to $0.05$ than $0.0128$ is."
+<p><b>Trap.</b> Choosing $k=3$ "because $0.0702$ is closer to $0.05$ than $0.0128$ is."
 Closeness is not the criterion &mdash; the level is a promise, an upper bound on the
 false-rejection rate, and $0.0702&gt;0.05$ breaks it. A second trap: reporting
 $\beta=1-\alpha=0.987$. $\alpha$ and $\beta$ are computed under <em>different</em>
@@ -6926,7 +7085,7 @@ roughly four times her sample.</p>
 <p><b>Answer.</b> $\;c=0.5482845$; $\beta=0.5575868$ (power $0.4424132$); "we conclude
 $\mu=0$" is wrong &mdash; the correct statement is "insufficient evidence to reject at the
 $5\%$ level"; $n=35$ gives $\beta\le0.10$.</p>
-<p><i>Trap.</i> "Not rejecting at $\alpha=0.05$ means $\mathbf{P}(H_0)=0.95$." There is no
+<p><b>Trap.</b> "Not rejecting at $\alpha=0.05$ means $\mathbf{P}(H_0)=0.95$." There is no
 probability attached to $H_0$ in classical inference &mdash; $\mu$ is a constant, not a
 random variable. Attaching one requires a prior and turns the problem into the Bayesian
 MAP comparison of G6 &sect;3. A second trap: reading $\alpha=0.05$ as if it bounded the
@@ -6998,8 +7157,10 @@ thresholds:</p>
 0.05 &amp; 15.7052164 &amp; 0.2652645 &amp; 0.7347355\\
 0.01 &amp; 18.7831174 &amp; 0.4640388 &amp; 0.5359612
 \end{array}$$</p>
-<p>At fixed $n$, moving $\xi$ right shrinks the $H_0$ tail and grows the $H_1$ one: every
-factor-of-five reduction in $\alpha$ here roughly doubles $\beta$. There is no threshold
+<p>At fixed $n$, moving $\xi$ right shrinks the $H_0$ tail and grows the $H_1$ one: halving
+$\alpha$ from $0.10$ to $0.05$ multiplies $\beta$ by $1.4729$, and the further five-fold
+cut to $0.01$ multiplies it by $1.7493$ &mdash; so the factor-of-ten reduction in $\alpha$
+across the table costs a factor $2.5766$ in $\beta$. There is no threshold
 that makes both small &mdash; the two error probabilities are linked by a single dial, and
 the only way off the curve is more data (G7 &sect;4.5, &sect;4.6).</p>
 <p><b>Step 5 &mdash; the $n$ that buys $\beta\le0.05$.</b> Increase $n$, recalibrating
@@ -7015,7 +7176,7 @@ pull apart at rate $\sqrt n$.</p>
 (equivalently $\xi_L=2.5121436$, or $1.5705216$ on the sample mean);
 $\beta=0.2652645$; the tradeoff is $(\alpha,\beta)=(0.10,0.1801),\ (0.05,0.2653),\
 (0.01,0.4640)$; $n=23$ gives $\beta=0.0496647$ at $\alpha=0.05$.</p>
-<p><i>Trap.</i> Rejecting for <em>small</em> $S$ because "$H_1$ has the smaller
+<p><b>Trap.</b> Rejecting for <em>small</em> $S$ because "$H_1$ has the smaller
 parameter $\lambda_1=1/2$." The parameter is a rate, not a mean: a smaller rate means
 <em>longer</em> lifetimes. Getting the direction wrong flips the test into one with
 $\alpha=0.05$ and $\beta=\mathbf{P}(S&gt;\text{lower quantile};H_1)$ close to $1$ &mdash;

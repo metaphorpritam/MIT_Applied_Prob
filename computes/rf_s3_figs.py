@@ -94,7 +94,10 @@ rate = {k: succ[k] / tot[k] for k in succ}
 agg = {t_: (succ[(t_, "small")] + succ[(t_, "large")]) / 350 for t_ in ("PN", "OS")}
 wsm = {t_: tot[(t_, "small")] / 350 for t_ in ("PN", "OS")}
 
-fig, axes = plt.subplots(1, 3, figsize=(12.4, 3.9))
+fig = plt.figure(figsize=(8.8, 6.9))
+gs = fig.add_gridspec(2, 2, height_ratios=[1.0, 1.05], hspace=0.42, wspace=0.30)
+axes = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1]),
+        fig.add_subplot(gs[1, :])]
 
 # --- panel A: the rates -------------------------------------------------
 ax = axes[0]
@@ -107,7 +110,7 @@ b1 = ax.bar(xs - w / 2, os_vals, w, color=BLUE, label="Open surgery")
 b2 = ax.bar(xs + w / 2, pn_vals, w, color=ORANGE, label="PN")
 for b, v in list(zip(b1, os_vals)) + list(zip(b2, pn_vals)):
     ax.text(b.get_x() + b.get_width() / 2, v + 0.015, f"{v:.3f}",
-            ha="center", fontsize=8.5, color=INK)
+            ha="center", fontsize=9, color=INK)
 ax.set_ylim(0, 1.34)
 ax.set_xticks(xs)
 ax.set_xticklabels(groups)
@@ -127,15 +130,15 @@ for i, t_ in enumerate(["OS", "PN"]):
     ax.barh(y, 1 - wsm[t_], height=0.42, left=wsm[t_], color=PURPLE,
             label="large stones" if i == 0 else None)
     ax.text(wsm[t_] / 2, y, f"{tot[(t_,'small')]}\n({wsm[t_]:.3f})", ha="center", va="center",
-            fontsize=8.5, color="white")
+            fontsize=9, color="white")
     ax.text(wsm[t_] + (1 - wsm[t_]) / 2, y, f"{tot[(t_,'large')]}\n({1-wsm[t_]:.3f})",
-            ha="center", va="center", fontsize=8.5, color="white")
+            ha="center", va="center", fontsize=9, color="white")
 ax.set_yticks([1, 0])
 ax.set_yticklabels(["Open surgery", "PN"])
 ax.set_xlim(0, 1)
 ax.set_xlabel("share of the 350 patients")
 ax.set_title("The lurking variable is unbalanced")
-ax.legend(loc="lower center", ncol=2, bbox_to_anchor=(0.5, -0.42))
+ax.legend(loc="center", ncol=2)
 ax.grid(axis="y", visible=False)
 
 # --- panel C: aggregate as a weighted average --------------------------
@@ -145,16 +148,22 @@ for t_, c, lab in (("OS", BLUE, "Open surgery"), ("PN", ORANGE, "PN")):
     line = rate[(t_, "large")] + ws * (rate[(t_, "small")] - rate[(t_, "large")])
     ax.plot(ws, line, color=c, label=lab)
     ax.plot([wsm[t_]], [agg[t_]], "o", color=c, ms=8, zorder=5)
-    ax.annotate(f"{agg[t_]:.3f}", xy=(wsm[t_], agg[t_]), xytext=(wsm[t_] - 0.02, agg[t_] + 0.028),
-                fontsize=9, color=c, ha="right")
+    if t_ == "OS":
+        ax.annotate(f"{agg[t_]:.3f}", xy=(wsm[t_], agg[t_]),
+                    xytext=(wsm[t_] - 0.025, agg[t_] + 0.020),
+                    fontsize=9.5, color=c, ha="right", va="bottom")
+    else:
+        ax.annotate(f"{agg[t_]:.3f}", xy=(wsm[t_], agg[t_]),
+                    xytext=(wsm[t_] + 0.022, agg[t_] - 0.022),
+                    fontsize=9.5, color=c, ha="left", va="top")
 ax.axvline(0.51, color=MUTED, ls="--", lw=1.1)
-ax.text(0.515, 0.665, "common mix\n$w=0.510$", fontsize=8.5, color=MUTED)
+ax.text(0.522, 0.700, "common mix\n$w=0.510$", fontsize=9, color=MUTED,
+        va="bottom", ha="left")
 ax.set_xlim(0, 1)
-ax.set_ylim(0.66, 0.96)
+ax.set_ylim(0.64, 0.98)
 ax.set_xlabel("$w=\\mathbf{P}(\\mathrm{small\\ stone}\\mid\\mathrm{treatment})$")
 ax.set_ylabel("aggregate success rate")
 ax.set_title("The aggregate is a weighted average")
 ax.legend(loc="upper left")
 
-fig.tight_layout()
 save(fig, "simpson")
